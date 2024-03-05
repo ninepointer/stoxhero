@@ -29,8 +29,7 @@ import StarRating from "./starRatings.js";
 // import CardContent from '@mui/joy/CardContent';
 // import CardOverflow from '@mui/joy/CardOverflow';
 // import Typography from '@mui/joy/Typography';
-import SignupLoginPopup from './signupLoginPopup.jsx';
-
+import SignupLoginPopup from "./signupLoginPopup.jsx";
 
 export default function Courses() {
   const [data, setData] = useState(null);
@@ -45,15 +44,14 @@ export default function Courses() {
     fetchData();
   }, [skip]);
 
-//   useEffect(() => {
-//     checkPaidFunc();
-// }, [data])
+  //   useEffect(() => {
+  //     checkPaidFunc();
+  // }, [data])
 
-// async function checkPaidFunc() {
-//     const check = await axios.get(`${apiUrl}courses/user/${courses?._id}/checkpaid`, { withCredentials: true })
-//     setCheckPaid(check.data.data);
-// }
-
+  // async function checkPaidFunc() {
+  //     const check = await axios.get(`${apiUrl}courses/user/${courses?._id}/checkpaid`, { withCredentials: true })
+  //     setCheckPaid(check.data.data);
+  // }
 
   async function fetchData() {
     let call1 = axios.get(
@@ -420,7 +418,10 @@ export default function Courses() {
                                                 variant="caption"
                                                 fontWeight="bold"
                                               >
-                                                By: {elem?.instructorName.join(', ')}
+                                                By:{" "}
+                                                {elem?.instructorName.join(
+                                                  ", "
+                                                )}
                                               </MDTypography>
                                             </Grid>
                                           </Grid>
@@ -458,7 +459,13 @@ export default function Courses() {
                                               }
                                             >
                                               <MDTypography variant="body1">
-                                                <StarRating rating={Number(elem?.averageRating) || 4} />
+                                                <StarRating
+                                                  rating={
+                                                    Number(
+                                                      elem?.averageRating
+                                                    ) || 4
+                                                  }
+                                                />
                                               </MDTypography>
                                             </Grid>
                                             <Grid
@@ -563,7 +570,11 @@ export default function Courses() {
                                                 isMobile ? "center" : "center"
                                               }
                                             >
-                                              <SignupLoginPopup data={elem} slug={slug} checkPaid={checkPaid} />
+                                              <SignupLoginPopup
+                                                data={elem}
+                                                slug={slug}
+                                                checkPaid={checkPaid}
+                                              />
                                             </Grid>
                                             <Grid
                                               item

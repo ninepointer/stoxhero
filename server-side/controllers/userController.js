@@ -1,13 +1,12 @@
-const multer = require('multer');
-const AWS = require('aws-sdk');
-const sharp = require('sharp');
-const UserDetail = require('../models/User/userDetailSchema');
-const DeactivateUser = require('../models/User/deactivateUser');
-const { ObjectId } = require('mongodb');
-const {client, getValue} = require("../marketData/redisClient");
-const sendMail = require('../utils/emailService');
-const mongoose = require('mongoose');
-
+const multer = require("multer");
+const AWS = require("aws-sdk");
+const sharp = require("sharp");
+const UserDetail = require("../models/User/userDetailSchema");
+const DeactivateUser = require("../models/User/deactivateUser");
+const { ObjectId } = require("mongodb");
+const { client, getValue } = require("../marketData/redisClient");
+const sendMail = require("../utils/emailService");
+const mongoose = require("mongoose");
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
@@ -16,86 +15,107 @@ const fileFilter = (req, file, cb) => {
   } else {
     cb(new Error("Invalid file type"), false);
   }
-}
+};
 
 const upload = multer({
-  storage, fileFilter
+  storage,
+  fileFilter,
   // limits: {
   // fileSize: 1024 * 1024 * 10,
-  // files: 1} 
+  // files: 1}
 }).single("profilePhoto");
 const uploadMultiple = multer({
-  storage, fileFilter,
+  storage,
+  fileFilter,
   limits: {
     fieldSize: 1024 * 1024 * 10, // 10MB maximum file size
-  }
-}).fields([{ name: 'profilePhoto', maxCount: 1 },
-{ name: 'aadhaarCardFrontImage', maxCount: 1 }, { name: 'aadhaarCardBackImage', maxCount: 1 },
-{ name: 'panCardFrontImage', maxCount: 1 }, { name: 'passportPhoto', maxCount: 1 },
-{ name: 'addressProofDocument', maxCount: 1 }, { name: 'incomeProofDocument', maxCount: 1 }]);
+  },
+}).fields([
+  { name: "profilePhoto", maxCount: 1 },
+  { name: "aadhaarCardFrontImage", maxCount: 1 },
+  { name: "aadhaarCardBackImage", maxCount: 1 },
+  { name: "panCardFrontImage", maxCount: 1 },
+  { name: "passportPhoto", maxCount: 1 },
+  { name: "addressProofDocument", maxCount: 1 },
+  { name: "incomeProofDocument", maxCount: 1 },
+]);
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
-
 const resizePhoto = async (req, res, next) => {
   // console.log('resize func');
   // console.log("Uploaded Files: ",req.files)
   if (!req.files) {
     // no file uploaded, skip to next middleware
-    console.log('no file');
+    console.log("no file");
     next();
     return;
   }
 
-  const { profilePhoto, aadhaarCardFrontImage, aadhaarCardBackImage, panCardFrontImage,
-    passportPhoto, addressProofDocument, incomeProofDocument } = (req.files);
+  const {
+    profilePhoto,
+    aadhaarCardFrontImage,
+    aadhaarCardBackImage,
+    panCardFrontImage,
+    passportPhoto,
+    addressProofDocument,
+    incomeProofDocument,
+  } = req.files;
 
   if (profilePhoto && profilePhoto[0].buffer) {
     const resizedProfilePhoto = await sharp(profilePhoto[0].buffer)
       .resize({ width: 500, height: 500 })
       .toBuffer();
-    (req.files).profilePhotoBuffer = resizedProfilePhoto;
+    req.files.profilePhotoBuffer = resizedProfilePhoto;
   }
 
   if (aadhaarCardFrontImage && aadhaarCardFrontImage[0].buffer) {
-    const resizedAadhaarCardFrontImage = await sharp(aadhaarCardFrontImage[0].buffer)
+    const resizedAadhaarCardFrontImage = await sharp(
+      aadhaarCardFrontImage[0].buffer
+    )
       .resize({ width: 1024, height: 720 })
       .toBuffer();
-    (req.files).aadhaarCardFrontImageBuffer = resizedAadhaarCardFrontImage;
+    req.files.aadhaarCardFrontImageBuffer = resizedAadhaarCardFrontImage;
   }
   if (aadhaarCardBackImage && aadhaarCardBackImage[0].buffer) {
-    const resizedAadhaarCardBackImage = await sharp(aadhaarCardBackImage[0].buffer)
+    const resizedAadhaarCardBackImage = await sharp(
+      aadhaarCardBackImage[0].buffer
+    )
       .resize({ width: 1024, height: 720 })
       .toBuffer();
-    (req.files).aadhaarCardBackImageBuffer = resizedAadhaarCardBackImage;
+    req.files.aadhaarCardBackImageBuffer = resizedAadhaarCardBackImage;
   }
 
   if (panCardFrontImage && panCardFrontImage[0].buffer) {
     const resizedPanCardFrontImage = await sharp(panCardFrontImage[0].buffer)
       .resize({ width: 1024, height: 720 })
       .toBuffer();
-    (req.files).panCardFrontImageBuffer = resizedPanCardFrontImage;
+    req.files.panCardFrontImageBuffer = resizedPanCardFrontImage;
   }
   if (passportPhoto && passportPhoto[0].buffer) {
     const resizedPassportPhoto = await sharp(passportPhoto[0].buffer)
       .resize({ width: 1024, height: 720 })
       .toBuffer();
-    (req.files).passportPhotoBuffer = resizedPassportPhoto;
+    req.files.passportPhotoBuffer = resizedPassportPhoto;
   }
   if (addressProofDocument && addressProofDocument[0].buffer) {
-    const resizedAddressProofDocument = await sharp(addressProofDocument[0].buffer)
+    const resizedAddressProofDocument = await sharp(
+      addressProofDocument[0].buffer
+    )
       .resize({ width: 1024, height: 720 })
       .toBuffer();
-    (req.files).addressProofDocumentBuffer = resizedAddressProofDocument;
+    req.files.addressProofDocumentBuffer = resizedAddressProofDocument;
   }
   if (incomeProofDocument && incomeProofDocument[0].buffer) {
-    const resizedIncomeProofDocument = await sharp(incomeProofDocument[0].buffer)
+    const resizedIncomeProofDocument = await sharp(
+      incomeProofDocument[0].buffer
+    )
       // .resize({ width: 1000, height: 500 })
       .toBuffer();
-    (req.files).incomeProofDocumentBuffer = resizedIncomeProofDocument;
+    req.files.incomeProofDocumentBuffer = resizedIncomeProofDocument;
   }
   next();
 };
@@ -103,190 +123,239 @@ const resizePhoto = async (req, res, next) => {
 const uploadToS3 = async (req, res, next) => {
   if (!req.files) {
     // no file uploaded, skip to next middleware
-    console.log('no files bro');
+    console.log("no files bro");
     next();
     return;
   }
 
   try {
-    if ((req.files).profilePhoto) {
+    if (req.files.profilePhoto) {
       let userName;
       const user = await UserDetail.findById(req.params.id);
       userName = `${user?.first_name}` + `${user?.last_name}` + `${user?._id}`;
-      const key = `users/${userName}/photos/display/${Date.now() + (req.files).profilePhoto[0].originalname}`;
+      const key = `users/${userName}/photos/display/${
+        Date.now() + req.files.profilePhoto[0].originalname
+      }`;
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
         region: process.env.AWS_REGION,
-        Body: (req.files).profilePhotoBuffer,
-        ContentType: (req.files).profilePhoto.mimetype,
-        ACL: 'public-read',
+        Body: req.files.profilePhotoBuffer,
+        ContentType: req.files.profilePhoto.mimetype,
+        ACL: "public-read",
       };
 
       // upload image to S3 bucket
       const s3Data = await s3.upload(params).promise();
       // console.log('file uploaded');
       // console.log(s3Data.Location);
-      (req).profilePhotoUrl = s3Data.Location;
+      req.profilePhotoUrl = s3Data.Location;
     }
 
-    if ((req.files).aadhaarCardFrontImage) {
+    if (req.files.aadhaarCardFrontImage) {
       let userName;
       const user = await UserDetail.findById(req.params.id);
-      userName = `${user?.first_name}` + `${user?.last_name}` + `${user?.name}` + `${user?._id}`;
-      const key = `users/${userName}/photos/aadharFront/${Date.now() + (req.files).aadhaarCardFrontImage[0].originalname}`;
+      userName =
+        `${user?.first_name}` +
+        `${user?.last_name}` +
+        `${user?.name}` +
+        `${user?._id}`;
+      const key = `users/${userName}/photos/aadharFront/${
+        Date.now() + req.files.aadhaarCardFrontImage[0].originalname
+      }`;
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
         region: process.env.AWS_REGION,
-        Body: (req.files).aadhaarCardFrontImageBuffer,
-        ContentType: (req.files).aadhaarCardFrontImage.mimetype,
-        ACL: 'public-read',
+        Body: req.files.aadhaarCardFrontImageBuffer,
+        ContentType: req.files.aadhaarCardFrontImage.mimetype,
+        ACL: "public-read",
       };
 
       // upload image to S3 bucket
       const s3Data = await s3.upload(params).promise();
       // console.log('file uploaded');
       // console.log(s3Data.Location);
-      (req).aadhaarCardFrontImageUrl = s3Data.Location;
+      req.aadhaarCardFrontImageUrl = s3Data.Location;
     }
 
-    if ((req.files).aadhaarCardBackImage) {
+    if (req.files.aadhaarCardBackImage) {
       let userName;
       const user = await UserDetail.findById(req.params.id);
-      userName = `${user?.first_name}` + `${user?.last_name}` + `${user?.name}` + `${user?._id}`;
-      const key = `users/${userName}/photos/aadharBack/${Date.now() + (req.files).aadhaarCardBackImage[0].originalname}`;
+      userName =
+        `${user?.first_name}` +
+        `${user?.last_name}` +
+        `${user?.name}` +
+        `${user?._id}`;
+      const key = `users/${userName}/photos/aadharBack/${
+        Date.now() + req.files.aadhaarCardBackImage[0].originalname
+      }`;
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
         region: process.env.AWS_REGION,
-        Body: (req.files).aadhaarCardBackImageBuffer,
-        ContentType: (req.files).aadhaarCardBackImage.mimetype,
-        ACL: 'public-read',
+        Body: req.files.aadhaarCardBackImageBuffer,
+        ContentType: req.files.aadhaarCardBackImage.mimetype,
+        ACL: "public-read",
       };
 
       // upload image to S3 bucket
       const s3Data = await s3.upload(params).promise();
       // console.log('file uploaded');
       // console.log(s3Data.Location);
-      (req).aadhaarCardBackImageUrl = s3Data.Location;
+      req.aadhaarCardBackImageUrl = s3Data.Location;
     }
-    if ((req.files).panCardFrontImage) {
+    if (req.files.panCardFrontImage) {
       let userName;
       const user = await UserDetail.findById(req.params.id);
-      userName = `${user?.first_name}` + `${user?.last_name}` + `${user?.name}` + `${user?._id}`;
-      const key = `users/${userName}/photos/panFront/${Date.now() + (req.files).panCardFrontImage[0].originalname}`;
+      userName =
+        `${user?.first_name}` +
+        `${user?.last_name}` +
+        `${user?.name}` +
+        `${user?._id}`;
+      const key = `users/${userName}/photos/panFront/${
+        Date.now() + req.files.panCardFrontImage[0].originalname
+      }`;
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
         region: process.env.AWS_REGION,
-        Body: (req.files).panCardFrontImageBuffer,
-        ContentType: (req.files).panCardFrontImage.mimetype,
-        ACL: 'public-read',
+        Body: req.files.panCardFrontImageBuffer,
+        ContentType: req.files.panCardFrontImage.mimetype,
+        ACL: "public-read",
       };
 
       // upload image to S3 bucket
       const s3Data = await s3.upload(params).promise();
       // console.log('file uploaded');
       // console.log(s3Data.Location);
-      (req).panCardFrontImageUrl = s3Data.Location;
+      req.panCardFrontImageUrl = s3Data.Location;
     }
-    if ((req.files).passportPhoto) {
+    if (req.files.passportPhoto) {
       let userName;
       const user = await UserDetail.findById(req.params.id);
-      userName = `${user?.first_name}` + `${user?.last_name}` + `${user?.name}` + `${user?._id}`;
-      const key = `users/${userName}/photos/passport/${Date.now() + (req.files).passportPhoto[0].originalname}`;
+      userName =
+        `${user?.first_name}` +
+        `${user?.last_name}` +
+        `${user?.name}` +
+        `${user?._id}`;
+      const key = `users/${userName}/photos/passport/${
+        Date.now() + req.files.passportPhoto[0].originalname
+      }`;
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
         region: process.env.AWS_REGION,
-        Body: (req.files).passportPhotoBuffer,
-        ContentType: (req.files).passportPhoto.mimetype,
-        ACL: 'public-read',
+        Body: req.files.passportPhotoBuffer,
+        ContentType: req.files.passportPhoto.mimetype,
+        ACL: "public-read",
       };
 
       // upload image to S3 bucket
       const s3Data = await s3.upload(params).promise();
       // console.log('file uploaded');
       // console.log(s3Data.Location);
-      (req).passportPhotoUrl = s3Data.Location;
+      req.passportPhotoUrl = s3Data.Location;
     }
-    if ((req.files).addressProofDocument) {
+    if (req.files.addressProofDocument) {
       let userName;
       const user = await UserDetail.findById(req.params.id);
-      userName = `${user?.first_name}` + `${user?.last_name}` + `${user?.name}` + `${user?._id}`;
-      const key = `users/${userName}/photos/addressProof/${Date.now() + (req.files).addressProofDocument[0].originalname}`;
+      userName =
+        `${user?.first_name}` +
+        `${user?.last_name}` +
+        `${user?.name}` +
+        `${user?._id}`;
+      const key = `users/${userName}/photos/addressProof/${
+        Date.now() + req.files.addressProofDocument[0].originalname
+      }`;
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
         region: process.env.AWS_REGION,
-        Body: (req.files).addressProofDocumentBuffer,
-        ContentType: (req.files).addressProofDocument.mimetype,
-        ACL: 'public-read',
+        Body: req.files.addressProofDocumentBuffer,
+        ContentType: req.files.addressProofDocument.mimetype,
+        ACL: "public-read",
       };
 
       // upload image to S3 bucket
       const s3Data = await s3.upload(params).promise();
       // console.log('file uploaded');
       // console.log(s3Data.Location);
-      (req).addressProofDocumentUrl = s3Data.Location;
+      req.addressProofDocumentUrl = s3Data.Location;
     }
-    if ((req.files).incomeProofDocument) {
+    if (req.files.incomeProofDocument) {
       let userName;
       const user = await UserDetail.findById(req.params.id);
-      userName = `${user?.first_name}` + `${user?.last_name}` + `${user?.name}` + `${user?._id}`;
-      const key = `users/${userName}/photos/incomeProof/${Date.now() + (req.files).incomeProofDocument[0].originalname}`;
+      userName =
+        `${user?.first_name}` +
+        `${user?.last_name}` +
+        `${user?.name}` +
+        `${user?._id}`;
+      const key = `users/${userName}/photos/incomeProof/${
+        Date.now() + req.files.incomeProofDocument[0].originalname
+      }`;
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
         region: process.env.AWS_REGION,
-        Body: (req.files).incomeProofDocumentBuffer,
-        ContentType: (req.files).incomeProofDocument.mimetype,
-        ACL: 'public-read',
+        Body: req.files.incomeProofDocumentBuffer,
+        ContentType: req.files.incomeProofDocument.mimetype,
+        ACL: "public-read",
       };
 
       // upload image to S3 bucket
       const s3Data = await s3.upload(params).promise();
       // console.log('file uploaded');
       // console.log(s3Data.Location);
-      (req).incomeProofDocumentUrl = s3Data.Location;
+      req.incomeProofDocumentUrl = s3Data.Location;
     }
 
     // console.log('calling next of s3 upload func');
     next();
   } catch (err) {
     console.error(err);
-    res.status(500).send({ message: 'Error uploading to S3' });
+    res.status(500).send({ message: "Error uploading to S3" });
   }
 };
-
 
 // Controller for saving deactivated user
 exports.deactivateUser = async (req, res) => {
   try {
     const { deactivatedUser, mobile, email, isMail, reason } = req.body;
 
-    const user = await DeactivateUser.findOne({ deactivatedUser: new ObjectId(deactivatedUser) });
+    const user = await DeactivateUser.findOne({
+      deactivatedUser: new ObjectId(deactivatedUser),
+    });
 
     if (user) {
       return res.status(500).json({
-        status: 'error',
+        status: "error",
         message: "user is already deactivated.",
       });
     }
 
     const contest = await DeactivateUser.create({
-      deactivatedUser, mobile, email, reason,
-      createdBy: req.user._id, lastModifiedBy: req.user._id,
+      deactivatedUser,
+      mobile,
+      email,
+      reason,
+      createdBy: req.user._id,
+      lastModifiedBy: req.user._id,
     });
 
-    const updateUser = await UserDetail.findByIdAndUpdate(new ObjectId(deactivatedUser), {status: "Inactive"})
+    const updateUser = await UserDetail.findByIdAndUpdate(
+      new ObjectId(deactivatedUser),
+      { status: "Inactive" }
+    );
 
     await client.del(`${deactivatedUser.toString()}authenticatedUser`);
-    console.log(deactivatedUser)
-    if(isMail){
-      if (process.env.PROD == 'true') {
-        sendMail(email, 'Account Deactivated - StoxHero', `
+    console.log(deactivatedUser);
+    if (isMail) {
+      if (process.env.PROD == "true") {
+        sendMail(
+          email,
+          "Account Deactivated - StoxHero",
+          `
         <!DOCTYPE html>
         <html>
         <head>
@@ -368,9 +437,13 @@ exports.deactivateUser = async (req, res) => {
             </div>
         </body>
         </html>
-        `);
+        `
+        );
 
-        sendMail("team@stoxhero.com", 'Account Deactivated - StoxHero', `
+        sendMail(
+          "team@stoxhero.com",
+          "Account Deactivated - StoxHero",
+          `
         <!DOCTYPE html>
         <html>
         <head>
@@ -441,7 +514,9 @@ exports.deactivateUser = async (req, res) => {
             <div class="container">
             <h1>Account deactivation alert</h1>
             <p>Hello Admin,</p>
-            <p>${updateUser.first_name + " " + updateUser.last_name} account is being deactivated due to the following reason:</p>
+            <p>${
+              updateUser.first_name + " " + updateUser.last_name
+            } account is being deactivated due to the following reason:</p>
             <p>${reason}</p>
             
             <br/><br/>
@@ -451,48 +526,53 @@ exports.deactivateUser = async (req, res) => {
             </div>
         </body>
         </html>
-        `);
+        `
+        );
       }
     }
 
     // console.log(contest)
     res.status(201).json({
-      status: 'success',
+      status: "success",
       message: "user deactivated successfully",
-      data: contest
+      data: contest,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      status: 'error',
+      status: "error",
       message: "Something went wrong",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
 exports.getFinowledgeUser = async (req, res) => {
   const skip = parseInt(req.query.skip) || 0;
-  const limit = parseInt(req.query.limit) || 10
-    try {
-    const count = await UserDetail.countDocuments({creationProcess: "School SignUp" })
+  const limit = parseInt(req.query.limit) || 10;
+  try {
+    const count = await UserDetail.countDocuments({
+      creationProcess: "School SignUp",
+    });
 
-    const user = await UserDetail.find({creationProcess: "School SignUp" })
-    .populate('schoolDetails.city', 'name')
-    .sort({ contestStartTime: 1 }).skip(skip).limit(limit);
+    const user = await UserDetail.find({ creationProcess: "School SignUp" })
+      .populate("schoolDetails.city", "name")
+      .sort({ contestStartTime: 1 })
+      .skip(skip)
+      .limit(limit);
 
     res.status(201).json({
-      status: 'success',
+      status: "success",
       message: "user fetch successfully",
       data: user,
-      count
+      count,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      status: 'error',
+      status: "error",
       message: "Something went wrong",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -500,23 +580,22 @@ exports.getFinowledgeUser = async (req, res) => {
 //get deactivated user
 exports.getdeactivateUser = async (req, res) => {
   try {
-
     const user = await DeactivateUser.find()
-    .populate("deactivatedUser", 'first_name last_name')
-    .select('deactivatedUser email mobile createdOn')
-    .sort({createdOn: -1})
+      .populate("deactivatedUser", "first_name last_name")
+      .select("deactivatedUser email mobile createdOn")
+      .sort({ createdOn: -1 });
 
     res.status(201).json({
-      status: 'success',
+      status: "success",
       message: "user deactivated successfully",
-      data: user
+      data: user,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      status: 'error',
+      status: "error",
       message: "Something went wrong",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -526,32 +605,32 @@ exports.getdeactivateUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
   const searchString = req.query.search;
   try {
-      const data = await UserDetail.find({
-          $and: [
-              {
-                  $or: [
-                      { email: { $regex: searchString, $options: 'i' } },
-                      { first_name: { $regex: searchString, $options: 'i' } },
-                      { last_name: { $regex: searchString, $options: 'i' } },
-                      { mobile: { $regex: searchString, $options: 'i' } },
-                  ]
-              },
-              {
-                  status: 'Active',
-              },
-          ]
-      }).select('first_name last_name email mobile _id myReferralCode')
-      res.status(200).json({
-          status: "success",
-          message: "Getting User successfully",
-          data: data
-      });
+    const data = await UserDetail.find({
+      $and: [
+        {
+          $or: [
+            { email: { $regex: searchString, $options: "i" } },
+            { first_name: { $regex: searchString, $options: "i" } },
+            { last_name: { $regex: searchString, $options: "i" } },
+            { mobile: { $regex: searchString, $options: "i" } },
+          ],
+        },
+        {
+          status: "Active",
+        },
+      ],
+    }).select("first_name last_name email mobile _id myReferralCode");
+    res.status(200).json({
+      status: "success",
+      message: "Getting User successfully",
+      data: data,
+    });
   } catch (error) {
-      res.status(500).json({
-          status: "error",
-          message: "Something went wrong",
-          error: error.message
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 };
 
@@ -560,18 +639,77 @@ exports.editUser = async (req, res, next) => {
   try {
     const user = await UserDetail.findById(req.user._id);
 
-    if (!user) return res.status(404).json({ message: 'No such user found.' });
+    if (!user) return res.status(404).json({ message: "No such user found." });
 
-    const filteredBody = filterObj(req.body, 'status', 'uId', 'createdOn', 'lastModified', 'createdBy', 'name',
-      'first_name', 'last_name', 'cohort', 'designation', 'email', 'maritalStatus', 'currentlyWorking',
-      'previouslyEmployeed', 'latestSalaryPerMonth', 'familyIncomePerMonth', 'collegeName', 'stayingWith',
-      'nonWorkingDurationInMonths', 'mobile', 'mobile_otp', 'whatsApp_number', 'degree', 'dob', 'gender',
-      'address', 'trading_exp', 'location', 'city', 'state', 'country', 'last_occupation', 'family_yearly_income',
-      'joining_date', 'purpose_of_joining', 'employeed', 'role', 'creationProcess', 'employeeid', 'pincode', 'upiId',
-      'googlePay_number', 'payTM_number', 'phonePe_number', 'bankName', 'nameAsPerBankAccount', 'accountNumber', 'ifscCode',
-      'password', 'resetPasswordOTP', 'resetPasswordExpires', 'passwordChangedAt', 'userId', 'fund', 'aadhaarNumber',
-      'panNumber', 'drivingLicenseNumber', 'passportNumber', 'KYCStatus', 'myReferralCode', 'referrerCode',
-      'referredBy', 'campaignCode', 'campaign', 'contests', 'portfolio', 'isAlgoTrader'
+    const filteredBody = filterObj(
+      req.body,
+      "status",
+      "uId",
+      "createdOn",
+      "lastModified",
+      "createdBy",
+      "name",
+      "first_name",
+      "last_name",
+      "cohort",
+      "designation",
+      "email",
+      "maritalStatus",
+      "currentlyWorking",
+      "previouslyEmployeed",
+      "latestSalaryPerMonth",
+      "familyIncomePerMonth",
+      "collegeName",
+      "stayingWith",
+      "nonWorkingDurationInMonths",
+      "mobile",
+      "mobile_otp",
+      "whatsApp_number",
+      "degree",
+      "dob",
+      "gender",
+      "address",
+      "trading_exp",
+      "location",
+      "city",
+      "state",
+      "country",
+      "last_occupation",
+      "family_yearly_income",
+      "joining_date",
+      "purpose_of_joining",
+      "employeed",
+      "role",
+      "creationProcess",
+      "employeeid",
+      "pincode",
+      "upiId",
+      "googlePay_number",
+      "payTM_number",
+      "phonePe_number",
+      "bankName",
+      "nameAsPerBankAccount",
+      "accountNumber",
+      "ifscCode",
+      "password",
+      "resetPasswordOTP",
+      "resetPasswordExpires",
+      "passwordChangedAt",
+      "userId",
+      "fund",
+      "aadhaarNumber",
+      "panNumber",
+      "drivingLicenseNumber",
+      "passportNumber",
+      "KYCStatus",
+      "myReferralCode",
+      "referrerCode",
+      "referredBy",
+      "campaignCode",
+      "campaign",
+      "contests",
+      "portfolio",
+      "isAlgoTrader"
     );
 
     filteredBody.lastModifiedBy = req.user._id;
@@ -587,7 +725,7 @@ exports.editUser = async (req, res, next) => {
         filteredBody.profilePhoto = {};
       }
       filteredBody.profilePhoto.url = req.profilePhotoUrl;
-      filteredBody.profilePhoto.name = (req.files).profilePhoto[0].originalname;
+      filteredBody.profilePhoto.name = req.files.profilePhoto[0].originalname;
     }
 
     if (req.aadhaarCardFrontImageUrl) {
@@ -595,7 +733,8 @@ exports.editUser = async (req, res, next) => {
         filteredBody.aadhaarCardFrontImage = {};
       }
       filteredBody.aadhaarCardFrontImage.url = req.aadhaarCardFrontImageUrl;
-      filteredBody.aadhaarCardFrontImage.name = (req.files).aadhaarCardFrontImage[0].originalname;
+      filteredBody.aadhaarCardFrontImage.name =
+        req.files.aadhaarCardFrontImage[0].originalname;
     }
 
     if (req.aadhaarCardBackImageUrl) {
@@ -603,7 +742,8 @@ exports.editUser = async (req, res, next) => {
         filteredBody.aadhaarCardBackImage = {};
       }
       filteredBody.aadhaarCardBackImage.url = req.aadhaarCardBackImageUrl;
-      filteredBody.aadhaarCardBackImage.name = (req.files).aadhaarCardBackImage[0].originalname;
+      filteredBody.aadhaarCardBackImage.name =
+        req.files.aadhaarCardBackImage[0].originalname;
     }
 
     if (req.panCardFrontImageUrl) {
@@ -611,7 +751,8 @@ exports.editUser = async (req, res, next) => {
         filteredBody.panCardFrontImage = {};
       }
       filteredBody.panCardFrontImage.url = req.panCardFrontImageUrl;
-      filteredBody.panCardFrontImage.name = (req.files).panCardFrontImage[0].originalname;
+      filteredBody.panCardFrontImage.name =
+        req.files.panCardFrontImage[0].originalname;
     }
 
     if (req.passportPhotoUrl) {
@@ -619,7 +760,7 @@ exports.editUser = async (req, res, next) => {
         filteredBody.passportPhoto = {};
       }
       filteredBody.passportPhoto.url = req.passportPhotoUrl;
-      filteredBody.passportPhoto.name = (req.files).passportPhoto[0].originalname;
+      filteredBody.passportPhoto.name = req.files.passportPhoto[0].originalname;
     }
 
     if (req.addressProofDocumentUrl) {
@@ -627,64 +768,27 @@ exports.editUser = async (req, res, next) => {
         filteredBody.addressProofDocument = {};
       }
       filteredBody.addressProofDocument.url = req.addressProofDocumentUrl;
-      filteredBody.addressProofDocument.name = (req.files).addressProofDocument[0].originalname;
+      filteredBody.addressProofDocument.name =
+        req.files.addressProofDocument[0].originalname;
     }
     // if((req).addressProofDocumentUrl) filteredBody.addressProofDocument.name = (req.files).addressProofDocument[0].originalname;
-    if ((req).incomeProofDocumentUrl) filteredBody.incomeProofDocument = (req).incomeProofDocumentUrl;
+    if (req.incomeProofDocumentUrl)
+      filteredBody.incomeProofDocument = req.incomeProofDocumentUrl;
     // console.log(filteredBody)
-    const userData = await UserDetail.findByIdAndUpdate(user._id, filteredBody, { new: true });
+    const userData = await UserDetail.findByIdAndUpdate(
+      user._id,
+      filteredBody,
+      { new: true }
+    );
     // console.log(userData);
 
-    res.status(200).json({ message: 'Edit successful', status: 'success', data: userData });
-
+    res
+      .status(200)
+      .json({ message: "Edit successful", status: "success", data: userData });
   } catch (e) {
-    console.log(e)
+    console.log(e);
     res.status(500).json({
-      message: 'Something went wrong. Try again.'
-    })
-  }
-
-
-
-
-}
-
-exports.changePassword = async (req, res) => {
-  try {
-    // Check if user exists
-    const user = await UserDetail.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found'
-      });
-    }
-
-    // Check if current password is correct
-    const isPasswordCorrect = await user.correctPassword(req.body.currentPassword, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Current password is incorrect'
-      });
-    }
-
-    // Update the password and save the user
-    user.password = req.body.newPassword;
-    user.passwordChangedAt = new Date();
-    const updatedUser = await user.save({ validateBeforeSave: false });
-
-    // Generate a new JWT token for the user
-    const token = await updatedUser.generateAuthToken();
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Password updated successfully',
-      token: token
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: 'An error occurred while changing password'
+      message: "Something went wrong. Try again.",
     });
   }
 };
@@ -695,10 +799,21 @@ exports.changePassword = async (req, res) => {
     const user = await UserDetail.findById(req.params.id);
     if (!user) {
       return res.status(404).json({
-        error: 'User not found'
+        error: "User not found",
       });
     }
 
+    // Check if current password is correct
+    const isPasswordCorrect = await user.correctPassword(
+      req.body.currentPassword,
+      user.password
+    );
+    if (!isPasswordCorrect) {
+      return res.status(400).json({
+        status: "error",
+        message: "Current password is incorrect",
+      });
+    }
 
     // Update the password and save the user
     user.password = req.body.newPassword;
@@ -709,14 +824,45 @@ exports.changePassword = async (req, res) => {
     const token = await updatedUser.generateAuthToken();
 
     res.status(200).json({
-      status: 'success',
-      message: 'Password updated successfully',
-      token: token
+      status: "success",
+      message: "Password updated successfully",
+      token: token,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      error: 'An error occurred while changing password'
+      error: "An error occurred while changing password",
+    });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    // Check if user exists
+    const user = await UserDetail.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+    // Update the password and save the user
+    user.password = req.body.newPassword;
+    user.passwordChangedAt = new Date();
+    const updatedUser = await user.save({ validateBeforeSave: false });
+
+    // Generate a new JWT token for the user
+    const token = await updatedUser.generateAuthToken();
+
+    res.status(200).json({
+      status: "success",
+      message: "Password updated successfully",
+      token: token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: "An error occurred while changing password",
     });
   }
 };
@@ -727,13 +873,17 @@ exports.signupusersdata = async (req, res, next) => {
   now.setUTCHours(0, 0, 0, 0); // set the time to start of day in UTC
   let yesterdayDate = new Date();
   yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  yesterdayDate.setUTCHours(0, 0, 0, 0)
+  yesterdayDate.setUTCHours(0, 0, 0, 0);
   let eodDate = new Date();
-  eodDate.setUTCHours(23, 59, 59, 999)
+  eodDate.setUTCHours(23, 59, 59, 999);
   // console.log("Yesterday Date:",yesterdayDate,now)
 
-  let startOfThisMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
-  let startOfLastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1, 0, 0, 0, 0));
+  let startOfThisMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0)
+  );
+  let startOfLastMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1, 0, 0, 0, 0)
+  );
   let endOfLastMonth = new Date(startOfThisMonth - 1);
   // console.log("Dates:",startOfThisMonth,startOfLastMonth,endOfLastMonth)
 
@@ -745,313 +895,329 @@ exports.signupusersdata = async (req, res, next) => {
   let endOfLastWeek = new Date(startOfThisWeek - 1);
   // console.log("Week Dates:",startOfThisWeek,startOfLastWeek,endOfLastWeek)
 
-  let startOfThisYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1, 0, 0, 0, 0));
-  let startOfLastYear = new Date(Date.UTC(now.getUTCFullYear() - 1, 0, 1, 0, 0, 0, 0));
+  let startOfThisYear = new Date(
+    Date.UTC(now.getUTCFullYear(), 0, 1, 0, 0, 0, 0)
+  );
+  let startOfLastYear = new Date(
+    Date.UTC(now.getUTCFullYear() - 1, 0, 1, 0, 0, 0, 0)
+  );
   let endOfLastYear = new Date(startOfThisYear - 1);
   // console.log("Year Dates:",startOfThisYear,startOfLastYear,endOfLastYear)
-
 
   const pipeline = [
     {
       $facet: {
-        "todayUsers": [
+        todayUsers: [
           {
             $match: {
               joining_date: {
                 $gte: now,
                 // $lt: now
-              }
-            }
+              },
+            },
           },
           {
             $group: {
               _id: null,
               count: {
-                $sum: 1
-              }
-            }
+                $sum: 1,
+              },
+            },
           },
           {
             $project: {
               _id: 0,
               count: 1,
-            }
+            },
           },
           {
-            $unwind: "$count"
+            $unwind: "$count",
           },
         ],
-        "yesterdayUsers": [
+        yesterdayUsers: [
           {
             $match: {
               joining_date: {
                 $gte: yesterdayDate,
-                $lt: now
-              }
-            }
+                $lt: now,
+              },
+            },
           },
           {
             $group: {
               _id: null,
               count: {
-                $sum: 1
-              }
-            }
+                $sum: 1,
+              },
+            },
           },
           {
             $project: {
               _id: 0,
               count: 1,
-            }
-          }
+            },
+          },
         ],
-        "thisWeekUsers": [
+        thisWeekUsers: [
           {
             $match: {
               joining_date: {
                 $gte: startOfThisWeek,
-                $lt: eodDate
-              }
-            }
+                $lt: eodDate,
+              },
+            },
           },
           {
             $group: {
               _id: null,
               count: {
-                $sum: 1
-              }
-            }
+                $sum: 1,
+              },
+            },
           },
           {
             $project: {
               _id: 0,
               count: 1,
-            }
-          }
+            },
+          },
         ],
-        "lastWeekUsers": [
+        lastWeekUsers: [
           {
             $match: {
               joining_date: {
                 $gte: startOfLastWeek,
-                $lt: endOfLastWeek
-              }
-            }
+                $lt: endOfLastWeek,
+              },
+            },
           },
           {
             $group: {
               _id: null,
               count: {
-                $sum: 1
-              }
-            }
+                $sum: 1,
+              },
+            },
           },
           {
             $project: {
               _id: 0,
               count: 1,
-            }
-          }
+            },
+          },
         ],
-        "thisMonthUsers": [
+        thisMonthUsers: [
           {
             $match: {
               joining_date: {
                 $gte: startOfThisMonth,
-                $lt: eodDate
-              }
-            }
+                $lt: eodDate,
+              },
+            },
           },
           {
             $group: {
               _id: null,
               count: {
-                $sum: 1
-              }
-            }
+                $sum: 1,
+              },
+            },
           },
           {
             $project: {
               _id: 0,
               count: 1,
-            }
-          }
+            },
+          },
         ],
-        "lastMonthUsers": [
+        lastMonthUsers: [
           {
             $match: {
               joining_date: {
                 $gte: startOfLastMonth,
-                $lt: endOfLastMonth
-              }
-            }
+                $lt: endOfLastMonth,
+              },
+            },
           },
           {
             $group: {
               _id: null,
               count: {
-                $sum: 1
-              }
-            }
+                $sum: 1,
+              },
+            },
           },
           {
             $project: {
               _id: 0,
               count: 1,
-            }
-          }
+            },
+          },
         ],
-        "thisYearUsers": [
+        thisYearUsers: [
           {
             $match: {
               joining_date: {
                 $gte: startOfThisYear,
-                $lt: eodDate
-              }
-            }
+                $lt: eodDate,
+              },
+            },
           },
           {
             $group: {
               _id: null,
               count: {
-                $sum: 1
-              }
-            }
+                $sum: 1,
+              },
+            },
           },
           {
             $project: {
               _id: 0,
               count: 1,
-            }
-          }
+            },
+          },
         ],
-        "lifetimeUsers": [
+        lifetimeUsers: [
           {
             $match: {
               joining_date: {
                 // $gte: startOfLastMonth,
-                $lt: eodDate
-              }
-            }
+                $lt: eodDate,
+              },
+            },
           },
           {
             $group: {
               _id: null,
               count: {
-                $sum: 1
-              }
-            }
+                $sum: 1,
+              },
+            },
           },
           {
             $project: {
               _id: 0,
               count: 1,
-            }
-          }
+            },
+          },
         ],
-        "lastYearUsers": [
+        lastYearUsers: [
           {
             $match: {
               joining_date: {
                 $gte: startOfLastYear,
-                $lt: endOfLastYear
-              }
-            }
+                $lt: endOfLastYear,
+              },
+            },
           },
           {
             $group: {
               _id: null,
               count: {
-                $sum: 1
-              }
-            }
+                $sum: 1,
+              },
+            },
           },
           {
             $project: {
               _id: 0,
               count: 1,
-            }
-          }
-        ]
-      }
-    }
-  ]
+            },
+          },
+        ],
+      },
+    },
+  ];
 
-  const signupusers = await UserDetail.aggregate(pipeline)
+  const signupusers = await UserDetail.aggregate(pipeline);
   res.status(201).json({ message: "Users Recieved", data: signupusers });
-}
+};
 
-exports.getFilteredUsers = async(req,res,next) =>{
+exports.getFilteredUsers = async (req, res, next) => {
   try {
     // Start with an empty query object
     let query = {};
 
     let { startDate, endDate, referral, campaign, referredBy } = req.query;
-    console.log('Query', new Date(startDate), new Date(endDate), referral, campaign, referredBy);
+    console.log(
+      "Query",
+      new Date(startDate),
+      new Date(endDate),
+      referral,
+      campaign,
+      referredBy
+    );
 
     // If startDate and endDate are provided, add a range query for joiningDate
-    if(!startDate) startDate = new Date('2022-01-01');
-    if(!endDate) endDate = new Date();
+    if (!startDate) startDate = new Date("2022-01-01");
+    if (!endDate) endDate = new Date();
     if (startDate && endDate) {
-        query.joining_date = {
-            $gte: new Date(startDate),
-            $lte: new Date(endDate)
-        };
+      query.joining_date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
     }
 
     // If referral is provided, add it to the query
     if (referral) {
-        query.referralProgramme = mongoose.Types.ObjectId(referral);
+      query.referralProgramme = mongoose.Types.ObjectId(referral);
     }
 
     // If campaign is provided, add it to the query
     if (campaign) {
-        query.campaign = mongoose.Types.ObjectId(campaign);
+      query.campaign = mongoose.Types.ObjectId(campaign);
     }
 
-    if(referredBy && referredBy.toString()!='undefined'){
+    if (referredBy && referredBy.toString() != "undefined") {
       query.referredBy = mongoose.Types.ObjectId(referredBy);
     }
 
     // Execute the search using the constructed query
-    const users = await UserDetail.find(query).populate('campaign', 'campaignName').
-                  populate('referredBy', 'first_name last_name').
-                  select('first_name last_name email mobile joining_date referredBy campaign creationProcess');
-    console.log('filtered users', users);
+    const users = await UserDetail.find(query)
+      .populate("campaign", "campaignName")
+      .populate("referredBy", "first_name last_name")
+      .select(
+        "first_name last_name email mobile joining_date referredBy campaign creationProcess"
+      );
+    console.log("filtered users", users);
 
     // Return the results
     res.status(200).json({
-        status:'success',
-        data: users
+      status: "success",
+      data: users,
     });
-
   } catch (error) {
-      console.error("Error searching users:", error);
-      res.status(500).json({
-          status:error,
-          message: "Something went wrong"
-      });
+    console.error("Error searching users:", error);
+    res.status(500).json({
+      status: error,
+      message: "Something went wrong",
+    });
   }
-}
+};
 
-exports.understoodGst = async(req,res,next) =>{
-  try{
-    const user = await UserDetail.findByIdAndUpdate(req.user._id, {gstAgreement:true});
-    res.status(200).json({status:'success', message:'User understood GST Regulations'});
-  }catch(e){
+exports.understoodGst = async (req, res, next) => {
+  try {
+    const user = await UserDetail.findByIdAndUpdate(req.user._id, {
+      gstAgreement: true,
+    });
+    res
+      .status(200)
+      .json({ status: "success", message: "User understood GST Regulations" });
+  } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message:'Something went wrong'});
+    res.status(500).json({ status: "error", message: "Something went wrong" });
   }
-}
+};
 
 exports.getReferralsBetweenDates = async (req, res, next) => {
   // console.log("Inside overall virtual pnl")
-  let {startDate, endDate, mobile} = req.params;
+  let { startDate, endDate, mobile } = req.params;
   startDate = new Date(startDate);
-  endDate = new Date(endDate)
+  endDate = new Date(endDate);
   endDate.setUTCHours(0, 0, 0, 0);
   endDate.setUTCHours(18, 59, 59, 999); // set the time to start of day in UTC
-  console.log(startDate,endDate)
+  console.log(startDate, endDate);
 
   const pipeline = [
     {
@@ -1086,10 +1252,7 @@ exports.getReferralsBetweenDates = async (req, res, next) => {
           $add: [
             {
               $toDate: {
-                $arrayElemAt: [
-                  "$user.joining_date",
-                  0,
-                ],
+                $arrayElemAt: ["$user.joining_date", 0],
               },
             },
             5 * 60 * 60 * 1000,
@@ -1107,22 +1270,137 @@ exports.getReferralsBetweenDates = async (req, res, next) => {
         },
       },
     },
-  ]
- 
-  const referrals = await UserDetail.aggregate(pipeline)
-  console.log("Referrals",referrals.length)
-  res.status(201).json({ message: "Referrals Recieved", data: referrals.length });
-}
+  ];
 
-exports.checkUserExist = async(req, res)=>{
-  const {mobile} = req.params;
-  const findUser = await UserDetail.findOne({mobile: mobile});
+  const referrals = await UserDetail.aggregate(pipeline);
+  console.log("Referrals", referrals.length);
+  res
+    .status(201)
+    .json({ message: "Referrals Recieved", data: referrals.length });
+};
 
-  if(findUser){
+exports.checkUserExist = async (req, res) => {
+  const { mobile } = req.params;
+  const findUser = await UserDetail.findOne({ mobile: mobile });
+
+  if (findUser) {
     const token = await findUser.generateAuthToken();
     res.cookie("jwtoken", token, {
-        expires: new Date(Date.now() + 25892000000),
+      expires: new Date(Date.now() + 25892000000),
     });
   }
-  res.status(201).json({ status: "success", data: findUser ? true : false, id: findUser?._id});
-}
+  res.status(201).json({
+    status: "success",
+    data: findUser ? true : false,
+    id: findUser?._id,
+  });
+};
+
+exports.getUsersSearch = async (req, res) => {
+  const searchString = req.query.search;
+  try {
+    const data = await UserDetail.find({
+      $and: [
+        {
+          $or: [
+            { email: { $regex: searchString, $options: "i" } },
+            { first_name: { $regex: searchString, $options: "i" } },
+            { last_name: { $regex: searchString, $options: "i" } },
+            { mobile: { $regex: searchString, $options: "i" } },
+          ],
+        },
+        {
+          status: "Active",
+        },
+      ],
+    }).select("first_name last_name email mobile _id myReferralCode slug");
+    res.status(200).json({
+      status: "success",
+      message: "Getting User successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.addInfluencer = async (req, res) => {
+  const id = req.params.id;
+  const { state, city, tags, about, myReferralCode, slug } = req.body;
+  try {
+    const user = await UserDetail.findOne({
+      _id: new ObjectId(id),
+      status: "Active",
+    });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "User not found" });
+    }
+    if (user?.myReferralCode != myReferralCode) {
+      user.myReferralCode = myReferralCode;
+    }
+    console.log(Boolean(slug), slug);
+    if (Boolean(slug) && user?.slug != slug) {
+      user.slug = slug;
+    }
+    user.role = new ObjectId("65dc6817586cba2182f05561");
+    let influencerObj = {};
+    influencerObj.state = state;
+    influencerObj.city = city;
+    influencerObj.about = about;
+    influencerObj.addedOn = new Date();
+    influencerObj.tags = tags.split(",").map((item) => item.trim());
+    user.influencerDetails = influencerObj;
+
+    await user.save({ validateBeforeSave: false });
+    res.status(201).json({ status: "success", message: "Influencer created" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.addInfluencerChannelsInfo = async (req, res) => {
+  const { id } = req.params;
+  const { channel, influencerHandle, followers } = req.body;
+  try {
+    const user = await UserDetail.findOne({
+      _id: new ObjectId(id),
+      status: "Active",
+    });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "User not found" });
+    }
+    user.influencerDetails.channelDetails.push({
+      channel,
+      influencerHandle,
+      followers,
+    });
+    await user.save({ new: true, validateBeforeSave: true });
+
+    res.status(200).json({
+      status: "success",
+      message: "Channel details added successfully",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};

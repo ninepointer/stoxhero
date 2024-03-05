@@ -133,14 +133,7 @@ export default function Dashboard() {
           "Access-Control-Allow-Credentials": true
         },
       })
-      // let call2 = axios.get((`${apiUrl}affiliate/myaffiliaterafferals?startDate=${startDate}&endDate=${endDate}&skip=${0}&limit=${10}&affiliateId=${affiliateData}`), {
-      //   withCredentials: true,
-      //   headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json",
-      //     "Access-Control-Allow-Credentials": true
-      //   },
-      // })
+
 
       Promise.all([call1])
         .then(([api1Response, api2Response]) => {
@@ -172,14 +165,7 @@ export default function Dashboard() {
         "Access-Control-Allow-Credentials": true
       },
     })
-    // let call2 = axios.get((`${apiUrl}affiliate/myaffiliaterafferals?startDate=${startDate}&endDate=${endDate}&skip=${0}&limit=${10}&affiliateId=${affiliateData?.affiliateId}&affiliateType=${affiliateData?.affiliateType}&affiliatePrograme=${affiliateData?.affiliatePrograme}`), {
-    //   withCredentials: true,
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //     "Access-Control-Allow-Credentials": true
-    //   },
-    // })
+
 
     Promise.all([call1])
       .then(([api1Response, api2Response]) => {
