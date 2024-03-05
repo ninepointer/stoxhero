@@ -537,7 +537,7 @@ export default function App() {
           element={<ContestRegistration />}
         />
         <Route
-          path="/competition/:id"
+          path="/competitions/:id"
           element={<FeaturedContestRegistration />}
         />
 
