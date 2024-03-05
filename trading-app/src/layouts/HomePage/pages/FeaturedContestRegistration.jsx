@@ -6,30 +6,27 @@ import { Card, CircularProgress, formLabelClasses } from "@mui/material";
 import { Grid, Input, TextField } from "@mui/material";
 import theme from "../utils/theme/index";
 import { ThemeProvider } from "styled-components";
-import Navbar from "../components/Navbars/Navbar";
+import { useMediaQuery } from '@mui/material'
+import FinNavbar from "../components/Navbars/FinNavBar";
 import Footer from "../components/Footers/Footer";
 import MDTypography from "../../../components/MDTypography";
 import MDSnackbar from "../../../components/MDSnackbar";
 import axios from "axios";
-import logo from "../../../assets/images/fulllogo.png";
 import playstore from "../../../assets/images/playstore.png";
 import careerpage from "../../../assets/images/contestregistration.png";
+import contestimage from "../../../assets/images/tbb1.png";
+import champions from "../../../assets/images/champions.png";
 import { useLocation } from "react-router-dom";
-import FormControl from "@mui/material/FormControl";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
 import dayjs from "dayjs";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { apiUrl } from "../../../constants/constants";
 import { userContext } from "../../../AuthContext";
 import { Autocomplete } from "@mui/material";
 import moment from "moment";
 import { Helmet } from "react-helmet";
 import DataTable from "../../../examples/Tables/DataTable";
+import leaderboard from '../../../assets/images/leaderboardposition.png'
+import realtime from '../../../assets/images/realtime.png'
+import reward from '../../../assets/images/reward.png'
 
 function sleep(duration) {
   return new Promise((resolve) => {
@@ -237,6 +234,8 @@ const FeaturedContestRegistration = () => {
     }
   }
 
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
+
   const [successSB, setSuccessSB] = useState(false);
   const [msgDetail, setMsgDetail] = useState({
     title: "",
@@ -353,7 +352,7 @@ const FeaturedContestRegistration = () => {
       alignContent="center"
       alignItems="center"
       style={{
-        backgroundColor: "white",
+        backgroundColor: "#EFF6D5",
         minHeight: "100vH",
         height: "auto",
         width: "auto",
@@ -361,9 +360,9 @@ const FeaturedContestRegistration = () => {
       }}
     >
       <ThemeProvider theme={theme}>
-        <Navbar />
+        {/* <FinNavbar /> */}
         <Grid
-          mt={10}
+          mt={1}
           display="flex"
           justifyContent="center"
           alignContent="center"
@@ -372,12 +371,13 @@ const FeaturedContestRegistration = () => {
           xs={12}
           md={12}
           lg={12}
+          mb={5}
         >
           <Grid
             item
             xs={12}
             md={12}
-            lg={6}
+            lg={12}
             display="flex"
             justifyContent="center"
             alignContent="center"
@@ -393,18 +393,11 @@ const FeaturedContestRegistration = () => {
               alignContent="center"
               alignItems="center"
             >
-              {/* <Grid item xs={12} md={12} lg={12} p={2} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-            <img src={logo} style={{ maxWidth: '40%', maxHeight: '20%', width: 'auto', height: 'auto' }}/>
-          </Grid> */}
-
               <Grid
                 item
                 xs={12}
                 md={12}
                 lg={12}
-                pl={5}
-                pr={5}
-                pb={2}
                 display="flex"
                 justifyContent="center"
                 alignContent="center"
@@ -414,12 +407,12 @@ const FeaturedContestRegistration = () => {
                   component="form"
                   role="form"
                   borderRadius={10}
-                  style={{
-                    backgroundColor: "white",
-                    // height: '100vh',
-                    width: "100%",
-                    boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2)", // Add box shadow
-                  }}
+                  // style={{
+                  //   backgroundColor: "white",
+                  //   // height: '100vh',
+                  //   width: "100%",
+                  //   boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2)", // Add box shadow
+                  // }}
                   display="flex"
                   justifyContent="center"
                   alignContent="center"
@@ -430,8 +423,6 @@ const FeaturedContestRegistration = () => {
                     xs={12}
                     md={12}
                     xl={12}
-                    pt={1}
-                    pb={1}
                     display="flex"
                     justifyContent="center"
                     alignContent="center"
@@ -443,26 +434,13 @@ const FeaturedContestRegistration = () => {
                       xs={12}
                       md={12}
                       xl={12}
-                      pl={2}
-                      pr={2}
-                      mb={1}
+                      mt={3}
                       display="flex"
                       justifyContent="center"
                       alignContent="center"
                       alignItems="center"
                     >
-                      <MDTypography
-                        fontSize={15}
-                        fontColor="dark"
-                        fontWeight="bold"
-                        sx={{ textAlign: "center" }}
-                      >
-                        🚀 Announcing{" "}
-                        {contest
-                          ? contest?.contestName
-                          : contestDetails?.contestName}{" "}
-                        Trading TestZone 🚀
-                      </MDTypography>
+                      <img src={contestimage} width= {isMobile ? '384px' : '1024px'}/>
                     </Grid>
 
                     <Grid
@@ -470,22 +448,35 @@ const FeaturedContestRegistration = () => {
                       xs={12}
                       md={12}
                       xl={12}
-                      pl={2}
-                      pr={2}
-                      mb={1}
+                      mt={5}
                       display="flex"
                       justifyContent="center"
                       alignContent="center"
                       alignItems="center"
                     >
+                      <Grid container xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                      <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDTypography
-                        fontSize={13}
+                        variant= {isMobile ? 'body3' : 'h3'}
                         fontColor="dark"
                         fontWeight="bold"
-                        sx={{ textAlign: "center" }}
+                        sx={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif', wordWrap: 'break-word', overflowWrap: 'break-word', color:'#532B9E' }}
                       >
-                        💰 Your Gateway to Stock Market Success! 💰
+                        Trading Competition begins on 
                       </MDTypography>
+                      </Grid>
+                      <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                      <MDTypography
+                        variant= {isMobile ? 'caption' : 'body1'}
+                        fontColor="dark"
+                        fontWeight="bold"
+                        color='warning'
+                        sx={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif' }}
+                      >
+                        20th March 2024, 9:30 AM | 27th March 3:20 PM
+                      </MDTypography>
+                      </Grid>
+                      </Grid>
                     </Grid>
 
                     <Grid
@@ -493,557 +484,134 @@ const FeaturedContestRegistration = () => {
                       xs={12}
                       md={12}
                       xl={6}
-                      pl={2}
-                      pr={2}
+                      mt={5}
                       display="flex"
                       justifyContent="center"
                       alignContent="center"
                       alignItems="center"
                     >
-                      <MDTypography
-                        fontSize={12}
-                        fontColor="dark"
-                        fontWeight="bold"
-                      >
-                        🕒 Start:{" "}
-                        {moment
-                          .utc(
-                            contest
-                              ? contest?.contestStartTime
-                              : contestDetails?.contestStartTime
-                          )
-                          .utcOffset("+05:30")
-                          .format("DD-MMM-YY hh:mm a")}
-                      </MDTypography>
+                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'}>Register Now(₹200/-)</MDButton></MDBox>
+                      <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDTypography variant='caption'>*Limited seats only. Hurry Up!</MDTypography></MDBox>
+                      </MDBox>
                     </Grid>
 
                     <Grid
                       item
                       xs={12}
                       md={12}
-                      xl={6}
-                      pl={2}
-                      pr={2}
+                      xl={12}
+                      mt={5}
                       display="flex"
                       justifyContent="center"
                       alignContent="center"
                       alignItems="center"
+                      style={{minWidth:'100%'}}
                     >
-                      <MDTypography
-                        fontSize={12}
-                        fontColor="dark"
-                        fontWeight="bold"
-                      >
-                        💰 Virtual Margin Money: ₹
-                        {(contest
-                          ? contest?.portfolio?.portfolioValue
-                          : contestDetails?.portfolio?.portfolioValue
-                        )?.toLocaleString()}
-                      </MDTypography>
+                      <Grid container xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{minWidth:'100%'}}>
+                        <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                          <MDTypography
+                            variant= {isMobile ? 'body3' : 'h3'}
+                            fontColor="dark"
+                            fontWeight="bold"
+                            color='warning'
+                            sx={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif'}}
+                          >
+                            Why you can't miss this! 
+                          </MDTypography>
+                        </Grid>
+                        <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
+                          <Grid container spacing={2} mt={3} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{minWidth:'100%'}}>
+                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+                              <MDBox display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{minWidth:'100%'}}>
+                                <MDBox><img src={reward} alt="Reward" width={isMobile ? '100px' : '150px'}/></MDBox>
+                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>INR 1,00,000 cash rewards</MDTypography></MDBox>
+                              </MDBox>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+                              <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' alignContent='center'>
+                                <MDBox><img src={leaderboard} alt="Leaderboard" width={isMobile ? '100px' : '150px'}/></MDBox>
+                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>Leaderboard recognition</MDTypography></MDBox>
+                              </MDBox>
+                            </Grid>
+                            <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+                              <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' alignContent='center'>
+                                <MDBox><img src={realtime} alt="Real-time" width={isMobile ? '100px' : '150px'}/></MDBox>
+                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>Real-time market experience</MDTypography></MDBox>
+                              </MDBox>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    
                     </Grid>
 
                     <Grid
                       item
                       xs={12}
                       md={12}
-                      xl={6}
-                      pl={2}
-                      pr={2}
+                      xl={12}
+                      mt={5}
                       display="flex"
                       justifyContent="center"
                       alignContent="center"
                       alignItems="center"
+                      style={{minWidth:'80%', maxWidth:'80%', textAlign:'center'}}
                     >
-                      <MDTypography
-                        fontSize={12}
-                        fontColor="dark"
-                        fontWeight="bold"
-                      >
-                        🕒 End:{" "}
-                        {moment
-                          .utc(
-                            contest
-                              ? contest?.contestEndTime
-                              : contestDetails?.contestEndTime
-                          )
-                          .utcOffset("+05:30")
-                          .format("DD-MMM-YY hh:mm a")}
-                      </MDTypography>
+                      <MDTypography variant={isMobile ? 'body2' : 'body3'} fontWeight='bold'>StoxHero is a virtual trading & investing platform that makes learning stock market easy, risk free and fun!</MDTypography>
                     </Grid>
 
-                    {contestDetails?.payoutType === "Percentage" ? (
-                      <>
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          xl={6}
-                          pl={2}
-                          pr={2}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <MDTypography
-                            fontSize={12}
-                            fontColor="dark"
-                            fontWeight="bold"
-                          >
-                            🏆 Reward :{" "}
-                            {contestDetails?.entryFee > 0
-                              ? `${
-                                  contestDetails?.payoutPercentage
-                                }% of the net P&L${
-                                  contestDetails?.payoutCapPercentage
-                                    ? `(upto ₹${cap})`
-                                    : ""
-                                }`
-                              : `${
-                                  contestDetails?.payoutPercentage
-                                }% of the net P&L${
-                                  contestDetails?.payoutCapPercentage
-                                    ? `(upto ₹${cap})`
-                                    : ""
-                                }`}
-                          </MDTypography>
-                        </Grid>
 
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          xl={12}
-                          pl={2}
-                          pr={2}
-                          mt={1}
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
+                      xl={12}
+                      lg={12}
+                      mt={5}
+                      display="flex"
+                      justifyContent="center"
+                      alignContent="center"
+                      alignItems="center"
+                      style={{minWidth:'80%', maxWidth:'80%'}}
+                    >
+                      <MDBox style={{minWidth:'70%'}}>
+                        <MDBox
+                          width="100%"
                           display="flex"
                           justifyContent="center"
-                          alignContent="center"
                           alignItems="center"
+                          sx={{
+                            backgroundColor: "#D5F47E",
+                            borderRadius: "10px",
+                          }}
                         >
                           <MDTypography
-                            fontSize={12}
-                            fontColor="dark"
-                            fontWeight="bold"
-                            sx={{ textAlign: "center" }}
+                            variant="body3"
+                            color="dark"
+                            fontWeight='bold'
+                            mt={0.7}
+                            alignItems="center"
+                            gutterBottom
                           >
-                            Rewards will be based on your net Profit and Loss
-                            during the TestZone period. So, bigger the P&L, the
-                            bigger you can earn!
+                            Reward Table
                           </MDTypography>
-                        </Grid>
-                      </>
-                    ) : (
-                      <>
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          xl={6}
-                          pl={2}
-                          pr={2}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <MDTypography
-                            fontSize={12}
-                            fontColor="dark"
-                            fontWeight="bold"
-                          >
-                            🏆 Reward : Exciting prizes for top rankers
-                          </MDTypography>
-                        </Grid>
-
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          xl={12}
-                          pl={2}
-                          pr={2}
-                          mt={1}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <MDTypography
-                            fontSize={12}
-                            fontColor="dark"
-                            fontWeight="bold"
-                            sx={{ textAlign: "center" }}
-                          >
-                            Rewards will be based on your rank during the
-                            TestZone period.
-                          </MDTypography>
-                        </Grid>
-
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          xl={12}
-                          lg={12}
-                          mt={1}
-                          mb={1}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <MDBox width="100%" xl={12}>
-                            <MDBox
-                              width="100%"
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                              sx={{
-                                backgroundColor: "#315C45",
-                                borderRadius: "2px",
-                              }}
-                            >
-                              <MDTypography
-                                variant="text"
-                                fontSize={12}
-                                color="white"
-                                mt={0.7}
-                                alignItems="center"
-                                gutterBottom
-                              >
-                                Reward Table
-                              </MDTypography>
-                            </MDBox>
-                            <MDBox mt={1}>
-                              <DataTable
-                                table={{ columns, rows }}
-                                showTotalEntries={false}
-                                isSorted={false}
-                                entriesPerPage={false}
-                              />
-                            </MDBox>
-                          </MDBox>
-                        </Grid>
-                      </>
-                    )}
+                        </MDBox>
+                        <MDBox mt={1}>
+                          <DataTable
+                            table={{ columns, rows }}
+                            showTotalEntries={false}
+                            isSorted={false}
+                            entriesPerPage={false}
+                          />
+                        </MDBox>
+                      </MDBox>
+                    </Grid>
+                
                   </Grid>
                 </MDBox>
               </Grid>
 
-              <Grid
-                item
-                xs={12}
-                md={12}
-                lg={12}
-                pl={5}
-                pr={5}
-                display="flex"
-                justifyContent="center"
-                alignContent="center"
-                alignItems="center"
-                style={{ width: "100%" }}
-              >
-                <MDBox
-                  display="flex"
-                  justifyContent="center"
-                  alignContent="center"
-                  alignItems="center"
-                  style={{ width: "100%" }}
-                >
-                  <MDBox
-                    component="form"
-                    role="form"
-                    borderRadius={10}
-                    style={{
-                      backgroundColor: "white",
-                      // height: '100vh',
-                      width: "100%",
-                      boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2)", // Add box shadow
-                    }}
-                    display="flex"
-                    justifyContent="center"
-                    alignContent="center"
-                    alignItems="center"
-                  >
-                    {!submitted ? (
-                      <Grid
-                        container
-                        pt={1}
-                        pb={1}
-                        display="flex"
-                        justifyContent="center"
-                        alignContent="center"
-                        alignItems="center"
-                        style={{ width: "90%" }}
-                      >
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          xl={12}
-                          mt={1}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <MDTypography
-                            fontSize={15}
-                            fontColor="dark"
-                            fontWeight="bold"
-                          >
-                            Fill in your details to register!
-                          </MDTypography>
-                        </Grid>
-
-                        <Grid
-                          item
-                          xs={12}
-                          md={6}
-                          xl={6}
-                          p={1}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <TextField
-                            required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="First Name"
-                            type="text"
-                            fullWidth
-                            onChange={(e) => {
-                              setDetails((prevState) => ({
-                                ...prevState,
-                                firstName: e.target.value,
-                              }));
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <TextField
-                            required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="Last Name"
-                            type="text"
-                            fullWidth
-                            onChange={(e) => {
-                              setDetails((prevState) => ({
-                                ...prevState,
-                                lastName: e.target.value,
-                              }));
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <TextField
-                            required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="Email"
-                            type="email"
-                            fullWidth
-                            onChange={(e) => {
-                              setDetails((prevState) => ({
-                                ...prevState,
-                                email: e.target.value,
-                              }));
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <TextField
-                            required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="Mobile(OTP will be sent on this number)"
-                            type="text"
-                            fullWidth
-                            onChange={(e) => {
-                              handleMobile(e);
-                            }}
-                          />
-                        </Grid>
-
-                        {!otpGenerated && (
-                          <Grid item xs={12} md={12} lg={12} p={1}>
-                            <MDBox
-                              mb={1}
-                              display="flex"
-                              justifyContent="space-around"
-                            >
-                              <MDButton
-                                onClick={generateOTP}
-                                variant="gradient"
-                                style={{
-                                  backgroundColor: "#65BA0D",
-                                  color: "white",
-                                  width: "90%",
-                                }}
-                              >
-                                <MDTypography
-                                  fontSize={13}
-                                  fontWeight="bold"
-                                  color="white"
-                                >
-                                  Get Mobile OTP
-                                </MDTypography>
-                              </MDButton>
-                            </MDBox>
-                          </Grid>
-                        )}
-
-                        {!checkUserExist && (
-                          <Grid
-                            item
-                            xs={12}
-                            md={12}
-                            lg={12}
-                            p={1}
-                            display="flex"
-                            justifyContent="center"
-                            alignContent="center"
-                            alignItems="center"
-                          >
-                            <MDTypography fontSize={15} fontWeight="bold">
-                              Looks like you haven't signed up yet 😀
-                            </MDTypography>
-                          </Grid>
-                        )}
-
-                        {otpGenerated && (
-                          <Grid
-                            item
-                            xs={12}
-                            md={6}
-                            lg={12}
-                            p={1}
-                            display="flex"
-                            justifyContent="center"
-                            alignContent="center"
-                            alignItems="center"
-                          >
-                            <TextField
-                              required
-                              id="outlined-required"
-                              label="Please enter the OTP"
-                              type="text"
-                              fullWidth
-                              style={{ width: "40%" }}
-                              onChange={(e) => {
-                                setDetails((prevState) => ({
-                                  ...prevState,
-                                  mobile_otp: e.target.value,
-                                }));
-                              }}
-                            />
-                          </Grid>
-                        )}
-
-                        {otpGenerated && (
-                          <Grid item xs={12} md={6} lg={12} p={1}>
-                            <MDBox
-                              mb={1}
-                              display="flex"
-                              justifyContent="space-around"
-                            >
-                              <MDButton
-                                onClick={() => {
-                                  confirmOTP();
-                                }}
-                                variant="gradient"
-                                style={{
-                                  backgroundColor: "#65BA0D",
-                                  color: "white",
-                                  width: "90%",
-                                }}
-                                disabled={creating || buttonClicked}
-                                // style={{width:'90%'}}
-                              >
-                                {creating ? (
-                                  <CircularProgress size={20} color="inherit" />
-                                ) : (
-                                  "Register & Apply"
-                                )}
-                              </MDButton>
-                            </MDBox>
-                          </Grid>
-                        )}
-                      </Grid>
-                    ) : (
-                      <Grid
-                        container
-                        pt={1}
-                        display="flex"
-                        justifyContent="center"
-                        alignContent="center"
-                        alignItems="center"
-                        style={{ width: "90%" }}
-                      >
-                        <Grid
-                          item
-                          pt={2}
-                          pl={5}
-                          pr={5}
-                          xs={12}
-                          md={12}
-                          lg={12}
-                          display="flex"
-                          justifyContent="center"
-                          flexDirection="column"
-                          alignItems="center"
-                          alignContent="center"
-                          style={{ textAlign: "center" }}
-                        >
-                          <MDTypography>
-                            Thank you for showing interest in the TestZone.
-                          </MDTypography>
-                          <MDTypography mt={1} fontSize={20} fontWeight="bold">
-                            Explore the world of Virtual Options Trading and
-                            real cash earning by downloading StoxHero App!
-                          </MDTypography>
-                        </Grid>
-
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          lg={12}
-                          p={1}
-                          display="flex"
-                          justifyContent="center"
-                          alignContent="center"
-                          alignItems="center"
-                        >
-                          <MDButton
-                            component="a"
-                            href="https://play.google.com/store/apps/details?id=com.stoxhero.app"
-                            target="_blank"
-                          >
-                            <img
-                              src={playstore}
-                              style={{
-                                maxWidth: "40%",
-                                maxHeight: "20%",
-                                width: "auto",
-                                height: "auto",
-                              }}
-                            />
-                          </MDButton>
-                        </Grid>
-                      </Grid>
-                    )}
-                  </MDBox>
-                </MDBox>
-              </Grid>
             </Grid>
           </Grid>
 
@@ -1051,7 +619,7 @@ const FeaturedContestRegistration = () => {
             item
             xs={12}
             md={12}
-            lg={6}
+            lg={12}
             display="flex"
             justifyContent="center"
             alignContent="center"
@@ -1063,14 +631,14 @@ const FeaturedContestRegistration = () => {
               xs={12}
               md={12}
               lg={12}
-              pl={1}
-              pr={1}
+              mt={5}
               display="flex"
               justifyContent="center"
               alignContent="center"
               alignItems="center"
               style={{ width: "100%" }}
             >
+              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
               <MDBox
                 display="flex"
                 justifyContent="center"
@@ -1079,15 +647,31 @@ const FeaturedContestRegistration = () => {
                 style={{ width: "100%" }}
               >
                 <img
-                  src={careerpage}
-                  style={{
-                    maxWidth: "80%",
-                    maxHeight: "80%",
-                    width: "auto",
-                    height: "auto",
-                  }}
+                  src={champions}
+                  width='348px'
                 />
               </MDBox>
+              </Grid>
+              <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
+                <MDTypography variant='h3' color='warning'>Be a stock market champion. Prove your trading & investing expertise.</MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={12}
+                xl={6}
+                mt={5}
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+              >
+                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'}>Register Now(₹200/-)</MDButton></MDBox>
+                <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDTypography variant='caption'>*Limited seats only. Hurry Up!</MDTypography></MDBox>
+                </MDBox>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
