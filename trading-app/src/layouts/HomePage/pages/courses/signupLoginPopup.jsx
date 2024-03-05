@@ -58,7 +58,8 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
 
         } = detail;
         
-        setButtonLoading(prev => ({...prev, getOtp: true}))
+        setButtonLoading(prev => ({...prev, getOtp: true}));
+        setDetails(prev => ({ ...prev, errorMessage: '' }));
 
         if (mobile.length !== 10) {
 
@@ -115,7 +116,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
         } = detail;
         
         setButtonLoading(prev => ({...prev, confirmOtp: true}))
-      
+        setDetails(prev => ({ ...prev, errorMessage: '' }));
         if (mobile.length !== 10) {
 
             if (mobile.length === 12 && mobile.startsWith('91')) {
@@ -167,7 +168,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
     async function createUser() {
         setButtonClicked(true);
         setButtonLoading(prev => ({...prev, signup: true}))
-
+        setDetails(prev => ({ ...prev, errorMessage: '' }));
         const {
             first_name,
             last_name,

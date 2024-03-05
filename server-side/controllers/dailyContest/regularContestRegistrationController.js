@@ -677,7 +677,6 @@ exports.confirmOTP = async (req, res, next) => {
     const { mobile, mobile_otp, fcmTokenData, college, dailycontestId } = req.body;
 
     try {
-      console.log("case 1");
       const user = await UserDetail.findOne({ mobile });
       if (!user) {
         // return res.status(404).json({status: 'error', message: 'The mobile number is not registered. Please signup.'});
@@ -735,7 +734,7 @@ exports.confirmOTP = async (req, res, next) => {
           });
       }
 
-      console.log("case 2");
+
       if (
         process.env.PROD != "true" &&
         mobile == "7737384957" &&
@@ -744,14 +743,11 @@ exports.confirmOTP = async (req, res, next) => {
         const token = await user.generateAuthToken();
         
         if (fcmTokenData?.token) {
-          console.log("inside if");
           const tokenExists = user?.fcmTokens?.some(
             (token) => token?.token === fcmTokenData.token
           );
           // If the token does not exist, add it to the fcmTokens array
-          console.log("token exists", tokenExists);
           if (!tokenExists) {
-            console.log("saving fcm token");
             fcmTokenData.lastUsedAt = new Date();
             user.fcmTokens.push(fcmTokenData);
             await user.save({ validateBeforeSave: false });
@@ -776,7 +772,6 @@ exports.confirmOTP = async (req, res, next) => {
           });
       }
   
-      console.log("case 3");
       if (
         user?.mobile_otp != mobile_otp &&
         !(mobile == "9999992424" && mobile_otp == "123456")
@@ -788,18 +783,13 @@ exports.confirmOTP = async (req, res, next) => {
             message: "OTP didn't match. Please check again.",
           });
       }
-      console.log("case 4");
       const token = await user.generateAuthToken();
-      console.log(fcmTokenData?.token);
       if (fcmTokenData?.token) {
-        console.log("inside if");
         const tokenExists = user?.fcmTokens?.some(
           (token) => token?.token === fcmTokenData.token
         );
         // If the token does not exist, add it to the fcmTokens array
-        console.log("token exists", tokenExists);
         if (!tokenExists) {
-          console.log("saving fcm token");
           fcmTokenData.lastUsedAt = new Date();
           user.fcmTokens.push(fcmTokenData);
           await user.save({ validateBeforeSave: false });
@@ -808,19 +798,21 @@ exports.confirmOTP = async (req, res, next) => {
           console.log("FCM token already exists.");
         }
       }
-      console.log("case 6");
   
       res.cookie("jwtoken", token, {
         expires: new Date(Date.now() + 25892000000),
         // httpOnly: true
       });
 
-      const addInPotentialUser = await DailyContest.findByIdAndUpdate(new ObjectId(dailycontestId), {
-        $push: {
+      const addInPotentialUser = await DailyContest.findByIdAndUpdate(
+        new ObjectId(dailycontestId),
+        {
+          $addToSet: {
             potentialParticipants: user?._id
+          }
         }
-      });
-      console.log("case 7");
+      );
+      
       // res.json(token);
       res
         .status(200)

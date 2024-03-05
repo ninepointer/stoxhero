@@ -75,10 +75,10 @@ const FeaturedContestRegistration = () => {
   });
 
 
-  const getContestDetails = async (name, date) => {
+  const getContestDetails = async (slug) => {
     try {
       const res = await axios.get(
-        `${apiUrl}dailycontest/featured/findbyname?name=${name}&date=${date}`
+        `${apiUrl}dailycontest/featured/findbyname?name=${slug}`
       );
       setContestDetails(res?.data?.data);
       setDetails((prev) => ({ ...prev, contest: res?.data?.data?._id }));
@@ -90,9 +90,9 @@ const FeaturedContestRegistration = () => {
   useEffect(() => {
     if (!contest) {
       const url = location?.pathname?.split("/");
-      const name = decodeURIComponent(url[2]);
-      const date = url[3];
-      getContestDetails(name, date);
+      const slug = decodeURIComponent(url[2]);
+      // const date = url[3];
+      getContestDetails(slug);
     }
     window.webengage.track("featuredTestzone_registration_clicked", {});
   }, []);

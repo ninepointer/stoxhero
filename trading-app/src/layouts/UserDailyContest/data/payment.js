@@ -450,7 +450,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                       justifyContent: "center",
                     }}
                   >
-                    Choose how to pay
+                    {!signedUp && `Choose how to pay`}
                   </Title>
                   <FormControl>
                     <RadioGroup
@@ -460,6 +460,8 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                       value={value}
                       onChange={handleChange}
                     >
+                      {!signedUp &&
+                      <>
                       <FormControlLabel
                         value="wallet"
                         control={<Radio />}
@@ -713,6 +715,8 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                           )}
                         </MDBox>
                       )}
+                      </>
+                      }
                       <FormControlLabel
                         value="bank"
                         control={<Radio />}
@@ -727,7 +731,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                           mt={0}
                           mb={0}
                         >
-                          <Typography
+                          {/* <Typography
                             textAlign="justify"
                             sx={{ width: "100%", fontSize: "14px" }}
                             color="#000"
@@ -739,7 +743,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                             to pay anything extra. StoxHero will be taking care
                             of the GST on your behalf. To offset it, we've
                             increased our pricing by a bit.{" "}
-                          </Typography>
+                          </Typography> */}
                           {!showPromoCode ? (
                             <MDBox
                               display="flex"
@@ -937,7 +941,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                               ) + actualAmount
                             ).toFixed(2)}
                           </Typography>
-                          {bonusBalance > 0 && (
+                          {(bonusBalance > 0 && !signedUp) && (
                             <MDBox
                               display="flex"
                               justifyContent="flex-start"

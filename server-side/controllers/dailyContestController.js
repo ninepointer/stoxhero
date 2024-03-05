@@ -96,18 +96,19 @@ exports.createContest = async (req, res) => {
         req.body[elem] = true;
       }
     }
-    const { contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus,
+    let { contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus,
       contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
       contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
       maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, visibility,
       payoutType, payoutCapPercentage, rewardType, tdsRelief, metaTitle, metaKeyword, metaDescription, slug } = req.body;
 
+    const slugCount = await Contest.countDocuments({slug: slug});
 
     let contestImage;
     if (req.files["image"]) {
       contestImage = await getAwsS3Url(req.files["image"][0], "Image");
     }
-    
+
     const startTimeDate = new Date(contestStartTime);
     startTimeDate.setSeconds(0);
 
@@ -127,7 +128,7 @@ exports.createContest = async (req, res) => {
       maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
       contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
       contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
-      contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility, image: contestImage, metaTitle, metaKeyword, metaDescription, slug
+      contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility, image: contestImage, metaTitle, metaKeyword, metaDescription, slug: slugCount ? `${slug}-${slugCount+1}` : slug
     });
 
     // console.log(contest)
@@ -3699,12 +3700,11 @@ exports.findContestByName = async(req,res,next)=>{
 
 exports.findFeaturedContestByName = async(req,res,next)=>{
     try{
-        const {name, date} = req.query;
-        let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
-        const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
+        const {name} = req.query;
+        const result = await Contest.findOne({slug: name, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType');
-        // console.log(result)
+            select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType image metaDescription metaKeyword metaTitle');
+
             if(!result){
             return res.status(404).json({
                 status: "error",
