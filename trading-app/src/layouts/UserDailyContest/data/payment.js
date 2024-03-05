@@ -28,7 +28,7 @@ import {useNavigate} from 'react-router-dom';
 
 const ariaLabel = { "aria-label": "description" };
 
-const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent }) => {
+const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, referrerCode}) => {
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
   const [isPaymentStart, setIsPaymentStart] = useState(false);
@@ -37,7 +37,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
   const [bonusBalance, setBonusBalance] = useState(0);
   const [setting, setSetting] = useState([]);
   const [code, setCode] = useState("");
-  const [verifiedCode, setVerifiedCode] = useState("");
+  const [verifiedCode, setVerifiedCode] = useState(referrerCode?referrerCode:"");
   const [invalidCode, setInvalidCode] = useState("");
   const [discountData, setDiscountData] = useState();
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -60,6 +60,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
     setSuccessSB(true);
   };
   const closeSuccessSB = () => setSuccessSB(false);
+  console.log('referrer code', referrerCode);
 
   const renderSuccessSB = (
     <MDSnackbar

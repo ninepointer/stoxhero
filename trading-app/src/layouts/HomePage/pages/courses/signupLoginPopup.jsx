@@ -279,9 +279,9 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
 
                         testzone ?
                         <TestZonePayment signedUp={detail.signedUp} elem={data} showPay={showPay}
-                        setShowPay={setShowPay} byLink={true} setOpenParent={setOpen} />
+                        setShowPay={setShowPay} byLink={true} setOpenParent={setOpen} referrerCode={referrerCode} />
                         :
-                        <Payment data={data} byLink={true} setOpenParent={setOpen} signedUp={detail.signedUp} checkPaid={checkPaid} />
+                        <Payment data={data} byLink={true} setOpenParent={setOpen} signedUp={detail.signedUp} checkPaid={checkPaid} referrerCode={referrerCode} />
                         
                         :
                         detail.isLogin === false &&

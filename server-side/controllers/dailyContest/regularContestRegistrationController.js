@@ -19,6 +19,8 @@ const AffiliatePrograme = require("../../models/affiliateProgram/affiliateProgra
 const Referral = require("../../models/campaigns/referralProgram");
 const UserDetail = require('../../models/User/userDetailSchema');
 const SignedUpUser = require('../../models/User/signedUpUser');
+const {createUserNotification} = require('../notification/notificationController');
+const AffiliateTransaction = require('../../models/affiliateProgram/affiliateTransactions');
 
 
 exports.createUser = async (req, res, next) => {
