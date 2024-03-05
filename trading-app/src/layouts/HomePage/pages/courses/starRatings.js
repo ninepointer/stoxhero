@@ -5,7 +5,7 @@ import MDTypography from "../../../../components/MDTypography";
 
 const StarRating = ({ rating }) => {
   // Round the rating to the nearest 0.5
-  const roundedRating = Math.round((rating - 1) * 2) / 2;
+  const roundedRating = (Math.round(rating) === rating) ? rating : Math.round((rating - 1) * 2) / 2;
 
   // Create an array of stars based on the rounded rating
   const stars = [];

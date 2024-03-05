@@ -28,6 +28,7 @@ const List = ({ courseId }) => {
     const [createForm, setCreateForm] = useState(false);
     const [contentData, setContentData] = useState([]);
     const [id, setId] = useState({});
+    const [reloadContent, setReloadContent] = useState(false);
 
     useEffect(() => {
         axios.get(`${apiUrl}courses/${courseId}/content`, {withCredentials: true})
@@ -36,7 +37,7 @@ const List = ({ courseId }) => {
             }).catch((err) => {
                 return new Error(err);
             })
-    }, [createForm])
+    }, [createForm, reloadContent])
 
     contentData?.map((elem) => {
         let obj = {}
@@ -58,7 +59,7 @@ const List = ({ courseId }) => {
             </MDTypography>
         );
         obj.subtopic = (
-            <SubTopic courseId={courseId} contentId={elem?._id} subTopics={elem?.subtopics} />
+            <SubTopic courseId={courseId} contentId={elem?._id} subTopics={elem?.subtopics} reloadContent={reloadContent} setReloadContent={setReloadContent} />
         );
 
         rows.push(obj)
@@ -83,7 +84,7 @@ const List = ({ courseId }) => {
                 </MDBox>
             </MDBox>
             {createForm && <>
-                <Create createForm={createForm} setCreateForm={setCreateForm} courseId={courseId} content={id} />
+                <Create createForm={createForm} setCreateForm={setCreateForm} courseId={courseId} content={id} reloadContent={reloadContent} setReloadContent={setReloadContent} />
             </>
             }
             <MDBox mt={1}>

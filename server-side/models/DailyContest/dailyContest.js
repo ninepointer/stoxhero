@@ -8,7 +8,20 @@ const contestSchema = new Schema({
     },
     slug:{
         type: String,
-        required: true
+        required: true,
+        unique: true
+    },
+    image:{
+        type: String,
+    },
+    metaTitle:{
+        type: String,
+    },
+    metaKeyword:{
+        type: String,
+    },
+    metaDescription:{
+        type: String,
     },
     contestStartTime:{
         type: Date,

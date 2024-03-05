@@ -41,7 +41,6 @@ function Index() {
   const course = location?.state?.data;
   const from = location?.state?.from;
 
-  console.log('from data', from, location)
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(course ? true : false);
   const [editing, setEditing] = useState(false);

@@ -297,18 +297,27 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
   return (
 
     <>
-      <MDBox>
-      
-        <MDButton
-          variant='gradient'
-          color='error'
-          size='small'
-          disabled={checkPaid}
-          onClick={() => { captureIntent() }}
-        >
-          Pay Now
-        </MDButton>
-      </MDBox>
+{!checkPaid ?
+      <MDButton
+        variant="outlined"
+        size="small"
+        color="success"
+        
+        onClick={() => { captureIntent() }}
+        style={{ minWidth: "100%" }}
+      >
+        Buy course
+      </MDButton>
+      :
+      <MDButton
+      variant="outlined"
+      size="small"
+      color="success"
+      disabled={checkPaid}
+      style={{ minWidth: "100%" }}
+    >
+      Already Paid
+    </MDButton>}
 
       <Dialog
         open={open}
@@ -463,7 +472,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
                       <MDBox display="flex" justifyContent="center">
                         <Typography variant="body2" color="#fff" style={{ marginRight: '14px', marginLeft: "8px" }} >Stoxhero Wallet</Typography>
                         <AccountBalanceWalletIcon sx={{ marginTop: "5px", color: "#fff", marginRight: "4px" }} />
-                        <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#fff" > {`₹${userWallet}`}</Typography>
+                        <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#fff" > {`₹${Number(userWallet)?.toFixed(2)}`}</Typography>
                       </MDBox>
 
                       <MDBox>
@@ -483,7 +492,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
               Close
             </MDButton>
             <MDButton color={"success"} onClick={() => initiatePayment()} autoFocus>
-              {`Pay ₹${Number(amount - discountAmount - bonusRedemption) + actualAmount} securely`}
+              {`Pay ₹${(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)} securely`}
             </MDButton>
           </DialogActions>}
         {renderSuccessSB}

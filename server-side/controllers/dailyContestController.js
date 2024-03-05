@@ -23,54 +23,128 @@ const AffiliateProgram = require('../models/affiliateProgram/affiliateProgram');
 const {sendMultiNotifications} = require('../utils/fcmService');
 const {client, getValue} = require('../marketData/redisClient');
 const ReferralProgram = require("../models/campaigns/referralProgram")
+const AWS = require("aws-sdk");
+const sharp = require("sharp");
 
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+// Function to upload a file to S3
+const getAwsS3Url = async (file, type) => {
+  if (file && type === "Image") {
+    file.buffer = await sharp(file.buffer)
+      .resize({ width: 512, height: 256 })
+      .toBuffer();
+  }
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `courses/${Date.now()}-${file.originalname}`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: "public-read",
+    // or another ACL according to your requirements
+  };
+
+  try {
+    const uploadResult = await s3.upload(params).promise();
+    return uploadResult.Location;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error uploading file to S3");
+  }
+};
+const getAwsS3Key = async (file, type, key) => {
+  if (file && type === "Image") {
+    file.buffer = await sharp(file.buffer)
+      .resize({ width: 512, height: 256 })
+      .toBuffer();
+  }
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: key ? key : `courses/${Date.now()}-${file.originalname}`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: "public-read",
+    // or another ACL according to your requirements
+  };
+
+  try {
+    const uploadResult = await s3.upload(params).promise();
+    return { url: uploadResult.Location, key: key };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error uploading file to S3");
+  }
+};
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
-    try {
-        const {contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus, 
-               contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
-            contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, visibility, 
-            payoutType, payoutCapPercentage, rewardType, tdsRelief } = req.body;
+  try {
+    for (let elem in req.body) {
+      if (req.body[elem] === "undefined" || req.body[elem] === "null") {
+        delete req.body[elem];
+      }
 
-            const slug = contestName.replace(/ /g, "-").toLowerCase();
+      if (req.body[elem] === "false") {
+        req.body[elem] = false;
+      }
 
-        const startTimeDate = new Date(contestStartTime);
-        startTimeDate.setSeconds(0);
-
-        const endTimeDate = new Date(contestEndTime);
-        endTimeDate.setSeconds(0);
-
-        // Check if startTime is valid
-        if (isNaN(startTimeDate.getTime()) || isNaN(endTimeDate.getTime())) {
-            return res.status(400).json({
-                status: 'error',
-                message: "Validation error: Invalid start time or end time format",
-            });
-        }
-
-
-        const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
-            contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
-            contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility
-        });
-
-        // console.log(contest)
-        res.status(201).json({
-            status: 'success',
-            message: "TestZone created successfully",
-            data: contest
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: "Something went wrong",
-            error: error.message
-        });
+      if (req.body[elem] === "true") {
+        req.body[elem] = true;
+      }
     }
+    let { contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus,
+      contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
+      contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
+      maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, visibility,
+      payoutType, payoutCapPercentage, rewardType, tdsRelief, metaTitle, metaKeyword, metaDescription, slug } = req.body;
+
+    const slugCount = await Contest.countDocuments({slug: slug});
+
+    let contestImage;
+    if (req.files["image"]) {
+      contestImage = await getAwsS3Url(req.files["image"][0], "Image");
+    }
+
+    const startTimeDate = new Date(contestStartTime);
+    startTimeDate.setSeconds(0);
+
+    const endTimeDate = new Date(contestEndTime);
+    endTimeDate.setSeconds(0);
+
+    // Check if startTime is valid
+    if (isNaN(startTimeDate.getTime()) || isNaN(endTimeDate.getTime())) {
+      return res.status(400).json({
+        status: 'error',
+        message: "Validation error: Invalid start time or end time format",
+      });
+    }
+
+
+    const contest = await Contest.create({
+      maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
+      contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
+      contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
+      contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility, image: contestImage, metaTitle, metaKeyword, metaDescription, slug: slugCount ? `${slug}-${slugCount+1}` : slug
+    });
+
+    // console.log(contest)
+    res.status(201).json({
+      status: 'success',
+      message: "TestZone created successfully",
+      data: contest
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 'error',
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
 };
 
 // Controller for editing a contest
@@ -78,10 +152,37 @@ exports.editContest = async (req, res) => {
     try {
         const { id } = req.params; // ID of the contest to edit
         const updates = req.body;
-        let slug;
-        if(updates?.contestName){
-          updates.slug = updates?.contestName.replace(/ /g, "-").toLowerCase();
+        for (let elem in updates) {
+          if (updates[elem] === "undefined" || updates[elem] === "null") {
+            delete updates[elem]
+          }
+
+          if (updates[elem] === '[object Object]') {
+            delete updates[elem]
+          }
+      
+          if (updates[elem] === "false") {
+            updates[elem] = false;
+          }
+      
+          if (updates[elem] === "true") {
+            updates[elem] = true;
+          }
         }
+
+        if (req?.files?.["image"]) {
+          updates.image = await getAwsS3Url(
+            req.files["image"][0],
+            "Image"
+          );
+        }
+
+        console.log("updates", updates)
+
+        // let slug;
+        // if(updates?.contestName){
+        //   updates.slug = updates?.contestName.replace(/ /g, "-").toLowerCase();
+        // }
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ status: "error", message: "Invalid TestZone ID" });
@@ -3599,12 +3700,11 @@ exports.findContestByName = async(req,res,next)=>{
 
 exports.findFeaturedContestByName = async(req,res,next)=>{
     try{
-        const {name, date} = req.query;
-        let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
-        const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'StoxHero'}).
+        const {name} = req.query;
+        const result = await Contest.findOne({slug: name, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType');
-        // console.log(result)
+            select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType image metaDescription metaKeyword metaTitle');
+
             if(!result){
             return res.status(404).json({
                 status: "error",

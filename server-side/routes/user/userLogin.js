@@ -489,9 +489,10 @@ router.post("/phoneloginmobile", async (req, res, next) => {
         specialChars: false,
       });
       //Create signedup user document
-      let signedUpUser = await SignedUpUser.findOne({ mobile: mobile });
+      let signedUpUser = await SignedUpUser.findOne({ mobile: mobile }).sort({_id: -1})
       if (signedUpUser) {
         signedUpUser.mobile_otp = mobile_otp;
+        signedUpUser.lastOtpTime = new Date();
         await signedUpUser.save({ new: true });
       } else {
         signedUpUser = await SignedUpUser.create({

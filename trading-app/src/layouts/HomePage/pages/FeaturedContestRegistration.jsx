@@ -26,7 +26,10 @@ import { Helmet } from "react-helmet";
 import DataTable from "../../../examples/Tables/DataTable";
 import leaderboard from '../../../assets/images/leaderboardposition.png'
 import realtime from '../../../assets/images/realtime.png'
-import reward from '../../../assets/images/reward.png'
+import reward from '../../../assets/images/reward.png';
+import SignupLoginPopup from "./courses/signupLoginPopup"
+
+
 
 function sleep(duration) {
   return new Promise((resolve) => {
@@ -41,7 +44,7 @@ const FeaturedContestRegistration = () => {
   const [options, setOptions] = React.useState([]);
   const loading = open && options.length === 0;
   const [submitted, setSubmitted] = useState(false);
-  const [saving, setSaving] = useState(false);
+  // const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
   const [otpGenerated, setOTPGenerated] = useState(false);
   const [contestDetails, setContestDetails] = useState(false);
@@ -51,8 +54,8 @@ const FeaturedContestRegistration = () => {
   const params = new URLSearchParams(location?.search);
   const referrerCode = params.get("referral");
   campaignCode = params.get("campaigncode");
-  console.log("referral", referrerCode, campaignCode);
-  const getDetails = useContext(userContext);
+
+  const newReferrerCode = campaignCode ? campaignCode : referrerCode;
   let columns = [
     { Header: "# Rank", accessor: "rank", align: "center" },
     { Header: "Reward", accessor: "reward", align: "center" },
@@ -71,14 +74,11 @@ const FeaturedContestRegistration = () => {
     referrerCode: referrerCode,
   });
 
-  // const [file, setFile] = useState(null);
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
-  const getContestDetails = async (name, date) => {
+  const getContestDetails = async (slug) => {
     try {
       const res = await axios.get(
-        `${apiUrl}dailycontest/featured/findbyname?name=${name}&date=${date}`
+        `${apiUrl}dailycontest/featured/findbyname?name=${slug}`
       );
       setContestDetails(res?.data?.data);
       setDetails((prev) => ({ ...prev, contest: res?.data?.data?._id }));
@@ -86,153 +86,16 @@ const FeaturedContestRegistration = () => {
       console.log(e);
     }
   };
-  console.log("contest details", contestDetails?.rewardType);
 
   useEffect(() => {
     if (!contest) {
       const url = location?.pathname?.split("/");
-      const name = decodeURIComponent(url[2]);
-      const date = url[3];
-      getContestDetails(name, date);
+      const slug = decodeURIComponent(url[2]);
+      // const date = url[3];
+      getContestDetails(slug);
     }
     window.webengage.track("featuredTestzone_registration_clicked", {});
   }, []);
-
-  const [buttonClicked, setButtonClicked] = useState(false);
-
-  async function confirmOTP() {
-    setDetails((prevState) => ({
-      ...prevState,
-      mobile_otp: detail.mobile_otp,
-    }));
-    setButtonClicked(true);
-    const {
-      firstName,
-      lastName,
-      email,
-      mobile,
-      contest,
-      referrerCode,
-      campaignCode,
-      mobile_otp,
-    } = detail;
-
-    window.webengage.track("featuredTestzone_confirmation_clicked", {
-      campaignCode: campaignCode,
-      referrerCode: referrerCode,
-      contest: contest,
-      mobile: mobile,
-      email: email,
-    });
-    if (!mobile_otp || !mobile) {
-      return openSuccessSB(
-        "Form Incomplete",
-        "Please fill all the required fields",
-        "Error"
-      );
-    }
-    const res = await fetch(
-      `${baseUrl}api/v1/dailycontest/featured/confirmotp`,
-      {
-        method: "POST",
-        // credentials:"include",
-        headers: {
-          "content-type": "application/json",
-          "Access-Control-Allow-Credentials": false,
-        },
-        body: JSON.stringify({
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          mobile: mobile,
-          contest: contest,
-          campaignCode: campaignCode,
-          mobile_otp: mobile_otp,
-          referrerCode,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (res.status === 201) {
-      setSubmitted(true);
-      setCreating(false);
-      setButtonClicked(false);
-      return openSuccessSB(
-        "TestZone Registration Completed",
-        data?.info,
-        "SUCCESS"
-      );
-    } else {
-      setButtonClicked(false);
-      return openSuccessSB("Error", data.info, "Error");
-    }
-  }
-
-  async function generateOTP() {
-    const {
-      firstName,
-      lastName,
-      email,
-      mobile,
-      contest,
-      referrerCode,
-      campaignCode,
-    } = detail;
-
-    if (!firstName || !lastName || !email || !mobile) {
-      return openSuccessSB(
-        "Form Incomplete",
-        "Please fill all the required fields",
-        "Error"
-      );
-    }
-    if (mobile.length !== 10) {
-      if (mobile.length === 12 && mobile.startsWith("91")) {
-      } else if (mobile.length === 11 && mobile.startsWith("0")) {
-      } else {
-        setOTPGenerated(false);
-        return openSuccessSB(
-          "Invalid Mobile Number",
-          "Enter 10 digit mobile number",
-          "Error"
-        );
-      }
-    }
-
-    setOTPGenerated(true);
-    const res = await fetch(
-      `${baseUrl}api/v1/dailycontest/featured/generateotp`,
-      {
-        method: "POST",
-        // credentials:"include",
-        headers: {
-          "content-type": "application/json",
-          "Access-Control-Allow-Credentials": false,
-        },
-        body: JSON.stringify({
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          mobile: mobile,
-          contest: contest,
-          campaignCode: campaignCode,
-          referrerCode,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (res.status === 201 || res.status === 200) {
-      setOTPGenerated(true);
-      return openSuccessSB("OTP Sent", data.message, "SUCCESS");
-    } else {
-      setOTPGenerated(false);
-      return openSuccessSB("Error", data.message, "Error");
-    }
-  }
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
 
@@ -244,20 +107,7 @@ const FeaturedContestRegistration = () => {
     color: "",
     icon: "",
   });
-  const openSuccessSB = (title, content, message) => {
-    msgDetail.title = title;
-    msgDetail.content = content;
-    if (message == "SUCCESS") {
-      msgDetail.color = "success";
-      msgDetail.icon = "check";
-    } else {
-      msgDetail.color = "error";
-      msgDetail.icon = "warning";
-    }
-    // console.log(msgDetail)
-    setMsgDetail(msgDetail);
-    setSuccessSB(true);
-  };
+
 
   const closeSuccessSB = () => {
     setSuccessSB(false);
@@ -276,24 +126,12 @@ const FeaturedContestRegistration = () => {
     />
   );
 
-  const [checkUserExist, setCheckUserExist] = useState(true);
-  async function handleMobile(e) {
-    setDetails((prevState) => ({ ...prevState, mobile: e.target.value }));
-    if (e.target.value.length >= 10) {
-      axios
-        .get(`${apiUrl}user/exist/${e.target.value}`)
-        .then((res) => {
-          setCheckUserExist(res?.data?.data);
-        })
-        .catch((err) => {
-          return new Error(err);
-        });
-    }
-  }
-
+//price pool worth rs. 800000
+  let totalRewardWorth = 0 ;
   contestDetails.rewards?.map((elem) => {
     let featureObj = {};
-
+    console.log('reward', elem?.rankEnd, elem?.rankStart , Number(elem?.prizeValue));
+    totalRewardWorth += ((elem?.rankEnd - elem?.rankStart + 1) * Number(elem?.prizeValue));
     featureObj.rank = (
       <MDTypography
         component="a"
@@ -343,7 +181,45 @@ const FeaturedContestRegistration = () => {
     );
   }
 
-  console.log("contestDetails", contestDetails);
+  function dateConvert(dateConvert) {
+    const dateString = dateConvert || new Date();
+    const date = new Date(dateString);
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    };
+
+    const formattedDate = new Intl.DateTimeFormat("en-US", options).format(
+      date
+    );
+
+    // get day of month and add ordinal suffix
+    const dayOfMonth = date.getDate();
+    let suffix = "th";
+    if (dayOfMonth === 1 || dayOfMonth === 21 || dayOfMonth === 31) {
+      suffix = "st";
+    } else if (dayOfMonth === 2 || dayOfMonth === 22) {
+      suffix = "nd";
+    } else if (dayOfMonth === 3 || dayOfMonth === 23) {
+      suffix = "rd";
+    }
+
+    // combine date and time string with suffix
+    const finalFormattedDate = `${dayOfMonth}${suffix} ${
+      formattedDate?.split(" ")[0]
+    }, ${date.toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    })}`;
+
+    // console.log(finalFormattedDate); // Output: "3rd April, 9:27 PM"
+
+    return finalFormattedDate;
+  }
 
   return (
     <MDBox
@@ -360,7 +236,12 @@ const FeaturedContestRegistration = () => {
       }}
     >
       <ThemeProvider theme={theme}>
-        {/* <FinNavbar /> */}
+        <Helmet>
+          <title>{contestDetails?.metaTitle}</title>
+          <meta name='description' content={contestDetails?.metaDescription} />
+          <meta name='keywords' content={contestDetails?.keywords} />
+
+        </Helmet>
         <Grid
           mt={1}
           display="flex"
@@ -440,7 +321,7 @@ const FeaturedContestRegistration = () => {
                       alignContent="center"
                       alignItems="center"
                     >
-                      <img src={contestimage} width= {isMobile ? '384px' : '1024px'}/>
+                      <img src={contestDetails?.image} width= {isMobile ? '384px' : '1024px'}/>
                     </Grid>
 
                     <Grid
@@ -473,7 +354,8 @@ const FeaturedContestRegistration = () => {
                         color='warning'
                         sx={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif' }}
                       >
-                        20th March 2024, 9:30 AM | 27th March 3:20 PM
+                        {`${dateConvert(contestDetails?.contestStartTime)} | ${dateConvert(contestDetails?.contestEndTime)}`}
+                        {/* 20th March 2024, 9:30 AM | 27th March 3:20 PM */}
                       </MDTypography>
                       </Grid>
                       </Grid>
@@ -491,7 +373,10 @@ const FeaturedContestRegistration = () => {
                       alignItems="center"
                     >
                       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
-                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'}>Register Now(₹200/-)</MDButton></MDBox>
+                      {/* <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'}>Register Now(₹200/-)</MDButton></MDBox> */}
+                        <SignupLoginPopup
+                          data={contestDetails} testzone={true} referrerCode={newReferrerCode}
+                        />
                       <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDTypography variant='caption'>*Limited seats only. Hurry Up!</MDTypography></MDBox>
                       </MDBox>
                     </Grid>
@@ -525,7 +410,10 @@ const FeaturedContestRegistration = () => {
                             <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                               <MDBox display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{minWidth:'100%'}}>
                                 <MDBox><img src={reward} alt="Reward" width={isMobile ? '100px' : '150px'}/></MDBox>
-                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>INR 1,00,000 cash rewards</MDTypography></MDBox>
+                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>{`Price pool worth ₹${new Intl.NumberFormat(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(totalRewardWorth)}`}</MDTypography></MDBox>
                               </MDBox>
                             </Grid>
                             <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
@@ -668,7 +556,10 @@ const FeaturedContestRegistration = () => {
                 alignItems="center"
               >
                 <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
-                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'}>Register Now(₹200/-)</MDButton></MDBox>
+                {/* <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'}>Register Now(₹200/-)</MDButton></MDBox> */}
+                  <SignupLoginPopup
+                    data={contestDetails} testzone={true} referrerCode={newReferrerCode}
+                  />
                 <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDTypography variant='caption'>*Limited seats only. Hurry Up!</MDTypography></MDBox>
                 </MDBox>
               </Grid>
@@ -683,4 +574,3 @@ const FeaturedContestRegistration = () => {
 
 export default FeaturedContestRegistration;
 
-//6UOWyIuWrBj5QdME6zzOA6p1qsLByKL1

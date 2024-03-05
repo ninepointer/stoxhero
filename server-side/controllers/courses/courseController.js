@@ -430,6 +430,26 @@ exports.getCourseContent = async (req, res) => {
   }
 };
 
+exports.getCourseContentTopic = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const contentId = req.params.contentId;
+    const courses = await Course.findOne({
+      _id: new ObjectId(courseId),
+    }).select("courseContent");
+    const content = courses?.courseContent?.filter(
+      (item) => item?._id?.toString() == contentId?.toString()
+    );
+    res.status(200).json({ status: "success", data: content[0] });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 exports.getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find();
@@ -625,7 +645,7 @@ exports.addSubTopic = async (req, res) => {
       return res.status(404).json({ message: "Course not found" });
     }
     filter[0].subtopics.push(newOption);
-    const newData = await course.save({ new: true });
+    const newData = await course.save({ new: true, validateBeforeSave: false });
 
     const optionData = newData?.courseContent?.filter((elem) => {
       return elem?._id?.toString() === contentId?.toString();
@@ -1189,10 +1209,26 @@ exports.getAwaitingApprovals = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
+          averageRating: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1240,10 +1276,26 @@ exports.getPendingApproval = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
+          averageRating: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1291,10 +1343,27 @@ exports.getPublished = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          status: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
+          averageRating: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1342,10 +1411,27 @@ exports.getUnpublished = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $project: {
           courseName: 1,
           courseStartTime: 1,
           courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          status: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
+          averageRating: 1,
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1410,6 +1496,14 @@ exports.getUserCourses = async (req, res) => {
           coursePrice: 1,
           discountedPrice: 1,
           averageRating: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $size: "$courseContent",
+          },
           userEnrolled: {
             $size: "$enrollments",
           },
@@ -1423,6 +1517,11 @@ exports.getUserCourses = async (req, res) => {
               },
             },
           },
+          
+          isPaid: {
+            $in: [new ObjectId(userId), "$enrollments.userId"]
+          }
+          
         },
       },
       {
@@ -1469,7 +1568,7 @@ exports.getCourseByIdUser = async (req, res) => {
     const courseId = req.params.id;
     const courses = await Course.findOne({ _id: new ObjectId(courseId) })
       .populate("courseInstructors.id", "first_name last_name email")
-      .select("-enrollments -createdOn -createdBy");
+      .select("-enrollments -createdOn -createdBy -commissionPercentage");
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -1480,87 +1579,6 @@ exports.getCourseByIdUser = async (req, res) => {
   }
 };
 
-// exports.getCoursesByUserSlug = async (req, res) => {
-//   try {
-//     const slug = req.query.slug;
-//     const user = await User.findOne({ slug: slug }).select("_id");
-//     const skip = Number(Number(req.query.skip) || 0);
-//     const limit = Number(Number(req.query.limit) || 10);
-
-//     const pipeline = [
-//       {
-//         $match: {
-//           status: "Published",
-//           "courseInstructors.id": new ObjectId(user?._id),
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "courseInstructors.id",
-//           foreignField: "_id",
-//           as: "instructor",
-//         },
-//       },
-//       {
-//         $sort: {
-//           courseStartTime: 1,
-//           _id: -1,
-//         },
-//       },
-//       {
-//         $addFields: {
-//           averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
-//         },
-//       },
-//       {
-//         $project: {
-//           courseName: 1,
-//           courseStartTime: 1,
-//           courseSlug: 1,
-//           courseImage: 1,
-//           coursePrice: 1,
-//           averageRating: 1,
-//           discountedPrice: 1,
-//           userEnrolled: {
-//             $size: "$enrollments",
-//           },
-//           maxEnrollments: 1,
-//           instructorName: {
-//             $map: {
-//               input: "$instructor",
-//               as: "inst",
-//               in: {
-//                 $concat: ["$$inst.first_name", " ", "$$inst.last_name"],
-//               },
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $skip: skip,
-//       },
-//       {
-//         $limit: limit,
-//       },
-//     ];
-
-//     const course = await Course.aggregate(pipeline)
-//       .sort({ courseStartTime: 1 })
-//       .skip(skip)
-//       .limit(limit);
-
-//     const count = await Course.countDocuments({
-//       status: "Published",
-//       "courseInstructors.id": new ObjectId(user?._id),
-//     });
-
-//     res.status(200).json({ status: "success", data: course, count: count });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).json({ status: "error", message: "something went wrong" });
-//   }
-// };
 exports.getCoursesByUserSlug = async (req, res) => {
   try {
     const slug = req.query.slug;
@@ -2267,6 +2285,14 @@ exports.myCourses = async (req, res) => {
                 coursePrice: 1,
                 discountedPrice: 1,
                 userEnrolled: 1,
+                courseDurationInMinutes: 1,
+                courseType: 1,
+                type: 1,
+                category: 1,
+                level: 1,
+                lectures: {
+                  $size: "$courseContent",
+                },
                 maxEnrolments: 1,
                 topics: "$courseContent",
                 coursePrgress: {
@@ -2288,6 +2314,7 @@ exports.myCourses = async (req, res) => {
                     },
                   },
                 },
+            
               },
             },
             {

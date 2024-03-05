@@ -29,12 +29,14 @@ const {
 } = require("../../controllers/notification/notificationController");
 const { sendMultiNotifications } = require("../../utils/fcmService");
 const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
-const { ObjectId } = require("mongodb");
-const { promisify } = require("util");
-const { client } = require("../../marketData/redisClient");
-const School = require("../../models/School/School");
+const {ObjectId} = require('mongodb')
+const { promisify } = require('util');
+const {client} = require("../../marketData/redisClient");
+const School = require('../../models/School/School');
 const bcrypt = require("bcryptjs");
-const moment = require("moment");
+const moment = require('moment');
+
+
 
 router.get("/send", async (req, res) => {
   // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});

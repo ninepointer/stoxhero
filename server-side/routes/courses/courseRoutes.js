@@ -258,6 +258,13 @@ router.get(
 );
 
 router.get(
+  "/:id/content/:contentId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  courseController.getCourseContentTopic
+);
+
+router.get(
   "/:id/benefit",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),

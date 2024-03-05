@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 // import { useForm } from "react-hook-form";
 // import Box from '@mui/material/Box';
-import TextField from "@mui/material/TextField";
+import {TextField, Card, Typography, CardActionArea, CardContent} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
@@ -64,7 +64,8 @@ function Index() {
   const location = useLocation();
   const contest = location?.state?.data;
   const [collegeSelectedOption, setCollegeSelectedOption] = useState();
-  // console.log('id hai', contest);
+  const [previewUrl, setPreviewUrl] = useState('');
+
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   let baseUrl =
@@ -86,6 +87,7 @@ function Index() {
   let Url =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/";
   // const [type, setType] = useState(contest?.portfolio?.portfolioName.includes('Workshop')?'Workshop':'Job');
+  const [image, setImage] = useState(null);
 
   const [formState, setFormState] = useState({
     contestName: "" || contest?.contestName,
@@ -231,148 +233,112 @@ function Index() {
     }));
   };
 
+  const handleImage = (event) => {
+    const file = event.target.files[0];
+    setImage(event.target.files);
+    // console.log("Title File:",file)
+    // Create a FileReader instance
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreviewUrl(reader.result);
+      // console.log("Title Preview Url:",reader.result)
+    };
+    reader.readAsDataURL(file);
+  };
+
   async function onSubmit(e, formState) {
     // console.log("inside submit")
     e.preventDefault();
-    console.log(formState);
-    if (formState.contestLiveTime > formState.contestStartTime) {
-      return openErrorSB("Error", "Live time should be less then start time.");
-    }
-    if (formState.contestStartTime > formState.contestEndTime) {
-      return openErrorSB("Error", "Date range is not valid.");
-    }
-    if (
-      !formState.contestName ||
-      !formState.contestStartTime ||
-      !formState.contestEndTime ||
-      !formState.contestStatus ||
-      !formState.contestType ||
-      !formState.portfolio.id ||
-      (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty)
-    ) {
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
-      return openErrorSB(
-        "Missing Field",
-        "Please fill all the mandatory fields"
-      );
+    if (!image) {
+      openSuccessSB('error', 'Please select a file to upload');
+      return;
     }
 
-    setTimeout(() => {
-      setCreating(false);
-      setIsSubmitted(true);
-    }, 500);
-    const {
-      visibility,
-      rewardType,
-      tdsRelief,
-      contestLiveTime,
-      payoutPercentageType,
-      payoutType,
-      liveThreshold,
-      currentLiveStatus,
-      contestName,
-      contestStartTime,
-      contestEndTime,
-      contestStatus,
-      maxParticipants,
-      payoutPercentage,
-      entryFee,
-      description,
-      portfolio,
-      contestType,
-      contestFor,
-      collegeCode,
-      college,
-      featured,
-      isNifty,
-      isBankNifty,
-      isFinNifty,
-      isAllIndex,
-      contestExpiry,
-      payoutCapPercentage,
-    } = formState;
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "content-type": "application/json",
-        "Access-Control-Allow-Credentials": true,
-      },
-      body: JSON.stringify({
-        visibility,
-        rewardType,
-        tdsRelief,
-        contestLiveTime,
-        payoutPercentageType,
-        payoutType,
-        liveThreshold,
-        currentLiveStatus,
-        contestName,
-        contestStartTime,
-        contestEndTime,
-        contestStatus,
-        maxParticipants,
-        payoutPercentage,
-        entryFee,
-        description,
-        portfolio: portfolio?.id,
-        contestType,
-        contestFor,
-        collegeCode,
-        college,
-        featured,
-        isNifty,
-        isBankNifty,
-        isFinNifty,
-        isAllIndex,
-        contestExpiry,
-        payoutCapPercentage,
-      }),
-    });
+    try{
+      const formData = new FormData();
+      if (image) {
+        formData.append("image", image[0]);
+      }
 
-    const data = await res.json();
-    console.log(data, res.status);
-    if (res.status !== 201) {
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
-      openErrorSB("TestZone not created", data?.message);
-    } else {
-      openSuccessSB("TestZone Created", data?.message);
-      setNewObjectId(data?.data?._id);
-      setIsSubmitted(true);
-      setDailyContest(data?.data);
+      if (formState.contestLiveTime > formState.contestStartTime) {
+        return openErrorSB("Error", "Live time should be less then start time.");
+      }
+      if (formState.contestStartTime > formState.contestEndTime) {
+        return openErrorSB("Error", "Date range is not valid.");
+      }
+      if (
+        !formState.contestName ||
+        !formState.contestStartTime ||
+        !formState.contestEndTime ||
+        !formState.contestStatus ||
+        !formState.contestType ||
+        !formState.portfolio.id ||
+        (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty)
+      ) {
+        setTimeout(() => {
+          setCreating(false);
+          setIsSubmitted(false);
+        }, 500);
+        return openErrorSB(
+          "Missing Field",
+          "Please fill all the mandatory fields"
+        );
+      }
+  
       setTimeout(() => {
         setCreating(false);
         setIsSubmitted(true);
       }, 500);
+
+      for(let elem in formState){
+        elem!=='portfolio' && formData.append(`${elem}`, formState[elem]);
+      }
+
+      if(formState?.portfolio?.id){
+        formData.append(`portfolio`, formState?.portfolio?.id);
+      }
+      
+      const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          // "content-type": "application/json",
+          "Access-Control-Allow-Credentials": true,
+        },
+        body: formData
+      });
+  
+      const data = await res.json();
+      console.log(data, res.status);
+      if (res.status !== 201) {
+        setTimeout(() => {
+          setCreating(false);
+          setIsSubmitted(false);
+        }, 500);
+        openErrorSB("TestZone not created", data?.message);
+      } else {
+        openSuccessSB("TestZone Created", data?.message);
+        setNewObjectId(data?.data?._id);
+        setIsSubmitted(true);
+        setDailyContest(data?.data);
+        setTimeout(() => {
+          setCreating(false);
+          setIsSubmitted(true);
+        }, 500);
+      }
+    } catch(err){
+
     }
+
   }
 
   // console.log("dailyContest", dailyContest)
 
   async function onEdit(e, formState) {
+   try{
     e.preventDefault();
-    // console.log("Edited FormState: ", new Date(formState.contestStartTime).toISOString(), new Date(formState.contestEndTime).toISOString())
     setSaving(true);
-    console.log(
-      "formstate....",
-      formState,
-      formState.contestName,
-      formState.contestStartTime,
-      formState.contestEndTime,
-      formState.contestStatus,
-      formState.maxParticipants,
-      formState.description,
-      formState.contestType,
-      formState.portfolio,
-      formState.contestFor,
-      (formState.isNifty, formState.isBankNifty, formState.isFinNifty)
-    );
+
 
     if (
       new Date(formState.contestLiveTime).toISOString() >
@@ -417,81 +383,35 @@ function Index() {
         "Please fill all the mandatory fields"
       );
     }
-    const {
-      visibility,
-      rewardType,
-      tdsRelief,
-      contestLiveTime,
-      payoutPercentageType,
-      payoutType,
-      liveThreshold,
-      currentLiveStatus,
-      contestName,
-      contestStartTime,
-      contestEndTime,
-      contestStatus,
-      maxParticipants,
-      payoutPercentage,
-      entryFee,
-      description,
-      portfolio,
-      contestType,
-      contestFor,
-      collegeCode,
-      college,
-      isNifty,
-      featured,
-      isBankNifty,
-      isFinNifty,
-      isAllIndex,
-      contestExpiry,
-      payoutCapPercentage,
-    } = formState;
 
+    const formData = new FormData();
+    if (image) {
+      formData.append("image", image[0]);
+    }
+
+    for(let elem in formState){
+      elem!=='portfolio' && formData.append(`${elem}`, formState[elem]);
+    }
+
+    if(formState?.portfolio?.id){
+      formData.append(`portfolio`, formState?.portfolio?.id);
+    }
+    
     const res = await fetch(
-      `${baseUrl}api/v1/dailycontest/contest/${contest?._id}`,
+      `${apiUrl}dailycontest/contest/${contest?._id}`,
       {
         method: "PUT",
         credentials: "include",
         headers: {
-          "content-type": "application/json",
+          // "content-type": "application/json",
           "Access-Control-Allow-Credentials": true,
         },
-        body: JSON.stringify({
-          visibility,
-          rewardType,
-          tdsRelief,
-          contestLiveTime,
-          payoutPercentageType,
-          payoutType,
-          liveThreshold,
-          currentLiveStatus,
-          contestName,
-          contestStartTime,
-          contestEndTime,
-          contestStatus,
-          maxParticipants,
-          payoutPercentage,
-          entryFee,
-          description,
-          portfolio: portfolio?.id,
-          contestType,
-          contestFor,
-          collegeCode,
-          college,
-          featured,
-          isNifty,
-          isBankNifty,
-          isFinNifty,
-          isAllIndex,
-          contestExpiry,
-          payoutCapPercentage,
-        }),
+        body: formData,
       }
     );
 
     const data = await res.json();
-    console.log(data);
+    // console.log(data);
     if (
       data.status === 500 ||
       data.status == 400 ||
@@ -511,7 +431,7 @@ function Index() {
         setSaving(false);
         setEditing(false);
       }, 500);
-      console.log("entry succesfull");
+      
     } else {
       openErrorSB("Error", data.message);
       setTimeout(() => {
@@ -519,6 +439,9 @@ function Index() {
         setEditing(true);
       }, 500);
     }
+   } catch(err){
+
+   }
   }
 
   const [title, setTitle] = useState("");
@@ -1259,6 +1182,83 @@ function Index() {
                   />
                 </FormGroup>
               </Grid>
+
+                <Grid item xs={12} md={6} xl={3}>
+                  <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(contest?.image && !image) ? "warning" : ((contest?.image && image) || image) ? "error" : "success"} component="label">
+                    Upload Image(1024X512)
+                    <input
+                      hidden
+                      disabled={(isSubmitted || contest) && (!editing || saving)}
+                      accept="image/*"
+                      type="file"
+                      // onChange={(e)=>{setImage(e.target.files)}}
+                      onChange={(e) => {
+                        // setFormState(prevState => ({
+                        //   ...prevState,
+                        //   image: e.target.files
+                        // }));
+                        // setImage(e.target.files);
+                        handleImage(e);
+                      }}
+                    />
+                  </MDButton>
+                </Grid>
+
+                <Grid item xs={12} md={6} xl={3} mb={2}>
+                <TextField
+                  disabled={(isSubmitted || contest) && (!editing || saving)}
+                  id="outlined-required"
+                  label="Meta Title *"
+                  name="metaTitle"
+                  fullWidth
+                  defaultValue={
+                    editing ? formState?.metaTitle : contest?.metaTitle
+                  }
+                  onChange={handleChange}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3} mb={2}>
+                <TextField
+                  disabled={(isSubmitted || contest) && (!editing || saving)}
+                  id="outlined-required"
+                  label="Meta Description *"
+                  name="metaDescription"
+                  fullWidth
+                  defaultValue={
+                    editing ? formState?.metaDescription : contest?.metaDescription
+                  }
+                  onChange={handleChange}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3} mb={2}>
+                <TextField
+                  disabled={(isSubmitted || contest) && (!editing || saving)}
+                  id="outlined-required"
+                  label="Meta Keyword *"
+                  name="metaKeyword"
+                  fullWidth
+                  defaultValue={
+                    editing ? formState?.metaKeyword : contest?.metaKeyword
+                  }
+                  onChange={handleChange}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3} mb={2}>
+                <TextField
+                  disabled={(isSubmitted || contest) && (!editing || saving)}
+                  id="outlined-required"
+                  label="Slug Route *"
+                  name="slug"
+                  fullWidth
+                  defaultValue={
+                    editing ? formState?.slug : contest?.slug
+                  }
+                  onChange={handleChange}
+                />
+              </Grid>
             </Grid>
           </Grid>
 
@@ -1361,6 +1361,57 @@ function Index() {
                 </>
               )}
             </Grid>
+
+            <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} mt={1} display="flex" justifyContent='flex-start' alignItems='center' style={{maxWidth:'100%', height:'auto'}}>
+          {previewUrl ?
+             
+             <Grid item xs={12} md={12} xl={3} style={{maxWidth:'100%', height:'auto'}}>
+              <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                  <Card sx={{ minWidth: '100%', cursor:'pointer' }}>       
+                    <CardActionArea>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                      <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                        <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                        <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{textAlign:'center'}}>
+                          Image
+                        </Typography>
+                        </MDBox>
+                      </CardContent>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                      <img src={previewUrl} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
+                    </Grid>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Grid>
+              :
+              <Grid item xs={12} md={12} xl={3} style={{maxWidth:'100%', height:'auto'}}>
+                <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                  <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
+                    <Card sx={{ minWidth: '100%', cursor:'pointer' }}>       
+                      <CardActionArea>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
+                          <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
+                          <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{textAlign:'center'}}>
+                            Image
+                          </Typography>
+                          </MDBox>
+                        </CardContent>
+                      </Grid>
+                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
+                        <img src={contest?.image} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
+                      </Grid>
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
+                </Grid>
+              </Grid>
+          }
+          </Grid>
 
             {(contest?.payoutType === "Reward" ||
               (isSubmitted && formState?.payoutType === "Reward")) && (

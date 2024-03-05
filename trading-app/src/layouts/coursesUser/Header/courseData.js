@@ -14,6 +14,8 @@ import { Link } from "react-router-dom";
 import moment from 'moment'
 import Payment from '../data/payment.js';
 import MDSnackbar from "../../../components/MDSnackbar/index.js";
+import { useMediaQuery } from "@mui/material";
+import theme from "../../HomePage/utils/theme/index";
 
 
 const Courses = () => {
@@ -103,6 +105,7 @@ const Courses = () => {
         />
     );
 
+    const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
     return (
         <>
@@ -113,7 +116,7 @@ const Courses = () => {
                             <Grid container xs={12} md={12} lg={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', height: 'auto' }}>
                                 <Card
                                     sx={{ minWidth: '100%', cursor: 'pointer' }}
-                                
+
                                 >
                                     <CardActionArea>
                                         <Grid item xs={12} md={4} lg={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', height: 'auto' }}>
@@ -126,22 +129,146 @@ const Courses = () => {
                                                 <Divider style={{ width: '100%' }} />
                                                 <MDBox style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', marginBottom: '12px', padding: '12px', borderRadius: '16px', boxShadow: "0px 4px 6px -2px rgba(0, 0, 0, 0.5)", width: '100%' }}>
                                                     <MDBox sx={{ display: 'flex', flexDirection: "column" }}>
-                                                        <MDBox sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', gap: 5 }}>
-                                                            <img src={courses.courseImage} style={{ height: '200px', width: '350' }} />
-                                                            <video src={courses.salesVideo} style={{ height: '200px', width: '350px' }} controls />
+                                                        <MDBox sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', gap: 5, flexWrap: 'wrap' }}>
+                                                            <Grid
+                                                                container
+                                                                spacing={1}
+                                                                xs={12}
+                                                                md={12}
+                                                                lg={4}
+                                                                display="flex"
+                                                                justifyContent={
+                                                                    isMobile ? "center" : "center"
+                                                                }
+                                                                alignContent="center"
+                                                                alignItems={
+                                                                    isMobile ? "center" : "flex-start"
+                                                                }
+                                                            >
+                                                                <img src={courses.courseImage} style={{ height: '200px', width: '350' }} />
+                                                            </Grid>
+                                                            <Grid
+                                                                container
+                                                                spacing={1}
+                                                                xs={12}
+                                                                md={12}
+                                                                lg={4}
+                                                                display="flex"
+                                                                justifyContent={
+                                                                    isMobile ? "center" : "center"
+                                                                }
+                                                                alignContent="center"
+                                                                alignItems={
+                                                                    isMobile ? "center" : "flex-start"
+                                                                }
+                                                            >
+                                                                <video src={courses.salesVideo} style={{ height: '200px', width: '350px' }} controls />
+                                                            </Grid>
+                                                            <Grid
+                                                                container
+                                                                spacing={1}
+                                                                xs={12}
+                                                                md={12}
+                                                                lg={2}
+                                                                display="flex"
+                                                                justifyContent={
+                                                                    isMobile ? "center" : "center"
+                                                                }
+                                                                alignContent="center"
+                                                                alignItems={
+                                                                    isMobile ? "center" : "flex-start"
+                                                                }
+                                                            >
+                                                                <Grid
+                                                                    item
+                                                                    xs={12}
+                                                                    md={12}
+                                                                    lg={12}
+                                                                    display="flex"
+                                                                    justifyContent={
+                                                                        isMobile ? "center" : "center"
+                                                                    }
+                                                                    alignContent="center"
+                                                                    alignItems={
+                                                                        isMobile ? "center" : "center"
+                                                                    }
+                                                                >
+                                                                    <Payment data={courses} setShowPay={setShowPay} showPay={showPay} checkPaid={checkPaid} />
+                                                                </Grid>
 
+                                                                <Grid
+                                                                    item
+                                                                    xs={12}
+                                                                    md={12}
+                                                                    lg={12}
+                                                                    display="flex"
+                                                                    justifyContent={
+                                                                        isMobile ? "center" : "center"
+                                                                    }
+                                                                    alignContent="center"
+                                                                    alignItems={
+                                                                        isMobile ? "center" : "center"
+                                                                    }
+                                                                >
+                                                                    <MDTypography
+                                                                        variant="body1"
+                                                                        fontWeight="bold"
+                                                                    >
+                                                                        ₹
+                                                                        {new Intl.NumberFormat(
+                                                                            undefined,
+                                                                            {
+                                                                                minimumFractionDigits: 0,
+                                                                                maximumFractionDigits: 0,
+                                                                            }
+                                                                        ).format(courses?.discountedPrice)}
+                                                                    </MDTypography>
+                                                                </Grid>
+                                                                <Grid
+                                                                    item
+                                                                    xs={12}
+                                                                    md={12}
+                                                                    lg={12}
+                                                                    display="flex"
+                                                                    justifyContent={
+                                                                        isMobile ? "center" : "center"
+                                                                    }
+                                                                    alignContent="center"
+                                                                    alignItems={
+                                                                        isMobile ? "center" : "center"
+                                                                    }
+                                                                >
+                                                                    <MDTypography
+                                                                        variant="body2"
+                                                                        fontWeight="normal"
+                                                                        style={{
+                                                                            textDecoration:
+                                                                                "line-through",
+                                                                        }}
+                                                                    >
+                                                                        ₹
+                                                                        {new Intl.NumberFormat(
+                                                                            undefined,
+                                                                            {
+                                                                                minimumFractionDigits: 0,
+                                                                                maximumFractionDigits: 0,
+                                                                            }
+                                                                        ).format(courses?.coursePrice)}
+                                                                    </MDTypography>
+                                                                </Grid>
+                                                            </Grid>
                                                         </MDBox>
 
-                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000' }} >Course Basic Details</MDTypography>
-                                                        <MDBox>
-                                                            <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Name: <span style={{ fontWeight: 600 }}>{`${courses.courseName}`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Language: <span style={{ fontWeight: 600 }}>{`${courses?.courseLanguages}`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Duration: <span style={{ fontWeight: 600 }}>{`${courses?.courseDurationInMinutes}`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${courses?.maxEnrolments}`}</span></MDTypography>
+                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Course Basic Details</MDTypography>
+                                                        <MDBox style={{ paddingLeft: isMobile ? '20px' : '0px' }}>
+                                                            <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row' }}>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Name: <span style={{ fontWeight: 600 }}>{`${courses.courseName}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Language: <span style={{ fontWeight: 600 }}>{`${courses?.courseLanguages}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Duration: <span style={{ fontWeight: 600 }}>{`${courses?.courseDurationInMinutes} min`}</span></MDTypography>
+                                                                {/* <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${courses?.maxEnrolments}`}</span></MDTypography> */}
                                                             </MDBox>
 
-                                                            <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                            <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: isMobile ? 'column' : 'row' }}>
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Type: <span style={{ fontWeight: 600 }}>{`${courses.type}`}</span></MDTypography>
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Type: <span style={{ fontWeight: 600 }}>{`${courses?.courseType}`}</span></MDTypography>
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Category: <span style={{ fontWeight: 600 }}>{`${courses?.category}`}</span></MDTypography>
@@ -149,7 +276,7 @@ const Courses = () => {
                                                             </MDBox>
 
                                                             {(courses.courseStartTime || courses.courseEndTime) &&
-                                                                <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: isMobile ? 'column' : 'row' }}>
                                                                     <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Starts: <span style={{ fontWeight: 600 }}>{`${moment(courses?.registrationStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
                                                                     <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Ends: <span style={{ fontWeight: 600 }}>{`${moment(courses?.registrationEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
                                                                     <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Starts: <span style={{ fontWeight: 600 }}>{`${moment(courses?.courseStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
@@ -162,31 +289,40 @@ const Courses = () => {
                                                             </MDBox>
                                                         </MDBox>
 
-                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Course Description</MDTypography>
-                                                        <MDBox style={{ maxWidth: '100%', width: '100%', height: 'auto' }}>
-                                                            <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} />
+                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '5px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Course Description</MDTypography>
+                                                        <MDBox style={{ maxWidth: '100%', width: '100%', height: 'auto', paddingLeft: isMobile ? '20px' : '0px' }}>
+                                                            <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} style={{ fontFamily: 'Work Sans , sans-serif' }} />
                                                         </MDBox>
 
-                                                        <MDTypography style={{ fontSize: '14px', marginTop: '5px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Pricing Details</MDTypography>
-                                                        <MDBox sx={{ display: 'flex', justifyContent: 'center', flexDirection: "column" }}>
-                                                            <MDBox sx={{ display: 'flex', gap: 5 }}>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Actual Price: <span style={{ fontWeight: 600 }}>{courses?.coursePrice}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Discounted Price: <span style={{ fontWeight: 600 }}>{`${courses?.discountedPrice}`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Commission %: <span style={{ fontWeight: 600 }}>{`${courses?.commissionPercentage}`}</span></MDTypography>
-                                                            </MDBox>
-                                                        </MDBox> 
+                                                        <MDTypography style={{ fontSize: '14px', marginTop: '8px', marginBottom: '2px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Pricing Details</MDTypography>
+                                                        <MDBox sx={{ display: 'flex', justifyContent: 'center', flexDirection: "column", paddingLeft: isMobile ? '20px' : '0px' }}>
+                                                            <MDBox sx={{ display: 'flex', gap: isMobile ? 0 : 5, flexDirection: isMobile ? 'column' : 'row' }}>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >Actual Price: <span style={{ fontWeight: 600 }}>₹{
+                                                                    new Intl.NumberFormat(undefined, {
+                                                                        minimumFractionDigits: 0,
+                                                                        maximumFractionDigits: 0,
+                                                                    }).format(courses?.coursePrice)
+                                                                }</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >Discounted Price: <span style={{ fontWeight: 600 }}>₹{`${new Intl.NumberFormat(undefined, {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0,
+                                                                }).format(courses?.discountedPrice)
+                                                                    }`}</span></MDTypography>
 
-                                                        <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Instructor Details</MDTypography>
-                                                        <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
-                                                            {courses?.courseInstructors?.map((elem) => {
+                                                            </MDBox>
+                                                        </MDBox>
+
+                                                        <MDTypography style={{ fontSize: '14px', margin: '8px 0px 2px 0px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Instructor Details</MDTypography>
+                                                        <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', paddingLeft: isMobile ? '20px' : '0px' }}>
+                                                            {courses?.courseInstructors?.map((courses) => {
                                                                 return (
-                                                                    <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                    <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
                                                                         <MDBox>
-                                                                            <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >Instructor Name: <span style={{ fontWeight: 600 }}>{`${elem?.id?.first_name + " " + elem?.id?.last_name}`}</span></MDTypography>
-                                                                            <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >About Instructor: <span style={{ fontWeight: 600 }}>{`${elem?.about}`}</span></MDTypography>
+                                                                            <img src={courses?.image} alt="image" style={{ height: '90px', width: '90px', paddingLeft: isMobile ? '0px' : '0px', borderRadius: '50%' }} />
                                                                         </MDBox>
                                                                         <MDBox>
-                                                                            <img src={elem?.image} alt="image" style={{ height: '70px', width: '70px' }} />
+                                                                            <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >Instructor Name: <span style={{ fontWeight: 600 }}>{`${courses?.id?.first_name + " " + courses?.id?.last_name}`}</span></MDTypography>
+                                                                            <MDTypography style={{ fontSize: '14px', marginBottom: '2px' }} >About Instructor: <span style={{ fontWeight: 600 }}>{`${courses?.about}`}</span></MDTypography>
                                                                         </MDBox>
                                                                     </MDBox>
                                                                 )
@@ -194,13 +330,13 @@ const Courses = () => {
 
                                                         </MDBox>
 
-                                                        <MDTypography style={{ fontSize: '14px', margin: '2px 0px 0px 0px', fontWeight: 800, color: '#000000' }} >Course Topics</MDTypography>
-                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
-                                                            {courses?.courseContent?.map((elem) => (
-                                                                <Box key={elem._id} sx={{ margin: '2px' }}>
-                                                                    <Typography style={{ fontSize: '16px' }}> <span>{elem?.order}.</span> {elem?.topic}</Typography>
+                                                        <MDTypography style={{ fontSize: '14px', margin: '2px 0px 0px 0px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Course Topics</MDTypography>
+                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', paddingLeft: isMobile ? '20px' : '0px' }}>
+                                                            {courses?.courseContent?.map((courses) => (
+                                                                <Box key={courses._id} sx={{ margin: '2px' }}>
+                                                                    <Typography style={{ fontSize: '16px' }}> <span>{courses?.order}.</span> {courses?.topic}</Typography>
                                                                     <ul style={{ marginLeft: "30px" }}>
-                                                                        {elem?.subtopics?.map((item, index) => (
+                                                                        {courses?.subtopics?.map((item, index) => (
                                                                             <li key={index}>
                                                                                 <Typography style={{ fontSize: '14px', marginBottom: '1px' }}> {item?.topic}</Typography>
                                                                             </li>
@@ -210,21 +346,21 @@ const Courses = () => {
                                                             ))}
                                                         </Box>
 
-                                                        <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Course Benefits</MDTypography>
-                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
-                                                            {courses?.courseBenefits?.map((elem) => (
-                                                                <Box key={elem._id} sx={{ margin: '2px' }}>
-                                                                    <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span>{elem?.order}.</span> {elem?.benefits}</Typography>
+                                                        <MDTypography style={{ fontSize: '14px', margin: '8px 0px 2px 0px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >Course Benefits</MDTypography>
+                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', paddingLeft: isMobile ? '20px' : '0px' }}>
+                                                            {courses?.courseBenefits?.map((courses) => (
+                                                                <Box key={courses._id} sx={{ margin: '2px' }}>
+                                                                    <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span>{courses?.order}.</span> {courses?.benefits}</Typography>
                                                                 </Box>
                                                             ))}
                                                         </Box>
 
-                                                        <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >FAQ's</MDTypography>
-                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
-                                                            {courses?.faqs?.map((elem) => (
-                                                                <Box key={elem._id} sx={{ margin: '2px' }}>
-                                                                    <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span>{"Question"} : </span> {elem?.question}</Typography>
-                                                                    <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span>{"Answer"} : </span> {elem?.answer}</Typography>
+                                                        <MDTypography style={{ fontSize: '14px', margin: '8px 0px 2px 0px', fontWeight: 800, color: '#000000', paddingLeft: isMobile ? '20px' : '0px' }} >FAQ's</MDTypography>
+                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', paddingLeft: isMobile ? '20px' : '0px' }}>
+                                                            {courses?.faqs?.map((courses) => (
+                                                                <Box key={courses._id} sx={{ margin: '2px' }}>
+                                                                    <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span style={{ fontWeight: 500 }} >{"Question"} : </span> {courses?.question}</Typography>
+                                                                    <Typography style={{ fontSize: '16px', marginBottom: '2px' }}> <span style={{ fontWeight: 500 }} >{"Answer"} : </span> {courses?.answer}</Typography>
                                                                 </Box>
                                                             ))}
                                                         </Box>
@@ -234,9 +370,9 @@ const Courses = () => {
                                             </CardContent>
                                         </Grid>
 
-                                            <Grid item xs={12} md={4} lg={12} p={2} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', maxWidth: '100%', height: 'auto', gap: 5 }}>
+                                        {/* <Grid item xs={12} md={4} lg={12} p={2} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', maxWidth: '100%', height: 'auto', gap: 5 }}>
                                                 <Payment data={courses} setShowPay={setShowPay} showPay={showPay} checkPaid={checkPaid} />
-                                            </Grid>
+                                            </Grid> */}
                                     </CardActionArea>
                                 </Card>
                             </Grid>

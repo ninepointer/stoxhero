@@ -38,12 +38,12 @@ function sleep(duration) {
   });
 }
 
-const CareerForm = () => {
+const ContestRegistration = () => {
   const [open, setOpen] = React.useState(false);
   const [options, setOptions] = React.useState([]);
   const loading = open && options.length === 0;
   const [submitted, setSubmitted] = useState(false);
-  const [saving, setSaving] = useState(false);
+  // const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
   const [otpGenerated, setOTPGenerated] = useState(false);
   const [contestDetails, setContestDetails] = useState(false);
@@ -54,7 +54,7 @@ const CareerForm = () => {
   const params = new URLSearchParams(location?.search);
   const referrerCode = params.get("referral");
   campaignCode = params.get("campaigncode");
-  const getDetails = useContext(userContext);
+  // const getDetails = useContext(userContext);
 
   const [detail, setDetails] = useState({
     firstName: "",
@@ -76,9 +76,6 @@ const CareerForm = () => {
     referrerCode: referrerCode,
   });
 
-  const [file, setFile] = useState(null);
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   const getContestDetails = async (name, date) => {
     try {
@@ -151,7 +148,7 @@ const CareerForm = () => {
         "Error"
       );
     }
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/confirmotp`, {
+    const res = await fetch(`${apiUrl}dailycontest/confirmotp`, {
       method: "POST",
       // credentials:"include",
       headers: {
@@ -247,7 +244,7 @@ const CareerForm = () => {
     }
 
     setOTPGenerated(true);
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/generateotp`, {
+    const res = await fetch(`${apiUrl}dailycontest/generateotp`, {
       method: "POST",
       // credentials:"include",
       headers: {
@@ -365,7 +362,6 @@ const CareerForm = () => {
     }
   }
 
-  // console.log(contest?.contestStartTime, contestDetails?.contestStartTime, contest, contestDetails)
 
   return (
     <MDBox
@@ -1268,6 +1264,4 @@ const CareerForm = () => {
   );
 };
 
-export default CareerForm;
-
-//6UOWyIuWrBj5QdME6zzOA6p1qsLByKL1
+export default ContestRegistration;
