@@ -240,7 +240,7 @@ const FeaturedContestRegistration = () => {
         <Helmet>
           <title>{contestDetails?.metaTitle}</title>
           <meta name='description' content={contestDetails?.metaDescription} />
-          <meta name='keywords' content={contestDetails?.keywords} />
+          <meta name='keywords' content={contestDetails?.metaKeyword} />
 
         </Helmet>
         <Grid
