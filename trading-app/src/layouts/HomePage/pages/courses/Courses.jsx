@@ -724,3 +724,9 @@ export default function Courses() {
     </>
   );
 }
+
+// import SignupLoginPopup from "./courses/signupLoginPopup"
+
+{/* <SignupLoginPopup
+                data={contestDetails} testzone={true} referrerCode={newReferrerCode}
+                /> */}
