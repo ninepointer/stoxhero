@@ -82,55 +82,68 @@ const getAwsS3Key = async (file, type, key) => {
 };
 // Controller for creating a contest
 exports.createContest = async (req, res) => {
-    try {
-        const {contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus, 
-               contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
-            contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
-            maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, visibility, 
-            payoutType, payoutCapPercentage, rewardType, tdsRelief } = req.body;
+  try {
+    for (let elem in req.body) {
+      if (req.body[elem] === "undefined" || req.body[elem] === "null") {
+        delete req.body[elem];
+      }
 
-            let contestImage;
-            if (req.files["image"]) {
-              contestImage = await getAwsS3Url(req.files["image"][0], "Image");
-            }
-            const slug = contestName.replace(/ /g, "-").toLowerCase();
+      if (req.body[elem] === "false") {
+        req.body[elem] = false;
+      }
 
-        const startTimeDate = new Date(contestStartTime);
-        startTimeDate.setSeconds(0);
-
-        const endTimeDate = new Date(contestEndTime);
-        endTimeDate.setSeconds(0);
-
-        // Check if startTime is valid
-        if (isNaN(startTimeDate.getTime()) || isNaN(endTimeDate.getTime())) {
-            return res.status(400).json({
-                status: 'error',
-                message: "Validation error: Invalid start time or end time format",
-            });
-        }
-
-
-        const contest = await Contest.create({
-            maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
-            contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-            contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
-            contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility, image: contestImage
-        });
-
-        // console.log(contest)
-        res.status(201).json({
-            status: 'success',
-            message: "TestZone created successfully",
-            data: contest
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: "Something went wrong",
-            error: error.message
-        });
+      if (req.body[elem] === "true") {
+        req.body[elem] = true;
+      }
     }
+    const { contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus,
+      contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
+      contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
+      maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, visibility,
+      payoutType, payoutCapPercentage, rewardType, tdsRelief, metaTitle, metaKeyword, metaDescription, slug } = req.body;
+
+
+    let contestImage;
+    if (req.files["image"]) {
+      contestImage = await getAwsS3Url(req.files["image"][0], "Image");
+    }
+    
+    const startTimeDate = new Date(contestStartTime);
+    startTimeDate.setSeconds(0);
+
+    const endTimeDate = new Date(contestEndTime);
+    endTimeDate.setSeconds(0);
+
+    // Check if startTime is valid
+    if (isNaN(startTimeDate.getTime()) || isNaN(endTimeDate.getTime())) {
+      return res.status(400).json({
+        status: 'error',
+        message: "Validation error: Invalid start time or end time format",
+      });
+    }
+
+
+    const contest = await Contest.create({
+      maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
+      contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
+      contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
+      contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility, image: contestImage, metaTitle, metaKeyword, metaDescription, slug
+    });
+
+    // console.log(contest)
+    res.status(201).json({
+      status: 'success',
+      message: "TestZone created successfully",
+      data: contest
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 'error',
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
 };
 
 // Controller for editing a contest
@@ -140,7 +153,11 @@ exports.editContest = async (req, res) => {
         const updates = req.body;
         for (let elem in updates) {
           if (updates[elem] === "undefined" || updates[elem] === "null") {
-            updates[elem] = null;
+            delete updates[elem]
+          }
+
+          if (updates[elem] === '[object Object]') {
+            delete updates[elem]
           }
       
           if (updates[elem] === "false") {
@@ -159,10 +176,12 @@ exports.editContest = async (req, res) => {
           );
         }
 
-        let slug;
-        if(updates?.contestName){
-          updates.slug = updates?.contestName.replace(/ /g, "-").toLowerCase();
-        }
+        console.log("updates", updates)
+
+        // let slug;
+        // if(updates?.contestName){
+        //   updates.slug = updates?.contestName.replace(/ /g, "-").toLowerCase();
+        // }
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ status: "error", message: "Invalid TestZone ID" });

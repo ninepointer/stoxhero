@@ -10,6 +10,8 @@ import { apiUrl } from '../../../../constants/constants';
 import MDTypography from '../../../../components/MDTypography';
 import Payment from '../../../coursesUser/data/payment.js'
 import TestZonePayment from '../../../UserDailyContest/data/payment.js'
+import theme from "../../utils/theme/index";
+import { useMediaQuery } from '@mui/material'
 
 
 
@@ -206,26 +208,15 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
         }
     }
 
+    const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
+
+
     return (
 
         <>
         {testzone ?
-            <MDButton
-                variant="gradient"
-                size="small"
-                // color="success"
-                sx={{
-                    backgroundColor: '#315C45', 
-                    color: '#ffffff',
-                    '&:hover': {
-                        backgroundColor: '#ff0000', // Change background color to red on hover
-                      },
-                }}
-                onClick={() => { setOpen(true) }}
-                style={{ minWidth: "100%" }}
-            >
-                Register and Pay
-            </MDButton>
+        <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'} onClick={() => { setOpen(true) }}>{`Register Now(₹${data?.entryFee || 0}/-)`}</MDButton></MDBox>
+           
             :
             <MDButton
                 variant="outlined"
