@@ -413,11 +413,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                             {timerActive ? (`Resend Mobile OTP in ${resendTimer} seconds`)?.toUpperCase() : ('Resend Mobile OTP')?.toUpperCase()}
                         </MDTypography>}
 
-                    {/* <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="center">
-                        <MDButton style={{ padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} variant="text" color="#3E506F" fullWidth onClick={timerActive ? () => { } : () => { resendOTP('mobile') }}>
-                            {timerActive ? `Resend Mobile OTP in ${resendTimer} seconds` : 'Resend Mobile OTP'}
-                        </MDButton>
-                    </Grid> */}
+                
                 </DialogContent>
                 <DialogActions>
                     <MDButton variant="gradient" size='small' color='error' onClick={handleClose} autoFocus>

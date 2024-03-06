@@ -37,7 +37,7 @@ const s3 = new AWS.S3({
 const getAwsS3Url = async (file, type) => {
   if (file && type === "Image") {
     file.buffer = await sharp(file.buffer)
-      .resize({ width: 512, height: 256 })
+      .resize({ width: 1024, height: 512 })
       .toBuffer();
   }
   const params = {
@@ -60,7 +60,7 @@ const getAwsS3Url = async (file, type) => {
 const getAwsS3Key = async (file, type, key) => {
   if (file && type === "Image") {
     file.buffer = await sharp(file.buffer)
-      .resize({ width: 512, height: 256 })
+      .resize({ width: 1024, height: 512 })
       .toBuffer();
   }
   const params = {
