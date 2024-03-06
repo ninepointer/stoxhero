@@ -266,7 +266,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
     }
   };
 
-  const amount = elem?.entryFee;
+  const amount = elem?.discountedEntryFee;
   const redeemableBonus =
     Math.min(
       ((amount - discountAmount) * setting?.maxBonusRedemptionPercentage) / 100,
@@ -280,7 +280,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
       )
     : 0;
   const actualAmount =
-    ((elem?.entryFee - discountAmount - bonusRedemption) *
+    ((elem?.discountedEntryFee - discountAmount - bonusRedemption) *
       setting.gstPercentage) /
     100;
 
@@ -351,7 +351,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
         {
           code,
           product: "6517d48d3aeb2bb27d650de5",
-          orderValue: elem?.entryFee,
+          orderValue: elem?.discountedEntryFee,
           platform: "Web",
           paymentMode: value,
         },
@@ -941,8 +941,8 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
                             Net Transaction Amount: ₹
                             {(
                               Number(
-                                amount - discountAmount - bonusRedemption
-                              ) + actualAmount
+                                (amount || 0) - (discountAmount || 0) - (bonusRedemption || 0)
+                              ) + (actualAmount || 0)
                             ).toFixed(2)}
                           </Typography>
                           {(bonusBalance > 0 && !signedUp) && (
@@ -1086,7 +1086,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
                           // }}
                         />
                         :
-              `Pay ₹${(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)
+              `Pay ₹${(Number((amount || 0) - (discountAmount || 0) - (bonusRedemption || 0)) + (actualAmount || 0)).toFixed(2)
                 } securely`}
             </MDButton>
           </DialogActions>

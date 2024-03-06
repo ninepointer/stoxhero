@@ -163,7 +163,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
             mobile_otp
          
         } = detail;
-        
+        setButtonLoading(prev => ({...prev, getOtp: false}))
         setButtonLoading(prev => ({...prev, confirmOtp: true}))
         setDetails(prev => ({ ...prev, errorMessage: '' }));
         if (mobile.length !== 10) {
@@ -278,45 +278,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                         color='success'
                         size={isMobile ? 'small' : 'large'}
                         onClick={() => { setOpen(true) }}>
-                      Register Now(&nbsp;
-                            <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                            <MDTypography
-                                    variant="body2"
-                                    fontWeight="normal"
-                                    
-                                    fontSize={15}
-                                    style={{
-                                        color: '#ffffff',
-                                        textDecoration: "line-through",
-                                    }}
-                                >
-                                    
-                                    ₹{new Intl.NumberFormat(
-                                        undefined,
-                                        {
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 0,
-                                        }
-                                    ).format(data?.entryFee)}
-                                </MDTypography>
-                                &nbsp;
-                                <MDTypography
-                                    variant="body1"
-                                    fontWeight="bold"
-                                    sx={{color: '#ffffff'}}
-                                    fontSize={18}
-                                >
-                                    
-                                    ₹{new Intl.NumberFormat(
-                                        undefined,
-                                        {
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 0,
-                                        }
-                                    ).format(data?.discountedEntryFee)}
-                                </MDTypography>
-                            </MDBox>
-                        /-&nbsp;)
+                      Register Now
                     </MDButton>
 
                 </MDBox>
@@ -383,7 +345,8 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                             <TestZonePayment signedUp={detail.signedUp} elem={data} showPay={showPay} createUser={createUser}
                                 setShowPay={setShowPay} byLink={true} setOpenParent={setOpen} referrerCode={referrerCode} />
                             :
-                            <Payment data={data} byLink={true} setOpenParent={setOpen} signedUp={detail.signedUp} checkPaid={checkPaid} referrerCode={referrerCode} />
+                            <Payment data={data} byLink={true} setOpenParent={setOpen} signedUp={detail.signedUp} checkPaid={checkPaid}
+                             referrerCode={referrerCode} createUser={createUser}/>
 
                         :
                         detail.isLogin === false &&
@@ -445,9 +408,10 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                         </MDTypography>
                     }
 
-<MDTypography fontSize={12} color='dark' fontWeight='bold' textAlign='center'sx={{cursor: 'pointer'}} onClick={timerActive ? () => { } : () => { resendOTP('mobile')} }>
-{timerActive ? (`Resend Mobile OTP in ${resendTimer} seconds`)?.toUpperCase() : ('Resend Mobile OTP')?.toUpperCase()}
-                        </MDTypography>
+                    {buttonLoading.getOtp &&
+                        <MDTypography fontSize={12} color='dark' fontWeight='bold' textAlign='center' sx={{ cursor: 'pointer' }} onClick={timerActive ? () => { } : () => { resendOTP('mobile') }}>
+                            {timerActive ? (`Resend Mobile OTP in ${resendTimer} seconds`)?.toUpperCase() : ('Resend Mobile OTP')?.toUpperCase()}
+                        </MDTypography>}
 
                     {/* <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="center">
                         <MDButton style={{ padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} variant="text" color="#3E506F" fullWidth onClick={timerActive ? () => { } : () => { resendOTP('mobile') }}>

@@ -367,7 +367,74 @@ const FeaturedContestRegistration = () => {
                       xs={12}
                       md={12}
                       xl={6}
-                      mt={5}
+                      mt={2}
+                      display="flex"
+                      justifyContent="center"
+                      alignContent="center"
+                      alignItems="center"
+                    >
+                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+
+                        <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDTypography variant='caption'>{
+                          <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                            <MDTypography
+                              variant="body2"
+                              fontWeight={800}
+
+                              fontSize={15}
+                              style={{
+                                color: '#532B9E',
+                                textDecoration: "line-through",
+                              }}
+                            >
+                              Registration Fee : &nbsp;
+                            </MDTypography>
+                            <MDTypography
+                              variant="body2"
+                              fontWeight="normal"
+
+                              fontSize={15}
+                              style={{
+                                color: '#532B9E',
+                                textDecoration: "line-through",
+                              }}
+                            >
+
+                              ₹{new Intl.NumberFormat(
+                                undefined,
+                                {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                }
+                              ).format(contestDetails?.entryFee)}
+                            </MDTypography>
+                            &nbsp;
+                            <MDTypography
+                              variant="body1"
+                              fontWeight="bold"
+                              sx={{ color: '#532B9E' }}
+                              fontSize={18}
+                            >
+
+                              ₹{new Intl.NumberFormat(
+                                undefined,
+                                {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                }
+                              ).format(contestDetails?.discountedEntryFee)}
+                            </MDTypography>
+                          </MDBox>
+                        }</MDTypography></MDBox>
+                      </MDBox>
+                    </Grid>
+
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
+                      xl={6}
+                      mt={2}
                       display="flex"
                       justifyContent="center"
                       alignContent="center"

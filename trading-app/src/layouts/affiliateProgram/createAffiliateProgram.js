@@ -73,8 +73,8 @@ function CreateAffiliateProgram() {
     minOrderValue: id?.minOrderValue || '',
     rewardPerSignup: id?.rewardPerSignup || "",
     referralSignupBonus: {
-      currency: id?.currency || "",
-      amount: id?.amount || ""
+      currency: id?.referralSignupBonus?.currency || "",
+      amount: id?.referralSignupBonus?.amount || ""
     },
     currency: id?.currency || ""
   });
@@ -223,6 +223,8 @@ function CreateAffiliateProgram() {
       eligiblePlatforms: selectedIds
     }));
   };
+
+  console.log('affiliateProgramData', affiliateProgramData, formState?.referralSignupBonus?.currency , affiliateProgramData?.referralSignupBonus?.currency)
 
   return (
     <>
@@ -574,7 +576,7 @@ function CreateAffiliateProgram() {
                         }
                       }))
                     }}
-                    label="Amount*"
+                    label="SignUp Bonus Currency*"
                     sx={{
                       minHeight: 43,
                     }}
