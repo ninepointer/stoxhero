@@ -12,6 +12,8 @@ const {
   checkUserExist,
   getUsersSearch,
   addInfluencer,
+  removeInfluencer,
+  addInfluencerChannelsInfo,
 } = require("../../controllers/userController");
 
 const Authenticate = require("../../authentication/authentication");
@@ -38,7 +40,15 @@ router
   .get(Authenticate, restrictTo("Admin", "SuperAdmin"), getUsers);
 router
   .route("/influencer/:id")
+  .delete(Authenticate, restrictTo("Admin", "SuperAdmin"), removeInfluencer)
   .post(Authenticate, restrictTo("Admin", "SuperAdmin"), addInfluencer);
+router
+  .route("/influencer/:id/channels")
+  .patch(
+    Authenticate,
+    restrictTo("Admin", "SuperAdmin"),
+    addInfluencerChannelsInfo
+  );
 router
   .route("/searchuserinfluencer")
   .get(Authenticate, restrictTo("Admin", "SuperAdmin"), getUsersSearch);

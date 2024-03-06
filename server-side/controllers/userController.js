@@ -1354,6 +1354,7 @@ exports.addInfluencer = async (req, res) => {
     influencerObj.state = state;
     influencerObj.city = city;
     influencerObj.about = about;
+    influencerObj.isActive = true;
     influencerObj.addedOn = new Date();
     influencerObj.tags = tags.split(",").map((item) => item.trim());
     user.influencerDetails = influencerObj;
@@ -1393,6 +1394,28 @@ exports.addInfluencerChannelsInfo = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Channel details added successfully",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.removeInfluencer = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await UserDetail.findById(id);
+    user.influencerDetails.isActive = false;
+    user.role = new ObjectId("644902f1236de3fd7cfd73a7");
+    await user.save({ validateBeforeSave: false });
+    res.status(200).json({
+      status: "success",
+      message: "User removed as influencer.",
       user,
     });
   } catch (error) {

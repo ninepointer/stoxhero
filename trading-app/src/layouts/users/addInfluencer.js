@@ -15,10 +15,13 @@ import MDButton from "../../components/MDButton";
 import { TextField } from "@mui/material";
 import axios from "axios";
 import { apiUrl } from "../../constants/constants";
+import EditIcon from "@mui/icons-material/Edit";
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 
 const DeactivateUser = () => {
   const [reRender, setReRender] = useState(true);
   const [data, setData] = useState([]);
+  const [channelsData, setChannelsData] = useState([]);
   const [selectedUser, setSelectedUser] = useState();
   const [influencerData, setInfluencerData] = useState({
     state: "",
@@ -26,9 +29,15 @@ const DeactivateUser = () => {
     tags: "",
     about: "",
   });
+  const [influencerChannelData, setInfluencerChannelData] = useState({
+    channel: "",
+    influencerHandle: "",
+    followers: "",
+  });
   const [created, setCreated] = useState(false);
   // const { columns, rows } = RoleData(reRender);
   console.log("selected", selectedUser);
+  console.log("channels data", channelsData);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
@@ -38,6 +47,7 @@ const DeactivateUser = () => {
       .get(`${baseUrl}api/v1/influencer`, { withCredentials: true })
       .then((res) => {
         setData(res?.data?.data);
+        setChannelsData(res?.data?.data?.influencerDetails?.channelDetails);
         console.log(res?.data?.data);
       })
       .catch((err) => {
@@ -49,7 +59,9 @@ const DeactivateUser = () => {
     { Header: "Name", accessor: "name", align: "center" },
     { Header: "Email", accessor: "email", align: "center" },
     { Header: "Mobile", accessor: "mobile", align: "center" },
-    { Header: "Time", accessor: "time", align: "center" },
+    { Header: "AddedOn", accessor: "time", align: "center" },
+    { Header: "Edit", accessor: "edit", align: "center" },
+    { Header: "Remove", accessor: "remove", align: "center" },
   ];
 
   let rows = [];
@@ -64,6 +76,13 @@ const DeactivateUser = () => {
   const handleChange = async (e) => {
     const { name, value } = e.target;
     setInfluencerData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+  const handleChannelDataChange = async (e) => {
+    const { name, value } = e.target;
+    setInfluencerChannelData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -90,6 +109,46 @@ const DeactivateUser = () => {
       console.log(res.data);
       if (res.status == 201 && res.data.status == "success") {
         setCreated(true);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const addChannelDetails = async () => {
+    const { channel, influencerHandle, followers } = influencerChannelData;
+    const payload = {
+      channel,
+      influencerHandle,
+      followers,
+    };
+    try {
+      const res = await axios.patch(
+        `${apiUrl}user/influencer/${selectedUser?._id}/channels`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(res.data);
+      if (res.data.status == "success") {
+        setCreated(true);
+        console.log("ho gaya");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleRemoveInfluencer = async (elem) => {
+    console.log("elem is", elem);
+    try {
+      const res = await axios.delete(`${apiUrl}user/influencer/${elem?._id}`, {
+        withCredentials: true,
+      });
+      console.log(res.data);
+      if (res.data.status == "success") {
+        setReRender(!reRender);
       }
     } catch (e) {
       console.log(e);
@@ -137,6 +196,65 @@ const DeactivateUser = () => {
         fontWeight="medium"
       >
         {moment.utc(elem.createdOn).format("DD-MMM-YY HH:mm:ss")}
+      </MDTypography>
+    );
+    obj.edit = (
+      <MDButton
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        <EditIcon />
+      </MDButton>
+    );
+    obj.remove = (
+      <MDButton
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+        onClick={() => {
+          handleRemoveInfluencer(elem);
+        }}
+      >
+        <PersonRemoveIcon />
+      </MDButton>
+    );
+
+    rows.push(obj);
+  });
+  channelsData?.map((elem) => {
+    let obj = {};
+
+    obj.channel = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {elem?.channel}
+      </MDTypography>
+    );
+    obj.influencerHandle = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {elem?.influencerHandle}
+      </MDTypography>
+    );
+    obj.followers = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {elem?.followers}
       </MDTypography>
     );
 
@@ -197,16 +315,35 @@ const DeactivateUser = () => {
             {created && (
               <MDBox>
                 <MDTypography>Channel Details</MDTypography>
-                <TextField label="Channel" name="city" onChange={() => {}} />
-                <TextField label="Handle" name="state" />
-                <TextField label="Followers" number name="tags" />
-                <MDButton onClick={() => {}}>Add Channel Details</MDButton>
+                <TextField
+                  label="Channel"
+                  name="channel"
+                  onChange={handleChannelDataChange}
+                />
+                <TextField
+                  label="Handle"
+                  name="influencerHandle"
+                  onChange={handleChannelDataChange}
+                />
+                <TextField
+                  label="Followers"
+                  number
+                  name="followers"
+                  onChange={handleChannelDataChange}
+                />
+                <MDButton
+                  onClick={() => {
+                    addChannelDetails();
+                  }}
+                >
+                  Add Channel Details
+                </MDButton>
                 <MDButton onClick={() => {}}>Reset</MDButton>
                 <MDTypography variant="h6" py={2.5}>
                   Channels
                 </MDTypography>
                 <DataTable
-                  table={{ columns, rows }}
+                  table={{ channelColumns, channelRows }}
                   isSorted={false}
                   entriesPerPage={false}
                   showTotalEntries={false}
