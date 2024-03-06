@@ -272,9 +272,12 @@ const Navbar = () => {
             </IconButton>
           ) : (
             <Stack direction="row" spacing={5} alignItems="center">
-              {/* <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
+              <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
               <LaunchButton sx={{ borderRadius: 3, color: 'light' }} />
-            </a> */}
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
+              <LaunchButton sx={{ borderRadius: 3, color: 'light' }} />
+            </a>
             </Stack>
           )}
         </Stack>
