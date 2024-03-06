@@ -31,6 +31,10 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
         isLogin: "",
         signedUp: false
     });
+    const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
+    const [timerActive, setTimerActive] = useState(false); // Flag to check if timer is active
+    const [timeoutId, setTimeoutId] = useState(null);
+
     const confirmOtpUrl = testzone ? `dailycontest/featured/confirmotp` : `verifyphoneloginmobile`;
     const createUserUrl = testzone ? `dailycontest/featured/createuser` : `createuserbycourse`
     const [buttonClicked, setButtonClicked] = useState(false);
@@ -40,16 +44,61 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
         confirmOtp: false,
         signup: false,
     })
-
-    
-      const handleClickOpen = () => {
-        setOpen(true);
-      };
     
       const handleClose = () => {
         setOpen(false);
       };
 
+      const ResendTimerSi = (seconds) => {
+        let remainingTime = seconds;
+    
+        const timer = setInterval(() => {
+          // Display the remaining time
+          // console.log(Remaining time: ${remainingTime} seconds);
+    
+          // Decrease the remaining time by 1 second
+          setResendTimer(remainingTime--);
+          
+    
+          // Check if the timer has reached 0
+          if (remainingTime === 0) {
+            // Stop the timer
+            clearInterval(timer);
+            setTimerActive(false);
+            console.log("Timer has ended!");
+          }
+        }, 1000); // Update every second (1000 milliseconds)
+      };
+    
+      const resendOTP = async (type) => {
+    
+        setTimerActive(true);
+        ResendTimerSi(30)
+    
+        const res = await fetch(`${apiUrl}resendotp`, {
+    
+          method: "PATCH",
+          // credentials:"include",
+          headers: {
+            "content-type": "application/json",
+            "Access-Control-Allow-Credentials": false
+          },
+          body: JSON.stringify({
+            mobile: detail.mobile,
+            type: type
+          })
+        });
+    
+    
+        const data = await res.json();
+        // console.log(data.status);
+        if (res.status === 200 || res.status === 201) {
+        //   openSuccessSB("OTP Sent", data.message);
+        } else {
+        //   openSuccessSB("Something went wrong", data.mesaage);
+        }
+    
+      }
 
     async function generateOTP() {
 
@@ -167,7 +216,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
 
     async function createUser() {
         setButtonClicked(true);
-        setButtonLoading(prev => ({...prev, signup: true}))
+        // setButtonLoading(prev => ({...prev, signup: true}))
         setDetails(prev => ({ ...prev, errorMessage: '' }));
         const {
             first_name,
@@ -198,15 +247,22 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
         const data = await res.json();
         if (res.status === 201) {
             setButtonClicked(false);
-            setButtonLoading(prev => ({...prev, signup: false}))
-            setDetails(prev => ({...prev, signedUp: true}));
-            setDetails(prev => ({...prev, isLogin: true}));
+            // setButtonLoading(prev => ({...prev, signup: false}))
+            // setDetails(prev => ({...prev, signedUp: true}));
+            // setDetails(prev => ({...prev, isLogin: true}));
         } else {
             setButtonClicked(false);
-            setButtonLoading(prev => ({...prev, signup: false}))
-            setDetails(prev => ({...prev, signedUp: false}));
+            // setButtonLoading(prev => ({...prev, signup: false}))
+            // setDetails(prev => ({...prev, signedUp: false}));
             setDetails(prev => ({...prev, errorMessage: data.message}));
         }
+    }
+
+    async function signUpProceed() {
+        setButtonClicked(false);
+        setButtonLoading(prev => ({ ...prev, signup: false }))
+        setDetails(prev => ({ ...prev, signedUp: true }));
+        setDetails(prev => ({ ...prev, isLogin: true }));
     }
 
     const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
@@ -215,19 +271,65 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
     return (
 
         <>
-        {testzone ?
-        <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'} onClick={() => { setOpen(true) }}>{`Register Now(₹${data?.entryFee || 0}/-)`}</MDButton></MDBox>
-           
-            :
-            <MDButton
-                variant="outlined"
-                size="small"
-                color="success"
-                onClick={() => { setOpen(true) }}
-                style={{ minWidth: "100%" }}
-            >
-                Buy course
-            </MDButton>}
+            {testzone ?
+                <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                    <MDButton
+                        variant='contained'
+                        color='success'
+                        size={isMobile ? 'small' : 'large'}
+                        onClick={() => { setOpen(true) }}>
+                      Register Now(&nbsp;
+                            <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                            <MDTypography
+                                    variant="body2"
+                                    fontWeight="normal"
+                                    
+                                    fontSize={15}
+                                    style={{
+                                        color: '#ffffff',
+                                        textDecoration: "line-through",
+                                    }}
+                                >
+                                    
+                                    ₹{new Intl.NumberFormat(
+                                        undefined,
+                                        {
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 0,
+                                        }
+                                    ).format(data?.entryFee)}
+                                </MDTypography>
+                                &nbsp;
+                                <MDTypography
+                                    variant="body1"
+                                    fontWeight="bold"
+                                    sx={{color: '#ffffff'}}
+                                    fontSize={18}
+                                >
+                                    
+                                    ₹{new Intl.NumberFormat(
+                                        undefined,
+                                        {
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 0,
+                                        }
+                                    ).format(data?.discountedEntryFee)}
+                                </MDTypography>
+                            </MDBox>
+                        /-&nbsp;)
+                    </MDButton>
+
+                </MDBox>
+                :
+                <MDButton
+                    variant="outlined"
+                    size="small"
+                    color="success"
+                    onClick={() => { setOpen(true) }}
+                    style={{ minWidth: "100%" }}
+                >
+                    Buy course
+                </MDButton>}
 
             <Dialog
                 open={open}
@@ -237,52 +339,52 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
             >
                 <DialogTitle id="alert-dialog-title">
                     <MDTypography fontSize={20} fontColor='dark' fontWeight='bold' textAlign='center'>
-                        {detail.isLogin === false ? 'Please fill your details' :'Please enter mobile'}
+                        {detail.isLogin === false ? 'Please fill your details' : 'Please enter mobile'}
                     </MDTypography>
                 </DialogTitle>
                 <DialogContent sx={{ width: detail.isLogin ? "1px" : '500px', height: detail.isLogin ? "1px" : 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                     {!detail.enterOtp ?
-                    <>
-                        <Grid item xs={12} md={12} xl={6} p={1} sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                            <TextField
-                                required
-                                disabled={detail.otpGenerate}
-                                id="outlined-required"
-                                label="Enter Mobile"
-                                type="text"
-                                fullWidth
-                                onChange={(e) => { setDetails(prevState => ({ ...prevState, mobile: e.target.value })) }}
-                            />
-                        </Grid>
+                        <>
+                            <Grid item xs={12} md={12} xl={6} p={1} sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                                <TextField
+                                    required
+                                    disabled={detail.otpGenerate}
+                                    id="outlined-required"
+                                    label="Enter Mobile"
+                                    type="text"
+                                    fullWidth
+                                    onChange={(e) => { setDetails(prevState => ({ ...prevState, mobile: e.target.value })) }}
+                                />
+                            </Grid>
 
-                        {detail.otpGenerate && (
-                            <>
-                                <Grid item xs={12} md={12} xl={6} p={1} sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                                    <TextField
-                                        required
-                                        id="outlined-required"
-                                        label="Please enter the OTP"
-                                        type="text"
-                                        fullWidth
-                                        // style={{ width: '40%' }}
-                                        onChange={(e) => { setDetails(prevState => ({ ...prevState, mobile_otp: e.target.value })) }}
-                                    />
-                                </Grid>
-                            </>
-                        )}
-                    </>
-                    :
-                    <>
-                    </>}
+                            {detail.otpGenerate && (
+                                <>
+                                    <Grid item xs={12} md={12} xl={6} p={1} sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                                        <TextField
+                                            required
+                                            id="outlined-required"
+                                            label="Please enter the OTP"
+                                            type="text"
+                                            fullWidth
+                                            // style={{ width: '40%' }}
+                                            onChange={(e) => { setDetails(prevState => ({ ...prevState, mobile_otp: e.target.value })) }}
+                                        />
+                                    </Grid>
+                                </>
+                            )}
+                        </>
+                        :
+                        <>
+                        </>}
 
                     {detail.isLogin ?
 
                         testzone ?
-                        <TestZonePayment signedUp={detail.signedUp} elem={data} showPay={showPay}
-                        setShowPay={setShowPay} byLink={true} setOpenParent={setOpen} referrerCode={referrerCode} />
-                        :
-                        <Payment data={data} byLink={true} setOpenParent={setOpen} signedUp={detail.signedUp} checkPaid={checkPaid} referrerCode={referrerCode} />
-                        
+                            <TestZonePayment signedUp={detail.signedUp} elem={data} showPay={showPay} createUser={createUser}
+                                setShowPay={setShowPay} byLink={true} setOpenParent={setOpen} referrerCode={referrerCode} />
+                            :
+                            <Payment data={data} byLink={true} setOpenParent={setOpen} signedUp={detail.signedUp} checkPaid={checkPaid} referrerCode={referrerCode} />
+
                         :
                         detail.isLogin === false &&
                         <>
@@ -342,47 +444,57 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                             {detail.errorMessage}
                         </MDTypography>
                     }
+
+<MDTypography fontSize={12} color='dark' fontWeight='bold' textAlign='center'sx={{cursor: 'pointer'}} onClick={timerActive ? () => { } : () => { resendOTP('mobile')} }>
+{timerActive ? (`Resend Mobile OTP in ${resendTimer} seconds`)?.toUpperCase() : ('Resend Mobile OTP')?.toUpperCase()}
+                        </MDTypography>
+
+                    {/* <Grid item xs={12} md={6} lg={6} display="flex" justifyContent="center">
+                        <MDButton style={{ padding: '0rem', margin: '0rem', minHeight: 20, display: 'flex', justifyContent: 'center', margin: 'auto' }} variant="text" color="#3E506F" fullWidth onClick={timerActive ? () => { } : () => { resendOTP('mobile') }}>
+                            {timerActive ? `Resend Mobile OTP in ${resendTimer} seconds` : 'Resend Mobile OTP'}
+                        </MDButton>
+                    </Grid> */}
                 </DialogContent>
                 <DialogActions>
                     <MDButton variant="gradient" size='small' color='error' onClick={handleClose} autoFocus>
                         Close
                     </MDButton>
                     {detail.isLogin !== false &&
-                    <MDButton
-                    onClick={() => {!detail.otpGenerate ? generateOTP() : confirmOTP() }}
-                    variant="gradient"
-                    size='small'
-                    color="warning"
-                    // disabled={creating || buttonClicked}
-                    // style={{ backgroundColor: '#65BA0D', color: 'white', width: '90%' }}
-                >
-                    
-                    {!detail.otpGenerate ? 
-                    
-                     
-                    buttonLoading.getOtp ?
-                        <CircularProgress size={20} color="inherit" /> : "Generate OTP"
-                      
-                    
-                    : 
-                    
-                    buttonLoading.confirmOtp ?
-                    <CircularProgress size={20} color="inherit" /> : "Proceed"
+                        <MDButton
+                            onClick={() => { !detail.otpGenerate ? generateOTP() : confirmOTP() }}
+                            variant="gradient"
+                            size='small'
+                            color="warning"
+                        // disabled={creating || buttonClicked}
+                        // style={{ backgroundColor: '#65BA0D', color: 'white', width: '90%' }}
+                        >
 
-                    
-                    }
-                </MDButton>}
+                            {!detail.otpGenerate ?
+
+
+                                buttonLoading.getOtp ?
+                                    <CircularProgress size={20} color="inherit" /> : "Generate OTP"
+
+
+                                :
+
+                                buttonLoading.confirmOtp ?
+                                    <CircularProgress size={20} color="inherit" /> : "Proceed"
+
+
+                            }
+                        </MDButton>}
 
                     {detail.isLogin === false &&
                         <MDButton
-                            onClick={() => { createUser()}}
+                            onClick={() => { signUpProceed() }}
                             variant="gradient"
                             size='small'
                             color="warning"
                         >
                             {buttonLoading.signup ?
-                                    <CircularProgress size={20} color="inherit" /> : "Proceed"
-                                  }
+                                <CircularProgress size={20} color="inherit" /> : "Proceed"
+                            }
                         </MDButton>
                     }
                 </DialogActions>

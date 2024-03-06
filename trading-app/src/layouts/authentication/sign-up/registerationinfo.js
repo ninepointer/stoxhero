@@ -100,8 +100,6 @@ function Cover() {
   useEffect(()=>{
     searchSchools("");
   }, [userCity])
-
-  console.log('schoolsList', schoolsList)
   
 
   const searchSchools = async (inputValue)=>{

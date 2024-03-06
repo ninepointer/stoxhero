@@ -96,7 +96,7 @@ exports.createContest = async (req, res) => {
         req.body[elem] = true;
       }
     }
-    let { contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus,
+    let { contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus, discountedEntryFee,
       contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
       contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
       maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, visibility,
@@ -127,7 +127,7 @@ exports.createContest = async (req, res) => {
     const contest = await Contest.create({
       maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
       contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-      contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
+      contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage, discountedEntryFee,
       contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility, image: contestImage, metaTitle, metaKeyword, metaDescription, slug: slugCount ? `${slug}-${slugCount+1}` : slug
     });
 
@@ -153,6 +153,9 @@ exports.editContest = async (req, res) => {
         const { id } = req.params; // ID of the contest to edit
         const updates = req.body;
         for (let elem in updates) {
+          if(elem === 'slug'){
+            delete updates[elem];
+          }
           if (updates[elem] === "undefined" || updates[elem] === "null") {
             delete updates[elem]
           }
@@ -178,11 +181,6 @@ exports.editContest = async (req, res) => {
         }
 
         console.log("updates", updates)
-
-        // let slug;
-        // if(updates?.contestName){
-        //   updates.slug = updates?.contestName.replace(/ /g, "-").toLowerCase();
-        // }
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ status: "error", message: "Invalid TestZone ID" });
@@ -3708,7 +3706,7 @@ exports.findFeaturedContestByName = async(req,res,next)=>{
         const {name} = req.query;
         const result = await Contest.findOne({slug: name, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType image metaDescription metaKeyword metaTitle');
+            select('_id contestName contestStartTime contestEndTime discountedEntryFee entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType image metaDescription metaKeyword metaTitle');
 
             if(!result){
             return res.status(404).json({

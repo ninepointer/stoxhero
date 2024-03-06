@@ -1681,7 +1681,7 @@ const addSignupBonus = async (userId, amount, currency) => {
 
 router.patch("/resendotp", async (req, res) => {
   const { email, mobile, type } = req.body;
-  const user = await SignedUpUser.findOne({ email: email });
+  const user = await SignedUpUser.findOne({ mobile: mobile });
   if (!user) {
     return res.status(404).json({
       status: "error",
@@ -1778,14 +1778,16 @@ router.patch("/resendotp", async (req, res) => {
     `;
   if (type == "mobile") {
     user.mobile_otp = mobile_otp;
+    user.lastOtpTime = new Date();
     // sendSMS([mobile.toString()],`Your otp for StoxHero signup is ${mobile_otp}`);
     if (process.env.PROD == "true") sendOTP(mobile.toString(), mobile_otp);
     if (process.env.PROD !== "true") sendOTP("9319671094", mobile_otp);
   } else if (type == "email") {
     user.email_otp = email_otp;
+    user.lastOtpTime = new Date();
     emailService(email, subject, message);
   }
-  await user.save();
+  await user.save({validateBeforeSave: false});
   res.status(200).json({
     status: "success",
     message: "OTP Resent. Please check again.",

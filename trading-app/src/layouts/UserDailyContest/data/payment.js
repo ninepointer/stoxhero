@@ -28,7 +28,7 @@ import {useNavigate} from 'react-router-dom';
 
 const ariaLabel = { "aria-label": "description" };
 
-const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, referrerCode}) => {
+const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, referrerCode, createUser}) => {
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
   const [isPaymentStart, setIsPaymentStart] = useState(false);
@@ -286,6 +286,8 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
 
   const initiatePayment = async () => {
     try {
+      setIsPaymentStart(true);
+      await createUser();
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
         {
@@ -304,9 +306,10 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
 
-       
+        setIsPaymentStart(false);
     } catch (e) {
       console.log(e);
+      setIsPaymentStart(false);
     }
   };
   const calculateDiscount = (
@@ -1074,7 +1077,16 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, r
               onClick={() => initiatePayment()}
               autoFocus
             >
-              {`Pay ₹${(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)
+              {isPaymentStart ?
+                        <CircularProgress size={20} color="light"
+                          // sx={{
+                          //   mt: "8px",
+                          //   marginRight: "5px",
+                          //   marginLeft: "5px",
+                          // }}
+                        />
+                        :
+              `Pay ₹${(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)
                 } securely`}
             </MDButton>
           </DialogActions>
