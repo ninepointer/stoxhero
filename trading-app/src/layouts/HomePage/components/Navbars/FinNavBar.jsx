@@ -98,7 +98,7 @@ const Navbar = () => {
             />
           </a>
 
-          {!isMobile && (
+          {/* {!isMobile && (
             <Stack
               direction="row"
               alignItems="center"
@@ -262,7 +262,7 @@ const Navbar = () => {
                 </LinkButton>
               </a>
             </Stack>
-          )}
+          )} */}
 
           {/* Action buttons */}
 

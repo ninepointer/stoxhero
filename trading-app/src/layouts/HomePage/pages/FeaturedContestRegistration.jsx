@@ -449,7 +449,7 @@ const FeaturedContestRegistration = () => {
                         <SignupLoginPopup
                           data={contestDetails} testzone={true} referrerCode={couponReferrerCode}
                         />
-                      <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{color:'white'}}><MDTypography variant='caption'>*Limited seats only. Hurry Up!</MDTypography></MDBox>
+                      <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{color:'white'}}><MDTypography variant='caption' style={{fontSize:'14px', fontWeight:300, lineHeight:'16.42px', color:'white', fontFamily: 'Work Sans , sans-serif'}}>*limited seats only. Hurry Up!</MDTypography></MDBox>
                       </MDBox>
                     </Grid>
 
@@ -463,16 +463,13 @@ const FeaturedContestRegistration = () => {
                       justifyContent="center"
                       alignContent="center"
                       alignItems="center"
-                      style={{minWidth:'100%'}}
+                      
                     >
-                      <Grid container xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{minWidth:'100%'}}>
+                      <Grid container mt='40px' xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center" style={{maxWidth:'75%', backgroundColor:'#343434', height:'381px', width:'1078px', borderRadius:'20px'}}>
                         <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                           <MDTypography
                             variant= {isMobile ? 'body3' : 'h3'}
-                            fontColor="dark"
-                            fontWeight="bold"
-                            color='warning'
-                            sx={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif'}}
+                            style={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif', color:'white', fontSize:'40px', fontWeight:600}}
                           >
                             Why you can't miss this! 
                           </MDTypography>
@@ -481,23 +478,29 @@ const FeaturedContestRegistration = () => {
                           <Grid container spacing={2} mt={3} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center' style={{minWidth:'100%'}}>
                             <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                               <MDBox display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{minWidth:'100%'}}>
-                                <MDBox><img src={reward} alt="Reward" width={isMobile ? '100px' : '150px'}/></MDBox>
-                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>{`Prize pool worth ₹${new Intl.NumberFormat(undefined, {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }).format(totalRewardWorth)}`}</MDTypography></MDBox>
+                                <MDBox><img src={reward} alt="Reward" width={isMobile ? '80px' : '128px'}/></MDBox>
+                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif', color:'white', textAlign:'center', fontWeight:400, fontSize:'28px'}}>
+                                  {/* {`Prize pool worth <br /> ₹${new Intl.NumberFormat(undefined, {
+                                      minimumFractionDigits: 0,
+                                      maximumFractionDigits: 0,
+                                    }).format(totalRewardWorth)}`} */}
+                                    <>Prize pool worth <br /> ₹{new Intl.NumberFormat(undefined, {
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0,
+                                    }).format(totalRewardWorth)}</>
+                                  </MDTypography></MDBox>
                               </MDBox>
                             </Grid>
                             <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                               <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' alignContent='center'>
-                                <MDBox><img src={leaderboard} alt="Leaderboard" width={isMobile ? '100px' : '150px'}/></MDBox>
-                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>Leaderboard recognition</MDTypography></MDBox>
+                                <MDBox><img src={leaderboard} alt="Leaderboard" width={isMobile ? '80px' : '128px'}/></MDBox>
+                                <MDBox><MDTypography variant='body1' style={{fontFamily: 'Work Sans , sans-serif', color:'white', textAlign:'center', fontWeight:400, fontSize:'28px'}}>Leaderboard <br /> recognition</MDTypography></MDBox>
                               </MDBox>
                             </Grid>
                             <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                               <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' alignContent='center'>
-                                <MDBox><img src={realtime} alt="Real-time" width={isMobile ? '100px' : '150px'}/></MDBox>
-                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>Real-time market experience</MDTypography></MDBox>
+                                <MDBox><img src={realtime} alt="Real-time" width={isMobile ? '80px' : '128px'}/></MDBox>
+                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif', color:'white', textAlign:'center', fontWeight:400, fontSize:'28px'}}>Real-time <br /> market experience</MDTypography></MDBox>
                               </MDBox>
                             </Grid>
                           </Grid>
