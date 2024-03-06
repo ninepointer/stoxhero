@@ -229,7 +229,7 @@ const FeaturedContestRegistration = () => {
       alignContent="center"
       alignItems="center"
       style={{
-        backgroundColor: "#EFF6D5",
+        backgroundColor: "#171715",
         minHeight: "100vH",
         height: "auto",
         width: "auto",
@@ -237,6 +237,7 @@ const FeaturedContestRegistration = () => {
       }}
     >
       <ThemeProvider theme={theme}>
+      <FinNavbar />
         <Helmet>
           <title>{contestDetails?.metaTitle}</title>
           <meta name='description' content={contestDetails?.metaDescription} />
@@ -316,7 +317,9 @@ const FeaturedContestRegistration = () => {
                       xs={12}
                       md={12}
                       xl={12}
-                      mt={3}
+                      mt={'120px'}
+                      ml={'208px'}
+                      mr={'208px'}
                       display="flex"
                       justifyContent="center"
                       alignContent="center"
@@ -340,20 +343,21 @@ const FeaturedContestRegistration = () => {
                       <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDTypography
                         variant= {isMobile ? 'body3' : 'h3'}
-                        fontColor="dark"
                         fontWeight="bold"
-                        sx={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif', wordWrap: 'break-word', overflowWrap: 'break-word', color:'#532B9E' }}
+                        sx={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif', wordWrap: 'break-word', overflowWrap: 'break-word', color:'white' }}
                       >
-                        Trading Competition begins on 
+                        <div style={{display:'flex', alignItems:'center', alignContent:'center'}}>
+                          <div style={{borderRadius: '50%', width: '16px', height:'16px', backgroundColor: '#E6F495', marginRight: '10px'}}></div>
+                          <span style={{color:'white', fontSize:'40px', fontWeight:600}}>Trading Competition begins on</span>
+                          <div style={{borderRadius: '50%', width: '16px', height:'16px', backgroundColor: '#E6F495', marginLeft: '10px'}}></div>
+                        </div>
                       </MDTypography>
                       </Grid>
                       <Grid item xs={12} md={12} lg={12} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                       <MDTypography
                         variant= {isMobile ? 'caption' : 'body1'}
-                        fontColor="dark"
                         fontWeight="bold"
-                        color='warning'
-                        sx={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif' }}
+                        style={{ textAlign: "center", fontFamily: 'Work Sans , sans-serif', fontSize:'28px', fontWeight:400, color:'white' }}
                       >
                         {`${dateConvert(contestDetails?.contestStartTime)} | ${dateConvert(contestDetails?.contestEndTime)}`}
                         {/* 20th March 2024, 9:30 AM | 27th March 3:20 PM */}
@@ -362,7 +366,7 @@ const FeaturedContestRegistration = () => {
                       </Grid>
                     </Grid>
 
-                    <Grid
+                    {/* <Grid
                       item
                       xs={12}
                       md={12}
@@ -427,7 +431,7 @@ const FeaturedContestRegistration = () => {
                           </MDBox>
                         }</MDTypography></MDBox>
                       </MDBox>
-                    </Grid>
+                    </Grid> */}
 
                     <Grid
                       item
@@ -445,7 +449,7 @@ const FeaturedContestRegistration = () => {
                         <SignupLoginPopup
                           data={contestDetails} testzone={true} referrerCode={couponReferrerCode}
                         />
-                      <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDTypography variant='caption'>*Limited seats only. Hurry Up!</MDTypography></MDBox>
+                      <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{color:'white'}}><MDTypography variant='caption'>*Limited seats only. Hurry Up!</MDTypography></MDBox>
                       </MDBox>
                     </Grid>
 
