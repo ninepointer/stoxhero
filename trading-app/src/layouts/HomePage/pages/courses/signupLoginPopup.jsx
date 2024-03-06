@@ -307,11 +307,10 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
             {testzone ?
                 <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                     <MDButton
-                        variant='contained'
-                        color='success'
+                        style={{padidng:'12px', height:'45px', width:'214px', fontSize:'18px', borderRadius:'10px', color:'black', backgroundColor:'#E6F495', textAlign: "center", fontFamily: 'Work Sans , sans-serif', fontWeight:600, textTransform: 'capitalize'}}
                         size={isMobile ? 'small' : 'large'}
                         onClick={() => { setOpen(true) }}>
-                        Register Now
+                      <span>Register Now</span>
                     </MDButton>
 
                 </MDBox>

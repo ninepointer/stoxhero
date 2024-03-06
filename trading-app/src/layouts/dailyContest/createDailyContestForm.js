@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 // import { useForm } from "react-hook-form";
 // import Box from '@mui/material/Box';
-import {TextField, Card, Typography, CardActionArea, CardContent} from "@mui/material";
+import {
+  TextField,
+  Card,
+  Typography,
+  CardActionArea,
+  CardContent,
+} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
@@ -42,9 +48,8 @@ import Shared from "./data/shared";
 import CreateRewards from "./data/reward/createReward";
 import ContestRewards from "./data/reward/contestReward";
 import { apiUrl } from "../../constants/constants";
-import Faq from './data/faq/list';
-import EventFormat from './data/eventFormat/list';
-
+import Faq from "./data/faq/list";
+import EventFormat from "./data/eventFormat/list";
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -67,7 +72,7 @@ function Index() {
   const location = useLocation();
   const contest = location?.state?.data;
   const [collegeSelectedOption, setCollegeSelectedOption] = useState();
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewUrl, setPreviewUrl] = useState("");
 
   // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -253,18 +258,21 @@ function Index() {
     // console.log("inside submit")
     e.preventDefault();
     if (!image) {
-      openSuccessSB('error', 'Please select a file to upload');
+      openSuccessSB("error", "Please select a file to upload");
       return;
     }
 
-    try{
+    try {
       const formData = new FormData();
       if (image) {
         formData.append("image", image[0]);
       }
 
       if (formState.contestLiveTime > formState.contestStartTime) {
-        return openErrorSB("Error", "Live time should be less then start time.");
+        return openErrorSB(
+          "Error",
+          "Live time should be less then start time."
+        );
       }
       if (formState.contestStartTime > formState.contestEndTime) {
         return openErrorSB("Error", "Date range is not valid.");
@@ -287,20 +295,20 @@ function Index() {
           "Please fill all the mandatory fields"
         );
       }
-  
+
       setTimeout(() => {
         setCreating(false);
         setIsSubmitted(true);
       }, 500);
 
-      for(let elem in formState){
-        elem!=='portfolio' && formData.append(`${elem}`, formState[elem]);
+      for (let elem in formState) {
+        elem !== "portfolio" && formData.append(`${elem}`, formState[elem]);
       }
 
-      if(formState?.portfolio?.id){
+      if (formState?.portfolio?.id) {
         formData.append(`portfolio`, formState?.portfolio?.id);
       }
-      
+
       const res = await fetch(`${baseUrl}api/v1/dailycontest/contest`, {
         method: "POST",
         credentials: "include",
@@ -308,9 +316,9 @@ function Index() {
           // "content-type": "application/json",
           "Access-Control-Allow-Credentials": true,
         },
-        body: formData
+        body: formData,
       });
-  
+
       const data = await res.json();
       console.log(data, res.status);
       if (res.status !== 201) {
@@ -329,80 +337,77 @@ function Index() {
           setIsSubmitted(true);
         }, 500);
       }
-    } catch(err){
-
-    }
-
+    } catch (err) {}
   }
 
   // console.log("dailyContest", dailyContest)
 
   async function onEdit(e, formState) {
-   try{
-    e.preventDefault();
-    setSaving(true);
+    try {
+      e.preventDefault();
+      setSaving(true);
 
+      if (
+        new Date(formState.contestLiveTime).toISOString() >
+        new Date(formState.contestStartTime).toISOString()
+      ) {
+        setTimeout(() => {
+          setSaving(false);
+          setEditing(true);
+        }, 500);
+        return openErrorSB(
+          "Error",
+          "Live time should be less then start time."
+        );
+      }
 
-    if (
-      new Date(formState.contestLiveTime).toISOString() >
-      new Date(formState.contestStartTime).toISOString()
-    ) {
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
-      return openErrorSB("Error", "Live time should be less then start time.");
-    }
+      if (
+        new Date(formState.contestStartTime).toISOString() >
+        new Date(formState.contestEndTime).toISOString()
+      ) {
+        setTimeout(() => {
+          setSaving(false);
+          setEditing(true);
+        }, 500);
+        return openErrorSB("Error", "Date range is not valid.");
+      }
 
-    if (
-      new Date(formState.contestStartTime).toISOString() >
-      new Date(formState.contestEndTime).toISOString()
-    ) {
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
-      return openErrorSB("Error", "Date range is not valid.");
-    }
+      if (
+        !formState.contestName ||
+        !formState.contestStartTime ||
+        !formState.contestEndTime ||
+        !formState.contestStatus ||
+        !formState.maxParticipants ||
+        !formState.description ||
+        !formState.contestType ||
+        !formState.portfolio ||
+        !formState.contestFor ||
+        (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty)
+      ) {
+        setTimeout(() => {
+          setSaving(false);
+          setEditing(true);
+        }, 500);
+        return openErrorSB(
+          "Missing Field",
+          "Please fill all the mandatory fields"
+        );
+      }
 
-    if (
-      !formState.contestName ||
-      !formState.contestStartTime ||
-      !formState.contestEndTime ||
-      !formState.contestStatus ||
-      !formState.maxParticipants ||
-      !formState.description ||
-      !formState.contestType ||
-      !formState.portfolio ||
-      !formState.contestFor ||
-      (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty)
-    ) {
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
-      return openErrorSB(
-        "Missing Field",
-        "Please fill all the mandatory fields"
-      );
-    }
+      const formData = new FormData();
+      if (image) {
+        formData.append("image", image[0]);
+      }
 
-    const formData = new FormData();
-    if (image) {
-      formData.append("image", image[0]);
-    }
+      for (let elem in formState) {
+        elem !== "portfolio" && formData.append(`${elem}`, formState[elem]);
+      }
 
-    for(let elem in formState){
-      elem!=='portfolio' && formData.append(`${elem}`, formState[elem]);
-    }
+      if (formState?.portfolio?.id) {
+        formData.append(`portfolio`, formState?.portfolio?.id);
+      }
 
-    if(formState?.portfolio?.id){
-      formData.append(`portfolio`, formState?.portfolio?.id);
-    }
-    
-    const res = await fetch(
-      `${apiUrl}dailycontest/contest/${contest?._id}`,
-      {
+      const res = await fetch(`${apiUrl}dailycontest/contest/${contest?._id}`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -410,41 +415,37 @@ function Index() {
           "Access-Control-Allow-Credentials": true,
         },
         body: formData,
+      });
+
+      const data = await res.json();
+      // console.log(data);
+      if (
+        data.status === 500 ||
+        data.status == 400 ||
+        data.status == 401 ||
+        data.status == "error" ||
+        data.error ||
+        !data
+      ) {
+        openErrorSB("Error", data.error);
+        setTimeout(() => {
+          setSaving(false);
+          setEditing(true);
+        }, 500);
+      } else if (data.status == "success") {
+        openSuccessSB("TestZone Edited", "Edited Successfully");
+        setTimeout(() => {
+          setSaving(false);
+          setEditing(false);
+        }, 500);
+      } else {
+        openErrorSB("Error", data.message);
+        setTimeout(() => {
+          setSaving(false);
+          setEditing(true);
+        }, 500);
       }
-    );
-
-    const data = await res.json();
-    // console.log(data);
-    if (
-      data.status === 500 ||
-      data.status == 400 ||
-      data.status == 401 ||
-      data.status == "error" ||
-      data.error ||
-      !data
-    ) {
-      openErrorSB("Error", data.error);
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
-    } else if (data.status == "success") {
-      openSuccessSB("TestZone Edited", "Edited Successfully");
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(false);
-      }, 500);
-      
-    } else {
-      openErrorSB("Error", data.message);
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
-    }
-   } catch(err){
-
-   }
+    } catch (err) {}
   }
 
   const [title, setTitle] = useState("");
@@ -814,7 +815,9 @@ function Index() {
                   fullWidth
                   type="number"
                   defaultValue={
-                    editing ? formState?.discountedEntryFee : contest?.discountedEntryFee
+                    editing
+                      ? formState?.discountedEntryFee
+                      : contest?.discountedEntryFee
                   }
                   // onChange={handleChange}
                   onChange={(e) => {
@@ -1207,28 +1210,40 @@ function Index() {
                 </FormGroup>
               </Grid>
 
-                <Grid item xs={12} md={6} xl={3}>
-                  <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(contest?.image && !image) ? "warning" : ((contest?.image && image) || image) ? "error" : "success"} component="label">
-                    Upload Image(1024X512)
-                    <input
-                      hidden
-                      disabled={(isSubmitted || contest) && (!editing || saving)}
-                      accept="image/*"
-                      type="file"
-                      // onChange={(e)=>{setImage(e.target.files)}}
-                      onChange={(e) => {
-                        // setFormState(prevState => ({
-                        //   ...prevState,
-                        //   image: e.target.files
-                        // }));
-                        // setImage(e.target.files);
-                        handleImage(e);
-                      }}
-                    />
-                  </MDButton>
-                </Grid>
+              <Grid item xs={12} md={6} xl={3}>
+                <MDButton
+                  variant="outlined"
+                  style={{ fontSize: 10 }}
+                  fullWidth
+                  color={
+                    contest?.image && !image
+                      ? "warning"
+                      : (contest?.image && image) || image
+                      ? "error"
+                      : "success"
+                  }
+                  component="label"
+                >
+                  Upload Image(1024X512)
+                  <input
+                    hidden
+                    disabled={(isSubmitted || contest) && (!editing || saving)}
+                    accept="image/*"
+                    type="file"
+                    // onChange={(e)=>{setImage(e.target.files)}}
+                    onChange={(e) => {
+                      // setFormState(prevState => ({
+                      //   ...prevState,
+                      //   image: e.target.files
+                      // }));
+                      // setImage(e.target.files);
+                      handleImage(e);
+                    }}
+                  />
+                </MDButton>
+              </Grid>
 
-                <Grid item xs={12} md={6} xl={3} mb={2}>
+              <Grid item xs={12} md={6} xl={3} mb={2}>
                 <TextField
                   disabled={(isSubmitted || contest) && (!editing || saving)}
                   id="outlined-required"
@@ -1250,7 +1265,9 @@ function Index() {
                   name="metaDescription"
                   fullWidth
                   defaultValue={
-                    editing ? formState?.metaDescription : contest?.metaDescription
+                    editing
+                      ? formState?.metaDescription
+                      : contest?.metaDescription
                   }
                   onChange={handleChange}
                 />
@@ -1277,9 +1294,7 @@ function Index() {
                   label="Slug Route *"
                   name="slug"
                   fullWidth
-                  defaultValue={
-                    editing ? formState?.slug : contest?.slug
-                  }
+                  defaultValue={editing ? formState?.slug : contest?.slug}
                   onChange={handleChange}
                 />
               </Grid>
@@ -1386,56 +1401,195 @@ function Index() {
               )}
             </Grid>
 
-            <Grid container mb={2} spacing={2} xs={12} md={12} xl={12} mt={1} display="flex" justifyContent='flex-start' alignItems='center' style={{maxWidth:'100%', height:'auto'}}>
-          {previewUrl ?
-             
-             <Grid item xs={12} md={12} xl={3} style={{maxWidth:'100%', height:'auto'}}>
-              <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                  <Card sx={{ minWidth: '100%', cursor:'pointer' }}>       
-                    <CardActionArea>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                      <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                        <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
-                        <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{textAlign:'center'}}>
-                          Image
-                        </Typography>
-                        </MDBox>
-                      </CardContent>
+            <Grid
+              container
+              mb={2}
+              spacing={2}
+              xs={12}
+              md={12}
+              xl={12}
+              mt={1}
+              display="flex"
+              justifyContent="flex-start"
+              alignItems="center"
+              style={{ maxWidth: "100%", height: "auto" }}
+            >
+              {previewUrl ? (
+                <Grid
+                  item
+                  xs={12}
+                  md={12}
+                  xl={3}
+                  style={{ maxWidth: "100%", height: "auto" }}
+                >
+                  <Grid
+                    container
+                    xs={12}
+                    md={12}
+                    xl={12}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
+                      xl={12}
+                      style={{ maxWidth: "100%", height: "auto" }}
+                    >
+                      <Card sx={{ minWidth: "100%", cursor: "pointer" }}>
+                        <CardActionArea>
+                          <Grid
+                            item
+                            xs={12}
+                            md={12}
+                            lg={12}
+                            display="flex"
+                            justifyContent="center"
+                            alignContent="center"
+                            alignItems="center"
+                            style={{ maxWidth: "100%", height: "auto" }}
+                          >
+                            <CardContent
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <MDBox
+                                mb={-2}
+                                display="flex"
+                                justifyContent="center"
+                                alignContent="center"
+                                alignItems="center"
+                                style={{ width: "100%", height: "auto" }}
+                              >
+                                <Typography
+                                  variant="caption"
+                                  fontFamily="Segoe UI"
+                                  fontWeight={600}
+                                  style={{ textAlign: "center" }}
+                                >
+                                  Image
+                                </Typography>
+                              </MDBox>
+                            </CardContent>
+                          </Grid>
+                          <Grid
+                            item
+                            xs={12}
+                            md={12}
+                            lg={12}
+                            display="flex"
+                            justifyContent="center"
+                            alignContent="center"
+                            alignItems="center"
+                            style={{ maxWidth: "100%", height: "auto" }}
+                          >
+                            <img
+                              src={previewUrl}
+                              style={{
+                                maxWidth: "100%",
+                                height: "auto",
+                                borderBottomLeftRadius: 10,
+                                borderBottomRightRadius: 10,
+                              }}
+                            />
+                          </Grid>
+                        </CardActionArea>
+                      </Card>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                      <img src={previewUrl} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
-                    </Grid>
-                    </CardActionArea>
-                  </Card>
-                </Grid>
-              </Grid>
-            </Grid>
-              :
-              <Grid item xs={12} md={12} xl={3} style={{maxWidth:'100%', height:'auto'}}>
-                <Grid container xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                  <Grid item xs={12} md={12} xl={12} style={{maxWidth:'100%', height:'auto'}}>
-                    <Card sx={{ minWidth: '100%', cursor:'pointer' }}>       
-                      <CardActionArea>
-                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                        <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth: '100%',height: 'auto'}}>
-                          <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{width:'100%', height:'auto'}}>
-                          <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{textAlign:'center'}}>
-                            Image
-                          </Typography>
-                          </MDBox>
-                        </CardContent>
-                      </Grid>
-                      <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{maxWidth:'100%', height: 'auto'}}>
-                        <img src={contest?.image} style={{maxWidth: '100%',height: 'auto', borderBottomLeftRadius:10, borderBottomRightRadius:10}}/>
-                      </Grid>
-                      </CardActionArea>
-                    </Card>
                   </Grid>
                 </Grid>
-              </Grid>
-          }
-          </Grid>
+              ) : (
+                <Grid
+                  item
+                  xs={12}
+                  md={12}
+                  xl={3}
+                  style={{ maxWidth: "100%", height: "auto" }}
+                >
+                  <Grid
+                    container
+                    xs={12}
+                    md={12}
+                    xl={12}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
+                      xl={12}
+                      style={{ maxWidth: "100%", height: "auto" }}
+                    >
+                      <Card sx={{ minWidth: "100%", cursor: "pointer" }}>
+                        <CardActionArea>
+                          <Grid
+                            item
+                            xs={12}
+                            md={12}
+                            lg={12}
+                            display="flex"
+                            justifyContent="center"
+                            alignContent="center"
+                            alignItems="center"
+                            style={{ maxWidth: "100%", height: "auto" }}
+                          >
+                            <CardContent
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <MDBox
+                                mb={-2}
+                                display="flex"
+                                justifyContent="center"
+                                alignContent="center"
+                                alignItems="center"
+                                style={{ width: "100%", height: "auto" }}
+                              >
+                                <Typography
+                                  variant="caption"
+                                  fontFamily="Segoe UI"
+                                  fontWeight={600}
+                                  style={{ textAlign: "center" }}
+                                >
+                                  Image
+                                </Typography>
+                              </MDBox>
+                            </CardContent>
+                          </Grid>
+                          <Grid
+                            item
+                            xs={12}
+                            md={12}
+                            lg={12}
+                            display="flex"
+                            justifyContent="center"
+                            alignContent="center"
+                            alignItems="center"
+                            style={{ maxWidth: "100%", height: "auto" }}
+                          >
+                            <img
+                              src={contest?.image}
+                              style={{
+                                maxWidth: "100%",
+                                height: "auto",
+                                borderBottomLeftRadius: 10,
+                                borderBottomRightRadius: 10,
+                              }}
+                            />
+                          </Grid>
+                        </CardActionArea>
+                      </Card>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              )}
+            </Grid>
 
             {(contest?.payoutType === "Reward" ||
               (isSubmitted && formState?.payoutType === "Reward")) && (
@@ -1450,25 +1604,29 @@ function Index() {
               </Grid>
             )}
 
-              {(isSubmitted || contest) && (
-                <Grid item xs={12} md={12} xl={12} mt={2}>
-                  <MDBox>
-                    <Faq contestId={
+            {(isSubmitted || contest) && (
+              <Grid item xs={12} md={12} xl={12} mt={2}>
+                <MDBox>
+                  <Faq
+                    contestId={
                       contest != undefined ? contest?._id : dailyContest?._id
-                    } />
-                  </MDBox>
-                </Grid>
-              )}
+                    }
+                  />
+                </MDBox>
+              </Grid>
+            )}
 
-              {(isSubmitted || contest) && (
-                <Grid item xs={12} md={12} xl={12} mt={2}>
-                  <MDBox>
-                    <EventFormat contestId={
+            {(isSubmitted || contest) && (
+              <Grid item xs={12} md={12} xl={12} mt={2}>
+                <MDBox>
+                  <EventFormat
+                    contestId={
                       contest != undefined ? contest?._id : dailyContest?._id
-                    } />
-                  </MDBox>
-                </Grid>
-              )}
+                    }
+                  />
+                </MDBox>
+              </Grid>
+            )}
 
             {(isSubmitted || contest) && (
               <Grid item xs={12} md={12} xl={12} mt={2}>

@@ -105,10 +105,9 @@ const List = ({ courseId }) => {
   });
 
   async function deleteData(id) {
-    const del = await axios.delete(
-      `${apiUrl}courses/${courseId}/faq/${id}`,
-      { withCredentials: true }
-    );
+    const del = await axios.delete(`${apiUrl}courses/${courseId}/faq/${id}`, {
+      withCredentials: true,
+    });
     setFaqData(del?.data?.data?.faqs);
   }
 

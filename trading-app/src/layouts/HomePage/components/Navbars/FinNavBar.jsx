@@ -13,7 +13,7 @@ import {
 import React, { useState } from "react";
 
 import useScrollPosition from "../../hooks/useScrollPosition";
-import logo from "../../../../assets/images/logo_dark.png";
+import logo from "../../../../assets/images/logo_light.png";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { CallMade, Language, Menu } from "@mui/icons-material";
 import LaunchButton from "../Buttons/LaunchButton";
@@ -91,14 +91,14 @@ const Navbar = () => {
               src={logo}
               style={{
                 objectFit: "contain",
-                height: "30px",
+                height: "32px",
                 marginTop: "15px",
                 textAlign: "center",
               }}
             />
           </a>
 
-          {!isMobile && (
+          {/* {!isMobile && (
             <Stack
               direction="row"
               alignItems="center"
@@ -262,7 +262,7 @@ const Navbar = () => {
                 </LinkButton>
               </a>
             </Stack>
-          )}
+          )} */}
 
           {/* Action buttons */}
 

@@ -37,7 +37,9 @@ const List = ({ contestId }) => {
 
   useEffect(() => {
     axios
-      .get(`${apiUrl}dailycontest/${contestId}/eventformat`, { withCredentials: true })
+      .get(`${apiUrl}dailycontest/${contestId}/eventformat`, {
+        withCredentials: true,
+      })
       .then((res) => {
         setData(res.data.data?.eventFormat);
         // console.log(res.data.data);
