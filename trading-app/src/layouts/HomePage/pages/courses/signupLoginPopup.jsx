@@ -29,7 +29,8 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
         otpGenerate: false,
         errorMessage: "",
         isLogin: "",
-        signedUp: false
+        signedUp: false,
+        college: ''
     });
     const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
     const [timerActive, setTimerActive] = useState(false); // Flag to check if timer is active
@@ -44,61 +45,61 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
         confirmOtp: false,
         signup: false,
     })
-    
-      const handleClose = () => {
-        setOpen(false);
-      };
 
-      const ResendTimerSi = (seconds) => {
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const ResendTimerSi = (seconds) => {
         let remainingTime = seconds;
-    
+
         const timer = setInterval(() => {
-          // Display the remaining time
-          // console.log(Remaining time: ${remainingTime} seconds);
-    
-          // Decrease the remaining time by 1 second
-          setResendTimer(remainingTime--);
-          
-    
-          // Check if the timer has reached 0
-          if (remainingTime === 0) {
-            // Stop the timer
-            clearInterval(timer);
-            setTimerActive(false);
-            console.log("Timer has ended!");
-          }
+            // Display the remaining time
+            // console.log(Remaining time: ${remainingTime} seconds);
+
+            // Decrease the remaining time by 1 second
+            setResendTimer(remainingTime--);
+
+
+            // Check if the timer has reached 0
+            if (remainingTime === 0) {
+                // Stop the timer
+                clearInterval(timer);
+                setTimerActive(false);
+                console.log("Timer has ended!");
+            }
         }, 1000); // Update every second (1000 milliseconds)
-      };
-    
-      const resendOTP = async (type) => {
-    
+    };
+
+    const resendOTP = async (type) => {
+
         setTimerActive(true);
         ResendTimerSi(30)
-    
+
         const res = await fetch(`${apiUrl}resendotp`, {
-    
-          method: "PATCH",
-          // credentials:"include",
-          headers: {
-            "content-type": "application/json",
-            "Access-Control-Allow-Credentials": false
-          },
-          body: JSON.stringify({
-            mobile: detail.mobile,
-            type: type
-          })
+
+            method: "PATCH",
+            // credentials:"include",
+            headers: {
+                "content-type": "application/json",
+                "Access-Control-Allow-Credentials": false
+            },
+            body: JSON.stringify({
+                mobile: detail.mobile,
+                type: type
+            })
         });
-    
-    
+
+
         const data = await res.json();
         // console.log(data.status);
         if (res.status === 200 || res.status === 201) {
-        //   openSuccessSB("OTP Sent", data.message);
+            //   openSuccessSB("OTP Sent", data.message);
         } else {
-        //   openSuccessSB("Something went wrong", data.mesaage);
+            //   openSuccessSB("Something went wrong", data.mesaage);
         }
-    
-      }
+
+    }
 
     async function generateOTP() {
 
@@ -106,8 +107,8 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
             mobile,
 
         } = detail;
-        
-        setButtonLoading(prev => ({...prev, getOtp: true}));
+
+        setButtonLoading(prev => ({ ...prev, getOtp: true }));
         setDetails(prev => ({ ...prev, errorMessage: '' }));
 
         if (mobile.length !== 10) {
@@ -119,7 +120,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
             }
             else {
                 // setOTPGenerated(false)
-                setButtonLoading(prev => ({...prev, getOtp: false}))
+                setButtonLoading(prev => ({ ...prev, getOtp: false }))
                 setDetails(prev => ({ ...prev, errorMessage: 'Enter 10 digit mobile number' }));
                 setDetails(prev => ({ ...prev, otpGenerate: false }))
                 return setDetails(prev => ({ ...prev, errorMessage: 'Enter 10 digit mobile number' }));
@@ -144,12 +145,12 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
 
         if (res.status === 201 || res.status === 200) {
             // setOTPGenerated(true);
-            setButtonLoading(prev => ({...prev, getOtp: true}))
+            setButtonLoading(prev => ({ ...prev, getOtp: true }))
             setDetails(prev => ({ ...prev, otpGenerate: true }))
             // return openSuccessSB("OTP Sent", data.info, "SUCCESS");
         } else {
             // setOTPGenerated(false)
-            setButtonLoading(prev => ({...prev, getOtp: true}))
+            setButtonLoading(prev => ({ ...prev, getOtp: true }))
             setDetails(prev => ({ ...prev, otpGenerate: false }));
             setDetails(prev => ({ ...prev, errorMessage: data.info }));
             // return openSuccessSB("Error", data.info, "Error")
@@ -161,10 +162,10 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
         const {
             mobile,
             mobile_otp
-         
+
         } = detail;
-        setButtonLoading(prev => ({...prev, getOtp: false}))
-        setButtonLoading(prev => ({...prev, confirmOtp: true}))
+        setButtonLoading(prev => ({ ...prev, getOtp: false }))
+        setButtonLoading(prev => ({ ...prev, confirmOtp: true }))
         setDetails(prev => ({ ...prev, errorMessage: '' }));
         if (mobile.length !== 10) {
 
@@ -174,9 +175,9 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
 
             }
             else {
-                setButtonLoading(prev => ({...prev, confirmOtp: false}))
-                setDetails(prev => ({...prev, errorMessage: 'Enter 10 digit mobile number'}));
-                setDetails(prev => ({...prev, enterOtp: false}))
+                setButtonLoading(prev => ({ ...prev, confirmOtp: false }))
+                setDetails(prev => ({ ...prev, errorMessage: 'Enter 10 digit mobile number' }));
+                setDetails(prev => ({ ...prev, enterOtp: false }))
                 // return openSuccessSB("Invalid mobile Number", "Enter 10 digit mobile number", "Error")
             }
         }
@@ -200,15 +201,15 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
 
         if (res.status === 201 || res.status === 200) {
             // setOTPGenerated(true);
-            setButtonLoading(prev => ({...prev, confirmOtp: false}))
-            setDetails(prev => ({...prev, enterOtp: true}))
-            setDetails(prev => ({...prev, isLogin: data.login}))
+            setButtonLoading(prev => ({ ...prev, confirmOtp: false }))
+            setDetails(prev => ({ ...prev, enterOtp: true }))
+            setDetails(prev => ({ ...prev, isLogin: data.login }))
             // return openSuccessSB("OTP Sent", data.info, "SUCCESS");
         } else {
             // setOTPGenerated(false)
-            setButtonLoading(prev => ({...prev, confirmOtp: false}))
-            setDetails(prev => ({...prev, enterOtp: false}));
-            setDetails(prev => ({...prev, errorMessage: data.message}));
+            setButtonLoading(prev => ({ ...prev, confirmOtp: false }))
+            setDetails(prev => ({ ...prev, enterOtp: false }));
+            setDetails(prev => ({ ...prev, errorMessage: data.message }));
             // return openSuccessSB("Error", data.info, "Error")
         }
 
@@ -224,6 +225,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
             email,
             mobile,
             mobile_otp,
+            college
         } = detail;
 
         const res = await fetch(`${apiUrl}${createUserUrl}`, {
@@ -240,7 +242,8 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                 mobile: mobile,
                 mobile_otp: mobile_otp,
                 slug, dailycontestId: dailycontestId,
-                referrerCode: referrerCode
+                referrerCode: referrerCode,
+                college: college
             })
         });
 
@@ -254,15 +257,45 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
             setButtonClicked(false);
             // setButtonLoading(prev => ({...prev, signup: false}))
             // setDetails(prev => ({...prev, signedUp: false}));
-            setDetails(prev => ({...prev, errorMessage: data.message}));
+            setDetails(prev => ({ ...prev, errorMessage: data.message }));
         }
     }
 
     async function signUpProceed() {
-        setButtonClicked(false);
-        setButtonLoading(prev => ({ ...prev, signup: false }))
-        setDetails(prev => ({ ...prev, signedUp: true }));
-        setDetails(prev => ({ ...prev, isLogin: true }));
+        setButtonClicked(true);
+        setButtonLoading(prev => ({ ...prev, signup: true }))
+        setDetails(prev => ({ ...prev, signedUp: false }));
+        setDetails(prev => ({ ...prev, isLogin: false }));
+
+        const res = await fetch(`${apiUrl}codesavetosignup`, {
+            method: "POST",
+            // credentials:"include",
+            headers: {
+                "content-type": "application/json",
+                "Access-Control-Allow-Credentials": false
+            },
+            body: JSON.stringify({
+                mobile: detail?.mobile,
+                college: detail?.college,
+                first_name: detail?.first_name,
+                last_name: detail?.last_name,
+                referrerCode: referrerCode
+            })
+        });
+
+        const data = await res.json();
+        if (res.status === 201) {
+            setButtonClicked(false);
+            setButtonLoading(prev => ({ ...prev, signup: false }))
+            setDetails(prev => ({ ...prev, signedUp: true }));
+            setDetails(prev => ({ ...prev, isLogin: true }));
+            } else {
+                setButtonClicked(false);
+                setButtonLoading(prev => ({ ...prev, signup: false }))
+                setDetails(prev => ({ ...prev, signedUp: true }));
+                setDetails(prev => ({ ...prev, isLogin: true }));
+                setDetails(prev => ({ ...prev, errorMessage: data.message }));
+        }
     }
 
     const isMobile = useMediaQuery(theme.breakpoints.down("lg"))
@@ -278,7 +311,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                         color='success'
                         size={isMobile ? 'small' : 'large'}
                         onClick={() => { setOpen(true) }}>
-                      Register Now
+                        Register Now
                     </MDButton>
 
                 </MDBox>
@@ -346,7 +379,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                                 setShowPay={setShowPay} byLink={true} setOpenParent={setOpen} referrerCode={referrerCode} />
                             :
                             <Payment data={data} byLink={true} setOpenParent={setOpen} signedUp={detail.signedUp} checkPaid={checkPaid}
-                             referrerCode={referrerCode} createUser={createUser}/>
+                                referrerCode={referrerCode} createUser={createUser} />
 
                         :
                         detail.isLogin === false &&
@@ -391,6 +424,18 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                                 <TextField
                                     required
                                     id="outlined-required"
+                                    label="College"
+                                    type="text"
+                                    fullWidth
+                                    // style={{ width: '40%' }}
+                                    onChange={(e) => { setDetails(prevState => ({ ...prevState, college: e.target.value })) }}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} md={12} xl={6} p={1} sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                                <TextField
+                                    required
+                                    id="outlined-required"
                                     label="Mobile"
                                     type="text"
                                     fullWidth
@@ -413,7 +458,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
                             {timerActive ? (`Resend Mobile OTP in ${resendTimer} seconds`)?.toUpperCase() : ('Resend Mobile OTP')?.toUpperCase()}
                         </MDTypography>}
 
-                
+
                 </DialogContent>
                 <DialogActions>
                     <MDButton variant="gradient" size='small' color='error' onClick={handleClose} autoFocus>

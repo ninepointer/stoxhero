@@ -38,6 +38,14 @@ const signedUpUserSchema = new mongoose.Schema({
         type: String,
         // required: true
     },
+    code:{
+        type: String,
+        // required: true
+    },
+    collegeName:{
+        type: String,
+        // required: true
+    },
     mobile:{
         type: String,
         required: true

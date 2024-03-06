@@ -487,7 +487,7 @@ router.patch("/verifyotp", async (req, res) => {
     dob,
     state,
     section,
-    pin,
+    pin, college
   } = req.body;
 
   const schoolDetails = {
@@ -595,6 +595,11 @@ router.patch("/verifyotp", async (req, res) => {
       referrerCode = referrerCode;
     }
   }
+
+  user.code = referrerCode;
+  user.collegeName = college;
+  user.first_name = first_name;
+  user.last_name = last_name;
   user.status = "OTP Verified";
   user.last_modifiedOn = new Date();
   await user.save({ validateBeforeSave: false });
@@ -685,6 +690,7 @@ router.patch("/verifyotp", async (req, res) => {
       creationProcess: creation,
       collegeDetails: collegeDetails || null,
       affiliateProgramme: match ? affiliateObj?._id : null,
+      collegeName: college || null
     };
 
     if (dob) {
