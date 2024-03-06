@@ -1344,183 +1344,82 @@ router.patch("/createuserbycourse", async (req, res) => {
         token: token,
       });
 
-    // now inserting userId in free portfolio's
+    if (referredBy) {
+        if (match) {
+            let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
+            const updateProgramme = await AffiliatePrograme.findOneAndUpdate(
+                { _id: new ObjectId(affiliateObj?._id) },
+                {
+                    $push: {
+                        referrals: {
+                            userId: newuser.upsertedId,
+                            joinedOn: new Date(),
+                            affiliateUserId: referrerCodeMatch?._id
+                        }
+                    }
+                },
 
-    //inserting user details to referredBy user and updating wallet balance
-    // if (referredBy) {
-    //     if (match) {
-    //         let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
-    //         const updateProgramme = await AffiliatePrograme.findOneAndUpdate(
-    //             { _id: new ObjectId(affiliateObj?._id) },
-    //             {
-    //                 $push: {
-    //                     referrals: {
-    //                         userId: newuser.upsertedId,
-    //                         joinedOn: new Date(),
-    //                         affiliateUserId: referrerCodeMatch?._id
-    //                     }
-    //                 }
-    //             },
+                { new: true, validateBeforeSave: false }
+            );
 
-    //             { new: true, validateBeforeSave: false }
-    //         );
+            await affiliateObj.save();
 
-    //         //   console.log("updateProgramme",updateProgramme)
-    //         // affiliateObj?.referrals?.push({ userId: newuser.upsertedId, joinedOn: new Date(), affiliateUserId: referrerCodeMatch?._id})
-    //         await affiliateObj.save();
+            if (referrerCode) {
+                const saveAffiliate = await User.findOneAndUpdate(
+                    { _id: new ObjectId(referrerCodeMatch?._id) },
+                    {
+                        $push: {
+                            affiliateReferrals: {
+                                referredUserId: newuser.upsertedId,
+                                joiningDate: populatedUser.createdOn,
+                                affiliateProgram: affiliateObj._id,
+                                affiliateEarning: affiliateObj.rewardPerSignup,
+                                affiliateCurrency: affiliateObj.currency
+                            }
+                        }
+                    },
+                );
 
-    //         if (referrerCode) {
+                await referrerCodeMatch.save({ validateBeforeSave: false });
 
-    //             const saveAffiliate = await User.findOneAndUpdate(
-    //                 { _id: new ObjectId(referrerCodeMatch?._id) },
-    //                 {
-    //                     $push: {
-    //                         affiliateReferrals: {
-    //                             referredUserId: newuser.upsertedId,
-    //                             joiningDate: populatedUser.createdOn,
-    //                             affiliateProgram: affiliateObj._id,
-    //                             affiliateEarning: affiliateObj.rewardPerSignup,
-    //                             affiliateCurrency: affiliateObj.currency
-    //                         }
-    //                     }
-    //                 },
-    //             );
+            }
+        } else {
+            // referral?.users?.push({ userId: newuser.upsertedId, joinedOn: new Date() })
+            await referral.save();
 
-    //             if (affiliateObj?.referralSignupBonus?.amount) {
-    //                 await addSignupBonus(newuser?.upsertedId, affiliateObj?.referralSignupBonus?.amount, affiliateObj?.referralSignupBonus?.currency);
-    //             }
-    //             await referrerCodeMatch.save({ validateBeforeSave: false });
+            const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
+                $push: {
+                    users: {
+                        userId: newuser.upsertedId,
+                        joinedOn: new Date()
+                    }
+                }
+            })
 
-    //             const wallet = await UserWallet.findOneAndUpdate(
-    //                 { userId: new ObjectId(referrerCodeMatch._id) },
-    //                 {
-    //                     $push: {
-    //                         transactions: {
-    //                             title: 'Affiliate Signup Credit',
-    //                             description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
-    //                             amount: affiliateObj.rewardPerSignup,
-    //                             transactionId: uuid.v4(),
-    //                             transactionDate: new Date(),
-    //                             transactionType: affiliateObj.currency === 'INR' ? 'Cash' : 'Bonus'
-    //                         }
-    //                     }
-    //                 },
-    //                 { new: true, validateBeforeSave: false }
-    //             );
-
-    //             // Access the updated wallet document using the 'wallet' variable
-
-    //             await createUserNotification({
-    //                 title: 'Affiliate Signup Credit',
-    //                 description: `Amount credited for referral of ${populatedUser.first_name} ${populatedUser.last_name}`,
-    //                 notificationType: 'Individual',
-    //                 notificationCategory: 'Informational',
-    //                 productCategory: 'SignUp',
-    //                 user: referrerCodeMatch?._id,
-    //                 priority: 'Medium',
-    //                 channels: ['App', 'Email'],
-    //                 createdBy: '63ecbc570302e7cf0153370c',
-    //                 lastModifiedBy: '63ecbc570302e7cf0153370c'
-    //             });
-    //             if (user?.fcmTokens?.length > 0) {
-    //                 await sendMultiNotifications('Affiliate Signup Credit',
-    //                     `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
-    //                     referrerCodeMatch?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
-    //                 )
-    //             }
-
-    //             await AffiliateTransaction.create({
-    //                 affiliateProgram: new ObjectId(affiliateObj?._id),
-    //                 affiliateWalletTId: uuid.v4(),
-    //                 product: new ObjectId("6586e95dcbc91543c3b6c181"),
-    //                 specificProduct: new ObjectId("6586e95dcbc91543c3b6c181"),
-    //                 productActualPrice: 0,
-    //                 productDiscountedPrice: 0,
-    //                 buyer: new ObjectId(newuser?.upsertedId),
-    //                 affiliate: new ObjectId(referrerCodeMatch._id),
-    //                 lastModifiedBy: new ObjectId(referrerCodeMatch._id),
-    //                 affiliatePayout: affiliateObj.rewardPerSignup
-    //             })
-    //         }
-    //     } else {
-    //         // referral?.users?.push({ userId: newuser.upsertedId, joinedOn: new Date() })
-    //         await referral.save();
-
-    //         const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
-    //             $push: {
-    //                 users: {
-    //                     userId: newuser.upsertedId,
-    //                     joinedOn: new Date()
-    //                 }
-    //             }
-    //         })
-
-    //         if (referrerCode) {
-    //             const saveReferrals = await User.findOneAndUpdate(
-    //                 { myReferralCode: referrerCode },
-    //                 {
-    //                     $push: {
-    //                         referrals: {
-    //                             referredUserId: newuser.upsertedId,
-    //                             joiningDate: populatedUser?.createdOn,
-    //                             referralProgram: referralProgramme._id,
-    //                             referralEarning: referralProgramme.rewardPerReferral,
-    //                             referralCurrency: referralProgramme.currency,
-    //                         }
-    //                     }
-    //                 },
-    //             );
-
-    //             if (referralProgramme?.referralSignupBonus?.amount) {
-    //                 await addSignupBonus(newuser?.upsertedId, referralProgramme?.referralSignupBonus?.amount, referralProgramme?.referralSignupBonus?.currency);
-    //             }
-    //             // await referrerCodeMatch.save({ validateBeforeSave: false });
-    //             const wallet = await UserWallet.findOneAndUpdate(
-    //                 { userId: new ObjectId(saveReferrals._id) },
-    //                 {
-    //                     $push: {
-    //                         transactions: {
-    //                             title: 'Referral Credit',
-    //                             description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
-    //                             amount: referralProgramme.rewardPerReferral,
-    //                             transactionId: uuid.v4(),
-    //                             transactionDate: new Date(),
-    //                             transactionType: referralProgramme.currency == 'INR' ? 'Cash' : 'Bonus'
-    //                         }
-    //                     }
-    //                 },
-    //                 { new: true, validateBeforeSave: false }
-    //             );
-
-    //             await createUserNotification({
-    //                 title: 'Referral Signup Credit',
-    //                 description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
-    //                 notificationType: 'Individual',
-    //                 notificationCategory: 'Informational',
-    //                 productCategory: 'SignUp',
-    //                 user: saveReferrals?._id,
-    //                 priority: 'Medium',
-    //                 channels: ['App', 'Email'],
-    //                 createdBy: '63ecbc570302e7cf0153370c',
-    //                 lastModifiedBy: '63ecbc570302e7cf0153370c'
-    //             });
-    //             if (user?.fcmTokens?.length > 0) {
-    //                 await sendMultiNotifications('Referral Signup Credit',
-    //                     `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
-    //                     saveReferrals?.fcmTokens?.map(item => item.token), null, { route: 'wallet' }
-    //                 )
-    //             }
-    //         }
-    //     }
-    // }
+            if (referrerCode) {
+                const saveReferrals = await User.findOneAndUpdate(
+                    { myReferralCode: referrerCode },
+                    {
+                        $push: {
+                            referrals: {
+                                referredUserId: newuser.upsertedId,
+                                joiningDate: populatedUser?.createdOn,
+                                referralProgram: referralProgramme._id,
+                                referralEarning: referralProgramme.rewardPerReferral,
+                                referralCurrency: referralProgramme.currency,
+                            }
+                        }
+                    },
+                );
+            }
+        }
+    }
 
     if (!newuser)
       return res
         .status(400)
         .json({ status: "error", message: "Something went wrong" });
 
-    // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
-    // let email = newuser.email;
     let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
     let message = `
         <!DOCTYPE html>
@@ -1681,7 +1580,7 @@ const addSignupBonus = async (userId, amount, currency) => {
 
 router.patch("/resendotp", async (req, res) => {
   const { email, mobile, type } = req.body;
-  const user = await SignedUpUser.findOne({ email: email });
+  const user = await SignedUpUser.findOne({ mobile: mobile });
   if (!user) {
     return res.status(404).json({
       status: "error",
@@ -1778,14 +1677,16 @@ router.patch("/resendotp", async (req, res) => {
     `;
   if (type == "mobile") {
     user.mobile_otp = mobile_otp;
+    user.lastOtpTime = new Date();
     // sendSMS([mobile.toString()],`Your otp for StoxHero signup is ${mobile_otp}`);
     if (process.env.PROD == "true") sendOTP(mobile.toString(), mobile_otp);
     if (process.env.PROD !== "true") sendOTP("9319671094", mobile_otp);
   } else if (type == "email") {
     user.email_otp = email_otp;
+    user.lastOtpTime = new Date();
     emailService(email, subject, message);
   }
-  await user.save();
+  await user.save({validateBeforeSave: false});
   res.status(200).json({
     status: "success",
     message: "OTP Resent. Please check again.",

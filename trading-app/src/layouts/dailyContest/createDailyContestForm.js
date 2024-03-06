@@ -802,6 +802,27 @@ function Index() {
                 />
               </Grid>
 
+              <Grid item xs={12} md={6} xl={3} mb={2}>
+                <TextField
+                  disabled={(isSubmitted || contest) && (!editing || saving)}
+                  id="outlined-required"
+                  label="Discounted Fee *"
+                  name="discountedEntryFee"
+                  fullWidth
+                  type="number"
+                  defaultValue={
+                    editing ? formState?.discountedEntryFee : contest?.discountedEntryFee
+                  }
+                  // onChange={handleChange}
+                  onChange={(e) => {
+                    setFormState((prevState) => ({
+                      ...prevState,
+                      discountedEntryFee: e.target.value,
+                    }));
+                  }}
+                />
+              </Grid>
+
               <Grid item xs={12} md={6} xl={3}>
                 <FormControl sx={{ width: "100%" }}>
                   <InputLabel id="demo-simple-select-autowidth-label">

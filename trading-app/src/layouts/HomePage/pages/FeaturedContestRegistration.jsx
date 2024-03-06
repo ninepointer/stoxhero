@@ -56,6 +56,7 @@ const FeaturedContestRegistration = () => {
   campaignCode = params.get("campaigncode");
 
   const newReferrerCode = campaignCode ? campaignCode : referrerCode;
+  const couponReferrerCode = referrerCode? referrerCode:"";
   let columns = [
     { Header: "# Rank", accessor: "rank", align: "center" },
     { Header: "Reward", accessor: "reward", align: "center" },
@@ -239,7 +240,7 @@ const FeaturedContestRegistration = () => {
         <Helmet>
           <title>{contestDetails?.metaTitle}</title>
           <meta name='description' content={contestDetails?.metaDescription} />
-          <meta name='keywords' content={contestDetails?.keywords} />
+          <meta name='keywords' content={contestDetails?.metaKeyword} />
 
         </Helmet>
         <Grid
@@ -366,7 +367,74 @@ const FeaturedContestRegistration = () => {
                       xs={12}
                       md={12}
                       xl={6}
-                      mt={5}
+                      mt={2}
+                      display="flex"
+                      justifyContent="center"
+                      alignContent="center"
+                      alignItems="center"
+                    >
+                      <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+
+                        <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDTypography variant='caption'>{
+                          <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                            <MDTypography
+                              variant="body2"
+                              fontWeight={800}
+
+                              fontSize={15}
+                              style={{
+                                color: '#532B9E',
+                                textDecoration: "line-through",
+                              }}
+                            >
+                              Registration Fee : &nbsp;
+                            </MDTypography>
+                            <MDTypography
+                              variant="body2"
+                              fontWeight="normal"
+
+                              fontSize={15}
+                              style={{
+                                color: '#532B9E',
+                                textDecoration: "line-through",
+                              }}
+                            >
+
+                              ₹{new Intl.NumberFormat(
+                                undefined,
+                                {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                }
+                              ).format(contestDetails?.entryFee)}
+                            </MDTypography>
+                            &nbsp;
+                            <MDTypography
+                              variant="body1"
+                              fontWeight="bold"
+                              sx={{ color: '#532B9E' }}
+                              fontSize={18}
+                            >
+
+                              ₹{new Intl.NumberFormat(
+                                undefined,
+                                {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                }
+                              ).format(contestDetails?.discountedEntryFee)}
+                            </MDTypography>
+                          </MDBox>
+                        }</MDTypography></MDBox>
+                      </MDBox>
+                    </Grid>
+
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
+                      xl={6}
+                      mt={2}
                       display="flex"
                       justifyContent="center"
                       alignContent="center"
@@ -375,7 +443,7 @@ const FeaturedContestRegistration = () => {
                       <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
                       {/* <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'}>Register Now(₹200/-)</MDButton></MDBox> */}
                         <SignupLoginPopup
-                          data={contestDetails} testzone={true} referrerCode={newReferrerCode}
+                          data={contestDetails} testzone={true} referrerCode={couponReferrerCode}
                         />
                       <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDTypography variant='caption'>*Limited seats only. Hurry Up!</MDTypography></MDBox>
                       </MDBox>
@@ -410,7 +478,7 @@ const FeaturedContestRegistration = () => {
                             <Grid item xs={12} md={12} lg={4} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
                               <MDBox display='flex' justifyContent='center' flexDirection='column' alignItems='center' alignContent='center' style={{minWidth:'100%'}}>
                                 <MDBox><img src={reward} alt="Reward" width={isMobile ? '100px' : '150px'}/></MDBox>
-                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>{`Price pool worth ₹${new Intl.NumberFormat(undefined, {
+                                <MDBox><MDTypography variant='body1' fontWeight='bold' style={{fontFamily: 'Work Sans , sans-serif'}}>{`Prize pool worth ₹${new Intl.NumberFormat(undefined, {
                           minimumFractionDigits: 0,
                           maximumFractionDigits: 0,
                         }).format(totalRewardWorth)}`}</MDTypography></MDBox>
@@ -558,7 +626,7 @@ const FeaturedContestRegistration = () => {
                 <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
                 {/* <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDButton variant='contained' color='success' size={isMobile ? 'small' : 'large'}>Register Now(₹200/-)</MDButton></MDBox> */}
                   <SignupLoginPopup
-                    data={contestDetails} testzone={true} referrerCode={newReferrerCode}
+                    data={contestDetails} testzone={true} referrerCode={couponReferrerCode}
                   />
                 <MDBox mt={1} display='flex' justifyContent='center' alignContent='center' alignItems='center'><MDTypography variant='caption'>*Limited seats only. Hurry Up!</MDTypography></MDBox>
                 </MDBox>

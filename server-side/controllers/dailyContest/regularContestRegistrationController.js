@@ -19,6 +19,8 @@ const AffiliatePrograme = require("../../models/affiliateProgram/affiliateProgra
 const Referral = require("../../models/campaigns/referralProgram");
 const UserDetail = require('../../models/User/userDetailSchema');
 const SignedUpUser = require('../../models/User/signedUpUser');
+const {createUserNotification} = require('../notification/notificationController');
+const AffiliateTransaction = require('../../models/affiliateProgram/affiliateTransactions');
 
 
 exports.createUser = async (req, res, next) => {
@@ -131,14 +133,14 @@ exports.createUser = async (req, res, next) => {
         }
         referral = await Referral.findOne({ status: "Active" });
     }
-    console.log("Affiliate obj", affiliateObj, performance.now() - startNow);
+    // console.log("Affiliate obj", affiliateObj, performance.now() - startNow);
 
     // free portfolio adding in user collection
     const activeFreePortfolios = await PortFolio.find({
         status: "Active",
         portfolioAccount: "Free",
     }).select("_id");
-    console.log("Just fetching portfolios", performance.now() - startNow);
+    // console.log("Just fetching portfolios", performance.now() - startNow);
     let portfolioArr = [];
     for (const portfolio of activeFreePortfolios) {
         let obj = {};
@@ -146,10 +148,10 @@ exports.createUser = async (req, res, next) => {
         obj.activationDate = new Date();
         portfolioArr.push(obj);
     }
-    console.log("portfolios fetched", performance.now() - startNow);
+    // console.log("portfolios fetched", performance.now() - startNow);
 
     try {
-        let creation;
+        let creation ;
         if (campaign) {
             creation = "Campaign SignUp";
         } else if (referredBy && !match) {
@@ -157,7 +159,7 @@ exports.createUser = async (req, res, next) => {
         } else if (match) {
             creation = "Affiliate SignUp";
         } else {
-            creation = "Auto SignUp";
+            creation = "Contest SignUp";
         }
         let obj = {
             first_name: first_name.trim(),

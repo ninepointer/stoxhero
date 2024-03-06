@@ -65,6 +65,10 @@ const contestSchema = new Schema({
         type:Number,
         default: 0
     },
+    discountedEntryFee:{
+        type:Number,
+        default: 0
+    },
     maxPayout:{
         type:Number,
         default: 0

@@ -37,7 +37,7 @@ const s3 = new AWS.S3({
 const getAwsS3Url = async (file, type) => {
   if (file && type === "Image") {
     file.buffer = await sharp(file.buffer)
-      .resize({ width: 512, height: 256 })
+      .resize({ width: 1024, height: 512 })
       .toBuffer();
   }
   const params = {
@@ -60,7 +60,7 @@ const getAwsS3Url = async (file, type) => {
 const getAwsS3Key = async (file, type, key) => {
   if (file && type === "Image") {
     file.buffer = await sharp(file.buffer)
-      .resize({ width: 512, height: 256 })
+      .resize({ width: 1024, height: 512 })
       .toBuffer();
   }
   const params = {
@@ -96,7 +96,7 @@ exports.createContest = async (req, res) => {
         req.body[elem] = true;
       }
     }
-    let { contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus,
+    let { contestLiveTime, payoutPercentageType, liveThreshold, currentLiveStatus, discountedEntryFee,
       contestStatus, contestEndTime, contestStartTime, contestOn, description, college, collegeCode,
       contestType, contestFor, entryFee, payoutPercentage, payoutStatus, contestName, portfolio,
       maxParticipants, contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, visibility,
@@ -127,7 +127,7 @@ exports.createContest = async (req, res) => {
     const contest = await Contest.create({
       maxParticipants, contestStatus, contestEndTime: endTimeDate, contestStartTime: startTimeDate, contestOn, description, portfolio, payoutType,
       contestType, contestFor, college, entryFee, payoutPercentage, payoutStatus, contestName, createdBy: req.user._id, lastModifiedBy: req.user._id,
-      contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage,
+      contestExpiry, featured, isNifty, isBankNifty, isFinNifty, isAllIndex, collegeCode, currentLiveStatus, liveThreshold, payoutCapPercentage, discountedEntryFee,
       contestLiveTime, payoutPercentageType, rewardType, tdsRelief, slug, visibility, image: contestImage, metaTitle, metaKeyword, metaDescription, slug: slugCount ? `${slug}-${slugCount+1}` : slug
     });
 
@@ -153,6 +153,9 @@ exports.editContest = async (req, res) => {
         const { id } = req.params; // ID of the contest to edit
         const updates = req.body;
         for (let elem in updates) {
+          if(elem === 'slug'){
+            delete updates[elem];
+          }
           if (updates[elem] === "undefined" || updates[elem] === "null") {
             delete updates[elem]
           }
@@ -178,11 +181,6 @@ exports.editContest = async (req, res) => {
         }
 
         console.log("updates", updates)
-
-        // let slug;
-        // if(updates?.contestName){
-        //   updates.slug = updates?.contestName.replace(/ /g, "-").toLowerCase();
-        // }
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ status: "error", message: "Invalid TestZone ID" });
@@ -2966,7 +2964,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
 
 exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, contestId, coupon, bonusRedemption, req) => {
   try {
-    let affiliate, affiliateProgram;
+    let affiliate, affiliateProgram, ignoreDiscount =false;
     const contest = await Contest.findOne({ _id: new ObjectId(contestId) });
     const wallet = await UserWallet.findOne({ userId: userId });
     const user = await User.findOne({ _id: userId });
@@ -3079,7 +3077,9 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
       }
     }
     const totalAmount = (contest?.entryFee - discountAmount - bonusRedemption) * (1 + setting[0]?.gstPercentage / 100)
-    if (Number(totalAmount)?.toFixed(2) != Number(contestFee)?.toFixed(2)) {
+    console.log('entry',contest?.entryFee, 'disc', discountAmount, 'hc', bonusRedemption, 'gst', setting[0]?.gstPercentage );
+    if (Number(Number(totalAmount)?.toFixed(2)) > Number(Number(contestFee)?.toFixed(2))) {
+      console.log('amounts', totalAmount, contestFee);
       return {
         statusCode: 400,
         data: {
@@ -3087,6 +3087,9 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
           message: "Incorrect TestZone fee amount",
         }
       };
+    }
+    if(Number(Number(totalAmount)?.toFixed(2)) != Number(Number(contestFee)?.toFixed(2))){
+      ignoreDiscount = true;
     }
     if (totalCashAmount < (Number(contestFee))) {
       return {
@@ -3422,7 +3425,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
     if (coupon) {
       const product = await Product.findOne({ productName: 'TestZone' }).select('_id');
       if (affiliate) {
-        await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.entryFee, userId);
+        await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.entryFee, userId, ignoreDiscount);
       } else {
         await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
       }
@@ -3703,7 +3706,7 @@ exports.findFeaturedContestByName = async(req,res,next)=>{
         const {name} = req.query;
         const result = await Contest.findOne({slug: name, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType image metaDescription metaKeyword metaTitle');
+            select('_id contestName contestStartTime contestEndTime discountedEntryFee entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType image metaDescription metaKeyword metaTitle');
 
             if(!result){
             return res.status(404).json({

@@ -28,7 +28,7 @@ import {useNavigate} from 'react-router-dom';
 
 const ariaLabel = { "aria-label": "description" };
 
-const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent }) => {
+const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent, referrerCode, createUser}) => {
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
   const [isPaymentStart, setIsPaymentStart] = useState(false);
@@ -37,7 +37,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
   const [bonusBalance, setBonusBalance] = useState(0);
   const [setting, setSetting] = useState([]);
   const [code, setCode] = useState("");
-  const [verifiedCode, setVerifiedCode] = useState("");
+  const [verifiedCode, setVerifiedCode] = useState(referrerCode?referrerCode:"");
   const [invalidCode, setInvalidCode] = useState("");
   const [discountData, setDiscountData] = useState();
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -60,6 +60,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
     setSuccessSB(true);
   };
   const closeSuccessSB = () => setSuccessSB(false);
+  console.log('referrer code', referrerCode);
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -265,7 +266,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
     }
   };
 
-  const amount = elem?.entryFee;
+  const amount = elem?.discountedEntryFee;
   const redeemableBonus =
     Math.min(
       ((amount - discountAmount) * setting?.maxBonusRedemptionPercentage) / 100,
@@ -279,19 +280,21 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
       )
     : 0;
   const actualAmount =
-    ((elem?.entryFee - discountAmount - bonusRedemption) *
+    ((elem?.discountedEntryFee - discountAmount - bonusRedemption) *
       setting.gstPercentage) /
     100;
 
   const initiatePayment = async () => {
     try {
+      setIsPaymentStart(true);
+      await createUser();
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
         {
           amount:
             Number((amount - discountAmount - bonusRedemption) * 100) +
             actualAmount * 100,
-          redirectTo: window.location.href,
+          redirectTo: "https://stoxhero.com/testzone",
           paymentFor: "Contest",
           productId: elem?._id,
           coupon: verifiedCode,
@@ -303,9 +306,10 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
 
-       
+        setIsPaymentStart(false);
     } catch (e) {
       console.log(e);
+      setIsPaymentStart(false);
     }
   };
   const calculateDiscount = (
@@ -347,7 +351,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
         {
           code,
           product: "6517d48d3aeb2bb27d650de5",
-          orderValue: elem?.entryFee,
+          orderValue: elem?.discountedEntryFee,
           platform: "Web",
           paymentMode: value,
         },
@@ -477,7 +481,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                           mb={2}
                           style={{ minWidth: "40vw" }}
                         >
-                          {!showPromoCode ? (
+                          {!referrerCode && (!showPromoCode ? (
                             <MDBox
                               display="flex"
                               justifyContent="flex-start"
@@ -587,7 +591,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                                 </Typography>
                               )}
                             </>
-                          )}
+                          ))}
                           <Typography
                             textAlign="left"
                             mt={1}
@@ -744,7 +748,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                             of the GST on your behalf. To offset it, we've
                             increased our pricing by a bit.{" "}
                           </Typography> */}
-                          {!showPromoCode ? (
+                          {!referrerCode && (!showPromoCode ? (
                             <MDBox
                               display="flex"
                               justifyContent="flex-start"
@@ -850,7 +854,7 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                                 </Typography>
                               )}
                             </>
-                          )}
+                          ))}
                           <Typography
                             textAlign="left"
                             mt={1}
@@ -937,8 +941,8 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
                             Net Transaction Amount: ₹
                             {(
                               Number(
-                                amount - discountAmount - bonusRedemption
-                              ) + actualAmount
+                                (amount || 0) - (discountAmount || 0) - (bonusRedemption || 0)
+                              ) + (actualAmount || 0)
                             ).toFixed(2)}
                           </Typography>
                           {(bonusBalance > 0 && !signedUp) && (
@@ -1073,7 +1077,16 @@ const Payment = ({ elem, setShowPay, showPay, byLink, signedUp, setOpenParent })
               onClick={() => initiatePayment()}
               autoFocus
             >
-              {`Pay ₹${(Number(amount - discountAmount - bonusRedemption) + actualAmount).toFixed(2)
+              {isPaymentStart ?
+                        <CircularProgress size={20} color="light"
+                          // sx={{
+                          //   mt: "8px",
+                          //   marginRight: "5px",
+                          //   marginLeft: "5px",
+                          // }}
+                        />
+                        :
+              `Pay ₹${(Number((amount || 0) - (discountAmount || 0) - (bonusRedemption || 0)) + (actualAmount || 0)).toFixed(2)
                 } securely`}
             </MDButton>
           </DialogActions>
