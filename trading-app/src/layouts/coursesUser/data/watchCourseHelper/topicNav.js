@@ -18,7 +18,7 @@ import { useMediaQuery } from "@mui/material";
 import theme from "../../HomePage/utils/theme/index";
 
 
-const Courses = () => {
+const TopicNav = ({topics}) => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
@@ -83,4 +83,4 @@ const Courses = () => {
 
 
 
-export default Courses;
+export default TopicNav;

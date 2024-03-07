@@ -55,6 +55,14 @@ const Courses = () => {
     setSkip((Number(value) - 1) * limitSetting)
   };
 
+  const handleOpenNewTab = async (elem) => {
+    // pathname: `/`,
+                                            //   search: `?id=${elem?._id}`,
+                                            //   state: { data: elem },
+    const newTab = window.open(`/watchcourse?id=${elem?._id}`, '_blank');
+    // await fetchDeviceDetail(elem?._id);
+  };
+
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
 
@@ -477,14 +485,15 @@ const Courses = () => {
                                             size="small"
                                             color="info"
                                             style={{ minWidth: "100%" }}
-                                            component={Link}
-                                            to={{
-                                              pathname: `/coursefulldata`,
-                                              search: `?id=${elem?._id}`,
-                                              state: { data: elem },
-                                            }}
+                                            // component={Link}
+                                            // to={{
+                                            //   pathname: `/watchcourse`,
+                                            //   search: `?id=${elem?._id}`,
+                                            //   state: { data: elem },
+                                            // }}
+                                            onClick={()=>{handleOpenNewTab(elem)}}
                                           >
-                                            Course Details
+                                            Watch
                                           </MDButton>
                                         </Grid>
                                         <Grid
