@@ -133,6 +133,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
       },
       body: JSON.stringify({
         mobile: mobile,
+        code:referrerCode
       }),
     });
 
@@ -344,7 +345,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
           >
             {detail.isLogin === false
               ? "Please fill your details"
-              : "Please enter mobile"}
+              : "Please enter mobile number"}
           </MDTypography>
         </DialogTitle>
         <DialogContent
@@ -379,6 +380,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
                   id="outlined-required"
                   label="Enter Mobile"
                   type="text"
+                  value={detail?.mobile}
                   fullWidth
                   onChange={(e) => {
                     setDetails((prevState) => ({
@@ -594,6 +596,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
                     label="Mobile"
                     type="text"
                     fullWidth
+                    disabled={true}
                     value={detail.mobile}
                     // style={{ width: '40%' }}
                     // onChange={(e) => { setDetails(prevState => ({ ...prevState, mobile_otp: e.target.value })) }}
