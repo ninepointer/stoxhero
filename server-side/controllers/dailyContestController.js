@@ -3683,7 +3683,7 @@ exports.findContestByName = async(req,res,next)=>{
         let dateString = date.includes('-') ? date.split('-').join('') : date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
         const result = await Contest.findOne({slug: name, contestStartTime:{$gte: new Date(dateString)}, contestFor:'College'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime payoutPercentage entryFee description');
+            select('_id contestName contestStartTime contestEndTime payoutPercentage entryFee description faqs');
             if(!result){
             return res.status(404).json({
                 status: "error",
@@ -3706,7 +3706,7 @@ exports.findFeaturedContestByName = async(req,res,next)=>{
         const {name} = req.query;
         const result = await Contest.findOne({slug: name, contestFor:'StoxHero'}).
         populate('portfolio', 'portfolioValue portfolioName').
-            select('_id contestName contestStartTime contestEndTime discountedEntryFee entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType image metaDescription metaKeyword metaTitle');
+            select('_id contestName contestStartTime contestEndTime discountedEntryFee entryFee rewards description payoutType payoutCapPercentage payoutPercentage rewardType image metaDescription metaKeyword metaTitle faqs');
 
             if(!result){
             return res.status(404).json({

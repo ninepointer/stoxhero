@@ -1,13 +1,13 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
-import MDBox from '../../../../components/MDBox';
-import MDButton from '../../../../components/MDButton';
+import MDBox from '../../../../components/MDBox/index.js';
+import MDButton from '../../../../components/MDButton/index.js';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Grid, TextField, CircularProgress } from '@mui/material';
-import { apiUrl } from '../../../../constants/constants';
-import MDTypography from '../../../../components/MDTypography';
+import { apiUrl } from '../../../../constants/constants.js';
+import MDTypography from '../../../../components/MDTypography/index.js';
 import Payment from '../../../coursesUser/data/payment.js'
 import TestZonePayment from '../../../UserDailyContest/data/payment.js'
 import theme from "../../utils/theme/index";
@@ -306,12 +306,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode }) => {
         <>
             {testzone ?
                 <MDBox display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                    <MDButton
-                        style={{padidng:'12px', height:isMobile ? '25px' : '45px', width: isMobile ? '120px' : '214px', fontSize:isMobile ? '12px' : '24px', borderRadius:'10px', color:'black', backgroundColor:'#E6F495', textAlign: "center", fontFamily: 'Work Sans , sans-serif', fontWeight:600, textTransform: 'capitalize'}}
-                        size={isMobile ? 'small' : 'large'}
-                        onClick={() => { setOpen(true) }}>
-                      <span>Register Now</span>
-                    </MDButton>
+                    <MDButton variant='contained' style={{color:'black'}}>Register Now</MDButton>
 
                 </MDBox>
                 :
