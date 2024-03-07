@@ -2998,7 +2998,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
       }
 
       //Check if Bonus Redemption is valid
-      if (bonusRedemption > totalBonusAmount || bonusRedemption > contest?.discountedEntryFee * setting[0]?.maxBonusRedemptionPercentage) {
+      if (bonusRedemption > totalBonusAmount || bonusRedemption > contest?.entryFee * setting[0]?.maxBonusRedemptionPercentage) {
           return {
               statusCode: 400,
               data: {
@@ -3055,7 +3055,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
                   //Calculate amount and match
                   discountAmount = couponDoc?.discount;
               } else {
-                  discountAmount = Math.min(couponDoc?.discount / 100 * contest?.discountedEntryFee, couponDoc?.maxDiscount);
+                  discountAmount = Math.min(couponDoc?.discount / 100 * contest?.entryFee, couponDoc?.maxDiscount);
 
               }
           } else {
@@ -3063,7 +3063,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
                   //Calculate amount and match
                   cashbackAmount = couponDoc?.discount;
               } else {
-                  cashbackAmount = Math.min(couponDoc?.discount / 100 * (contest?.discountedEntryFee - bonusRedemption), couponDoc?.maxDiscount);
+                  cashbackAmount = Math.min(couponDoc?.discount / 100 * (contest?.entryFee - bonusRedemption), couponDoc?.maxDiscount);
 
               }
               wallet?.transactions?.push({
@@ -3076,8 +3076,8 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
               });
           }
       }
-      const totalAmount = (contest?.discountedEntryFee - discountAmount - bonusRedemption) * (1 + setting[0]?.gstPercentage / 100)
-      console.log('entry', contest?.discountedEntryFee, 'disc', discountAmount, 'hc', bonusRedemption, 'gst', setting[0]?.gstPercentage);
+      const totalAmount = (contest?.entryFee - discountAmount - bonusRedemption) * (1 + setting[0]?.gstPercentage / 100)
+      console.log('entry', contest?.entryFee, 'disc', discountAmount, 'hc', bonusRedemption, 'gst', setting[0]?.gstPercentage);
       if (Number(Number(totalAmount)?.toFixed(2)) > Number(Number(contestFee)?.toFixed(2))) {
           console.log('amounts', totalAmount, contestFee);
           return {
@@ -3182,10 +3182,10 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
           {
               $addFields: {
                   "userContests.isFree": {
-                      $eq: ["$userContests.discountedEntryFee", 0],
+                      $eq: ["$userContests.entryFee", 0],
                   },
                   "userContests.isPaid": {
-                      $ne: ["$userContests.discountedEntryFee", 0],
+                      $ne: ["$userContests.entryFee", 0],
                   },
               },
           },
@@ -3238,7 +3238,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
           userId: userId,
           participatedOn: new Date(),
           fee: contestFee,
-          actualPrice: contest?.discountedEntryFee,
+          actualPrice: contest?.entryFee,
           isLive: false
       }
       if (Number(bonusRedemption)) {
@@ -3425,7 +3425,7 @@ exports.handleSubscriptionDeduction = async (userId, contestFee, contestName, co
       if (coupon) {
           const product = await Product.findOne({ productName: 'TestZone' }).select('_id');
           if (affiliate) {
-              await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.discountedEntryFee, userId, ignoreDiscount);
+              await creditAffiliateAmount(affiliate, affiliateProgram, product?._id, contest?._id, contest?.entryFee, userId, ignoreDiscount);
           } else {
               await saveSuccessfulCouponUse(userId, coupon, product?._id, contest?._id);
           }
