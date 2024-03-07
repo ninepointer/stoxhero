@@ -220,7 +220,10 @@ const contestSchema = new Schema({
     },
     payoutCapPercentage:{
         type:Number
-    }
+    },
+    faqs: [{ order: Number, question: String, answer: String }],
+    eventFormat: [{ order: Number, event: String, description: String }],
+
 
 })
 

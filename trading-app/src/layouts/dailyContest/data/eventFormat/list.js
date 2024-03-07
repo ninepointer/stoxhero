@@ -18,18 +18,18 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Create from "./create";
 import { apiUrl } from "../../../../constants/constants";
 
-const List = ({ courseId }) => {
+const List = ({ contestId }) => {
   let columns = [
     { Header: "Edit", accessor: "edit", align: "center" },
     { Header: "Delete", accessor: "delete", align: "center" },
     { Header: "Order", accessor: "order", align: "center" },
-    { Header: "Question", accessor: "que", align: "center" },
-    { Header: "Answer", accessor: "ans", align: "center" },
+    { Header: "Event", accessor: "event", align: "center" },
+    { Header: "Description", accessor: "des", align: "center" },
   ];
 
   let rows = [];
   const [createForm, setCreateForm] = useState(false);
-  const [faqData, setFaqData] = useState([]);
+  const [data, setData] = useState([]);
   // const { columns, rows } = battleRewardData();
   const [id, setId] = useState();
 
@@ -37,9 +37,11 @@ const List = ({ courseId }) => {
 
   useEffect(() => {
     axios
-      .get(`${apiUrl}courses/${courseId}/faq`, { withCredentials: true })
+      .get(`${apiUrl}dailycontest/${contestId}/eventformat`, {
+        withCredentials: true,
+      })
       .then((res) => {
-        setFaqData(res.data.data?.faqs);
+        setData(res.data.data?.eventFormat);
         // console.log(res.data.data);
       })
       .catch((err) => {
@@ -47,7 +49,7 @@ const List = ({ courseId }) => {
       });
   }, [createForm]);
 
-  faqData?.map((elem) => {
+  data?.map((elem) => {
     let obj = {};
 
     obj.edit = (
@@ -80,24 +82,24 @@ const List = ({ courseId }) => {
         {elem.order}
       </MDTypography>
     );
-    obj.que = (
+    obj.event = (
       <MDTypography
         component="a"
         variant="caption"
         color="text"
         fontWeight="medium"
       >
-        {elem.question}
+        {elem.event}
       </MDTypography>
     );
-    obj.ans = (
+    obj.des = (
       <MDTypography
         component="a"
         variant="caption"
         color="text"
         fontWeight="medium"
       >
-        {elem.answer}
+        {elem.description}
       </MDTypography>
     );
 
@@ -105,10 +107,11 @@ const List = ({ courseId }) => {
   });
 
   async function deleteData(id) {
-    const del = await axios.delete(`${apiUrl}courses/${courseId}/faq/${id}`, {
-      withCredentials: true,
-    });
-    setFaqData(del?.data?.data?.faqs);
+    const del = await axios.delete(
+      `${apiUrl}dailycontest/${contestId}/eventformat/${id}`,
+      { withCredentials: true }
+    );
+    setData(del?.data?.data?.eventFormat);
   }
 
   return (
@@ -130,7 +133,7 @@ const List = ({ courseId }) => {
             alignItems="center"
             gutterBottom
           >
-            FAQ
+            Event Format
           </MDTypography>
           <MDButton
             hidden={true}
@@ -139,7 +142,7 @@ const List = ({ courseId }) => {
             color="black"
             onClick={() => setCreateForm(true)}
           >
-            Create FAQ
+            Create Event Format
           </MDButton>
         </MDBox>
       </MDBox>
@@ -148,8 +151,8 @@ const List = ({ courseId }) => {
           <Create
             createForm={createForm}
             setCreateForm={setCreateForm}
-            courseId={courseId}
-            faq={id}
+            contestId={contestId}
+            eventformat={id}
           />
         </>
       )}

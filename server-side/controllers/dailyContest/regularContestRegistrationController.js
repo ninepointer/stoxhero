@@ -33,7 +33,7 @@ exports.createUser = async (req, res, next) => {
         referrerCode,
         fcmTokenData,
         collegeDetails,
-        dailycontestId
+        dailycontestId, college
     } = req.body;
 
     const user = await SignedUpUser.findOne({ mobile: mobile });
@@ -98,6 +98,9 @@ exports.createUser = async (req, res, next) => {
             referrerCode = referrerCode;
         }
     }
+
+    // user.code = referrerCode;
+    // user.college = college;  
     user.status = "OTP Verified";
     user.last_modifiedOn = new Date();
     await user.save({ validateBeforeSave: false });
@@ -181,6 +184,7 @@ exports.createUser = async (req, res, next) => {
             creationProcess: creation,
             collegeDetails: collegeDetails || "",
             affiliateProgramme: match ? affiliateObj?._id : null,
+            collegeName: college || null
         };
 
         if (fcmTokenData) {

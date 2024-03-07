@@ -21,8 +21,9 @@ import { useTheme } from "styled-components";
 import MDTypography from "../../../../components/MDTypography";
 import theme from "../../utils/theme/index";
 import { Link } from "react-router-dom";
+import OutlinedButton from "../Buttons/OutlinedButton";
 
-const NAVBAR_HIEGHT = 60;
+const NAVBAR_HIEGHT = 70;
 const LinkButton = ({ children, ...props }) => (
   <Stack
     direction="row"
@@ -67,6 +68,7 @@ const Navbar = () => {
         backdropFilter: scrollPosition > 10 && "blur(10px)",
         marginBottom: "55px",
         marginTop: "0px",
+        padding:"5px"
       }}
     >
       <Container
@@ -268,16 +270,16 @@ const Navbar = () => {
 
           {isMobile ? (
             <IconButton>
-              <Menu onClick={Handle} sx={{ color: "black" }} />
+              <Menu onClick={Handle} sx={{ color: "white" }} />
             </IconButton>
           ) : (
-            <Stack direction="row" spacing={5} alignItems="center">
+            <Stack direction="row" spacing={5} mt={2} display='flex' justifyContent='center' alignContent='center' alignItems="center">
               <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
-              <LaunchButton sx={{ borderRadius: 3, color: 'light' }} />
-            </a>
-            <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
-              <LaunchButton sx={{ borderRadius: 3, color: 'light' }} />
-            </a>
+              <OutlinedButton sx={{ borderRadius: 3, color: 'light', lineHeight:3 }} />
+              </a>
+              {/* <a>
+              <LaunchButton sx={{ borderRadius: 3, color: 'light', lineHeight:3 }} />
+              </a> */}
             </Stack>
           )}
         </Stack>

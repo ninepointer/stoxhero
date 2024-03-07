@@ -563,6 +563,42 @@ router.post("/phoneloginmobile", async (req, res, next) => {
   }
 });
 
+router.post("/codesavetosignup", async (req, res, next) => {
+  const { mobile, college, referrerCode, first_name, last_name} = req.body;
+  try {
+    const user = await SignedUpUser.findOne({
+      mobile: mobile,
+    }).sort({_id: -1});
+  
+    if (!user) {
+      return res
+        .status(429)
+        .json({status: 'error', message: "The user has not signed up yet." });
+    }
+
+    user.code = referrerCode;
+    user.collegeName = college;
+    user.first_name = first_name; 
+    user.last_name = last_name;
+    await user.save({ validateBeforeSave: false });
+
+    res
+      .status(200)
+      .json({
+        status: "Success",
+        message: `Data Saved`,
+      });
+  } catch (e) {
+    console.log(e);
+    res
+      .status(500)
+      .json({
+        status: "error",
+        message: `Something went wrong. Please try again.`,
+      });
+  }
+});
+
 router.post("/verifyphonelogin", async (req, res, next) => {
   const { mobile, mobile_otp, fcmTokenData, college, rollno } = req.body;
 
@@ -895,6 +931,7 @@ router.post("/createusermobile", async (req, res, next) => {
     referrerCode,
     fcmTokenData,
     collegeDetails,
+    college
   } = req.body;
 
   const user = await SignedUpUser.findOne({ mobile: mobile });
@@ -959,6 +996,11 @@ router.post("/createusermobile", async (req, res, next) => {
       referrerCode = referrerCode;
     }
   }
+
+  user.code = referrerCode;
+  user.collegeName = college;
+  user.first_name = first_name;
+  user.last_name = last_name;
   user.status = "OTP Verified";
   user.last_modifiedOn = new Date();
   await user.save({ validateBeforeSave: false });
@@ -1042,6 +1084,7 @@ router.post("/createusermobile", async (req, res, next) => {
       creationProcess: creation,
       collegeDetails: collegeDetails || "",
       affiliateProgramme: match ? affiliateObj?._id : null,
+      collegeName: college || null
     };
 
     if (fcmTokenData) {
