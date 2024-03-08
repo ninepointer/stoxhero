@@ -4,6 +4,7 @@ import moment from "moment";
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import { Typography, CardActionArea, CardContent } from "@mui/material";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
@@ -140,6 +141,8 @@ const DeactivateUser = () => {
       tags: res.data.data[0]?.influencerDetails?.tags.join(),
       state: res.data.data[0]?.influencerDetails?.state,
       city: res.data.data[0]?.influencerDetails?.city,
+      bannerImageMobile: res.data.data[0]?.influencerDetails?.bannerImageMobile,
+      bannerImageWeb: res.data.data[0]?.influencerDetails?.bannerImageWeb,
     });
     setInfluencerData({
       ...res.data.data[0],
@@ -334,6 +337,9 @@ const DeactivateUser = () => {
       console.log(res.data);
       if (res.data.status == "success") {
         setReRender(!reRender);
+        setEdit(false);
+        setSelectedUser();
+        setInfluencerData();
       }
     } catch (e) {
       console.log(e);
@@ -510,168 +516,391 @@ const DeactivateUser = () => {
                   value={selectedUser?.myReferralCode}
                   onChange={handleChange}
                 />
+                <Grid item xs={12} md={6} xl={3}>
+                  <MDButton
+                    variant="outlined"
+                    style={{ fontSize: 10 }}
+                    fullWidth
+                    color={"success"}
+                    component="label"
+                  >
+                    Upload Banner Image Web(2560X480)
+                    <input
+                      hidden
+                      accept="image/*"
+                      type="file"
+                      // onChange={(e)=>{setImage(e.target.files)}}
+                      onChange={handleBannerImageWeb}
+                    />
+                  </MDButton>
+                </Grid>
+                <Grid item xs={12} md={6} xl={3}>
+                  <MDButton
+                    variant="outlined"
+                    style={{ fontSize: 10 }}
+                    fullWidth
+                    color={"success"}
+                    component="label"
+                  >
+                    Upload Banner Image Mobile(853X480)
+                    <input
+                      hidden
+                      accept="image/*"
+                      type="file"
+                      // onChange={(e)=>{setImage(e.target.files)}}
+                      onChange={handleBannerImageMobile}
+                    />
+                  </MDButton>
+                </Grid>
+
                 {titlePreviewUrl ? (
                   <Grid
                     item
-                    mt={0.5}
                     xs={12}
                     md={12}
-                    lg={12}
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    style={{ maxWidth: "100%", border: "1px dashed #ccc" }}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
                   >
-                    <img
-                      src={titlePreviewUrl}
-                      alt="Preview"
-                      style={{ maxWidth: "100%" }}
-                    />
+                    <Grid
+                      container
+                      xs={12}
+                      md={12}
+                      xl={12}
+                      style={{ maxWidth: "100%", height: "auto" }}
+                    >
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        xl={12}
+                        style={{ maxWidth: "100%", height: "auto" }}
+                      >
+                        <Card sx={{ minWidth: "100%", cursor: "pointer" }}>
+                          <CardActionArea>
+                            <Grid
+                              item
+                              xs={12}
+                              md={12}
+                              lg={12}
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <CardContent
+                                display="flex"
+                                justifyContent="center"
+                                alignContent="center"
+                                alignItems="center"
+                                style={{ maxWidth: "100%", height: "auto" }}
+                              >
+                                <MDBox
+                                  mb={-2}
+                                  display="flex"
+                                  justifyContent="center"
+                                  alignContent="center"
+                                  alignItems="center"
+                                  style={{ width: "100%", height: "auto" }}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    fontFamily="Segoe UI"
+                                    fontWeight={600}
+                                    style={{ textAlign: "center" }}
+                                  >
+                                    Web Banner Preview
+                                  </Typography>
+                                </MDBox>
+                              </CardContent>
+                            </Grid>
+                            <Grid
+                              item
+                              xs={12}
+                              md={12}
+                              lg={12}
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <img
+                                src={titlePreviewUrl}
+                                style={{
+                                  maxWidth: "100%",
+                                  height: "auto",
+                                  borderBottomLeftRadius: 10,
+                                  borderBottomRightRadius: 10,
+                                }}
+                              />
+                            </Grid>
+                          </CardActionArea>
+                        </Card>
+                      </Grid>
+                    </Grid>
                   </Grid>
                 ) : (
                   <Grid
                     item
-                    mt={0.5}
                     xs={12}
                     md={12}
-                    lg={12}
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    style={{
-                      maxWidth: "100%",
-                      minHeight: "220px",
-                      border: "1px dashed #ccc",
-                    }}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
                   >
-                    <input
-                      type="file"
-                      onChange={handleBannerImageWeb}
-                      // disabled={editing}
-                      accept="image/*"
-                      style={{ display: "none", cursor: "pointer" }}
-                      id="image-upload"
-                    />
-                    <label htmlFor="image-upload" style={{ cursor: "pointer" }}>
+                    <Grid
+                      container
+                      xs={12}
+                      md={12}
+                      xl={12}
+                      style={{ maxWidth: "100%", height: "auto" }}
+                    >
                       <Grid
-                        container
+                        item
                         xs={12}
                         md={12}
-                        lg={12}
-                        display="flex"
-                        justifyContent="center"
-                        alignItems="center"
+                        xl={12}
+                        style={{ maxWidth: "100%", height: "auto" }}
                       >
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          lg={12}
-                          display="flex"
-                          justifyContent="center"
-                          alignItems="center"
-                        >
-                          <img src={UploadImage} width="20px" />
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          lg={12}
-                          display="flex"
-                          justifyContent="center"
-                          alignItems="center"
-                        >
-                          <MDTypography variant="caption" component="span">
-                            {!influencerData?.bannerImageWeb?.name
-                              ? "Upload Banner Image Web(2560 * 480px)"
-                              : "Upload Another Image"}
-                          </MDTypography>
-                        </Grid>
+                        <Card sx={{ minWidth: "100%", cursor: "pointer" }}>
+                          <CardActionArea>
+                            <Grid
+                              item
+                              xs={12}
+                              md={12}
+                              lg={12}
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <CardContent
+                                display="flex"
+                                justifyContent="center"
+                                alignContent="center"
+                                alignItems="center"
+                                style={{ maxWidth: "100%", height: "auto" }}
+                              >
+                                <MDBox
+                                  mb={-2}
+                                  display="flex"
+                                  justifyContent="center"
+                                  alignContent="center"
+                                  alignItems="center"
+                                  style={{ width: "100%", height: "auto" }}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    fontFamily="Segoe UI"
+                                    fontWeight={600}
+                                    style={{ textAlign: "center" }}
+                                  >
+                                    Web Banner Preview
+                                  </Typography>
+                                </MDBox>
+                              </CardContent>
+                            </Grid>
+                            <Grid
+                              item
+                              xs={12}
+                              md={12}
+                              lg={12}
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <img
+                                src={selectedUser?.bannerImageWeb}
+                                style={{
+                                  maxWidth: "100%",
+                                  height: "auto",
+                                  borderBottomLeftRadius: 10,
+                                  borderBottomRightRadius: 10,
+                                }}
+                              />
+                            </Grid>
+                          </CardActionArea>
+                        </Card>
                       </Grid>
-                    </label>
+                    </Grid>
                   </Grid>
                 )}
                 {titlePreviewUrlMobile ? (
                   <Grid
                     item
-                    mt={0.5}
                     xs={12}
                     md={12}
-                    lg={12}
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    style={{ maxWidth: "100%", border: "1px dashed #ccc" }}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
                   >
-                    <img
-                      src={titlePreviewUrlMobile}
-                      alt="Preview"
-                      style={{ maxWidth: "100%" }}
-                    />
+                    <Grid
+                      container
+                      xs={12}
+                      md={12}
+                      xl={12}
+                      style={{ maxWidth: "100%", height: "auto" }}
+                    >
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        xl={12}
+                        style={{ maxWidth: "100%", height: "auto" }}
+                      >
+                        <Card sx={{ minWidth: "100%", cursor: "pointer" }}>
+                          <CardActionArea>
+                            <Grid
+                              item
+                              xs={12}
+                              md={12}
+                              lg={12}
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <CardContent
+                                display="flex"
+                                justifyContent="center"
+                                alignContent="center"
+                                alignItems="center"
+                                style={{ maxWidth: "100%", height: "auto" }}
+                              >
+                                <MDBox
+                                  mb={-2}
+                                  display="flex"
+                                  justifyContent="center"
+                                  alignContent="center"
+                                  alignItems="center"
+                                  style={{ width: "100%", height: "auto" }}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    fontFamily="Segoe UI"
+                                    fontWeight={600}
+                                    style={{ textAlign: "center" }}
+                                  >
+                                    Mobile Banner Preview
+                                  </Typography>
+                                </MDBox>
+                              </CardContent>
+                            </Grid>
+                            <Grid
+                              item
+                              xs={12}
+                              md={12}
+                              lg={12}
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <img
+                                src={titlePreviewUrlMobile}
+                                style={{
+                                  maxWidth: "100%",
+                                  height: "auto",
+                                  borderBottomLeftRadius: 10,
+                                  borderBottomRightRadius: 10,
+                                }}
+                              />
+                            </Grid>
+                          </CardActionArea>
+                        </Card>
+                      </Grid>
+                    </Grid>
                   </Grid>
                 ) : (
                   <Grid
                     item
-                    mt={0.5}
                     xs={12}
                     md={12}
-                    lg={12}
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    style={{
-                      maxWidth: "100%",
-                      minHeight: "220px",
-                      border: "1px dashed #ccc",
-                    }}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
                   >
-                    <input
-                      type="file"
-                      onChange={handleBannerImageMobile}
-                      // disabled={editing}
-                      accept="image/*"
-                      style={{ display: "none", cursor: "pointer" }}
-                      id="image-upload"
-                    />
-                    <label htmlFor="image-upload" style={{ cursor: "pointer" }}>
+                    <Grid
+                      container
+                      xs={12}
+                      md={12}
+                      xl={12}
+                      style={{ maxWidth: "100%", height: "auto" }}
+                    >
                       <Grid
-                        container
+                        item
                         xs={12}
                         md={12}
-                        lg={12}
-                        display="flex"
-                        justifyContent="center"
-                        alignItems="center"
+                        xl={12}
+                        style={{ maxWidth: "100%", height: "auto" }}
                       >
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          lg={12}
-                          display="flex"
-                          justifyContent="center"
-                          alignItems="center"
-                        >
-                          <img src={UploadImage} width="20px" />
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          md={12}
-                          lg={12}
-                          display="flex"
-                          justifyContent="center"
-                          alignItems="center"
-                        >
-                          <MDTypography variant="caption" component="span">
-                            {!influencerData?.bannerImageMobile?.name
-                              ? "Upload Banner Image Mobile(853*480px)"
-                              : "Upload Another Image"}
-                          </MDTypography>
-                        </Grid>
+                        <Card sx={{ minWidth: "100%", cursor: "pointer" }}>
+                          <CardActionArea>
+                            <Grid
+                              item
+                              xs={12}
+                              md={12}
+                              lg={12}
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <CardContent
+                                display="flex"
+                                justifyContent="center"
+                                alignContent="center"
+                                alignItems="center"
+                                style={{ maxWidth: "100%", height: "auto" }}
+                              >
+                                <MDBox
+                                  mb={-2}
+                                  display="flex"
+                                  justifyContent="center"
+                                  alignContent="center"
+                                  alignItems="center"
+                                  style={{ width: "100%", height: "auto" }}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    fontFamily="Segoe UI"
+                                    fontWeight={600}
+                                    style={{ textAlign: "center" }}
+                                  >
+                                    Mobile Banner Preview
+                                  </Typography>
+                                </MDBox>
+                              </CardContent>
+                            </Grid>
+                            <Grid
+                              item
+                              xs={12}
+                              md={12}
+                              lg={12}
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              style={{ maxWidth: "100%", height: "auto" }}
+                            >
+                              <img
+                                src={selectedUser?.bannerImageMobile}
+                                style={{
+                                  maxWidth: "100%",
+                                  height: "auto",
+                                  borderBottomLeftRadius: 10,
+                                  borderBottomRightRadius: 10,
+                                }}
+                              />
+                            </Grid>
+                          </CardActionArea>
+                        </Card>
                       </Grid>
-                    </label>
+                    </Grid>
                   </Grid>
                 )}
                 <MDButton
@@ -685,6 +914,7 @@ const DeactivateUser = () => {
                   onClick={() => {
                     setSelectedUser();
                     setEdit(false);
+                    setInfluencerData();
                   }}
                 >
                   Discard

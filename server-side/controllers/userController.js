@@ -1452,6 +1452,7 @@ exports.editInfluencer = async (req, res) => {
     );
   }
   const { state, city, tags, about, myReferralCode, slug } = req.body;
+  console.log("req body", req.body);
   try {
     const user = await UserDetail.findOne({
       _id: new ObjectId(id),
@@ -1468,6 +1469,10 @@ exports.editInfluencer = async (req, res) => {
     console.log(Boolean(slug), slug);
     if (Boolean(slug) && user?.slug != slug) {
       user.slug = slug;
+    }
+    console.log(city, state, about, user.influencerDetails);
+    if (!user.influencerDetails) {
+      user.influencerDetails = {};
     }
     if (state) user.influencerDetails.state = state;
     if (city) user.influencerDetails.city = city;
