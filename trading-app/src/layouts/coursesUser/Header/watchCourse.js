@@ -73,14 +73,14 @@ const Courses = () => {
                                 <Overview courses={courses} />
                                 :
                                 selectedButton==='Notes' ?
-                                <Notes courses={courses} />
+                                <Notes topics={courses?.courseContent} />
                                 :
                                 selectedButton==='Topics' &&
                                 <TopicNav topics={courses?.courseContent} setSelectedSubtopic={setSelectedSubtopic} setSelectedTopic={setSelectedTopic} />}
                             </MDBox>
                         </Grid>
 
-                        { <Grid item xs={12} sm={12} md={12} lg={3.7} xl={3.7}>
+                        {!isMobile && <Grid item xs={12} sm={12} md={12} lg={3.7} xl={3.7}>
                             <MDBox style= {{ position: 'fixed', top: 82, right: 0, height: '100%', width: '30%', backgroundColor: '#FAFAFA', color: '#fff', boxShadow: "6px 0px 4px -2px rgba(0, 0, 0, 0.5)" }}>
                                 <TopicNav topics={courses?.courseContent} setSelectedSubtopic={setSelectedSubtopic} setSelectedTopic={setSelectedTopic} />
                             </MDBox>
