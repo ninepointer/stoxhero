@@ -26,7 +26,7 @@ const Buttons = ({selectedButton, setSelectedButton}) => {
                 exclusive
                 onChange={handleChange}
                 aria-label="Platform"
-                sx={{padding: 1}}
+                sx={{padding: '5px 5px 0px 15px'}}
             >
                 <ToggleButton sx={style} value="Overview">Overview</ToggleButton>
                 {isMobile && <ToggleButton sx={style} value="Topics">Topics</ToggleButton>}

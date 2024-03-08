@@ -17,6 +17,7 @@ const AffiliateProgram = require("../../models/affiliateProgram/affiliateProgram
 const ReferralProgram = require("../../models/campaigns/referralProgram");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { streamUpload } = require("@uppy/companion");
+const Product = require('../../models/Product/product')
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
