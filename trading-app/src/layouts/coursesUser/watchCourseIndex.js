@@ -5,9 +5,6 @@ import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
 import Header from "./Header/watchCourse.js";
-import MDBox from "../../components/MDBox/index.js";
-import { ThemeProvider } from "styled-components";
-import theme from "../HomePage/utils/theme/index";
 
 
 function Tables() {
