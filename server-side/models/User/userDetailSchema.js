@@ -490,6 +490,7 @@ const userDetailSchema = new mongoose.Schema({
       bannerImageWeb: String,
       bannerImageMobile: String,
       isActive: Boolean,
+      about: String,
     },
     default: undefined, // This prevents the field from being created by default
   },

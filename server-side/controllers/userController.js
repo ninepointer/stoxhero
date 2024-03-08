@@ -45,6 +45,36 @@ const s3 = new AWS.S3({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
+const getAwsS3Url = async (file, type, influencerId, width, height) => {
+  if (file && type === "Image") {
+    file.buffer = await sharp(file.buffer)
+      .resize({ width: width, height: height })
+      .toBuffer();
+  }
+  let banner = "web";
+  if (width < 1000) {
+    banner = "mobile";
+  }
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `influencer/${influencerId}/${banner}/${Date.now()}-${
+      file.originalname
+    }`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: "public-read",
+    // or another ACL according to your requirements
+  };
+
+  try {
+    const uploadResult = await s3.upload(params).promise();
+    return uploadResult.Location;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error uploading file to S3");
+  }
+};
+
 const resizePhoto = async (req, res, next) => {
   // console.log('resize func');
   // console.log("Uploaded Files: ",req.files)
@@ -619,7 +649,9 @@ exports.getUsers = async (req, res) => {
           status: "Active",
         },
       ],
-    }).select("first_name last_name email mobile _id myReferralCode");
+    }).select(
+      "first_name last_name email mobile _id myReferralCode influencerDetails slug"
+    );
     res.status(200).json({
       status: "success",
       message: "Getting User successfully",
@@ -1312,6 +1344,9 @@ exports.getUsersSearch = async (req, res) => {
         {
           status: "Active",
         },
+        {
+          role: { $ne: new ObjectId("65dc6817586cba2182f05561") },
+        },
       ],
     }).select("first_name last_name email mobile _id myReferralCode slug");
     res.status(200).json({
@@ -1331,6 +1366,26 @@ exports.getUsersSearch = async (req, res) => {
 
 exports.addInfluencer = async (req, res) => {
   const id = req.params.id;
+  let bannerImageWebUrl, bannerImageMobileUrl;
+  console.log(req.files);
+  if (req.files["bannerImageWeb"] && req.files["bannerImageWeb"][0]) {
+    bannerImageWebUrl = await getAwsS3Url(
+      req.files["bannerImageWeb"][0],
+      "Image",
+      id,
+      2560,
+      480
+    );
+  }
+  if (req.files["bannerImageMobile"] && req.files["bannerImageMobile"][0]) {
+    bannerImageMobileUrl = await getAwsS3Url(
+      req.files["bannerImageMobile"][0],
+      "Image",
+      id,
+      853,
+      480
+    );
+  }
   const { state, city, tags, about, myReferralCode, slug } = req.body;
   try {
     const user = await UserDetail.findOne({
@@ -1357,7 +1412,72 @@ exports.addInfluencer = async (req, res) => {
     influencerObj.isActive = true;
     influencerObj.addedOn = new Date();
     influencerObj.tags = tags.split(",").map((item) => item.trim());
+    if (bannerImageWebUrl) influencerObj.bannerImageWeb = bannerImageWebUrl;
+    if (bannerImageMobileUrl)
+      influencerObj.bannerImageMobile = bannerImageMobileUrl;
+    console.log("args", req.body, bannerImageWebUrl, bannerImageMobileUrl);
     user.influencerDetails = influencerObj;
+
+    await user.save({ validateBeforeSave: false });
+    res.status(201).json({ status: "success", message: "Influencer created" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+exports.editInfluencer = async (req, res) => {
+  const id = req.params.id;
+  let bannerImageWebUrl, bannerImageMobileUrl;
+  console.log(req.files);
+  if (req.files["bannerImageWeb"] && req.files["bannerImageWeb"][0]) {
+    bannerImageWebUrl = await getAwsS3Url(
+      req.files["bannerImageWeb"][0],
+      "Image",
+      id,
+      2560,
+      480
+    );
+  }
+  if (req.files["bannerImageMobile"] && req.files["bannerImageMobile"][0]) {
+    bannerImageMobileUrl = await getAwsS3Url(
+      req.files["bannerImageMobile"][0],
+      "Image",
+      id,
+      853,
+      480
+    );
+  }
+  const { state, city, tags, about, myReferralCode, slug } = req.body;
+  try {
+    const user = await UserDetail.findOne({
+      _id: new ObjectId(id),
+      status: "Active",
+    });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "User not found" });
+    }
+    if (user?.myReferralCode != myReferralCode) {
+      user.myReferralCode = myReferralCode;
+    }
+    console.log(Boolean(slug), slug);
+    if (Boolean(slug) && user?.slug != slug) {
+      user.slug = slug;
+    }
+    if (state) user.influencerDetails.state = state;
+    if (city) user.influencerDetails.city = city;
+    if (about) user.influencerDetails.about = about;
+    if (tags)
+      user.influencerDetails.tags = tags.split(",").map((item) => item.trim());
+    if (bannerImageWebUrl)
+      user.influencerDetails.bannerImageWeb = bannerImageWebUrl;
+    if (bannerImageMobileUrl)
+      user.influencerDetails.bannerImageMobile = bannerImageMobileUrl;
 
     await user.save({ validateBeforeSave: false });
     res.status(201).json({ status: "success", message: "Influencer created" });
