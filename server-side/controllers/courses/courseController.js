@@ -1580,6 +1580,22 @@ exports.getCourseByIdUser = async (req, res) => {
   }
 };
 
+exports.getCourseBySlugUser = async (req, res) => {
+  try {
+    const slug = req.params.id;
+    const courses = await Course.findOne({ slug : slug })
+      .populate("courseInstructors.id", "first_name last_name email")
+      .select("-enrollments -createdOn -createdBy -commissionPercentage");
+    res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 exports.getCoursesByUserSlug = async (req, res) => {
   try {
     const slug = req.query.slug;

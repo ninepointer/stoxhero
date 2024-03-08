@@ -20,11 +20,11 @@ const Courses = () => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
-    const courseId = urlParams.get('id');
+    const slug = urlParams.get('course');
     const [courses, setCourses] = useState([]);
 
     useEffect(() => {
-        let call1 = axios.get(`${apiUrl}courses/${courseId}`, {
+        let call1 = axios.get(`${apiUrl}courses/${slug}`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",

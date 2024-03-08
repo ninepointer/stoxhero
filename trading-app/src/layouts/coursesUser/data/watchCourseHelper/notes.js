@@ -15,18 +15,12 @@ const Notes = ({topics}) => {
     const [isDownload, setIsDownload] = useState({});
 
     function downloadPdf(pdfUrlArr, fileName, id) {
-        // setIsDownload(prev => {
-        //     const updatedIsDownload = [...prev]; // Create a copy of the previous state array
-        //     updatedIsDownload[id] = true; // Update the specific element at index subindex
-        //     return updatedIsDownload; // Return the updated state array
-        // });
 
         setIsDownload(prev => ({
             ...prev,
             [id]: true
         }));
         
-        return;
         for (const [index, pdfUrl] of pdfUrlArr.entries()) {
             const link = document.createElement('a');
             link.download = `${fileName}-${index}`; // Using index in the file name

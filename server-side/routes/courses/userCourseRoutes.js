@@ -29,6 +29,7 @@ router.patch(
 );
 
 router.get("/:id", Authenticate, courseController.getCourseByIdUser);
+router.get("/:slug", Authenticate, courseController.getCourseBySlugUser);
 
 router.get(
   "/:slug/slug",
