@@ -115,9 +115,7 @@ import ContactFinowledge from "./layouts/HomePage/pages/ContactFinowledge";
 import FinowledgeComingSoon from "./layouts/HomePage/pages/finowledgeComingSoon";
 import { apiUrl } from "./constants/constants";
 import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index";
-import WatchCourse from './layouts/HomePage/pages/courses/WatchCourses';
-
-
+import WatchCourse from "./layouts/HomePage/pages/courses/WatchCourses";
 
 const TRACKING_ID = "UA-264098426-2";
 ReactGA.initialize(TRACKING_ID);

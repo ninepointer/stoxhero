@@ -104,7 +104,7 @@ function Cover(props) {
   };
 
   const handleSUClick = () => {
-    setShowEmailOTP(false)
+    setShowEmailOTP(false);
     // Set the state to true when the link is clicked
     setSignup(false);
   };
@@ -187,7 +187,7 @@ function Cover(props) {
     setButtonLoading((prev) => ({ ...prev, signupGetOtp: true }));
 
     const { first_name, last_name, email, mobile, referrerCode } = formstate;
-    
+
     if (mobile.length !== 10) {
       if (mobile.length === 12 && mobile.startsWith("91")) {
       } else if (mobile.length === 11 && mobile.startsWith("0")) {
