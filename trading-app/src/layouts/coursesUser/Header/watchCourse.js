@@ -80,7 +80,7 @@ const Courses = () => {
                             </MDBox>
                         </Grid>
 
-                        {!isMobile && <Grid item xs={12} sm={12} md={12} lg={3.7} xl={3.7}>
+                        { <Grid item xs={12} sm={12} md={12} lg={3.7} xl={3.7}>
                             <MDBox style= {{ position: 'fixed', top: 82, right: 0, height: '100%', width: '30%', backgroundColor: '#FAFAFA', color: '#fff', boxShadow: "6px 0px 4px -2px rgba(0, 0, 0, 0.5)" }}>
                                 <TopicNav topics={courses?.courseContent} setSelectedSubtopic={setSelectedSubtopic} setSelectedTopic={setSelectedTopic} />
                             </MDBox>
