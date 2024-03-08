@@ -4,6 +4,9 @@ const Authenticate = require("../../authentication/authentication");
 const courseController = require("../../controllers/courses/courseController");
 const router = express.Router();
 
+
+router.get("/", Authenticate, courseController.getCourseBySlugUser);
+
 router.get(
     "/courses",
     Authenticate,

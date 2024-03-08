@@ -14,8 +14,8 @@ const Overview = ({ courses }) => {
     const shortHeadingStyling = { fontSize: '16px', fontWeight: 700, color: headingColor }
     return (
         <>
-            <MDTypography style={{ fontSize: '25px', fontWeight: 800, color: headingColor, padding: '10px', borderBottom: `.5px solid ${lightGrey}` }} >Overview</MDTypography>
-            <MDBox style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', marginBottom: '12px', padding: '12px', borderRadius: '16px', boxShadow: "0px 4px 4px -2px rgba(0, 0, 0, 0.5)", width: '100%' }}>
+            <MDTypography style={{ fontSize: '25px', fontWeight: 800, color: headingColor, padding: '10px 10px 10px 15px', borderBottom: `.5px solid ${lightGrey}` }} >Overview</MDTypography>
+            <MDBox style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', marginBottom: '12px', padding: '12px 12px 12px 15px', borderRadius: '16px', boxShadow: "0px 4px 4px -2px rgba(0, 0, 0, 0.5)", width: '100%' }}>
                 <MDBox sx={{ display: 'flex', flexDirection: "column" }}>
 
                     <MDBox style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center', alignItems: 'center' }}>

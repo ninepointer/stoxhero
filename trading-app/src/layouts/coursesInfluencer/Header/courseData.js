@@ -144,7 +144,7 @@ const Courses = () => {
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Name: <span style={{ fontWeight: 600 }}>{`${courses.courseName}`}</span></MDTypography>
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Language: <span style={{ fontWeight: 600 }}>{`${courses?.courseLanguages}`}</span></MDTypography>
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Duration: <span style={{ fontWeight: 600 }}>{`${courses?.courseDurationInMinutes} min`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${courses?.maxEnrolments || 'N/A'}`}</span></MDTypography>
+                                                                {courses?.courseType!=='Recorded' && <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${courses?.maxEnrolments || 'N/A'}`}</span></MDTypography>}
                                                             </MDBox>
 
                                                             <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>

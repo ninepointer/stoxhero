@@ -56,11 +56,7 @@ const Courses = () => {
   };
 
   const handleOpenNewTab = async (elem) => {
-    // pathname: `/`,
-                                            //   search: `?id=${elem?._id}`,
-                                            //   state: { data: elem },
-    const newTab = window.open(`/watchcourse?id=${elem?._id}`, '_blank');
-    // await fetchDeviceDetail(elem?._id);
+    const newTab = window.open(`/watchcourse?course=${elem?.courseSlug}`, '_blank');
   };
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
@@ -485,12 +481,6 @@ const Courses = () => {
                                             size="small"
                                             color="info"
                                             style={{ minWidth: "100%" }}
-                                            // component={Link}
-                                            // to={{
-                                            //   pathname: `/watchcourse`,
-                                            //   search: `?id=${elem?._id}`,
-                                            //   state: { data: elem },
-                                            // }}
                                             onClick={()=>{handleOpenNewTab(elem)}}
                                           >
                                             Watch

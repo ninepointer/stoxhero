@@ -20,11 +20,11 @@ const Courses = () => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
-    const courseId = urlParams.get('id');
+    const slug = urlParams.get('course');
     const [courses, setCourses] = useState([]);
 
     useEffect(() => {
-        let call1 = axios.get(`${apiUrl}courses/${courseId}`, {
+        let call1 = axios.get(`${apiUrl}courses/user?slug=${slug}`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -55,12 +55,12 @@ const Courses = () => {
             {courses ?
                 <MDBox style={{flexGrow: 1, height: 'auto', marginTop: '15px' }}>
                     <Grid container xs={12} sm={12} md={12} lg={12} xl={12} style={{ margin: 0 }} display='flex' justifyContent={'center'} alignContent='center' flexWrap='wrap'>
-                        <Grid item xs={12} sm={12} md={12} lg={8.3} xl={8.3}>
+                        <Grid item xs={12} sm={12} md={12} lg={8.4} xl={8.4}>
                             <MDBox>
                                 <MDBox style={{ backgroundColor: '#000000' }}>
                                     <Video videoData={selectedSubtopic} />
                                 </MDBox>
-                                <Typography fontSize={16} fontWeight={700} sx={{color: '#000000', padding: '5px'}}>
+                                <Typography fontSize={16} fontWeight={700} sx={{color: '#000000', padding: '5px 0px 5px 15px'}}>
                                         <span>Topic&nbsp;{selectedTopic?.order}.{selectedSubtopic?.order}&nbsp;:&nbsp;</span>
                                         {selectedSubtopic?.topic}
                                     </Typography>
@@ -80,7 +80,7 @@ const Courses = () => {
                             </MDBox>
                         </Grid>
 
-                        {!isMobile && <Grid item xs={12} sm={12} md={12} lg={3.7} xl={3.7}>
+                        {!isMobile && <Grid item xs={12} sm={12} md={12} lg={3.6} xl={3.6}>
                             <MDBox style= {{ position: 'fixed', top: 82, right: 0, height: '100%', width: '30%', backgroundColor: '#FAFAFA', color: '#fff', boxShadow: "6px 0px 4px -2px rgba(0, 0, 0, 0.5)" }}>
                                 <TopicNav topics={courses?.courseContent} setSelectedSubtopic={setSelectedSubtopic} setSelectedTopic={setSelectedTopic} />
                             </MDBox>

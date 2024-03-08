@@ -126,26 +126,18 @@ function CreateCourse({setActiveStep, activeStep, steps}) {
               >
                 {activeStep !== steps.length - 1 && (
                   <>
-                    {/* <MDButton
-            variant="contained"
-            color="warning"
-            size="small"
-            ml={2}
-            onClick={() => setActiveStep(activeStep + 1)}
-          >
-            Save as Draft
-          </MDButton> */}
+                 
                     <MDButton
                       variant="contained"
                       color="success"
                       size="small"
                       onClick={() => { setActiveStep(activeStep + 1); navigate(`/coursedetails?id=${courseId}&activestep=${activeStep + 1}`) }}
                     >
-                      Save & Continue
+                      Continue
                     </MDButton>
                   </>
                 )}
-                {/* </Grid> */}
+                
               </Grid>
             </Grid>
 

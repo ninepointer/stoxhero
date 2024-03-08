@@ -1,54 +1,28 @@
 import * as React from "react";
 import {
-  useContext,
   useState,
   useEffect,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
 } from "react";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
-import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton";
-import { userContext } from "../../AuthContext";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
-import MenuItem from "@mui/material/MenuItem";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
 import { useLocation, useNavigate } from "react-router-dom";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
-import dayjs from "dayjs";
-import JoditEditor from "jodit-react";
-import UploadImage from "../../assets/images/uploadimage.png";
-import UploadVideo from "../../assets/images/uploadvideo.png";
 import { apiUrl } from "../../constants/constants";
 
 const CoursePricing = ({setActiveStep, activeStep, steps}) => {
   const navigate = useNavigate();
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const getDetails = useContext(userContext);
   const location = useLocation();
-  const id = location?.state?.data;
-  const [courseData, setCourseData] = useState(id ? id : "");
-  const [isObjectNew, setIsObjectNew] = useState(id ? true : false);
   const [isLoading, setIsLoading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [title, setTitle] = useState(courseData?.courseName || "");
   const [formState, setFormState] = useState({});
   const [checkFilled, setCheckFilled] = useState(false);
   const queryString = location.search;
   const urlParams = new URLSearchParams(queryString);
+  const [editClicked, setEditClicked] = useState(false);
 
   // Get the value of the "mobile" parameter
   const courseId = urlParams.get('id');
@@ -85,13 +59,6 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
       return navigate(`/coursedetails?id=${courseId}&activestep=${activeStep + 1}`)
     }
 
-    setCreating(true);
-
-    setTimeout(() => {
-      setCreating(false);
-      setIsSubmitted(true);
-    }, 500);
-
     const { coursePrice, discountedPrice, commissionPercentage } = formState;
     if(discountedPrice > coursePrice){
       return openErrorSB("Error", 'Discounted price should not be greater then course price!');
@@ -112,30 +79,15 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
 
     if (res.status === 200 || data) {
       openSuccessSB("Pricing Stored", data.message);
-      setIsSubmitted(true);
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(true);
-      }, 500);
       setActiveStep(activeStep + 1)
       navigate(`/coursedetails?id=${courseId}&activestep=${activeStep + 1}`)
 
     } else {
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
+
     }
   }
 
   async function onEdit() {
-    setSaving(true);
-
-    setTimeout(() => {
-      setCreating(false);
-      setIsSubmitted(true);
-    }, 500);
-
     const {commissionPercentage, discountedPrice, coursePrice} = formState;
 
     if(Number(discountedPrice) > Number(coursePrice)){
@@ -161,21 +113,18 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
         "Pricing Edited",
         ""
       );
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
+    
     } else {
       openErrorSB("Error", data.message);
     }
   }
 
-  const [ntitle, setNtitle] = useState("");
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   const [successSB, setSuccessSB] = useState(false);
-  const openSuccessSB = (ntitle, content) => {
-    setTitle(ntitle);
+  const openSuccessSB = (title, content) => {
+    setTitle(title);
     setContent(content);
     setSuccessSB(true);
   };
@@ -185,7 +134,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
     <MDSnackbar
       color="success"
       icon="check"
-      title={ntitle}
+      title={title}
       content={content}
       open={successSB}
       onClose={closeSuccessSB}
@@ -195,8 +144,8 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
   );
 
   const [errorSB, setErrorSB] = useState(false);
-  const openErrorSB = (ntitle, content) => {
-    setTitle(ntitle);
+  const openErrorSB = (title, content) => {
+    setTitle(title);
     setContent(content);
     setErrorSB(true);
   };
@@ -206,7 +155,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
     <MDSnackbar
       color="error"
       icon="warning"
-      title={ntitle}
+      title={title}
       content={content}
       open={errorSB}
       onClose={closeErrorSB}
@@ -214,6 +163,15 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
       bgWhite
     />
   );
+
+  async function editAndSave(){
+    if(editing){
+      setEditing(false);
+      setEditClicked(true);
+    } else{
+      onEdit();
+    }
+  }
 
   return (
     <>
@@ -264,13 +222,13 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                 id="outlined-required"
                 // label='Course Name *'
                 placeholder="Course Price"
-                value={formState?.coursePrice}
+                value={formState?.coursePrice || ''}
                 fullWidth
                 type="number"
                 onChange={(e) => {
                   setFormState((prevState) => ({
                     ...prevState,
-                    coursePrice: e.target.value,
+                    coursePrice: Math.abs(e.target.value),
                   }));
                 }}
               />
@@ -291,14 +249,14 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                 // label='Course Name *'
                 placeholder="Course Discounted Price"
                 value={
-                  formState?.discountedPrice
+                  formState?.discountedPrice || ''
                 }
                 fullWidth
                 type="number"
                 onChange={(e) => {
                   setFormState((prevState) => ({
                     ...prevState,
-                    discountedPrice: e.target.value,
+                    discountedPrice: Math.abs(e.target.value),
                   }));
                 }}
               />
@@ -319,14 +277,14 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                 // label='Course Name *'
                 placeholder="Commission Percentage"
                 value={
-                  formState?.commissionPercentage
+                  formState?.commissionPercentage || ''
                 }
                 fullWidth
                 type="number"
                 onChange={(e) => {
                   setFormState((prevState) => ({
                     ...prevState,
-                    commissionPercentage: e.target.value,
+                    commissionPercentage: Math.abs(e.target.value),
                   }));
                 }}
               />
@@ -374,9 +332,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                         color="success"
                         size="small"
                         disabled={Object.keys(formState).length === 0}
-                        onClick={() => {
-                          editing ? setEditing(false) : onEdit();
-                        }}
+                        onClick={editAndSave}
                       >
                         {editing ? 'Edit' : 'Edit & Save'}
                       </MDButton>
@@ -386,6 +342,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                       <MDButton
                         variant="contained"
                         color="success"
+                        disabled={editClicked}
                         size="small"
                         onClick={() => {
                           onSubmit();
