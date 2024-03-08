@@ -810,20 +810,18 @@ function Index() {
                 <TextField
                   disabled={(isSubmitted || contest) && (!editing || saving)}
                   id="outlined-required"
-                  label="Discounted Fee *"
-                  name="discountedEntryFee"
+                  label="Inflated Fee "
+                  name="initialFee"
                   fullWidth
                   type="number"
                   defaultValue={
-                    editing
-                      ? formState?.discountedEntryFee
-                      : contest?.discountedEntryFee
+                    editing ? formState?.initialFee : contest?.initialFee
                   }
                   // onChange={handleChange}
                   onChange={(e) => {
                     setFormState((prevState) => ({
                       ...prevState,
-                      discountedEntryFee: e.target.value,
+                      initialFee: e.target.value,
                     }));
                   }}
                 />
