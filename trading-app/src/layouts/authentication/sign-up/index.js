@@ -104,6 +104,7 @@ function Cover(props) {
   };
 
   const handleSUClick = () => {
+    setShowEmailOTP(false)
     // Set the state to true when the link is clicked
     setSignup(false);
   };
@@ -186,11 +187,12 @@ function Cover(props) {
     setButtonLoading((prev) => ({ ...prev, signupGetOtp: true }));
 
     const { first_name, last_name, email, mobile, referrerCode } = formstate;
-    console.log(formstate);
+    
     if (mobile.length !== 10) {
       if (mobile.length === 12 && mobile.startsWith("91")) {
       } else if (mobile.length === 11 && mobile.startsWith("0")) {
       } else {
+        setButtonLoading((prev) => ({ ...prev, signupGetOtp: false }));
         return openInfoSB(
           "Mobile number invalid",
           "Please Check Your Number Again"
@@ -341,9 +343,18 @@ function Cover(props) {
     e.preventDefault();
     setButtonLoading((prev) => ({ ...prev, loginGetOtp: true }));
     try {
-      if (mobile.length < 10) {
-        return setInvalidDetail(`Please enter a valid mobile number`);
+      if (mobile.length !== 10) {
+        if (mobile.length === 12 && mobile.startsWith("91")) {
+        } else if (mobile.length === 11 && mobile.startsWith("0")) {
+        } else {
+          setButtonLoading((prev) => ({ ...prev, loginGetOtp: false }));
+          return openInfoSB(
+            "Mobile number invalid",
+            "Please Check Your Number Again"
+          );
+        }
       }
+
       const res = await fetch(`${baseUrl}api/v1/phonelogin`, {
         method: "POST",
         credentials: "include",

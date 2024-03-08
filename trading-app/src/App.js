@@ -115,6 +115,9 @@ import ContactFinowledge from "./layouts/HomePage/pages/ContactFinowledge";
 import FinowledgeComingSoon from "./layouts/HomePage/pages/finowledgeComingSoon";
 import { apiUrl } from "./constants/constants";
 import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index";
+import WatchCourse from './layouts/HomePage/pages/courses/WatchCourses';
+
+
 
 const TRACKING_ID = "UA-264098426-2";
 ReactGA.initialize(TRACKING_ID);
@@ -526,6 +529,7 @@ export default function App() {
 
         <Route path="/contact" element={<Contact />} />
         <Route path="/contactus" element={<ContactFinowledge />} />
+        {/* <Route path="/watchcourse" element={<WatchCourse />} /> */}
 
         <Route
           path="/workshops"
@@ -537,7 +541,7 @@ export default function App() {
           element={<ContestRegistration />}
         />
         <Route
-          path="/testzone/:id/:date"
+          path="/competitions/:id"
           element={<FeaturedContestRegistration />}
         />
 

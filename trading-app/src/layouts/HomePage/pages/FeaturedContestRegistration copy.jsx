@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import ReactGA from "react-ga";
-import { CircularProgress, formLabelClasses } from "@mui/material";
+import { Card, CircularProgress, formLabelClasses } from "@mui/material";
 import { Grid, Input, TextField } from "@mui/material";
 import theme from "../utils/theme/index";
 import { ThemeProvider } from "styled-components";
@@ -29,6 +29,7 @@ import { userContext } from "../../../AuthContext";
 import { Autocomplete } from "@mui/material";
 import moment from "moment";
 import { Helmet } from "react-helmet";
+import DataTable from "../../../examples/Tables/DataTable";
 
 function sleep(duration) {
   return new Promise((resolve) => {
@@ -38,49 +39,49 @@ function sleep(duration) {
   });
 }
 
-const ContestRegistration = () => {
+const FeaturedContestRegistration = () => {
   const [open, setOpen] = React.useState(false);
   const [options, setOptions] = React.useState([]);
   const loading = open && options.length === 0;
   const [submitted, setSubmitted] = useState(false);
-  // const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
   const [otpGenerated, setOTPGenerated] = useState(false);
   const [contestDetails, setContestDetails] = useState(false);
   const location = useLocation();
-  const [colleges, setColleges] = useState([]);
   const contest = location?.state?.data;
   let campaignCode = location?.state?.campaignCode;
   const params = new URLSearchParams(location?.search);
   const referrerCode = params.get("referral");
   campaignCode = params.get("campaigncode");
-  // const getDetails = useContext(userContext);
+  // console.log("referral", referrerCode, campaignCode);
+  const getDetails = useContext(userContext);
+  let columns = [
+    { Header: "# Rank", accessor: "rank", align: "center" },
+    { Header: "Reward", accessor: "reward", align: "center" },
+  ];
+
+  let rows = [];
 
   const [detail, setDetails] = useState({
     firstName: "",
     lastName: "",
     email: "",
     mobile: "",
-    dob: "",
-    gender: "",
-    college: "",
-    collegeName: "",
-    course: "",
-    passingoutyear: "",
-    priorTradingExperience: "",
-    linkedInProfileLink: "",
-    source: "",
     contest: contest?._id || contestDetails?._id,
     campaignCode: campaignCode,
     mobile_otp: "",
     referrerCode: referrerCode,
   });
 
+  // const [file, setFile] = useState(null);
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   const getContestDetails = async (name, date) => {
     try {
       const res = await axios.get(
-        `${apiUrl}dailycontest/findbyname?name=${name}&date=${date}`
+        `${apiUrl}dailycontest/featured/findbyname?name=${name}&date=${date}`
       );
       setContestDetails(res?.data?.data);
       setDetails((prev) => ({ ...prev, contest: res?.data?.data?._id }));
@@ -88,6 +89,7 @@ const ContestRegistration = () => {
       console.log(e);
     }
   };
+  // console.log("contest details", contestDetails?.rewardType);
 
   useEffect(() => {
     if (!contest) {
@@ -96,19 +98,11 @@ const ContestRegistration = () => {
       const date = url[3];
       getContestDetails(name, date);
     }
-    ReactGA.pageview(window.location.pathname);
-    axios
-      .get(`${apiUrl}college/collegeList`)
-      .then((res) => {
-        setColleges(res?.data?.data);
-      })
-      .catch((err) => {
-        return new Error(err);
-      });
-    window.webengage.track("testzone_registration_clicked", {});
+    window.webengage.track("featuredTestzone_registration_clicked", {});
   }, []);
 
   const [buttonClicked, setButtonClicked] = useState(false);
+
   async function confirmOTP() {
     setDetails((prevState) => ({
       ...prevState,
@@ -120,21 +114,13 @@ const ContestRegistration = () => {
       lastName,
       email,
       mobile,
-      dob,
-      gender,
-      college,
-      collegeName,
-      course,
-      passingoutyear,
-      linkedInProfileLink,
-      source,
       contest,
       referrerCode,
       campaignCode,
       mobile_otp,
     } = detail;
 
-    window.webengage.track("dailycontest_confirmation_clicked", {
+    window.webengage.track("featuredTestzone_confirmation_clicked", {
       campaignCode: campaignCode,
       referrerCode: referrerCode,
       contest: contest,
@@ -148,32 +134,27 @@ const ContestRegistration = () => {
         "Error"
       );
     }
-    const res = await fetch(`${apiUrl}dailycontest/confirmotp`, {
-      method: "POST",
-      // credentials:"include",
-      headers: {
-        "content-type": "application/json",
-        "Access-Control-Allow-Credentials": false,
-      },
-      body: JSON.stringify({
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        mobile: mobile,
-        gender: gender,
-        college: college,
-        collegeName: collegeName,
-        course: course,
-        passingoutyear: passingoutyear,
-        linkedInProfileLink: linkedInProfileLink,
-        source: source,
-        contest: contest,
-        dob: dob,
-        campaignCode: campaignCode,
-        mobile_otp: mobile_otp,
-        referrerCode,
-      }),
-    });
+    const res = await fetch(
+      `${baseUrl}api/v1/dailycontest/featured/confirmotp`,
+      {
+        method: "POST",
+        // credentials:"include",
+        headers: {
+          "content-type": "application/json",
+          "Access-Control-Allow-Credentials": false,
+        },
+        body: JSON.stringify({
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          mobile: mobile,
+          contest: contest,
+          campaignCode: campaignCode,
+          mobile_otp: mobile_otp,
+          referrerCode,
+        }),
+      }
+    );
 
     const data = await res.json();
 
@@ -183,12 +164,12 @@ const ContestRegistration = () => {
       setButtonClicked(false);
       return openSuccessSB(
         "TestZone Registration Completed",
-        data.message,
+        data?.info,
         "SUCCESS"
       );
     } else {
       setButtonClicked(false);
-      return openSuccessSB("Error", data.message, "Error");
+      return openSuccessSB("Error", data.info, "Error");
     }
   }
 
@@ -198,32 +179,12 @@ const ContestRegistration = () => {
       lastName,
       email,
       mobile,
-      dob,
-      gender,
-      college,
-      collegeName,
-      course,
-      passingoutyear,
-      linkedInProfileLink,
-      source,
       contest,
       referrerCode,
       campaignCode,
     } = detail;
 
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !mobile ||
-      !dob ||
-      !college ||
-      !passingoutyear ||
-      !course ||
-      !gender ||
-      !collegeName ||
-      !source
-    ) {
+    if (!firstName || !lastName || !email || !mobile) {
       return openSuccessSB(
         "Form Incomplete",
         "Please fill all the required fields",
@@ -244,31 +205,26 @@ const ContestRegistration = () => {
     }
 
     setOTPGenerated(true);
-    const res = await fetch(`${apiUrl}dailycontest/generateotp`, {
-      method: "POST",
-      // credentials:"include",
-      headers: {
-        "content-type": "application/json",
-        "Access-Control-Allow-Credentials": false,
-      },
-      body: JSON.stringify({
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        mobile: mobile,
-        gender: gender,
-        college: college,
-        collegeName: collegeName,
-        course: course,
-        passingoutyear: passingoutyear,
-        linkedInProfileLink: linkedInProfileLink,
-        source: source,
-        contest: contest,
-        dob: dob,
-        campaignCode: campaignCode,
-        referrerCode,
-      }),
-    });
+    const res = await fetch(
+      `${baseUrl}api/v1/dailycontest/featured/generateotp`,
+      {
+        method: "POST",
+        // credentials:"include",
+        headers: {
+          "content-type": "application/json",
+          "Access-Control-Allow-Credentials": false,
+        },
+        body: JSON.stringify({
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          mobile: mobile,
+          contest: contest,
+          campaignCode: campaignCode,
+          referrerCode,
+        }),
+      }
+    );
 
     const data = await res.json();
 
@@ -280,32 +236,6 @@ const ContestRegistration = () => {
       return openSuccessSB("Error", data.message, "Error");
     }
   }
-
-  React.useEffect(() => {
-    let active = true;
-
-    if (!loading) {
-      return undefined;
-    }
-
-    (async () => {
-      await sleep(1e3); // For demo purposes.
-
-      if (active) {
-        setOptions([...colleges]);
-      }
-    })();
-
-    return () => {
-      active = false;
-    };
-  }, [loading]);
-
-  React.useEffect(() => {
-    if (!open) {
-      setOptions([]);
-    }
-  }, [open]);
 
   const [successSB, setSuccessSB] = useState(false);
   const [msgDetail, setMsgDetail] = useState({
@@ -362,6 +292,59 @@ const ContestRegistration = () => {
     }
   }
 
+  contestDetails.rewards?.map((elem) => {
+    let featureObj = {};
+
+    featureObj.rank = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {Number(elem?.rankStart) === Number(elem?.rankEnd)
+          ? Number(elem?.rankStart)
+          : `${Number(elem?.rankStart)}-${Number(elem?.rankEnd)}`}
+      </MDTypography>
+    );
+    featureObj.reward = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {contestDetails?.rewardType != "Goodies"
+          ? `₹${elem?.prize}`
+          : `${elem?.prize}`}
+      </MDTypography>
+    );
+
+    rows.push(featureObj);
+  });
+
+  let cap;
+  if (contestDetails?.entryFee > 0) {
+    cap = new Intl.NumberFormat(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(
+      (contestDetails?.entryFee *
+        (contestDetails?.payoutCapPercentage ?? 1000)) /
+        100
+    );
+  } else {
+    cap = new Intl.NumberFormat(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(
+      (contestDetails?.portfolio?.portfolioValue *
+        (contestDetails?.payoutCapPercentage ?? 10)) /
+        100
+    );
+  }
+
+  console.log("contestDetails", contestDetails);
 
   return (
     <MDBox
@@ -478,11 +461,7 @@ const ContestRegistration = () => {
                         {contest
                           ? contest?.contestName
                           : contestDetails?.contestName}{" "}
-                        College Trading TestZone 🚀 🚀 Announcing{" "}
-                        {contest
-                          ? contest?.contestName
-                          : contestDetails?.contestName}{" "}
-                        College Trading TestZone 🚀
+                        Trading TestZone 🚀
                       </MDTypography>
                     </Grid>
 
@@ -534,7 +513,7 @@ const ContestRegistration = () => {
                               : contestDetails?.contestStartTime
                           )
                           .utcOffset("+05:30")
-                          .format("DD-MMM hh:mm a")}
+                          .format("DD-MMM-YY hh:mm a")}
                       </MDTypography>
                     </Grid>
 
@@ -592,55 +571,163 @@ const ContestRegistration = () => {
                       </MDTypography>
                     </Grid>
 
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      xl={6}
-                      pl={2}
-                      pr={2}
-                      display="flex"
-                      justifyContent="center"
-                      alignContent="center"
-                      alignItems="center"
-                    >
-                      <MDTypography
-                        fontSize={12}
-                        fontColor="dark"
-                        fontWeight="bold"
-                      >
-                        🏆 Reward :{" "}
-                        {contest
-                          ? contest?.payoutPercentage
-                          : contestDetails?.payoutPercentage}
-                        % of Net P&L
-                      </MDTypography>
-                    </Grid>
+                    {contestDetails?.payoutType === "Percentage" ? (
+                      <>
+                        <Grid
+                          item
+                          xs={12}
+                          md={12}
+                          xl={6}
+                          pl={2}
+                          pr={2}
+                          display="flex"
+                          justifyContent="center"
+                          alignContent="center"
+                          alignItems="center"
+                        >
+                          <MDTypography
+                            fontSize={12}
+                            fontColor="dark"
+                            fontWeight="bold"
+                          >
+                            🏆 Reward :{" "}
+                            {contestDetails?.entryFee > 0
+                              ? `${
+                                  contestDetails?.payoutPercentage
+                                }% of the net P&L${
+                                  contestDetails?.payoutCapPercentage
+                                    ? `(upto ₹${cap})`
+                                    : ""
+                                }`
+                              : `${
+                                  contestDetails?.payoutPercentage
+                                }% of the net P&L${
+                                  contestDetails?.payoutCapPercentage
+                                    ? `(upto ₹${cap})`
+                                    : ""
+                                }`}
+                          </MDTypography>
+                        </Grid>
 
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      xl={12}
-                      pl={2}
-                      pr={2}
-                      mt={1}
-                      display="flex"
-                      justifyContent="center"
-                      alignContent="center"
-                      alignItems="center"
-                    >
-                      <MDTypography
-                        fontSize={12}
-                        fontColor="dark"
-                        fontWeight="bold"
-                        sx={{ textAlign: "center" }}
-                      >
-                        Rewards will be based on your net Profit and Loss during
-                        the TestZone period. So, bigger the P&L, the bigger you
-                        can earn!
-                      </MDTypography>
-                    </Grid>
+                        <Grid
+                          item
+                          xs={12}
+                          md={12}
+                          xl={12}
+                          pl={2}
+                          pr={2}
+                          mt={1}
+                          display="flex"
+                          justifyContent="center"
+                          alignContent="center"
+                          alignItems="center"
+                        >
+                          <MDTypography
+                            fontSize={12}
+                            fontColor="dark"
+                            fontWeight="bold"
+                            sx={{ textAlign: "center" }}
+                          >
+                            Rewards will be based on your net Profit and Loss
+                            during the TestZone period. So, bigger the P&L, the
+                            bigger you can earn!
+                          </MDTypography>
+                        </Grid>
+                      </>
+                    ) : (
+                      <>
+                        <Grid
+                          item
+                          xs={12}
+                          md={12}
+                          xl={6}
+                          pl={2}
+                          pr={2}
+                          display="flex"
+                          justifyContent="center"
+                          alignContent="center"
+                          alignItems="center"
+                        >
+                          <MDTypography
+                            fontSize={12}
+                            fontColor="dark"
+                            fontWeight="bold"
+                          >
+                            🏆 Reward : Exciting prizes for top rankers
+                          </MDTypography>
+                        </Grid>
+
+                        <Grid
+                          item
+                          xs={12}
+                          md={12}
+                          xl={12}
+                          pl={2}
+                          pr={2}
+                          mt={1}
+                          display="flex"
+                          justifyContent="center"
+                          alignContent="center"
+                          alignItems="center"
+                        >
+                          <MDTypography
+                            fontSize={12}
+                            fontColor="dark"
+                            fontWeight="bold"
+                            sx={{ textAlign: "center" }}
+                          >
+                            Rewards will be based on your rank during the
+                            TestZone period.
+                          </MDTypography>
+                        </Grid>
+
+                        <Grid
+                          item
+                          xs={12}
+                          md={12}
+                          xl={12}
+                          lg={12}
+                          mt={1}
+                          mb={1}
+                          display="flex"
+                          justifyContent="center"
+                          alignContent="center"
+                          alignItems="center"
+                        >
+                          <MDBox width="100%" xl={12}>
+                            <MDBox
+                              width="100%"
+                              display="flex"
+                              justifyContent="center"
+                              alignItems="center"
+                              sx={{
+                                backgroundColor: "#315C45",
+                                borderRadius: "2px",
+                              }}
+                            >
+                              <MDTypography
+                                variant="text"
+                                fontSize={12}
+                                color="white"
+                                mt={0.7}
+                                alignItems="center"
+                                gutterBottom
+                              >
+                                Reward Table
+                              </MDTypography>
+                            </MDBox>
+                            <MDBox mt={1}>
+                              <DataTable
+                                table={{ columns, rows }}
+                                showTotalEntries={false}
+                                isSorted={false}
+                                entriesPerPage={false}
+                              />
+                            </MDBox>
+                          </MDBox>
+                        </Grid>
+                      </>
+                    )}
                   </Grid>
                 </MDBox>
               </Grid>
@@ -786,258 +873,6 @@ const ContestRegistration = () => {
                           />
                         </Grid>
 
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <FormControl sx={{ width: "100%" }}>
-                            <InputLabel id="demo-simple-select-autowidth-label">
-                              Gender *
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-autowidth-label"
-                              id="demo-simple-select-autowidth"
-                              disabled={otpGenerated}
-                              onChange={(e) => {
-                                setDetails((prevState) => ({
-                                  ...prevState,
-                                  gender: e.target.value,
-                                }));
-                              }}
-                              label="Gender"
-                              sx={{ minHeight: 43 }}
-                            >
-                              <MenuItem value="Male">Male</MenuItem>
-                              <MenuItem value="Female">Female</MenuItem>
-                              <MenuItem value="Other">Other</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} mt={-1} p={1}>
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer components={["DatePicker"]}>
-                              <DatePicker
-                                label="Date of Birth *"
-                                disabled={otpGenerated}
-                                onChange={(e) => {
-                                  setDetails((prevState) => ({
-                                    ...prevState,
-                                    dob: dayjs(e),
-                                  }));
-                                }}
-                                sx={{ width: "100%" }}
-                              />
-                            </DemoContainer>
-                          </LocalizationProvider>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <FormControl sx={{ width: "100%" }}>
-                            <InputLabel id="demo-simple-select-autowidth-label">
-                              Course *
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-autowidth-label"
-                              id="demo-simple-select-autowidth"
-                              disabled={otpGenerated}
-                              onChange={(e) => {
-                                setDetails((prevState) => ({
-                                  ...prevState,
-                                  course: e.target.value,
-                                }));
-                              }}
-                              label="Course"
-                              sx={{ minHeight: 43 }}
-                            >
-                              <MenuItem value="Bachelor of Technology">
-                                Bachelor of Technology(BTech)
-                              </MenuItem>
-                              <MenuItem value="Bachelor of Commerce">
-                                Bachelor of Commerce(BCom)
-                              </MenuItem>
-                              <MenuItem value="Bachelor of Science">
-                                Bachelor of Science(BSc)
-                              </MenuItem>
-                              <MenuItem value="Bachelor of Computer Application">
-                                Bachelor of Computer Application
-                              </MenuItem>
-                              <MenuItem value="Bachelor of Architecture">
-                                Bachelor of Architecture(BA)
-                              </MenuItem>
-                              <MenuItem value="Bachelor of Education">
-                                Bachelor of Education(BEd)
-                              </MenuItem>
-                              <MenuItem value="Bachelor of Business Administration">
-                                Bachelor of Business Administration(BBA)
-                              </MenuItem>
-                              <MenuItem value="Bachelor of Arts">
-                                Bachelor of Arts(BA)
-                              </MenuItem>
-                              <MenuItem value="Corporate">Corporate</MenuItem>
-                              <MenuItem value="Hotel Management">
-                                Hotel Management(HM)
-                              </MenuItem>
-                              <MenuItem value="MBBS">
-                                Bachelor of Medicine, Bachelor of Surgery(MBBS)
-                              </MenuItem>
-                              <MenuItem value="Master of Business Administration">
-                                Master of Business Administration(MBA)
-                              </MenuItem>
-                              <MenuItem value="Master of Technology">
-                                Master of Technology(MTech)
-                              </MenuItem>
-                              <MenuItem value="Master of Arts">
-                                Master of Science(MSc)
-                              </MenuItem>
-                              <MenuItem value="School">School</MenuItem>
-                              <MenuItem value="Others">Others</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <TextField
-                            // required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="Year of Passing Out *"
-                            type="text"
-                            fullWidth
-                            onChange={(e) => {
-                              setDetails((prevState) => ({
-                                ...prevState,
-                                passingoutyear: e.target.value,
-                              }));
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={12} xl={6} p={1}>
-                          <Autocomplete
-                            id="asynchronous-demo"
-                            sx={{ width: "100%", height: "100%" }}
-                            open={open}
-                            onOpen={() => {
-                              setOpen(true);
-                            }}
-                            onClose={() => {
-                              setOpen(false);
-                            }}
-                            isOptionEqualToValue={(option, value) =>
-                              option._id === value._id
-                            }
-                            getOptionLabel={(option) => option.collegeName}
-                            options={options}
-                            loading={loading}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="College Name *"
-                                InputProps={{
-                                  ...params.InputProps,
-                                  style: {
-                                    height: "43px",
-                                    alignItems: "center",
-                                    alignContent: "center",
-                                  }, // Adjust the height as needed
-                                  endAdornment: (
-                                    <React.Fragment>
-                                      {loading ? (
-                                        <CircularProgress
-                                          color="inherit"
-                                          size={15}
-                                        />
-                                      ) : null}
-                                      {/* {params.InputProps.endAdornment} */}
-                                    </React.Fragment>
-                                  ),
-                                }}
-                              />
-                            )}
-                            disabled={otpGenerated}
-                            onChange={(e, selectedOption) => {
-                              if (selectedOption) {
-                                setDetails((prevState) => ({
-                                  ...prevState,
-                                  college: selectedOption._id,
-                                }));
-                                setDetails((prevState) => ({
-                                  ...prevState,
-                                  collegeName: selectedOption.collegeName,
-                                }));
-                              }
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={12} lg={6} p={1}>
-                          <TextField
-                            // required
-                            disabled={otpGenerated}
-                            id="outlined-required"
-                            label="LinkedIn Profile Link"
-                            type="text"
-                            fullWidth
-                            onChange={(e) => {
-                              setDetails((prevState) => ({
-                                ...prevState,
-                                linkedInProfileLink: e.target.value,
-                              }));
-                            }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <FormControl sx={{ width: "100%" }}>
-                            <InputLabel id="demo-simple-select-autowidth-label">
-                              Trading Exp *
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-autowidth-label"
-                              id="demo-simple-select-autowidth"
-                              disabled={otpGenerated}
-                              onChange={(e) => {
-                                setDetails((prevState) => ({
-                                  ...prevState,
-                                  priorTradingExperience: e.target.value,
-                                }));
-                              }}
-                              label="Trading Exp."
-                              sx={{ minHeight: 43 }}
-                            >
-                              <MenuItem value="Yes">Yes</MenuItem>
-                              <MenuItem value="No">No</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={6} p={1}>
-                          <FormControl sx={{ width: "100%" }}>
-                            <InputLabel id="demo-simple-select-autowidth-label">
-                              From where did you hear about us ? *
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-autowidth-label"
-                              id="demo-simple-select-autowidth"
-                              disabled={otpGenerated}
-                              onChange={(e) => {
-                                setDetails((prevState) => ({
-                                  ...prevState,
-                                  source: e.target.value,
-                                }));
-                              }}
-                              label="From where you hear about us ?"
-                              sx={{ minHeight: 43 }}
-                            >
-                              <MenuItem value="LinkedIn">LinkedIn</MenuItem>
-                              <MenuItem value="Friend">Friend</MenuItem>
-                              <MenuItem value="Facebook">Facebook</MenuItem>
-                              <MenuItem value="Instagram">Instagram</MenuItem>
-                              <MenuItem value="Twitter">Twitter</MenuItem>
-                              <MenuItem value="Google">Google</MenuItem>
-                              <MenuItem value="Others">Others</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
-
                         {!otpGenerated && (
                           <Grid item xs={12} md={12} lg={12} p={1}>
                             <MDBox
@@ -1125,14 +960,13 @@ const ContestRegistration = () => {
                                   confirmOTP();
                                 }}
                                 variant="gradient"
-                                // color="#65BA0D"
-                                disabled={creating || buttonClicked}
-                                // style={{width:'90%'}}
                                 style={{
                                   backgroundColor: "#65BA0D",
                                   color: "white",
                                   width: "90%",
                                 }}
+                                disabled={creating || buttonClicked}
+                                // style={{width:'90%'}}
                               >
                                 {creating ? (
                                   <CircularProgress size={20} color="inherit" />
@@ -1170,8 +1004,7 @@ const ContestRegistration = () => {
                           style={{ textAlign: "center" }}
                         >
                           <MDTypography>
-                            Thank you for showing interest in our College
-                            TestZone.
+                            Thank you for showing interest in the TestZone.
                           </MDTypography>
                           <MDTypography mt={1} fontSize={20} fontWeight="bold">
                             Explore the world of Virtual Options Trading and
@@ -1264,4 +1097,6 @@ const ContestRegistration = () => {
   );
 };
 
-export default ContestRegistration;
+export default FeaturedContestRegistration;
+
+//6UOWyIuWrBj5QdME6zzOA6p1qsLByKL1

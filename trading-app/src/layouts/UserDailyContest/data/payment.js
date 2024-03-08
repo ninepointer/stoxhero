@@ -12,7 +12,7 @@ import Title from "../../HomePage/components/Title";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Button from "@mui/material/Button";
-import { Grid, TextField, Typography } from "@mui/material";
+import { Grid, TextField, Typography, CircularProgress } from "@mui/material";
 import paymentQr from "../../../assets/images/paymentQrc.jpg";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -24,17 +24,32 @@ import MDSnackbar from "../../../components/MDSnackbar";
 import Checkbox from "@mui/material/Checkbox";
 import Input from "@mui/material/Input";
 import { userContext } from "../../../AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const ariaLabel = { "aria-label": "description" };
 
-const Payment = ({ elem, setShowPay, showPay }) => {
+const Payment = ({
+  elem,
+  setShowPay,
+  showPay,
+  byLink,
+  signedUp,
+  setOpenParent,
+  referrerCode,
+  createUser,
+  isCoupon,
+}) => {
   const getDetails = useContext(userContext);
+  const navigate = useNavigate();
+  const [isPaymentStart, setIsPaymentStart] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
   const [bonusBalance, setBonusBalance] = useState(0);
   const [setting, setSetting] = useState([]);
   const [code, setCode] = useState("");
-  const [verifiedCode, setVerifiedCode] = useState("");
+  const [verifiedCode, setVerifiedCode] = useState(
+    referrerCode && isCoupon ? referrerCode : ""
+  );
   const [invalidCode, setInvalidCode] = useState("");
   const [discountData, setDiscountData] = useState();
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -48,7 +63,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
   });
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [value, setValue] = useState("wallet");
+  const [value, setValue] = useState(signedUp ? "bank" : "wallet");
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (title, content) => {
     console.log("status success");
@@ -57,6 +72,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     setSuccessSB(true);
   };
   const closeSuccessSB = () => setSuccessSB(false);
+  console.log("referrer code", referrerCode);
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -91,6 +107,10 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       bgWhite
     />
   );
+
+  useEffect(() => {
+    byLink && setOpen(true);
+  }, [byLink]);
 
   const handleChange = (event) => {
     setValue(event.target.value);
@@ -177,7 +197,9 @@ const Payment = ({ elem, setShowPay, showPay }) => {
     setShowPromoCode(false);
     setCode("");
     setVerifiedCode("");
+    setOpenParent && setOpenParent(false);
     messege.thanksMessege && setShowPay(!showPay);
+    messege.thanksMessege && navigate("/testzone");
   };
 
   async function captureIntent() {
@@ -214,7 +236,10 @@ const Payment = ({ elem, setShowPay, showPay }) => {
       contestId: elem?._id,
       amount: Number(amount - discountAmount - bonusRedemption),
     });
-    const res = await fetch(`${baseUrl}api/v1/dailycontest/feededuct`, {
+
+    setIsPaymentStart(true);
+
+    const res = await fetch(`${apiUrl}dailycontest/feededuct`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -239,6 +264,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         ...messege,
         error: dataResp.message,
       });
+      setIsPaymentStart(false);
     } else {
       setMessege({
         ...messege,
@@ -248,6 +274,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
           elem.contestName
         }, please click on "Start Trading" once the TestZone starts.`,
       });
+      setIsPaymentStart(false);
     }
   };
 
@@ -271,13 +298,15 @@ const Payment = ({ elem, setShowPay, showPay }) => {
 
   const initiatePayment = async () => {
     try {
+      setIsPaymentStart(true);
+      await createUser();
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
         {
           amount:
             Number((amount - discountAmount - bonusRedemption) * 100) +
             actualAmount * 100,
-          redirectTo: window.location.href,
+          redirectTo: "https://stoxhero.com/testzone",
           paymentFor: "Contest",
           productId: elem?._id,
           coupon: verifiedCode,
@@ -285,11 +314,14 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         },
         { withCredentials: true }
       );
-      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+      // console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
+
+      setIsPaymentStart(false);
     } catch (e) {
       console.log(e);
+      setIsPaymentStart(false);
     }
   };
   const calculateDiscount = (
@@ -388,23 +420,38 @@ const Payment = ({ elem, setShowPay, showPay }) => {
         </DialogTitle>
         <DialogContent>
           {messege.thanksMessege ? (
-            <Typography
-              textAlign="center"
-              sx={{ width: "100%" }}
-              color="#000"
-              variant="body2"
-            >
-              {messege.thanksMessege}
-            </Typography>
+            <>
+              <Typography
+                textAlign="center"
+                sx={{ width: "100%" }}
+                color="#000"
+                variant="body2"
+              >
+                {messege.thanksMessege}
+              </Typography>
+
+              <DialogActions>
+                <MDButton color="error" onClick={handleClose} autoFocus>
+                  Close
+                </MDButton>
+              </DialogActions>
+            </>
           ) : messege.error ? (
-            <Typography
-              textAlign="center"
-              sx={{ width: "100%" }}
-              color="#000"
-              variant="body2"
-            >
-              {messege.error}
-            </Typography>
+            <>
+              <Typography
+                textAlign="center"
+                sx={{ width: "100%" }}
+                color="#000"
+                variant="body2"
+              >
+                {messege.error}
+              </Typography>
+              <DialogActions>
+                <MDButton color="error" onClick={handleClose} autoFocus>
+                  Close
+                </MDButton>
+              </DialogActions>
+            </>
           ) : (
             <>
               <DialogContentText id="alert-dialog-description">
@@ -419,7 +466,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                       justifyContent: "center",
                     }}
                   >
-                    Choose how to pay
+                    {!signedUp && `Choose how to pay`}
                   </Title>
                   <FormControl>
                     <RadioGroup
@@ -429,42 +476,177 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                       value={value}
                       onChange={handleChange}
                     >
-                      <FormControlLabel
-                        value="wallet"
-                        control={<Radio />}
-                        label="Pay from StoxHero Wallet"
-                      />
-                      {value == "wallet" && (
-                        <MDBox
-                          display="flex"
-                          flexDirection="column"
-                          justifyContent="center"
-                          alignItems="flex-start"
-                          mt={0}
-                          mb={2}
-                          style={{ minWidth: "40vw" }}
-                        >
-                          {!showPromoCode ? (
+                      {!signedUp && (
+                        <>
+                          <FormControlLabel
+                            value="wallet"
+                            control={<Radio />}
+                            label="Pay from StoxHero Wallet"
+                          />
+                          {value == "wallet" && (
                             <MDBox
                               display="flex"
-                              justifyContent="flex-start"
-                              width="100%"
-                              mt={1}
-                              onClick={() => {
-                                window.webengage.track(
-                                  "testzone_intent_to_apply_couponcode_clicked",
-                                  {
-                                    user: getDetails?.userDetails?._id,
-                                    contestId: elem?._id,
-                                    amount: Number(
-                                      amount - discountAmount - bonusRedemption
-                                    ),
-                                  }
-                                );
-                                setShowPromoCode(true);
-                              }}
-                              style={{ cursor: "pointer" }}
+                              flexDirection="column"
+                              justifyContent="center"
+                              alignItems="flex-start"
+                              mt={0}
+                              mb={2}
+                              style={{ minWidth: "40vw" }}
                             >
+                              {!referrerCode &&
+                                (!showPromoCode ? (
+                                  <MDBox
+                                    display="flex"
+                                    justifyContent="flex-start"
+                                    width="100%"
+                                    mt={1}
+                                    onClick={() => {
+                                      window.webengage.track(
+                                        "testzone_intent_to_apply_couponcode_clicked",
+                                        {
+                                          user: getDetails?.userDetails?._id,
+                                          contestId: elem?._id,
+                                          amount: Number(
+                                            amount -
+                                              discountAmount -
+                                              bonusRedemption
+                                          ),
+                                        }
+                                      );
+                                      setShowPromoCode(true);
+                                    }}
+                                    style={{ cursor: "pointer" }}
+                                  >
+                                    <Typography
+                                      textAlign="left"
+                                      sx={{
+                                        width: "100%",
+                                        fontSize: "14px",
+                                        fontWeight: 500,
+                                      }}
+                                      color="#808080"
+                                      variant="body2"
+                                    >
+                                      Have a promo code?
+                                    </Typography>
+                                  </MDBox>
+                                ) : (
+                                  <>
+                                    <MDBox
+                                      display="flex"
+                                      justifyContent="flex-start"
+                                      width="100%"
+                                      alignItems="flex-start"
+                                      mt={1}
+                                    >
+                                      <Input
+                                        placeholder="Enter your promo code"
+                                        disabled={verifiedCode}
+                                        inputProps={ariaLabel}
+                                        value={code}
+                                        onChange={(e) => {
+                                          setCode(e.target.value);
+                                        }}
+                                      />
+                                      <MDButton onClick={applyPromoCode}>
+                                        {verifiedCode && code
+                                          ? "Remove"
+                                          : "Apply"}
+                                      </MDButton>
+                                    </MDBox>
+                                    {verifiedCode &&
+                                      discountData?.rewardType ==
+                                        "Discount" && (
+                                        <Typography
+                                          textAlign="left"
+                                          mt={0}
+                                          sx={{
+                                            width: "100%",
+                                            fontSize: "14px",
+                                            fontWeight: 500,
+                                          }}
+                                          color="#ab1"
+                                          variant="body2"
+                                        >{`Applied ${verifiedCode} - ${
+                                          discountData?.discountType ==
+                                          "Percentage"
+                                            ? `(${
+                                                discountData?.discount
+                                              }% off ${
+                                                discountData?.maxDiscount &&
+                                                `upto ₹${discountData?.maxDiscount}`
+                                              })`
+                                            : `(FLAT ₹${discountData?.discount}) off`
+                                        }`}</Typography>
+                                      )}
+                                    {verifiedCode &&
+                                      discountData?.rewardType ==
+                                        "Cashback" && (
+                                        <Typography
+                                          textAlign="left"
+                                          mt={0}
+                                          sx={{
+                                            width: "100%",
+                                            fontSize: "14px",
+                                            fontWeight: 500,
+                                          }}
+                                          color="#ab1"
+                                          variant="body2"
+                                        >{`Applied ${verifiedCode} - ${
+                                          discountData?.discountType ==
+                                          "Percentage"
+                                            ? `(${
+                                                discountData?.discount
+                                              }% Cashback ${
+                                                discountData?.maxDiscount &&
+                                                `upto ₹${discountData?.maxDiscount}`
+                                              })`
+                                            : `(FLAT ₹${discountData?.discount}) Cashback`
+                                        }`}</Typography>
+                                      )}
+                                    {invalidCode && (
+                                      <Typography
+                                        textAlign="left"
+                                        mt={0}
+                                        sx={{
+                                          width: "100%",
+                                          fontSize: "14px",
+                                          fontWeight: 500,
+                                        }}
+                                        color="#f16"
+                                        variant="body2"
+                                      >
+                                        {invalidCode}
+                                      </Typography>
+                                    )}
+                                  </>
+                                ))}
+                              <Typography
+                                textAlign="left"
+                                mt={1}
+                                sx={{
+                                  width: "100%",
+                                  fontSize: "14px",
+                                  fontWeight: 600,
+                                }}
+                                color="#000"
+                                variant="body2"
+                              >
+                                Cost Breakdown
+                              </Typography>
+                              <Typography
+                                textAlign="left"
+                                mt={0}
+                                sx={{
+                                  width: "100%",
+                                  fontSize: "14px",
+                                  fontWeight: 500,
+                                }}
+                                color="#808080"
+                                variant="body2"
+                              >
+                                Fee Amount: ₹{amount ? amount : 0}
+                              </Typography>
                               <Typography
                                 textAlign="left"
                                 sx={{
@@ -475,216 +657,98 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                                 color="#808080"
                                 variant="body2"
                               >
-                                Have a promo code?
+                                GST({setting?.gstPercentage}%) on Fee: ₹{0}
                               </Typography>
-                            </MDBox>
-                          ) : (
-                            <>
-                              <MDBox
-                                display="flex"
-                                justifyContent="flex-start"
-                                width="100%"
-                                alignItems="flex-start"
-                                mt={1}
-                              >
-                                <Input
-                                  placeholder="Enter your promo code"
-                                  disabled={verifiedCode}
-                                  inputProps={ariaLabel}
-                                  value={code}
-                                  onChange={(e) => {
-                                    setCode(e.target.value);
-                                  }}
-                                />
-                                <MDButton onClick={applyPromoCode}>
-                                  {verifiedCode && code ? "Remove" : "Apply"}
-                                </MDButton>
-                              </MDBox>
                               {verifiedCode &&
                                 discountData?.rewardType == "Discount" && (
                                   <Typography
                                     textAlign="left"
-                                    mt={0}
                                     sx={{
                                       width: "100%",
                                       fontSize: "14px",
                                       fontWeight: 500,
                                     }}
-                                    color="#ab1"
+                                    color="#808080"
                                     variant="body2"
-                                  >{`Applied ${verifiedCode} - ${
-                                    discountData?.discountType == "Percentage"
-                                      ? `(${discountData?.discount}% off ${
-                                          discountData?.maxDiscount &&
-                                          `upto ₹${discountData?.maxDiscount}`
-                                        })`
-                                      : `(FLAT ₹${discountData?.discount}) off`
-                                  }`}</Typography>
+                                  >
+                                    {discountData?.discountType === "Percentage"
+                                      ? `Discount (${discountData?.discount}%) on Fee: ₹${discountAmount}`
+                                      : `Discount (FLAT ₹ ${discountData?.discount} OFF) on Fee: ₹${discountAmount}`}
+                                  </Typography>
                                 )}
                               {verifiedCode &&
                                 discountData?.rewardType == "Cashback" && (
                                   <Typography
                                     textAlign="left"
-                                    mt={0}
                                     sx={{
                                       width: "100%",
                                       fontSize: "14px",
                                       fontWeight: 500,
                                     }}
-                                    color="#ab1"
+                                    color="#808080"
                                     variant="body2"
-                                  >{`Applied ${verifiedCode} - ${
-                                    discountData?.discountType == "Percentage"
-                                      ? `(${discountData?.discount}% Cashback ${
-                                          discountData?.maxDiscount &&
-                                          `upto ₹${discountData?.maxDiscount}`
-                                        })`
-                                      : `(FLAT ₹${discountData?.discount}) Cashback`
-                                  }`}</Typography>
+                                  >
+                                    {discountData?.discountType === "Percentage"
+                                      ? `Cashback (${discountData?.discount}%) on Fee: ₹${cashbackAmount}`
+                                      : `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}
+                                  </Typography>
                                 )}
-                              {invalidCode && (
-                                <Typography
-                                  textAlign="left"
-                                  mt={0}
-                                  sx={{
-                                    width: "100%",
-                                    fontSize: "14px",
-                                    fontWeight: 500,
-                                  }}
-                                  color="#f16"
-                                  variant="body2"
+                              <Typography
+                                textAlign="left"
+                                sx={{
+                                  width: "100%",
+                                  fontSize: "14px",
+                                  fontWeight: 500,
+                                }}
+                                color="#808080"
+                                variant="body2"
+                              >
+                                Net Transaction Amount: ₹
+                                {Number(
+                                  amount - discountAmount - bonusRedemption
+                                ).toFixed(2)}
+                              </Typography>
+                              {bonusBalance > 0 && (
+                                <MDBox
+                                  display="flex"
+                                  justifyContent="flex-start"
+                                  alignItems="center"
+                                  ml={-1}
                                 >
-                                  {invalidCode}
-                                </Typography>
+                                  <Checkbox
+                                    checked={checked}
+                                    onChange={() => {
+                                      window.webengage.track(
+                                        "testzone_herocash_apply_clicked",
+                                        {
+                                          user: getDetails?.userDetails?._id,
+                                          contestId: elem?._id,
+                                        }
+                                      );
+                                      setChecked(!checked);
+                                    }}
+                                  />
+                                  <Typography
+                                    textAlign="left"
+                                    sx={{
+                                      width: "100%",
+                                      fontSize: "14px",
+                                      fontWeight: 500,
+                                    }}
+                                    color="#808080"
+                                    variant="body2"
+                                  >
+                                    Use{" "}
+                                    {redeemableBonus *
+                                      (setting?.bonusToUnitCashRatio ?? 1)}{" "}
+                                    HeroCash (1 HeroCash ={" "}
+                                    {1 / (setting?.bonusToUnitCashRatio ?? 1)}₹)
+                                  </Typography>
+                                </MDBox>
                               )}
-                            </>
-                          )}
-                          <Typography
-                            textAlign="left"
-                            mt={1}
-                            sx={{
-                              width: "100%",
-                              fontSize: "14px",
-                              fontWeight: 600,
-                            }}
-                            color="#000"
-                            variant="body2"
-                          >
-                            Cost Breakdown
-                          </Typography>
-                          <Typography
-                            textAlign="left"
-                            mt={0}
-                            sx={{
-                              width: "100%",
-                              fontSize: "14px",
-                              fontWeight: 500,
-                            }}
-                            color="#808080"
-                            variant="body2"
-                          >
-                            Fee Amount: ₹{amount ? amount : 0}
-                          </Typography>
-                          <Typography
-                            textAlign="left"
-                            sx={{
-                              width: "100%",
-                              fontSize: "14px",
-                              fontWeight: 500,
-                            }}
-                            color="#808080"
-                            variant="body2"
-                          >
-                            GST({setting?.gstPercentage}%) on Fee: ₹{0}
-                          </Typography>
-                          {verifiedCode &&
-                            discountData?.rewardType == "Discount" && (
-                              <Typography
-                                textAlign="left"
-                                sx={{
-                                  width: "100%",
-                                  fontSize: "14px",
-                                  fontWeight: 500,
-                                }}
-                                color="#808080"
-                                variant="body2"
-                              >
-                                {discountData?.discountType === "Percentage"
-                                  ? `Discount (${discountData?.discount}%) on Fee: ₹${discountAmount}`
-                                  : `Discount (FLAT ₹ ${discountData?.discount} OFF) on Fee: ₹${discountAmount}`}
-                              </Typography>
-                            )}
-                          {verifiedCode &&
-                            discountData?.rewardType == "Cashback" && (
-                              <Typography
-                                textAlign="left"
-                                sx={{
-                                  width: "100%",
-                                  fontSize: "14px",
-                                  fontWeight: 500,
-                                }}
-                                color="#808080"
-                                variant="body2"
-                              >
-                                {discountData?.discountType === "Percentage"
-                                  ? `Cashback (${discountData?.discount}%) on Fee: ₹${cashbackAmount}`
-                                  : `Cashback (FLAT ₹ ${discountData?.discount} Cashback) as Wallet Bonus: ₹${cashbackAmount}`}
-                              </Typography>
-                            )}
-                          <Typography
-                            textAlign="left"
-                            sx={{
-                              width: "100%",
-                              fontSize: "14px",
-                              fontWeight: 500,
-                            }}
-                            color="#808080"
-                            variant="body2"
-                          >
-                            Net Transaction Amount: ₹
-                            {Number(
-                              amount - discountAmount - bonusRedemption
-                            ).toFixed(2)}
-                          </Typography>
-                          {bonusBalance > 0 && (
-                            <MDBox
-                              display="flex"
-                              justifyContent="flex-start"
-                              alignItems="center"
-                              ml={-1}
-                            >
-                              <Checkbox
-                                checked={checked}
-                                onChange={() => {
-                                  window.webengage.track(
-                                    "testzone_herocash_apply_clicked",
-                                    {
-                                      user: getDetails?.userDetails?._id,
-                                      contestId: elem?._id,
-                                    }
-                                  );
-                                  setChecked(!checked);
-                                }}
-                              />
-                              <Typography
-                                textAlign="left"
-                                sx={{
-                                  width: "100%",
-                                  fontSize: "14px",
-                                  fontWeight: 500,
-                                }}
-                                color="#808080"
-                                variant="body2"
-                              >
-                                Use{" "}
-                                {redeemableBonus *
-                                  (setting?.bonusToUnitCashRatio ?? 1)}{" "}
-                                HeroCash (1 HeroCash ={" "}
-                                {1 / (setting?.bonusToUnitCashRatio ?? 1)}₹)
-                              </Typography>
                             </MDBox>
                           )}
-                        </MDBox>
+                        </>
                       )}
                       <FormControlLabel
                         value="bank"
@@ -700,7 +764,7 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                           mt={0}
                           mb={0}
                         >
-                          <Typography
+                          {/* <Typography
                             textAlign="justify"
                             sx={{ width: "100%", fontSize: "14px" }}
                             color="#000"
@@ -712,116 +776,119 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                             to pay anything extra. StoxHero will be taking care
                             of the GST on your behalf. To offset it, we've
                             increased our pricing by a bit.{" "}
-                          </Typography>
-                          {!showPromoCode ? (
-                            <MDBox
-                              display="flex"
-                              justifyContent="flex-start"
-                              width="100%"
-                              mt={1}
-                              onClick={() => {
-                                window.webengage.track(
-                                  "testzone_intent_to_apply_couponcode_clicked",
-                                  {
-                                    user: getDetails?.userDetails?._id,
-                                    contestId: elem?._id,
-                                    amount: Number(
-                                      amount - discountAmount - bonusRedemption
-                                    ),
-                                  }
-                                );
-                                setShowPromoCode(true);
-                              }}
-                              style={{ cursor: "pointer" }}
-                            >
-                              <Typography
-                                textAlign="left"
-                                sx={{
-                                  width: "100%",
-                                  fontSize: "14px",
-                                  fontWeight: 500,
-                                }}
-                                color="#808080"
-                                variant="body2"
-                              >
-                                Have a promo code?
-                              </Typography>
-                            </MDBox>
-                          ) : (
-                            <>
+                          </Typography> */}
+                          {!referrerCode &&
+                            (!showPromoCode ? (
                               <MDBox
                                 display="flex"
                                 justifyContent="flex-start"
                                 width="100%"
-                                alignItems="flex-start"
                                 mt={1}
+                                onClick={() => {
+                                  window.webengage.track(
+                                    "testzone_intent_to_apply_couponcode_clicked",
+                                    {
+                                      user: getDetails?.userDetails?._id,
+                                      contestId: elem?._id,
+                                      amount: Number(
+                                        amount -
+                                          discountAmount -
+                                          bonusRedemption
+                                      ),
+                                    }
+                                  );
+                                  setShowPromoCode(true);
+                                }}
+                                style={{ cursor: "pointer" }}
                               >
-                                <Input
-                                  placeholder="Enter your promo code"
-                                  disabled={verifiedCode}
-                                  inputProps={ariaLabel}
-                                  value={code}
-                                  onChange={(e) => {
-                                    setCode(e.target.value);
-                                  }}
-                                />
-                                <MDButton onClick={applyPromoCode}>
-                                  {verifiedCode && code ? "Remove" : "Apply"}
-                                </MDButton>
-                              </MDBox>
-                              {verifiedCode &&
-                                discountData?.rewardType == "Discount" && (
-                                  <Typography
-                                    textAlign="left"
-                                    mt={0}
-                                    sx={{
-                                      width: "100%",
-                                      fontSize: "14px",
-                                      fontWeight: 500,
-                                    }}
-                                    color="#ab1"
-                                    variant="body2"
-                                  >{`Applied ${verifiedCode} - ${
-                                    discountData?.discountType == "Percentage"
-                                      ? `(${discountData?.discount}% off)`
-                                      : `(FLAT ${discountData?.discount}) off`
-                                  }`}</Typography>
-                                )}
-                              {verifiedCode &&
-                                discountData?.rewardType == "Cashback" && (
-                                  <Typography
-                                    textAlign="left"
-                                    mt={0}
-                                    sx={{
-                                      width: "100%",
-                                      fontSize: "14px",
-                                      fontWeight: 500,
-                                    }}
-                                    color="#ab1"
-                                    variant="body2"
-                                  >{`Applied ${verifiedCode} - ${
-                                    discountData?.discountType == "Percentage"
-                                      ? `(${discountData?.discount}% Cashback)`
-                                      : `(FLAT ${discountData?.discount}) Cashback`
-                                  }`}</Typography>
-                                )}
-                              {invalidCode && (
                                 <Typography
                                   textAlign="left"
-                                  mt={0}
                                   sx={{
                                     width: "100%",
                                     fontSize: "14px",
                                     fontWeight: 500,
                                   }}
-                                  color="#f16"
+                                  color="#808080"
                                   variant="body2"
                                 >
-                                  {invalidCode}
+                                  Have a promo code?
                                 </Typography>
-                              )}
-                            </>
-                          )}
+                              </MDBox>
+                            ) : (
+                              <>
+                                <MDBox
+                                  display="flex"
+                                  justifyContent="flex-start"
+                                  width="100%"
+                                  alignItems="flex-start"
+                                  mt={1}
+                                >
+                                  <Input
+                                    placeholder="Enter your promo code"
+                                    disabled={verifiedCode}
+                                    inputProps={ariaLabel}
+                                    value={code}
+                                    onChange={(e) => {
+                                      setCode(e.target.value);
+                                    }}
+                                  />
+                                  <MDButton onClick={applyPromoCode}>
+                                    {verifiedCode && code ? "Remove" : "Apply"}
+                                  </MDButton>
+                                </MDBox>
+                                {verifiedCode &&
+                                  discountData?.rewardType == "Discount" && (
+                                    <Typography
+                                      textAlign="left"
+                                      mt={0}
+                                      sx={{
+                                        width: "100%",
+                                        fontSize: "14px",
+                                        fontWeight: 500,
+                                      }}
+                                      color="#ab1"
+                                      variant="body2"
+                                    >{`Applied ${verifiedCode} - ${
+                                      discountData?.discountType == "Percentage"
+                                        ? `(${discountData?.discount}% off)`
+                                        : `(FLAT ${discountData?.discount}) off`
+                                    }`}</Typography>
+                                  )}
+                                {verifiedCode &&
+                                  discountData?.rewardType == "Cashback" && (
+                                    <Typography
+                                      textAlign="left"
+                                      mt={0}
+                                      sx={{
+                                        width: "100%",
+                                        fontSize: "14px",
+                                        fontWeight: 500,
+                                      }}
+                                      color="#ab1"
+                                      variant="body2"
+                                    >{`Applied ${verifiedCode} - ${
+                                      discountData?.discountType == "Percentage"
+                                        ? `(${discountData?.discount}% Cashback)`
+                                        : `(FLAT ${discountData?.discount}) Cashback`
+                                    }`}</Typography>
+                                  )}
+                                {invalidCode && (
+                                  <Typography
+                                    textAlign="left"
+                                    mt={0}
+                                    sx={{
+                                      width: "100%",
+                                      fontSize: "14px",
+                                      fontWeight: 500,
+                                    }}
+                                    color="#f16"
+                                    variant="body2"
+                                  >
+                                    {invalidCode}
+                                  </Typography>
+                                )}
+                              </>
+                            ))}
                           <Typography
                             textAlign="left"
                             mt={1}
@@ -908,11 +975,13 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                             Net Transaction Amount: ₹
                             {(
                               Number(
-                                amount - discountAmount - bonusRedemption
-                              ) + actualAmount
+                                (amount || 0) -
+                                  (discountAmount || 0) -
+                                  (bonusRedemption || 0)
+                              ) + (actualAmount || 0)
                             ).toFixed(2)}
                           </Typography>
-                          {bonusBalance > 0 && (
+                          {bonusBalance > 0 && !signedUp && (
                             <MDBox
                               display="flex"
                               justifyContent="flex-start"
@@ -954,29 +1023,6 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                       )}
                     </RadioGroup>
                   </FormControl>
-
-                  {/* <Grid container display="flex" flexDirection="row" justifyContent="center" alignContent={"center"} gap={2} >
-                      <Grid container mt={2} xs={12} md={9} xl={12} lg={12}>
-                        <Grid item xs={12} md={6} xl={9} lg={9} >
-                          <TextField
-                            // disabled={((isSubmitted || battle) && (!editing || saving))}
-                            id="outlined-required"
-                            label='Coupen Code'
-                            name='coupenCode'
-                            fullWidth
-                            value={amount}
-                            onChange={(e) => { }}
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} md={6} xl={3} lg={3} >
-                          <MDButton color={"success"} onClick={handleClose} autoFocus>
-                            Apply
-                          </MDButton>
-                        </Grid>
-                      </Grid>
-
-                    </Grid> */}
                 </MDBox>
               </DialogContentText>
               {value == "wallet" && (
@@ -1027,19 +1073,31 @@ const Payment = ({ elem, setShowPay, showPay }) => {
                         color="#fff"
                       >
                         {" "}
-                        {`₹${userWallet}`}
+                        {`₹${Number(userWallet)?.toFixed(2)}`}
                       </Typography>
                     </MDBox>
 
                     <MDBox>
-                      <ArrowForwardIosIcon
-                        sx={{
-                          mt: "8px",
-                          color: "#fff",
-                          marginRight: "5px",
-                          marginLeft: "5px",
-                        }}
-                      />
+                      {isPaymentStart ? (
+                        <CircularProgress
+                          size={20}
+                          color="light"
+                          sx={{
+                            mt: "8px",
+                            marginRight: "5px",
+                            marginLeft: "5px",
+                          }}
+                        />
+                      ) : (
+                        <ArrowForwardIosIcon
+                          sx={{
+                            mt: "8px",
+                            color: "#fff",
+                            marginRight: "5px",
+                            marginLeft: "5px",
+                          }}
+                        />
+                      )}
                     </MDBox>
                   </MDBox>
                 </MDBox>
@@ -1057,9 +1115,25 @@ const Payment = ({ elem, setShowPay, showPay }) => {
               onClick={() => initiatePayment()}
               autoFocus
             >
-              {`Pay ₹${
-                Number(amount - discountAmount - bonusRedemption) + actualAmount
-              } securely`}
+              {isPaymentStart ? (
+                <CircularProgress
+                  size={20}
+                  color="light"
+                  // sx={{
+                  //   mt: "8px",
+                  //   marginRight: "5px",
+                  //   marginLeft: "5px",
+                  // }}
+                />
+              ) : (
+                `Pay ₹${(
+                  Number(
+                    (amount || 0) -
+                      (discountAmount || 0) -
+                      (bonusRedemption || 0)
+                  ) + (actualAmount || 0)
+                ).toFixed(2)} securely`
+              )}
             </MDButton>
           </DialogActions>
         )}

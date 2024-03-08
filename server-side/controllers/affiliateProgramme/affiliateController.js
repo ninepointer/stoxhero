@@ -263,7 +263,7 @@ exports.addAffiliateUser = async (req, res) => {
   }
 };
 
-exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, specificProduct, actualPrice, buyer) => {
+exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, specificProduct, actualPrice, buyer, ignoreDiscount) => {
   // console.log("in transaction", product, specificProduct, actualPrice, buyer);
   //add amount to wallet
   if (affiliate?.userId?.toString() === buyer?.toString()) {
@@ -274,6 +274,8 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
   const productDoc = await Product.findOne({ _id: product });
   const affiliateUser = await User.findOne({ _id: affiliate?.userId }).select('first_name last_name mobile fcmTokens');
   let discount = Math.min(affiliateProgram?.discountPercentage / 100 * actualPrice, affiliateProgram?.maxDiscount);
+  console.log('ignore dis', ignoreDiscount, actualPrice, discount);
+  if(ignoreDiscount)discount=0;
   const affiliatePayout = affiliateProgram?.commissionPercentage / 100 * (actualPrice - discount);
   let walletTransactionId = uuid.v4();
 

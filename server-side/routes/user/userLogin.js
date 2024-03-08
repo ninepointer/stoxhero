@@ -459,7 +459,7 @@ router.post("/phonelogin", async (req, res, next) => {
 });
 
 router.post("/phoneloginmobile", async (req, res, next) => {
-  const { mobile } = req.body;
+  const { mobile, code } = req.body;
   try {
     const deactivatedUser = await UserDetail.findOne({
       mobile: mobile,
@@ -492,19 +492,21 @@ router.post("/phoneloginmobile", async (req, res, next) => {
       let signedUpUser = await SignedUpUser.findOne({ mobile: mobile }).sort({_id: -1})
       if (signedUpUser) {
         signedUpUser.mobile_otp = mobile_otp;
+        if(code) signedUpUser.code = code;
         signedUpUser.lastOtpTime = new Date();
         await signedUpUser.save({ new: true });
       } else {
         signedUpUser = await SignedUpUser.create({
           mobile: mobile,
           mobile_otp: mobile_otp,
+          code:code?code:"",
           status: "OTP Verification Pending",
           lastOtpTime: new Date(),
         });
       }
 
       //send response
-      // if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
+      if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
       console.log(process.env.PROD, mobile_otp, "sending");
       if (process.env.PROD !== "true") {
         sendOTP("8076284368", mobile_otp);
@@ -551,6 +553,42 @@ router.post("/phoneloginmobile", async (req, res, next) => {
       .json({
         status: "Success",
         message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
+      });
+  } catch (e) {
+    console.log(e);
+    res
+      .status(500)
+      .json({
+        status: "error",
+        message: `Something went wrong. Please try again.`,
+      });
+  }
+});
+
+router.post("/codesavetosignup", async (req, res, next) => {
+  const { mobile, college, referrerCode, first_name, last_name} = req.body;
+  try {
+    const user = await SignedUpUser.findOne({
+      mobile: mobile,
+    }).sort({_id: -1});
+  
+    if (!user) {
+      return res
+        .status(429)
+        .json({status: 'error', message: "The user has not signed up yet." });
+    }
+
+    user.code = referrerCode;
+    user.collegeName = college;
+    user.first_name = first_name; 
+    user.last_name = last_name;
+    await user.save({ validateBeforeSave: false });
+
+    res
+      .status(200)
+      .json({
+        status: "Success",
+        message: `Data Saved`,
       });
   } catch (e) {
     console.log(e);
@@ -895,6 +933,7 @@ router.post("/createusermobile", async (req, res, next) => {
     referrerCode,
     fcmTokenData,
     collegeDetails,
+    college
   } = req.body;
 
   const user = await SignedUpUser.findOne({ mobile: mobile });
@@ -959,6 +998,11 @@ router.post("/createusermobile", async (req, res, next) => {
       referrerCode = referrerCode;
     }
   }
+
+  user.code = referrerCode;
+  user.collegeName = college;
+  user.first_name = first_name;
+  user.last_name = last_name;
   user.status = "OTP Verified";
   user.last_modifiedOn = new Date();
   await user.save({ validateBeforeSave: false });
@@ -1042,6 +1086,7 @@ router.post("/createusermobile", async (req, res, next) => {
       creationProcess: creation,
       collegeDetails: collegeDetails || "",
       affiliateProgramme: match ? affiliateObj?._id : null,
+      collegeName: college || null
     };
 
     if (fcmTokenData) {

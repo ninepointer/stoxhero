@@ -18,7 +18,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Create from "./create";
 import { apiUrl } from "../../../../constants/constants";
 
-const List = ({ courseId }) => {
+const List = ({ contestId }) => {
   let columns = [
     { Header: "Edit", accessor: "edit", align: "center" },
     { Header: "Delete", accessor: "delete", align: "center" },
@@ -37,7 +37,7 @@ const List = ({ courseId }) => {
 
   useEffect(() => {
     axios
-      .get(`${apiUrl}courses/${courseId}/faq`, { withCredentials: true })
+      .get(`${apiUrl}dailycontest/${contestId}/faq`, { withCredentials: true })
       .then((res) => {
         setFaqData(res.data.data?.faqs);
         // console.log(res.data.data);
@@ -105,9 +105,10 @@ const List = ({ courseId }) => {
   });
 
   async function deleteData(id) {
-    const del = await axios.delete(`${apiUrl}courses/${courseId}/faq/${id}`, {
-      withCredentials: true,
-    });
+    const del = await axios.delete(
+      `${apiUrl}dailycontest/${contestId}/faq/${id}`,
+      { withCredentials: true }
+    );
     setFaqData(del?.data?.data?.faqs);
   }
 
@@ -148,7 +149,7 @@ const List = ({ courseId }) => {
           <Create
             createForm={createForm}
             setCreateForm={setCreateForm}
-            courseId={courseId}
+            contestId={contestId}
             faq={id}
           />
         </>

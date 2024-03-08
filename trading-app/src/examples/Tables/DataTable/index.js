@@ -185,6 +185,7 @@ function DataTable({
                   width={column.width ? column.width : "auto"}
                   align={index === 0 ? 'center' : column.align ? column.align : "left"}
                   sorted={setSortedValue(column)}
+                  style={{padding:10}}
                 >
                   {column.render("Header")}
                 </DataTableHeadCell>

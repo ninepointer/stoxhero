@@ -224,14 +224,7 @@ exports.confirmOTP = async (req, res, next) => {
             await dailyContest.save({ validateBeforeSave: false });
             if (referrerCode) {
                 if(match){
-                    // const referralProgram = await ReferralProgram.findOne({ status: 'Active' })
-                    // referralUser?.referrals?.push({
-                    //     referredUserId: newuser._id,
-                    //     joining_date: newuser.createdOn,
-                    //     affiliateProgram: affiliateObj._id,
-                    //     affiliateEarning: affiliateObj.rewardPerSignup,
-                    //     affiliateCurrency: affiliateObj.currency,
-                    // });
+
 
                     const saveAffiliate = await User.findOneAndUpdate(
                         { _id: new ObjectId(referralUser?._id) },

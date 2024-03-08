@@ -13,7 +13,7 @@ import {
 import React, { useState } from "react";
 
 import useScrollPosition from "../../hooks/useScrollPosition";
-import logo from "../../../../assets/images/logo_dark.png";
+import logo from "../../../../assets/images/logo_light.png";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { CallMade, Language, Menu } from "@mui/icons-material";
 import LaunchButton from "../Buttons/LaunchButton";
@@ -21,8 +21,9 @@ import { useTheme } from "styled-components";
 import MDTypography from "../../../../components/MDTypography";
 import theme from "../../utils/theme/index";
 import { Link } from "react-router-dom";
+import OutlinedButton from "../Buttons/OutlinedButton";
 
-const NAVBAR_HIEGHT = 60;
+const NAVBAR_HIEGHT = 70;
 const LinkButton = ({ children, ...props }) => (
   <Stack
     direction="row"
@@ -67,6 +68,7 @@ const Navbar = () => {
         backdropFilter: scrollPosition > 10 && "blur(10px)",
         marginBottom: "55px",
         marginTop: "0px",
+        padding:"5px"
       }}
     >
       <Container
@@ -91,14 +93,14 @@ const Navbar = () => {
               src={logo}
               style={{
                 objectFit: "contain",
-                height: "30px",
+                height: "32px",
                 marginTop: "15px",
                 textAlign: "center",
               }}
             />
           </a>
 
-          {!isMobile && (
+          {/* {!isMobile && (
             <Stack
               direction="row"
               alignItems="center"
@@ -262,19 +264,22 @@ const Navbar = () => {
                 </LinkButton>
               </a>
             </Stack>
-          )}
+          )} */}
 
           {/* Action buttons */}
 
           {isMobile ? (
             <IconButton>
-              <Menu onClick={Handle} sx={{ color: "black" }} />
+              <Menu onClick={Handle} sx={{ color: "white" }} />
             </IconButton>
           ) : (
-            <Stack direction="row" spacing={5} alignItems="center">
-              {/* <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
-              <LaunchButton sx={{ borderRadius: 3, color: 'light' }} />
-            </a> */}
+            <Stack direction="row" spacing={5} mt={2} display='flex' justifyContent='center' alignContent='center' alignItems="center">
+              <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
+              <OutlinedButton sx={{ borderRadius: 3, color: 'light', lineHeight:3 }} />
+              </a>
+              {/* <a>
+              <LaunchButton sx={{ borderRadius: 3, color: 'light', lineHeight:3 }} />
+              </a> */}
             </Stack>
           )}
         </Stack>
