@@ -37,6 +37,7 @@ const Payment = ({
   setOpenParent,
   referrerCode,
   createUser,
+  isCoupon,
 }) => {
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const Payment = ({
   const [setting, setSetting] = useState([]);
   const [code, setCode] = useState("");
   const [verifiedCode, setVerifiedCode] = useState(
-    referrerCode ? referrerCode : ""
+    referrerCode && isCoupon ? referrerCode : ""
   );
   const [invalidCode, setInvalidCode] = useState("");
   const [discountData, setDiscountData] = useState();
@@ -277,7 +278,7 @@ const Payment = ({
     }
   };
 
-  const amount = elem?.discountedEntryFee;
+  const amount = elem?.entryFee;
   const redeemableBonus =
     Math.min(
       ((amount - discountAmount) * setting?.maxBonusRedemptionPercentage) / 100,
@@ -291,7 +292,7 @@ const Payment = ({
       )
     : 0;
   const actualAmount =
-    ((elem?.discountedEntryFee - discountAmount - bonusRedemption) *
+    ((elem?.entryFee - discountAmount - bonusRedemption) *
       setting.gstPercentage) /
     100;
 
@@ -362,7 +363,7 @@ const Payment = ({
         {
           code,
           product: "6517d48d3aeb2bb27d650de5",
-          orderValue: elem?.discountedEntryFee,
+          orderValue: elem?.entryFee,
           platform: "Web",
           paymentMode: value,
         },

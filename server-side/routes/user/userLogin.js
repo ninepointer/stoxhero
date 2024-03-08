@@ -459,7 +459,7 @@ router.post("/phonelogin", async (req, res, next) => {
 });
 
 router.post("/phoneloginmobile", async (req, res, next) => {
-  const { mobile } = req.body;
+  const { mobile, code } = req.body;
   try {
     const deactivatedUser = await UserDetail.findOne({
       mobile: mobile,
@@ -492,12 +492,14 @@ router.post("/phoneloginmobile", async (req, res, next) => {
       let signedUpUser = await SignedUpUser.findOne({ mobile: mobile }).sort({_id: -1})
       if (signedUpUser) {
         signedUpUser.mobile_otp = mobile_otp;
+        if(code) signedUpUser.code = code;
         signedUpUser.lastOtpTime = new Date();
         await signedUpUser.save({ new: true });
       } else {
         signedUpUser = await SignedUpUser.create({
           mobile: mobile,
           mobile_otp: mobile_otp,
+          code:code?code:"",
           status: "OTP Verification Pending",
           lastOtpTime: new Date(),
         });

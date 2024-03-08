@@ -249,7 +249,7 @@ const FeaturedContestRegistration = () => {
           <meta name="description" content={contestDetails?.metaDescription} />
           <meta name="keywords" content={contestDetails?.metaKeyword} />
         </Helmet>
-    
+
         <Grid
           container
           xs={12}
@@ -271,24 +271,43 @@ const FeaturedContestRegistration = () => {
             justifyContent="center"
             alignContent="center"
             alignItems="center"
-            style={{minWidth:'75%'}}
+            style={{ minWidth: "75%" }}
           >
             <img
               src={contestDetails?.image}
-              width= {isMobile ? "100%" : "75%"}
+              width={isMobile ? "100%" : "75%"}
             />
           </Grid>
-        
-          <Grid item mt={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
-            <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' alignContent='center'>
 
+          <Grid
+            item
+            mt={5}
+            xs={12}
+            md={12}
+            lg={12}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            alignContent="center"
+          >
+            <Grid
+              container
+              spacing={1}
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              alignContent="center"
+            >
               <Grid
                 item
                 xs={12}
                 md={12}
                 lg={12}
                 container
-                display='flex'
+                display="flex"
                 justifyContent="center"
                 alignItems="center"
               >
@@ -328,7 +347,6 @@ const FeaturedContestRegistration = () => {
                 </MDBox>
               </Grid>
 
-
               <Grid
                 item
                 xs={12}
@@ -342,15 +360,13 @@ const FeaturedContestRegistration = () => {
               >
                 <MDTypography
                   variant={isMobile ? "body3" : "h3"}
-                  color='light'
+                  color="light"
                   fontWeight={400}
-                  textAlign='center'
+                  textAlign="center"
                 >
                   {`${dateConvert(
                     contestDetails?.contestStartTime
-                  )} | ${dateConvert(
-                    contestDetails?.contestEndTime
-                  )}`}
+                  )} | ${dateConvert(contestDetails?.contestEndTime)}`}
                   {/* 20th March 2024, 9:30 AM | 27th March 3:20 PM */}
                 </MDTypography>
               </Grid>
@@ -366,20 +382,80 @@ const FeaturedContestRegistration = () => {
                 alignContent="center"
                 alignItems="center"
               >
-                  <MDBox style={{display:'flex', justifyContent:'center', alignItems:'center', alignContent:'center'}}>
-                    <MDBox style={{display:'flex', justifyContent:'center', alignItems:'center', alignContent:'center'}}><MDTypography color='light' variant={isMobile ? "body3" : "h3"}>Entry Fee:</MDTypography></MDBox>
-                    <MDBox style={{display:'flex', justifyContent:'center', alignItems:'center', alignContent:'center', marginLeft:5, textDecoration: 'line-through', textDecorationColor: '#E6F495'}}><MDTypography color='light' variant={isMobile ? "body3" : "h3"}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(contestDetails?.entryFee)}</MDTypography></MDBox> 
-                    <MDBox style={{display:'flex', justifyContent:'center', alignItems:'center', alignContent:'center', marginLeft:5}}><MDTypography color='light' variant={isMobile ? "body3" : "h3"}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(contestDetails?.discountedEntryFee)}</MDTypography></MDBox>
+                <MDBox
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    alignContent: "center",
+                  }}
+                >
+                  <MDBox
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      alignContent: "center",
+                    }}
+                  >
+                    <MDTypography
+                      color="light"
+                      variant={isMobile ? "body3" : "h3"}
+                    >
+                      Entry Fee:
+                    </MDTypography>
                   </MDBox>
+                  <MDBox
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      alignContent: "center",
+                      marginLeft: 5,
+                      textDecoration: "line-through",
+                      textDecorationColor: "#E6F495",
+                    }}
+                  >
+                    <MDTypography
+                      color="light"
+                      variant={isMobile ? "body3" : "h3"}
+                    >
+                      ₹
+                      {new Intl.NumberFormat(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(contestDetails?.initialFee)}
+                    </MDTypography>
+                  </MDBox>
+                  <MDBox
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      alignContent: "center",
+                      marginLeft: 5,
+                    }}
+                  >
+                    <MDTypography
+                      color="light"
+                      variant={isMobile ? "body3" : "h3"}
+                    >
+                      ₹
+                      {new Intl.NumberFormat(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(contestDetails?.entryFee)}
+                    </MDTypography>
+                  </MDBox>
+                </MDBox>
               </Grid>
-                
 
               <Grid
                 item
                 xs={12}
                 md={12}
                 xl={6}
-                mt={'16px'}
+                mt={"16px"}
                 display="flex"
                 justifyContent="center"
                 alignContent="center"
@@ -396,7 +472,8 @@ const FeaturedContestRegistration = () => {
                   <SignupLoginPopup
                     data={contestDetails}
                     testzone={true}
-                    referrerCode={couponReferrerCode}
+                    referrerCode={newReferrerCode}
+                    isCoupon={Boolean(couponReferrerCode)}
                   />
                   <MDBox
                     mt={isMobile ? 0.5 : 1}
@@ -409,7 +486,7 @@ const FeaturedContestRegistration = () => {
                     <MDTypography
                       variant="caption"
                       style={{
-                        fontSize:isMobile ? "7px" : "14px",
+                        fontSize: isMobile ? "7px" : "14px",
                         fontWeight: 300,
                         lineHeight: "16.42px",
                         color: "white",
@@ -422,7 +499,6 @@ const FeaturedContestRegistration = () => {
                 </MDBox>
               </Grid>
             </Grid>
-
           </Grid>
 
           <Grid
@@ -435,7 +511,7 @@ const FeaturedContestRegistration = () => {
             justifyContent="center"
             alignContent="center"
             alignItems="center"
-            style={{maxWidth:'90%'}}
+            style={{ maxWidth: "90%" }}
           >
             <Grid
               container
@@ -448,8 +524,8 @@ const FeaturedContestRegistration = () => {
               alignContent="center"
               alignItems="center"
               style={{
-                borderRadius:20,
-                border:'2px solid #343434'
+                borderRadius: 20,
+                border: "2px solid #343434",
               }}
             >
               <Grid
@@ -474,7 +550,7 @@ const FeaturedContestRegistration = () => {
                   Why you can't miss this!
                 </MDTypography>
               </Grid>
-             
+
               <Grid
                 item
                 xs={12}
@@ -610,10 +686,9 @@ const FeaturedContestRegistration = () => {
                   </MDBox>
                 </MDBox>
               </Grid>
-             
             </Grid>
           </Grid>
-          
+
           <Grid
             item
             xs={12}
@@ -633,7 +708,7 @@ const FeaturedContestRegistration = () => {
           >
             <MDTypography
               variant={isMobile ? "body3" : "h3"}
-              style={{fontWeight:600, color:'white'}}
+              style={{ fontWeight: 600, color: "white" }}
             >
               Event & Details
             </MDTypography>
@@ -641,11 +716,20 @@ const FeaturedContestRegistration = () => {
               variant={isMobile ? "caption" : "body3"}
               color="white"
               mt={2}
-              style={{fontWeight:400, color:'white'}}
+              style={{ fontWeight: 400, color: "white" }}
             >
               {contestDetails?.description}
             </MDTypography>
-            <Grid container spacing={4} xs={12} md={12} lg={12} display="flex" justifyContent='center' mt={'64px'}>
+            <Grid
+              container
+              spacing={4}
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+              mt={"64px"}
+            >
               <Grid
                 item
                 xs={12}
@@ -656,7 +740,7 @@ const FeaturedContestRegistration = () => {
                 justifyContent="center"
                 alignContent="center"
                 alignItems="center"
-                style={{maxWidth:'100%'}}
+                style={{ maxWidth: "100%" }}
               >
                 <img
                   src={ChartBar}
@@ -664,7 +748,14 @@ const FeaturedContestRegistration = () => {
                   width={isMobile ? 36 : 72}
                   height={isMobile ? 36 : 72}
                 />
-                <MDTypography variant={isMobile ? 'caption' : 'h3'} style={{fontWeight:500, color:'white', textAlign:'center'}}>
+                <MDTypography
+                  variant={isMobile ? "caption" : "h3"}
+                  style={{
+                    fontWeight: 500,
+                    color: "white",
+                    textAlign: "center",
+                  }}
+                >
                   Introductory training on the virtual trading platform
                 </MDTypography>
               </Grid>
@@ -685,9 +776,11 @@ const FeaturedContestRegistration = () => {
                   width={isMobile ? 36 : 72}
                   height={isMobile ? 36 : 72}
                 />
-                <MDTypography variant={isMobile ? 'caption' : 'h3'} style={{fontWeight:500, color:'white'}}>
-                  Interactive sessions on market analysis and risk
-                  management.
+                <MDTypography
+                  variant={isMobile ? "caption" : "h3"}
+                  style={{ fontWeight: 500, color: "white" }}
+                >
+                  Interactive sessions on market analysis and risk management.
                 </MDTypography>
               </Grid>
               <Grid
@@ -707,7 +800,10 @@ const FeaturedContestRegistration = () => {
                   width={isMobile ? 36 : 72}
                   height={isMobile ? 36 : 72}
                 />
-                <MDTypography variant={isMobile ? 'caption' : 'h3'} style={{fontWeight:500, color:'white'}}>
+                <MDTypography
+                  variant={isMobile ? "caption" : "h3"}
+                  style={{ fontWeight: 500, color: "white" }}
+                >
                   Dedicated Q&A session for participants.
                 </MDTypography>
               </Grid>
@@ -728,7 +824,10 @@ const FeaturedContestRegistration = () => {
                   width={isMobile ? 36 : 72}
                   height={isMobile ? 36 : 72}
                 />
-                <MDTypography variant={isMobile ? 'caption' : 'h3'} style={{fontWeight:500, color:'white'}}>
+                <MDTypography
+                  variant={isMobile ? "caption" : "h3"}
+                  style={{ fontWeight: 500, color: "white" }}
+                >
                   Virtual trading competition with market simulation.
                 </MDTypography>
               </Grid>
@@ -827,13 +926,22 @@ const FeaturedContestRegistration = () => {
             alignItems="center"
             style={{ width: "100%" }}
           >
-            <MDTypography variant={isMobile ? 'body3' : 'h3'} style={{fontWeight:600, color:'white'}}>
+            <MDTypography
+              variant={isMobile ? "body3" : "h3"}
+              style={{ fontWeight: 600, color: "white" }}
+            >
               Who are we?
             </MDTypography>
-            <MDTypography variant={isMobile ? 'caption' : 'body3'} style={{fontWeight:500, color:'white', textAlign:'center'}}>
+            <MDTypography
+              variant={isMobile ? "caption" : "body3"}
+              style={{ fontWeight: 500, color: "white", textAlign: "center" }}
+            >
               Virtual trading and investing platform that makes stockmarket:
             </MDTypography>
-            <MDTypography variant={isMobile ? 'body3' : 'body3'} style={{fontWeight:500, color:'#D5F47E'}}>
+            <MDTypography
+              variant={isMobile ? "body3" : "body3"}
+              style={{ fontWeight: 500, color: "#D5F47E" }}
+            >
               Easy | Riskfree | Fun
             </MDTypography>
           </Grid>
@@ -851,7 +959,17 @@ const FeaturedContestRegistration = () => {
             alignItems="center"
             style={{ maxWidth: "75%" }}
           >
-            <Grid container spacing={4} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='flex-start' alignContent='center'>
+            <Grid
+              container
+              spacing={4}
+              xs={12}
+              md={12}
+              lg={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="flex-start"
+              alignContent="center"
+            >
               <Grid
                 item
                 xs={12}
@@ -864,15 +982,33 @@ const FeaturedContestRegistration = () => {
                 style={{ width: "100%" }}
               >
                 <MDBox>
-                  <MDTypography variant={isMobile ? "body3" : "h3"} style={{fontWeight:600, color:'white'}}>
+                  <MDTypography
+                    variant={isMobile ? "body3" : "h3"}
+                    style={{ fontWeight: 600, color: "white" }}
+                  >
                     Frequently Asked Questions
                   </MDTypography>
-                  <MDTypography style={{fontSize:'20px', fontWeight:500, lineHeight:'23.46px', color:'white', marginTop:30}}>
-                    If you have any questions or you need more information regarding
-                    us, please feel free to reach out.
+                  <MDTypography
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: 500,
+                      lineHeight: "23.46px",
+                      color: "white",
+                      marginTop: 30,
+                    }}
+                  >
+                    If you have any questions or you need more information
+                    regarding us, please feel free to reach out.
                   </MDTypography>
                   <MDButton
-                    style={{ backgroundColor: "#D5F47E", marginTop:30, color:'black', fontSize:'18px', fontFamily: 'Work Sans , sans-serif', textTransform: 'capitalize' }}
+                    style={{
+                      backgroundColor: "#D5F47E",
+                      marginTop: 30,
+                      color: "black",
+                      fontSize: "18px",
+                      fontFamily: "Work Sans , sans-serif",
+                      textTransform: "capitalize",
+                    }}
                     onClick={() => {
                       window.open(
                         "http://www.stoxhero.com/contact",
@@ -885,7 +1021,7 @@ const FeaturedContestRegistration = () => {
                   </MDButton>
                 </MDBox>
               </Grid>
-              
+
               <Grid
                 item
                 xs={12}
@@ -900,7 +1036,11 @@ const FeaturedContestRegistration = () => {
                 <MDBox>
                   {contestDetails?.faqs?.map((faq, index) => (
                     <div key={index}>
-                      <MDTypography color="white" fontSize={18} fontWeight="bold">
+                      <MDTypography
+                        color="white"
+                        fontSize={18}
+                        fontWeight="bold"
+                      >
                         {faq?.question}
                       </MDTypography>
                       <MDTypography color="white" fontSize={14} mb={2}>
@@ -911,7 +1051,6 @@ const FeaturedContestRegistration = () => {
                 </MDBox>
               </Grid>
             </Grid>
-            
           </Grid>
 
           <Grid
@@ -947,8 +1086,17 @@ const FeaturedContestRegistration = () => {
             alignItems="center"
             alignContent="center"
           >
-            <MDTypography style={{fontSize:'32px', fontWeight:500, lineHeight:'37.54px', color:'white', textAlign:'center'}}>
-              Be a stock market champion. Prove your trading & investing expertise.
+            <MDTypography
+              style={{
+                fontSize: "32px",
+                fontWeight: 500,
+                lineHeight: "37.54px",
+                color: "white",
+                textAlign: "center",
+              }}
+            >
+              Be a stock market champion. Prove your trading & investing
+              expertise.
             </MDTypography>
           </Grid>
 
@@ -1003,13 +1151,18 @@ const FeaturedContestRegistration = () => {
             alignContent="center"
             ml={5}
           >
-            <MDTypography style={{fontSize:'14px', fontWeight:300, lineHeight:'16.42px', color:'#D9D9D9'}}>
+            <MDTypography
+              style={{
+                fontSize: "14px",
+                fontWeight: 300,
+                lineHeight: "16.42px",
+                color: "#D9D9D9",
+              }}
+            >
               *Disclaimer: Registration fees are non-refundable.
             </MDTypography>
           </Grid>
         </Grid>
-          
-
       </ThemeProvider>
       {renderSuccessSB}
     </MDBox>
