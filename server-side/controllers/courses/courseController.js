@@ -333,6 +333,23 @@ exports.creatorApproval = async (req, res) => {
         },
       }
     );
+
+    for(let elem of courses?.courseInstructors){
+      await createUserNotification({
+        title: "For Approval",
+        description: `Your approval is pending of ${courses?.courseName}`,
+        notificationType: "Individual",
+        notificationCategory: "Informational",
+        productCategory: "Course",
+        user: elem?.id,
+        priority: "Medium",
+        channels: ["App", "Email"],
+        createdBy: "63ecbc570302e7cf0153370c",
+        lastModifiedBy: "63ecbc570302e7cf0153370c",
+      });
+    }
+
+
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({
@@ -1100,12 +1117,13 @@ exports.createCourseInfo = async (req, res) => {
       courseImage,
       courseLanguages,
       courseOverview,
-      courseImage,
       courseDescription,
-      courseStartTime,
-      courseEndTime,
-      registrationStartTime,
-      registrationEndTime,
+      ...(courseType !== 'Recorded' && {
+        courseStartTime,
+        courseEndTime,
+        registrationStartTime,
+        registrationEndTime,
+      }),
       maxEnrolments,
       tags,
       category,
@@ -1115,6 +1133,7 @@ exports.createCourseInfo = async (req, res) => {
       courseDurationInMinutes,
       type,
     });
+    
 
     await course.save();
     res.status(201).json({
@@ -1582,8 +1601,8 @@ exports.getCourseByIdUser = async (req, res) => {
 
 exports.getCourseBySlugUser = async (req, res) => {
   try {
-    const slug = req.params.id;
-    const courses = await Course.findOne({ slug : slug })
+    const slug = req.query.slug;
+    const courses = await Course.findOne({ courseSlug : slug })
       .populate("courseInstructors.id", "first_name last_name email")
       .select("-enrollments -createdOn -createdBy -commissionPercentage");
     res.status(200).json({ status: "success", data: courses });
@@ -2297,7 +2316,7 @@ exports.myCourses = async (req, res) => {
               $project: {
                 courseName: 1,
                 courseStartTime: 1,
-                // courseSlug: 1,
+                courseSlug: 1,
                 courseImage: 1,
                 coursePrice: 1,
                 discountedPrice: 1,

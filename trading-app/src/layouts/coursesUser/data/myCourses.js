@@ -56,7 +56,7 @@ const Courses = () => {
   };
 
   const handleOpenNewTab = async (elem) => {
-    const newTab = window.open(`/watchcourse?course=${elem?.slug}`, '_blank');
+    const newTab = window.open(`/watchcourse?course=${elem?.courseSlug}`, '_blank');
   };
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));

@@ -1,30 +1,25 @@
 import * as React from "react";
 import {
-  useContext,
   useState,
   useRef,
   useEffect,
-  useImperativeHandle,
-  forwardRef,
 } from "react";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton";
-import { userContext } from "../../AuthContext";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from "@mui/material/MenuItem";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 import dayjs from "dayjs";
 import JoditEditor from "jodit-react";
@@ -33,30 +28,16 @@ import UploadVideo from "../../assets/images/uploadvideo.png";
 import { apiUrl } from "../../constants/constants";
 
 const CreateCourse = (
-  // ref,
   { setActiveStep, activeStep, steps, setCreatedCourse }
 ) => {
-  // console.log("props", props);
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const navigate = useNavigate();
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  // const getDetails = useContext(userContext);
   const location = useLocation();
   const id = location?.state?.data;
   const [courseData, setCourseData] = useState(id ? id : "");
-  // const [isObjectNew, setIsObjectNew] = useState(id ? true : false);
   const [isLoading, setIsLoading] = useState(false);
   const [editing, setEditing] = useState(false);
-  // const [saving, setSaving] = useState(false);
-  const [creating, setCreating] = useState(false);
   const [titlePreviewUrl, setTitlePreviewUrl] = useState("");
   const [titleVideoPreviewUrl, setTitleVideoPreviewUrl] = useState("");
-  // const [imagesPreviewUrl, setImagesPreviewUrl] = useState(null);
-  // const [imageData, setImageData] = useState(courseData || null);
-  const [title, setTitle] = useState(courseData?.courseName || "");
-  // const [titleImage, setTitleImage] = useState(null);
-  // const [titleVideo, setTitleVideo] = useState(null);
   const [formState, setFormState] = useState({
     courseName: courseData?.courseName || "",
     courseLanguages: courseData?.courseLanguages || "",
@@ -72,10 +53,7 @@ const CreateCourse = (
   const editor = useRef(null);
   const [file, setFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
-  const [fileVid, setFileVid] = useState(null);
-  const [value, setValue] = useState(courseData?.courseDescription || "");
-  const [created, setCreated] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [editClicked, setEditClicked] = useState(false);
 
   const queryString = location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -83,41 +61,7 @@ const CreateCourse = (
   // Get the value of the "mobile" parameter
   const courseId = urlParams.get("id");
   const paramsActiveSteps = urlParams.get("activestep");
-  const handleFileChange = (event) => {
-    setFileVid(event.target.files[0]);
-  };
 
-  const handleUpload = async () => {
-    if (!fileVid) {
-      alert("Please select a file.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("fileVid", fileVid);
-
-    try {
-      const response = await axios.post(`${apiUrl}courses/s3upload`, formData, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: (progressEvent) => {
-          const { loaded, total } = progressEvent;
-          const progress = Math.round((loaded / total) * 100);
-          setUploadProgress(progress);
-        },
-      });
-      console.log("File uploaded successfully:", response.data);
-      setUploadProgress(200);
-      // Reset file input
-      setFileVid(null);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      setUploadProgress(-1);
-      alert("Error uploading file. Please try again.");
-    }
-  };
 
   useEffect(() => {
     if (courseId) {
@@ -132,7 +76,6 @@ const CreateCourse = (
       });
       setCourseData(data?.data?.data);
 
-      setValue(data?.data?.data?.courseDescription);
       setFormState({
         ...data?.data?.data,
         courseEndTime: dayjs(data?.data?.data?.courseEndTime),
@@ -144,8 +87,6 @@ const CreateCourse = (
     } catch (err) {}
   }
 
-  console.log("formState", formState, formState?.type);
-
   async function onSubmit(type) {
     if (courseData) {
       setActiveStep(activeStep + 1);
@@ -153,10 +94,6 @@ const CreateCourse = (
         `/coursedetails?id=${courseData?._id}&activestep=${activeStep + 1}`
       );
     }
-    setTimeout(() => {
-      setCreating(false);
-      // setIsSubmitted(true);
-    }, 500);
     const formData = new FormData();
     if (file) {
       formData.append("courseImage", file);
@@ -168,11 +105,8 @@ const CreateCourse = (
     for (let elem in formState) {
       if (elem !== "courseImage") formData.append(`${elem}`, formState[elem]);
     }
-    // if (value) {
-    //   formData.append("courseDescription", value);
-    // }
 
-    const res = await fetch(`${baseUrl}api/v1/courses/info`, {
+    const res = await fetch(`${apiUrl}courses/info`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -193,32 +127,18 @@ const CreateCourse = (
         return;
       }
       openSuccessSB("Course Created", data.message);
-      setCreated(true);
       console.log("response data", data);
       setCreatedCourse(data.data);
       setCourseData(data.data);
-      setIsSubmitted(true);
       setActiveStep(activeStep + 1);
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(true);
-      }, 500);
       navigate(
         `/coursedetails?id=${data?.data?._id}&activestep=${activeStep + 1}`
       );
     } else {
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
     }
   }
 
   async function onEdit() {
-    setTimeout(() => {
-      setCreating(false);
-      // setIsSubmitted(true);
-    }, 500);
     const formData = new FormData();
     if (file) {
       formData.append("courseImage", file);
@@ -230,11 +150,8 @@ const CreateCourse = (
     for (let elem in formState) {
       if (elem !== "courseImage") formData.append(`${elem}`, formState[elem]);
     }
-    // if (value) {
-    //   formData.append("courseDescription", value);
-    // }
 
-    const res = await fetch(`${baseUrl}api/v1/courses/${courseId}`, {
+    const res = await fetch(`${apiUrl}courses/${courseId}`, {
       method: "PATCH",
       credentials: "include",
       headers: {
@@ -247,32 +164,16 @@ const CreateCourse = (
 
     if (res.status === 200 || res.status == 201 || data) {
       openSuccessSB("Course Edited", data.message);
-      // setCreated(true);
-      // console.log("response data", data);
       setEditing(true);
       setCreatedCourse(data.data);
       setCourseData(data.data);
-      // setIsSubmitted(true);
-      // setActiveStep(activeStep + 1);
-      // setTimeout(() => {
-      //   setCreating(false);
-      //   setIsSubmitted(true);
-      // }, 500);
-      // navigate(`/coursedetails?id=${data?.data?._id}&activestep=${activeStep + 1}`)
     } else {
-      setTimeout(() => {
-        setCreating(false);
-        setIsSubmitted(false);
-      }, 500);
     }
   }
 
   const handleCourseImage = (event) => {
     setFile(event.target.files[0]);
     const file = event.target.files[0];
-    // setTitleImage(event.target.files);
-    // console.log("Title File:",file)
-    // Create a FileReader instance
     const reader = new FileReader();
     reader.onload = () => {
       setTitlePreviewUrl(reader.result);
@@ -280,12 +181,10 @@ const CreateCourse = (
     };
     reader.readAsDataURL(file);
   };
+
   const handleSalesVideo = (event) => {
     setVideoFile(event.target.files[0]);
     const file = event.target.files[0];
-    // setTitleVideo(event.target.files);
-    // console.log("Title File:",file)
-    // Create a FileReader instance
     const reader = new FileReader();
     reader.onload = () => {
       setTitleVideoPreviewUrl(reader.result);
@@ -308,12 +207,12 @@ const CreateCourse = (
     [editing]
   );
 
-  const [ntitle, setNtitle] = useState("");
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   const [successSB, setSuccessSB] = useState(false);
-  const openSuccessSB = (ntitle, content) => {
-    setTitle(ntitle);
+  const openSuccessSB = (title, content) => {
+    setTitle(title);
     setContent(content);
     setSuccessSB(true);
   };
@@ -323,7 +222,7 @@ const CreateCourse = (
     <MDSnackbar
       color="success"
       icon="check"
-      title={ntitle}
+      title={title}
       content={content}
       open={successSB}
       onClose={closeSuccessSB}
@@ -333,18 +232,13 @@ const CreateCourse = (
   );
 
   const [errorSB, setErrorSB] = useState(false);
-  const openErrorSB = (ntitle, content) => {
-    setTitle(ntitle);
-    setContent(content);
-    setErrorSB(true);
-  };
   const closeErrorSB = () => setErrorSB(false);
 
   const renderErrorSB = (
     <MDSnackbar
       color="error"
       icon="warning"
-      title={ntitle}
+      title={title}
       content={content}
       open={errorSB}
       onClose={closeErrorSB}
@@ -352,6 +246,15 @@ const CreateCourse = (
       bgWhite
     />
   );
+
+  async function editAndSave(){
+    if(editing){
+      setEditing(false);
+      setEditClicked(true);
+    } else{
+      onEdit();
+    }
+  }
 
   return (
     <>
@@ -603,8 +506,7 @@ const CreateCourse = (
                     type="number"
                     placeholder="Duration in minutes"
                     value={
-                      formState?.courseDurationInMinutes ||
-                      courseData?.courseDurationInMinutes
+                      formState?.courseDurationInMinutes===0 ? '' : formState?.courseDurationInMinutes
                     }
                     fullWidth
                     onChange={(e) => {
@@ -795,10 +697,8 @@ const CreateCourse = (
                           color="success"
                           size="small"
                           disabled={!courseData}
-                          onClick={() => {
-                            editing ? setEditing(false) : onEdit();
-                            // handleButtonClick("create");
-                          }}
+                          onClick={editAndSave}
+                          
                         >
                           {editing ? "Edit" : "Edit & Save"}
                         </MDButton>
@@ -809,6 +709,7 @@ const CreateCourse = (
                           variant="contained"
                           color="success"
                           size="small"
+                          disabled={editClicked}
                           onClick={() => {
                             onSubmit("Submit");
                             // handleButtonClick("create");

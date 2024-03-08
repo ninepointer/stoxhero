@@ -24,7 +24,7 @@ const Courses = () => {
     const [courses, setCourses] = useState([]);
 
     useEffect(() => {
-        let call1 = axios.get(`${apiUrl}courses/${slug}`, {
+        let call1 = axios.get(`${apiUrl}courses/user?slug=${slug}`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",

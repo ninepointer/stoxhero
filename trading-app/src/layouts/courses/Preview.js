@@ -12,25 +12,11 @@ import MDButton from "../../components/MDButton";
 import axios from "axios";
 // import { CircularProgress } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
-// import MenuItem from "@mui/material/MenuItem";
-// import Select, { SelectChangeEvent } from "@mui/material/Select";
-// import InputLabel from "@mui/material/InputLabel";
-// import FormControl from "@mui/material/FormControl";
 import { useLocation, useNavigate } from "react-router-dom";
-// import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-// import { LocalizationProvider } from "@mui/x-date-pickers";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
-// import dayjs from "dayjs";
-// import JoditEditor from "jodit-react";
-// import UploadImage from "../../assets/images/uploadimage.png";
-// import UploadVideo from "../../assets/images/uploadvideo.png";
 import { apiUrl } from "../../constants/constants";
 import moment from 'moment'
 
 const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
-  console.log('from', from)
   const navigate = useNavigate();
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -159,8 +145,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Name: <span style={{ fontWeight: 600 }}>{`${course.courseName}`}</span></MDTypography>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Language: <span style={{ fontWeight: 600 }}>{`${course?.courseLanguages}`}</span></MDTypography>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Duration: <span style={{ fontWeight: 600 }}>{`${course?.courseDurationInMinutes} min`}</span></MDTypography>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${course?.maxEnrolments || 'N/A'}`}</span></MDTypography>
-              </MDBox>
+                {course?.courseType!=='Recorded' && <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Max Enrollments: <span style={{ fontWeight: 600 }}>{`${course?.maxEnrolments || 'N/A'}`}</span></MDTypography>}              </MDBox>
 
               <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Type: <span style={{ fontWeight: 600 }}>{`${course?.type}`}</span></MDTypography>
