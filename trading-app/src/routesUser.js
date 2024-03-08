@@ -49,6 +49,8 @@ import InfluencerCourse from './layouts/coursesInfluencer';
 import UserCourse from './layouts/coursesUser';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import InfluencerCourseData from './layouts/coursesInfluencer/courseDataIndex';
+import WatchCourse from './layouts/coursesUser/watchCourseIndex';
+
 import UserCourseData from './layouts/coursesUser/courseDataIndex';
 
 import CategoryVideos from './layouts/tutorials/Header/categoryVideos';
@@ -371,22 +373,22 @@ const routes = [
     route: "/tutorials",
     component: <TutorialVideo />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Courses",
-  //   key: "courses",
-  //   icon: <LocalLibraryIcon/>,
-  //   route: "/courses",
-  //   component: <UserCourse />,
-  // },
-  // {
-  //   type: "collapse",
-  //   name: "Course",
-  //   key: "course",
-  //   icon: <VideoChatIcon/>,
-  //   route: "/course",
-  //   component: <InfluencerCourse />,
-  // },
+  {
+    type: "collapse",
+    name: "Courses",
+    key: "courses",
+    icon: <LocalLibraryIcon/>,
+    route: "/courses",
+    component: <UserCourse />,
+  },
+  {
+    type: "collapse",
+    name: "Course",
+    key: "course",
+    icon: <VideoChatIcon/>,
+    route: "/course",
+    component: <InfluencerCourse />,
+  },
   {
     // type: "collapse",
     // name: "Course",
@@ -394,6 +396,14 @@ const routes = [
     // icon: <VideoChatIcon/>,
     route: "/coursedata",
     component: <InfluencerCourseData />,
+  },
+  {
+    // type: "collapse",
+    // name: "Course",
+    key: "watchcourse",
+    // icon: <VideoChatIcon/>,
+    route: "/watchcourse",
+    component: <WatchCourse />,
   },
   {
     // type: "collapse",
