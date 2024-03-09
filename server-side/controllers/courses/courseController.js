@@ -17,7 +17,7 @@ const AffiliateProgram = require("../../models/affiliateProgram/affiliateProgram
 const ReferralProgram = require("../../models/campaigns/referralProgram");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { streamUpload } = require("@uppy/companion");
-const Product = require('../../models/Product/product')
+const Product = require("../../models/Product/product");
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -334,7 +334,7 @@ exports.creatorApproval = async (req, res) => {
       }
     );
 
-    for(let elem of courses?.courseInstructors){
+    for (let elem of courses?.courseInstructors) {
       await createUserNotification({
         title: "For Approval",
         description: `Your approval is pending of ${courses?.courseName}`,
@@ -348,7 +348,6 @@ exports.creatorApproval = async (req, res) => {
         lastModifiedBy: "63ecbc570302e7cf0153370c",
       });
     }
-
 
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
@@ -737,7 +736,6 @@ exports.addSubTopic = async (req, res) => {
   }
 };
 
-
 exports.editInstructor = async (req, res) => {
   try {
     const { instructorId } = req.params;
@@ -868,7 +866,6 @@ exports.editContent = async (req, res) => {
   }
 };
 
-
 exports.editSubTopic = async (req, res) => {
   try {
     const { id, contentId, subtopicId } = req.params;
@@ -917,7 +914,7 @@ exports.editSubTopic = async (req, res) => {
       }
     }
 
-    await course.save({validateBeforeSave: false});
+    await course.save({ validateBeforeSave: false });
 
     res.status(201).json({
       status: "success",
@@ -928,7 +925,6 @@ exports.editSubTopic = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 exports.deleteInstructor = async (req, res) => {
   try {
@@ -1192,7 +1188,7 @@ exports.createCourseInfo = async (req, res) => {
       courseLanguages,
       courseOverview,
       courseDescription,
-      ...(courseType !== 'Recorded' && {
+      ...(courseType !== "Recorded" && {
         courseStartTime,
         courseEndTime,
         registrationStartTime,
@@ -1207,7 +1203,6 @@ exports.createCourseInfo = async (req, res) => {
       courseDurationInMinutes,
       type,
     });
-    
 
     await course.save();
     res.status(201).json({
@@ -1325,10 +1320,10 @@ exports.getAwaitingApprovals = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           averageRating: 1,
           userEnrolled: {
@@ -1400,10 +1395,10 @@ exports.getPendingApproval = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           averageRating: 1,
           userEnrolled: {
@@ -1476,10 +1471,10 @@ exports.getPublished = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           averageRating: 1,
           userEnrolled: {
@@ -1552,10 +1547,10 @@ exports.getUnpublished = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           averageRating: 1,
           userEnrolled: {
@@ -1633,10 +1628,10 @@ exports.getUserCourses = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           userEnrolled: {
             $size: "$enrollments",
@@ -1651,11 +1646,10 @@ exports.getUserCourses = async (req, res) => {
               },
             },
           },
-          
+
           isPaid: {
-            $in: [new ObjectId(userId), "$enrollments.userId"]
-          }
-          
+            $in: [new ObjectId(userId), "$enrollments.userId"],
+          },
         },
       },
       {
@@ -1717,7 +1711,10 @@ exports.getCourseBySlugUser = async (req, res) => {
   try {
     const slug = req.query.slug;
     const userId = req?.user?._id;
-    const courses = await Course.findOne({ courseSlug : slug, 'enrollments.userId': new ObjectId(userId) })
+    const courses = await Course.findOne({
+      courseSlug: slug,
+      "enrollments.userId": new ObjectId(userId),
+    })
       .populate("courseInstructors.id", "first_name last_name email")
       .select("-enrollments -createdOn -createdBy -commissionPercentage");
 
@@ -1725,7 +1722,7 @@ exports.getCourseBySlugUser = async (req, res) => {
       const newCourse = await Course.findOne({courseSlug : slug}).select("-enrollments -createdOn -createdBy -commissionPercentage -courseContent")
       return res.status(200).json({ status: "success", message: `You haven't enrolled in this course yet. Please purchase it to get started.`, hasPurchased: false, data: newCourse });
     }
-    res.status(200).json({ status: "success", data: courses, hasPurchased: false });
+    res.status(200).json({ status: "success", data: courses, hasPurchased: true });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -1738,7 +1735,9 @@ exports.getCourseBySlugUser = async (req, res) => {
 exports.getCoursesByUserSlug = async (req, res) => {
   try {
     const slug = req.query.slug;
-    const user = await User.findOne({ slug: slug }).select("_id");
+    const user = await User.findOne({ slug: slug }).select(
+      "_id first_name last_name influencerDetails"
+    );
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
 
@@ -1814,7 +1813,17 @@ exports.getCoursesByUserSlug = async (req, res) => {
       "courseInstructors.id": new ObjectId(user?._id),
     });
 
-    res.status(200).json({ status: "success", data: course, count: count });
+    res
+      .status(200)
+      .json({
+        status: "success",
+        data: course,
+        count: count,
+        instructor: {
+          first_name: user?.first_name,
+          last_name: user?.last_name,
+        },
+      });
   } catch (err) {
     console.log(err);
     res.status(500).json({ status: "error", message: "something went wrong" });
@@ -2452,10 +2461,10 @@ exports.myCourses = async (req, res) => {
                       input: "$courseContent",
                       as: "content",
                       in: {
-                        $size: "$$content.subtopics"
-                      }
-                    }
-                  }
+                        $size: "$$content.subtopics",
+                      },
+                    },
+                  },
                 },
                 maxEnrolments: 1,
                 topics: "$courseContent",
@@ -2478,7 +2487,6 @@ exports.myCourses = async (req, res) => {
                     },
                   },
                 },
-            
               },
             },
             {
@@ -2625,37 +2633,8 @@ exports.handleS3Upload = async (req, res) => {
     req.files["fileVid"][0],
     req.files["fileVid"][0].mimetype
   );
-  // const uploadParams = {
-  //   Bucket: process.env.AWS_BUCKET_NAME,
-  //   Key: `courses/video/${Date.now()}`,
-  //   Body: req.files["fileVid"][0].buffer,
-  //   ContentType: req.files["fileVid"][0].mimetype, // Adjust content type according to your file type
-  // };
-
-  // Pipe the incoming request stream directly to S3 upload stream
   try {
-    // const uploadStream = s3.upload(uploadParams);
-    // console.log("uploadStream", uploadStream);
-    // req
-    //   .pipe(uploadStream)
-    //   .on("error", (error) => {
-    //     console.log("Error uploading to S3:", error);
-    //     res.status(500).json({ error: "Error uploading to S3" });
-    //   })
-    //   .on("finish", () => {
-    //     console.log("File uploaded successfully");
-    //     res.status(200).json({ message: "File uploaded successfully" });
-    //   });
-    // s3.upload(uploadParams, (err, data) => {
-    //   if (err) {
-    //     console.error("Error uploading to S3:", err);
-    //     res.status(500).json({ error: "Error uploading to S3" });
-    //   } else {
-    //     console.log("File uploaded successfully");
-    //     res.status(200).json({ message: "File uploaded successfully", data });
-    //   }
-    // });
-    const url = await getAwsS3Key(
+      const url = await getAwsS3Key(
       req.files["fileVid"][0],
       "Video",
       `courses/video/${req.body?.courseId}-${req.body.contentId}-${Date.now()}`

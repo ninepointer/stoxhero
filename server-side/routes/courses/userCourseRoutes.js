@@ -53,7 +53,7 @@ router.get(
 
 router.put(
     "/:id/purchaseintent",
-    // Authenticate,
+    Authenticate,
     courseController.purchaseIntent
 );
 

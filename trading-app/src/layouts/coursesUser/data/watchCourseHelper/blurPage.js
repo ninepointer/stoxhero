@@ -17,7 +17,7 @@ const EnrollPage = ({ course, message }) => {
             md={12}
             lg={12}
             xl={12}
-            mt={25}
+            mt={isMobile ? 22 : 25}
             display='flex'
             justifyContent='center'
             position='absolute'
@@ -29,7 +29,6 @@ const EnrollPage = ({ course, message }) => {
                 </Typography>
                 <Grid
                     container
-                    spacing={1}
                     xs={12}
                     md={12}
                     lg={12}
@@ -48,6 +47,7 @@ const EnrollPage = ({ course, message }) => {
                         xs={12}
                         md={6}
                         lg={2}
+                        m={1}
                         display="flex"
                         justifyContent={
                             isMobile ? "center" : "center"

@@ -33,7 +33,7 @@ const StarRating = ({ rating }) => {
   }
 
   return (
-    <MDTypography variant="body3" fontWeight="bold" style={{ fontSize: 15 }}>
+    <MDTypography variant="body3" fontWeight="bold" color='light' style={{ fontSize: 15 }}>
       {rating} {stars}
     </MDTypography>
   );
