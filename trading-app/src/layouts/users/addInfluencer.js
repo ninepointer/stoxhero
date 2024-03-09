@@ -529,6 +529,7 @@ const DeactivateUser = () => {
                   >
                     <TextField
                       label="Tags"
+                      placeholder="Comma separated tags eg: Investing, Trading, Stocks"
                       name="tags"
                       fullWidth
                       value={selectedUser?.tags}
