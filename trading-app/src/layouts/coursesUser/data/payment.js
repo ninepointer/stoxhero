@@ -298,6 +298,13 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
       }
     }
   }
+
+  console.log('data', data)
+
+  const handleOpenNewTab = async (data) => {
+    const newTab = window.open(`/watchcourse?course=${data?.courseSlug}`, '_blank');
+  };
+
   return (
 
     <>
@@ -313,13 +320,13 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
      </MDButton>
         :
         <MDButton
-          variant="outlined"
-          size="small"
-          color="success"
-          disabled={checkPaid}
-          style={{ minWidth: "100%" }}
+        variant="outlined"
+        size="small"
+        color="info"
+        style={{ minWidth: "100%" }}
+        onClick={()=>{handleOpenNewTab(data)}}
         >
-          Already Paid
+          View
         </MDButton>}
 
       <Dialog

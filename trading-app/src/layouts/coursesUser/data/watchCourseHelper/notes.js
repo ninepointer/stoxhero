@@ -15,25 +15,22 @@ const Notes = ({topics}) => {
     const [isDownload, setIsDownload] = useState({});
 
     function downloadPdf(pdfUrlArr, fileName, id) {
-
         setIsDownload(prev => ({
             ...prev,
             [id]: true
         }));
         
         for (const [index, pdfUrl] of pdfUrlArr.entries()) {
-            const link = document.createElement('a');
-            link.download = `${fileName}-${index}`; // Using index in the file name
-            link.href = pdfUrl;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Open each PDF link in a new tab
+            window.open(pdfUrl, `_blank`);
         }   
+    
         setIsDownload(prev => ({
             ...prev,
             [id]: false
         }));   
     }
+    
 
     return (
         <>

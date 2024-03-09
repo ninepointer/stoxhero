@@ -34,7 +34,7 @@ const StarRating = ({ rating }) => {
 
   return (
     <MDTypography variant="body3" fontWeight="bold" color='light' style={{ fontSize: 15 }}>
-      {rating} {stars}
+      <span style={{color: '#5B6A84'}} >{rating}</span> {stars}
     </MDTypography>
   );
 };

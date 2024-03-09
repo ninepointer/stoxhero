@@ -124,7 +124,19 @@ const Courses = () => {
                         </Grid>
 
                         {!isMobile && <Grid item xs={12} sm={12} md={12} lg={3.6} xl={3.6}>
-                            <MDBox style={{ position: 'fixed', top: 82, right: 0, height: '100%', width: '30%', backgroundColor: '#FAFAFA', color: '#fff', boxShadow: "6px 0px 4px -2px rgba(0, 0, 0, 0.5)" }}>
+                            <MDBox
+                                style={{
+                                    position: 'fixed',
+                                    top: 82,
+                                    right: 0,
+                                    height: '100%',
+                                    width: '30%',
+                                    backgroundColor: '#FAFAFA',
+                                    color: '#fff',
+                                    boxShadow: "6px 0px 4px -2px rgba(0, 0, 0, 0.5)",
+                                    overflowY: 'auto', // Add this line to enable vertical scrolling
+                                }}
+                            >
                                 <TopicNav topics={courses?.courseContent} setSelectedSubtopic={setSelectedSubtopic} setSelectedTopic={setSelectedTopic} />
                             </MDBox>
                         </Grid>}

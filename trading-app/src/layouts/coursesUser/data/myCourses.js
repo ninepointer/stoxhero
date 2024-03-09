@@ -483,7 +483,7 @@ const Courses = () => {
                                             style={{ minWidth: "100%" }}
                                             onClick={()=>{handleOpenNewTab(elem)}}
                                           >
-                                            Watch
+                                            View
                                           </MDButton>
                                         </Grid>
                                         <Grid

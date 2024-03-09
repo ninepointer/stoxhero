@@ -18,6 +18,10 @@ const ReferralProgram = require("../../models/campaigns/referralProgram");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { streamUpload } = require("@uppy/companion");
 const Product = require("../../models/Product/product");
+const {
+  creditAffiliateAmount,
+} = require("../affiliateProgramme/affiliateController");
+
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -1293,7 +1297,7 @@ exports.getAwaitingApprovals = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: 1,
+          courseStartTime: -1,
           _id: -1,
         },
       },
@@ -1305,7 +1309,7 @@ exports.getAwaitingApprovals = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: 1,
+          courseStartTime: -1,
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -1368,7 +1372,7 @@ exports.getPendingApproval = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: 1,
+          courseStartTime: -1,
           _id: -1,
         },
       },
@@ -1380,7 +1384,7 @@ exports.getPendingApproval = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: 1,
+          courseStartTime: -1,
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -1443,7 +1447,7 @@ exports.getPublished = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: 1,
+          courseStartTime: -1,
           _id: -1,
         },
       },
@@ -1455,7 +1459,7 @@ exports.getPublished = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: 1,
+          courseStartTime: -1,
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -1519,7 +1523,7 @@ exports.getUnpublished = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: 1,
+          courseStartTime: -1,
           _id: -1,
         },
       },
@@ -1531,7 +1535,7 @@ exports.getUnpublished = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: 1,
+          courseStartTime: -1,
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -1599,12 +1603,6 @@ exports.getUserCourses = async (req, res) => {
         },
       },
       {
-        $sort: {
-          courseStartTime: 1,
-          _id: -1,
-        },
-      },
-      {
         $addFields: {
           averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
         },
@@ -1612,8 +1610,9 @@ exports.getUserCourses = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: 1,
+          courseStartTime: -1,
           courseImage: 1,
+          courseSlug: 1,
           coursePrice: 1,
           discountedPrice: 1,
           averageRating: 1,
@@ -1653,6 +1652,12 @@ exports.getUserCourses = async (req, res) => {
         },
       },
       {
+        "$sort": {
+          "courseStartTime": -1,
+          "_id": -1
+        }
+      },
+      {
         $skip: skip,
       },
       {
@@ -1667,7 +1672,7 @@ exports.getUserCourses = async (req, res) => {
         user?.referredBy
       );
       course = await Course.aggregate(pipeline)
-        .sort({ courseStartTime: 1 })
+        .sort({ courseStartTime: -1 })
         .skip(skip)
         .limit(limit);
 
@@ -1679,7 +1684,7 @@ exports.getUserCourses = async (req, res) => {
       count = await Course.countDocuments({ status: "Published" });
 
       course = await Course.aggregate(pipeline)
-        .sort({ courseStartTime: 1 })
+        .sort({ courseStartTime: -1 })
         .skip(skip)
         .limit(limit);
     }
@@ -1736,7 +1741,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
   try {
     const slug = req.query.slug;
     const user = await User.findOne({ slug: slug }).select(
-      "_id first_name last_name influencerDetails"
+      "_id first_name last_name influencerDetails profilePhoto"
     );
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
@@ -1758,7 +1763,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: 1,
+          courseStartTime: -1,
           _id: -1,
         },
       },
@@ -1770,7 +1775,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: 1,
+          courseStartTime: -1,
           courseOverview: 1,
           courseSlug: 1,
           courseImage: 1,
@@ -1804,7 +1809,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
     ];
 
     const course = await Course.aggregate(pipeline)
-      .sort({ courseStartTime: 1 })
+      .sort({ courseStartTime: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -1822,6 +1827,8 @@ exports.getCoursesByUserSlug = async (req, res) => {
         instructor: {
           first_name: user?.first_name,
           last_name: user?.last_name,
+          influencerDetails: user?.influencerDetails,
+          profilePhoto: user?.profilePhoto
         },
       });
   } catch (err) {
@@ -2417,7 +2424,7 @@ exports.myCourses = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: 1,
+          courseStartTime: -1,
           _id: -1,
         },
       },
@@ -2444,7 +2451,7 @@ exports.myCourses = async (req, res) => {
             {
               $project: {
                 courseName: 1,
-                courseStartTime: 1,
+                courseStartTime: -1,
                 courseSlug: 1,
                 courseImage: 1,
                 coursePrice: 1,
