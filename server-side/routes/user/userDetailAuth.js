@@ -210,12 +210,10 @@ const uploadToS3 = async (req, res, next) => {
       let userName;
       const user = await UserDetail.findById(req.params.id);
       if (user.KYCStatus == "Approved") {
-        return res
-          .status(400)
-          .json({
-            status: "error",
-            message: "KYC is completed. Can't change documents after approval.",
-          });
+        return res.status(400).json({
+          status: "error",
+          message: "KYC is completed. Can't change documents after approval.",
+        });
       }
       userName =
         `${user?.first_name}` +
@@ -243,12 +241,10 @@ const uploadToS3 = async (req, res, next) => {
       let userName;
       const user = await UserDetail.findById(req.params.id);
       if (user.KYCStatus == "Approved") {
-        return res
-          .status(400)
-          .json({
-            status: "error",
-            message: "KYC is completed. Can't change documents after approval.",
-          });
+        return res.status(400).json({
+          status: "error",
+          message: "KYC is completed. Can't change documents after approval.",
+        });
       }
       userName =
         `${user?.first_name}` +
@@ -275,12 +271,10 @@ const uploadToS3 = async (req, res, next) => {
       let userName;
       const user = await UserDetail.findById(req.params.id);
       if (user.KYCStatus == "Approved") {
-        return res
-          .status(400)
-          .json({
-            status: "error",
-            message: "KYC is completed. Can't change documents after approval.",
-          });
+        return res.status(400).json({
+          status: "error",
+          message: "KYC is completed. Can't change documents after approval.",
+        });
       }
       userName =
         `${user?.first_name}` +
@@ -481,14 +475,12 @@ router.patch("/resetpassword", async (req, res) => {
   });
 
   if (deactivatedUser) {
-    return res
-      .status(422)
-      .json({
-        status: "error",
-        message:
-          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-        error: "deactivated",
-      });
+    return res.status(422).json({
+      status: "error",
+      message:
+        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+      error: "deactivated",
+    });
   }
   let resetuser = await UserDetail.findOne({ email: email });
   if (!resetuser) {
@@ -521,14 +513,12 @@ router.patch("/schoolresetpassword", async (req, res) => {
   });
 
   if (deactivated) {
-    return res
-      .status(422)
-      .json({
-        status: "error",
-        message:
-          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-        error: "deactivated",
-      });
+    return res.status(422).json({
+      status: "error",
+      message:
+        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+      error: "deactivated",
+    });
   }
   let reset = await School.findOne({ email: email });
   if (!reset) {
@@ -573,14 +563,12 @@ router.patch("/studentresetpin", async (req, res) => {
   });
 
   if (deactivated) {
-    return res
-      .status(422)
-      .json({
-        status: "error",
-        message:
-          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-        error: "deactivated",
-      });
+    return res.status(422).json({
+      status: "error",
+      message:
+        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+      error: "deactivated",
+    });
   }
   let reset = await UserDetail.findOne({ mobile: mobile });
   if (!reset) {
@@ -588,12 +576,10 @@ router.patch("/studentresetpin", async (req, res) => {
   }
 
   if (resetPinOtp != reset?.schoolDetails?.resetPinOtp) {
-    return res
-      .status(401)
-      .json({
-        status: "error",
-        message: "OTP doesn't match, please try again!",
-      });
+    return res.status(401).json({
+      status: "error",
+      message: "OTP doesn't match, please try again!",
+    });
   }
 
   if (pin != confirm_pin) {
@@ -616,14 +602,12 @@ router.patch("/generateOTP", async (req, res) => {
   });
 
   if (deactivatedUser) {
-    return res
-      .status(422)
-      .json({
-        status: "error",
-        message:
-          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-        error: "deactivated",
-      });
+    return res.status(422).json({
+      status: "error",
+      message:
+        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+      error: "deactivated",
+    });
   }
 
   const resetuser = await UserDetail.findOne({ email: email });
@@ -657,14 +641,12 @@ router.patch("/schoolgenerateotp", async (req, res) => {
     });
 
     if (deactivatedSchool) {
-      return res
-        .status(422)
-        .json({
-          status: "error",
-          message:
-            "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-          error: "deactivated",
-        });
+      return res.status(422).json({
+        status: "error",
+        message:
+          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+        error: "deactivated",
+      });
     }
 
     const reset = await School.findOne({ email: email });
@@ -1116,13 +1098,11 @@ router.patch(
         { new: true }
       );
 
-      res
-        .status(200)
-        .json({
-          message: "Edit successful",
-          status: "success",
-          data: userData,
-        });
+      res.status(200).json({
+        message: "Edit successful",
+        status: "success",
+        data: userData,
+      });
     } catch (e) {
       console.log(e);
       res.status(500).json({
@@ -1167,13 +1147,11 @@ router.patch(
           "student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState"
         );
 
-      res
-        .status(200)
-        .json({
-          message: "Edit successful",
-          status: "success",
-          data: userData,
-        });
+      res.status(200).json({
+        message: "Edit successful",
+        status: "success",
+        data: userData,
+      });
     } catch (e) {
       console.log(e);
       res.status(500).json({
@@ -1268,13 +1246,11 @@ router.patch(
           "student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState"
         );
 
-      res
-        .status(200)
-        .json({
-          message: "Edit successful",
-          status: "success",
-          data: userData,
-        });
+      res.status(200).json({
+        message: "Edit successful",
+        status: "success",
+        data: userData,
+      });
     } catch (e) {
       console.log(e);
       res.status(500).json({
@@ -1426,13 +1402,11 @@ router.get(
     const newuser = UserDetail.find()
       .select("_id first_name last_name")
       .then((data) => {
-        return res
-          .status(200)
-          .json({
-            message: "user name and id retreived",
-            data: data,
-            count: data.length,
-          });
+        return res.status(200).json({
+          message: "user name and id retreived",
+          data: data,
+          count: data.length,
+        });
       })
       .catch((err) => {
         console.log("Error:", err);
@@ -1703,7 +1677,7 @@ router.get(
 
     try {
       const data = await UserDetail.find(query).select(
-        "first_name last_name email mobile _id myReferralCode"
+        "first_name last_name email mobile _id myReferralCode influencerDetails"
       );
       res.status(200).json({
         status: "success",

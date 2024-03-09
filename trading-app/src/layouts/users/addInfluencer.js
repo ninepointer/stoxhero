@@ -173,7 +173,7 @@ const DeactivateUser = () => {
     { Header: "Name", accessor: "name", align: "center" },
     { Header: "Email", accessor: "email", align: "center" },
     { Header: "Mobile", accessor: "mobile", align: "center" },
-    { Header: "AddedOn", accessor: "time", align: "center" },
+    { Header: "Added On", accessor: "time", align: "center" },
     { Header: "Edit", accessor: "edit", align: "center" },
     { Header: "Remove", accessor: "remove", align: "center" },
   ];
@@ -193,12 +193,10 @@ const DeactivateUser = () => {
       ...prevState,
       [name]: value,
     }));
-    if (name == "slug" || name == "myReferralCode") {
-      setSelectedUser((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    }
+    setSelectedUser((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
   const handleChannelDataChange = async (e) => {
     const { name, value } = e.target;
@@ -386,7 +384,9 @@ const DeactivateUser = () => {
         color="text"
         fontWeight="medium"
       >
-        {moment.utc(elem.createdOn).format("DD-MMM-YY HH:mm:ss")}
+        {moment
+          .utc(elem?.influencerDetails?.addedOn)
+          .format("DD-MMM-YY HH:mm:ss")}
       </MDTypography>
     );
     obj.edit = (
@@ -457,7 +457,7 @@ const DeactivateUser = () => {
   return (
     <>
       <MDBox pt={6} pb={3}>
-        <Grid container spacing={6}>
+        <Grid container spacing={2}>
           <Grid item xs={12} md={12} lg={12}>
             <User
               reRender={reRender}
@@ -467,55 +467,131 @@ const DeactivateUser = () => {
             />
             {selectedUser && (
               <MDBox>
-                <MDTypography fontWeight="bold" fontSize={22}>
-                  Selected User
-                </MDTypography>
-                <MDTypography fontSize={14}>
-                  Name:{" "}
-                  {selectedUser?.first_name + " " + selectedUser?.last_name}
-                </MDTypography>
-                <MDTypography fontSize={14}>
-                  Email: {selectedUser?.email}
-                </MDTypography>
-                <MDTypography fontSize={14} mb={2}>
-                  Mobile: {selectedUser?.mobile}
-                </MDTypography>
-                <TextField
-                  label="City"
-                  value={selectedUser?.city}
-                  name="city"
-                  onChange={handleChange}
-                />
-                <TextField
-                  label="State"
-                  value={selectedUser?.state}
-                  name="state"
-                  onChange={handleChange}
-                />
-                <TextField
-                  label="Tags"
-                  name="tags"
-                  value={selectedUser?.tags}
-                  onChange={handleChange}
-                />
-                <TextField
-                  label="About"
-                  name="about"
-                  value={selectedUser?.about}
-                  onChange={handleChange}
-                />
-                <TextField
-                  label="Slug"
-                  name="slug"
-                  value={influencerData?.slug}
-                  onChange={handleChange}
-                />
-                <TextField
-                  label="Referral Code"
-                  name="myReferralCode"
-                  value={selectedUser?.myReferralCode}
-                  onChange={handleChange}
-                />
+                <MDBox>
+                  <MDTypography fontWeight="bold" fontSize={22}>
+                    Selected User
+                  </MDTypography>
+                  <MDTypography fontSize={14}>
+                    Name:{" "}
+                    {selectedUser?.first_name + " " + selectedUser?.last_name}
+                  </MDTypography>
+                  <MDTypography fontSize={14}>
+                    Email: {selectedUser?.email}
+                  </MDTypography>
+                  <MDTypography fontSize={14} mb={2}>
+                    Mobile: {selectedUser?.mobile}
+                  </MDTypography>
+                </MDBox>
+                <Grid
+                  container
+                  xs={12}
+                  md={12}
+                  xl={12}
+                  spacing={2}
+                  // style={{ maxWidth: "100%", height: "auto" }}
+                >
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="City"
+                      value={selectedUser?.city}
+                      name="city"
+                      fullWidth
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="State"
+                      value={selectedUser?.state}
+                      name="state"
+                      fullWidth
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Tags"
+                      name="tags"
+                      fullWidth
+                      value={selectedUser?.tags}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Slug"
+                      name="slug"
+                      fullWidth
+                      value={influencerData?.slug}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid
+                  container
+                  xs={12}
+                  md={12}
+                  xl={12}
+                  spacing={2}
+                  // style={{ maxWidth: "100%", height: "auto" }}
+                >
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={6}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="About"
+                      name="about"
+                      multiline
+                      fullWidth
+                      rows={6}
+                      value={selectedUser?.about}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={6}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Referral Code"
+                      name="myReferralCode"
+                      value={selectedUser?.myReferralCode}
+                      fullWidth
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                </Grid>
                 <Grid item xs={12} md={6} xl={3}>
                   <MDButton
                     variant="outlined"
@@ -559,6 +635,7 @@ const DeactivateUser = () => {
                     xs={12}
                     md={12}
                     xl={3}
+                    mb={2}
                     style={{ maxWidth: "100%", height: "auto" }}
                   >
                     <Grid
@@ -646,6 +723,7 @@ const DeactivateUser = () => {
                     xs={12}
                     md={12}
                     xl={3}
+                    mb={2}
                     style={{ maxWidth: "100%", height: "auto" }}
                   >
                     <Grid
@@ -903,22 +981,35 @@ const DeactivateUser = () => {
                     </Grid>
                   </Grid>
                 )}
-                <MDButton
-                  onClick={() => {
-                    edit ? editInfluencer() : handleAddInfluencer();
-                  }}
+                <Grid
+                  container
+                  xs={12}
+                  md={12}
+                  xl={12}
+                  spacing={2}
+                  display="flex"
+                  justifyContent="flex-end"
+                  mt={2}
+                  // style={{ maxWidth: "100%", height: "auto" }}
                 >
-                  {edit ? "Edit Influencer" : "Add Influencer"}
-                </MDButton>
-                <MDButton
-                  onClick={() => {
-                    setSelectedUser();
-                    setEdit(false);
-                    setInfluencerData();
-                  }}
-                >
-                  Discard
-                </MDButton>
+                  <MDButton
+                    onClick={() => {
+                      setSelectedUser();
+                      setEdit(false);
+                      setInfluencerData();
+                    }}
+                  >
+                    Discard
+                  </MDButton>
+                  <MDButton
+                    color="success"
+                    onClick={() => {
+                      edit ? editInfluencer() : handleAddInfluencer();
+                    }}
+                  >
+                    {edit ? "Edit Influencer" : "Add Influencer"}
+                  </MDButton>
+                </Grid>
               </MDBox>
             )}
             {false && (
