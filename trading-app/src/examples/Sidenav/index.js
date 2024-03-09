@@ -126,10 +126,12 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
             !getDetails?.userDetails?.isAffiliate) ||
           (key === "course" &&
             getDetails?.userDetails?.role?.roleName !== "Influencer")
+            ||
+          (key === "courses" &&
+            getDetails?.userDetails?.role?.roleName !== "User")
         ) {
-          // console.log("in route if", key)
+
         } else {
-          // console.log("in route else", key, batchInfo.length)
           returnValue = href ? (
             <Link
               href={href}
