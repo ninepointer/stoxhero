@@ -318,15 +318,24 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
         </MDBox>
       ) : (
         <MDButton
-          variant="outlined"
+          style={{
+            padidng: "12px",
+            fontSize: "18px",
+            borderRadius: "10px",
+            color: "black",
+            backgroundColor: "#E6F495",
+            textAlign: "center",
+            fontFamily: "Work Sans , sans-serif",
+            fontWeight: 600,
+            textTransform: "capitalize",
+            width:'100%'
+          }}
           size="small"
-          color="success"
           onClick={() => {
             setOpen(true);
           }}
-          style={{ minWidth: "100%" }}
         >
-          Buy course
+          <span>Buy Now</span>
         </MDButton>
       )}
 

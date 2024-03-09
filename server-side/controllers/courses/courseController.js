@@ -17,7 +17,7 @@ const AffiliateProgram = require("../../models/affiliateProgram/affiliateProgram
 const ReferralProgram = require("../../models/campaigns/referralProgram");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { streamUpload } = require("@uppy/companion");
-const Product = require('../../models/Product/product')
+const Product = require("../../models/Product/product");
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -334,7 +334,7 @@ exports.creatorApproval = async (req, res) => {
       }
     );
 
-    for(let elem of courses?.courseInstructors){
+    for (let elem of courses?.courseInstructors) {
       await createUserNotification({
         title: "For Approval",
         description: `Your approval is pending of ${courses?.courseName}`,
@@ -348,7 +348,6 @@ exports.creatorApproval = async (req, res) => {
         lastModifiedBy: "63ecbc570302e7cf0153370c",
       });
     }
-
 
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
@@ -737,7 +736,6 @@ exports.addSubTopic = async (req, res) => {
   }
 };
 
-
 exports.editInstructor = async (req, res) => {
   try {
     const { instructorId } = req.params;
@@ -868,7 +866,6 @@ exports.editContent = async (req, res) => {
   }
 };
 
-
 exports.editSubTopic = async (req, res) => {
   try {
     const { id, contentId, subtopicId } = req.params;
@@ -917,7 +914,7 @@ exports.editSubTopic = async (req, res) => {
       }
     }
 
-    await course.save({validateBeforeSave: false});
+    await course.save({ validateBeforeSave: false });
 
     res.status(201).json({
       status: "success",
@@ -928,7 +925,6 @@ exports.editSubTopic = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 exports.deleteInstructor = async (req, res) => {
   try {
@@ -1192,7 +1188,7 @@ exports.createCourseInfo = async (req, res) => {
       courseLanguages,
       courseOverview,
       courseDescription,
-      ...(courseType !== 'Recorded' && {
+      ...(courseType !== "Recorded" && {
         courseStartTime,
         courseEndTime,
         registrationStartTime,
@@ -1207,7 +1203,6 @@ exports.createCourseInfo = async (req, res) => {
       courseDurationInMinutes,
       type,
     });
-    
 
     await course.save();
     res.status(201).json({
@@ -1325,10 +1320,10 @@ exports.getAwaitingApprovals = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           averageRating: 1,
           userEnrolled: {
@@ -1400,10 +1395,10 @@ exports.getPendingApproval = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           averageRating: 1,
           userEnrolled: {
@@ -1476,10 +1471,10 @@ exports.getPublished = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           averageRating: 1,
           userEnrolled: {
@@ -1552,10 +1547,10 @@ exports.getUnpublished = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           averageRating: 1,
           userEnrolled: {
@@ -1633,10 +1628,10 @@ exports.getUserCourses = async (req, res) => {
                 input: "$courseContent",
                 as: "content",
                 in: {
-                  $size: "$$content.subtopics"
-                }
-              }
-            }
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
           },
           userEnrolled: {
             $size: "$enrollments",
@@ -1651,11 +1646,10 @@ exports.getUserCourses = async (req, res) => {
               },
             },
           },
-          
+
           isPaid: {
-            $in: [new ObjectId(userId), "$enrollments.userId"]
-          }
-          
+            $in: [new ObjectId(userId), "$enrollments.userId"],
+          },
         },
       },
       {
@@ -1717,12 +1711,21 @@ exports.getCourseBySlugUser = async (req, res) => {
   try {
     const slug = req.query.slug;
     const userId = req?.user?._id;
-    const courses = await Course.findOne({ courseSlug : slug, 'enrollments.userId': new ObjectId(userId) })
+    const courses = await Course.findOne({
+      courseSlug: slug,
+      "enrollments.userId": new ObjectId(userId),
+    })
       .populate("courseInstructors.id", "first_name last_name email")
       .select("-enrollments -createdOn -createdBy -commissionPercentage");
 
-    if(!courses){
-      return res.status(400).json({ status: "error", message: 'You dont have enrolled in this course please but it.', hasPurchased: false });
+    if (!courses) {
+      return res
+        .status(400)
+        .json({
+          status: "error",
+          message: "You dont have enrolled in this course please but it.",
+          hasPurchased: false,
+        });
     }
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
@@ -1737,7 +1740,9 @@ exports.getCourseBySlugUser = async (req, res) => {
 exports.getCoursesByUserSlug = async (req, res) => {
   try {
     const slug = req.query.slug;
-    const user = await User.findOne({ slug: slug }).select("_id");
+    const user = await User.findOne({ slug: slug }).select(
+      "_id first_name last_name"
+    );
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
 
@@ -1813,7 +1818,17 @@ exports.getCoursesByUserSlug = async (req, res) => {
       "courseInstructors.id": new ObjectId(user?._id),
     });
 
-    res.status(200).json({ status: "success", data: course, count: count });
+    res
+      .status(200)
+      .json({
+        status: "success",
+        data: course,
+        count: count,
+        instructor: {
+          first_name: user?.first_name,
+          last_name: user?.last_name,
+        },
+      });
   } catch (err) {
     console.log(err);
     res.status(500).json({ status: "error", message: "something went wrong" });
@@ -2451,10 +2466,10 @@ exports.myCourses = async (req, res) => {
                       input: "$courseContent",
                       as: "content",
                       in: {
-                        $size: "$$content.subtopics"
-                      }
-                    }
-                  }
+                        $size: "$$content.subtopics",
+                      },
+                    },
+                  },
                 },
                 maxEnrolments: 1,
                 topics: "$courseContent",
@@ -2477,7 +2492,6 @@ exports.myCourses = async (req, res) => {
                     },
                   },
                 },
-            
               },
             },
             {
