@@ -216,11 +216,10 @@ export default function Wallet() {
             {data?.length > 0 ? (
               <>
                 {data.map((elem) => {
-                  // console.log("elem", elem)
                   const myAmount =
-                    elem.amount > 0 ? "+₹" + elem?.amount : "-₹" + -elem.amount;
+                    elem.amount > 0 ? "+₹" + Number(elem?.amount)?.toFixed(2) : "-₹" + -Number(elem.amount)?.toFixed(2);
                   const myBonus =
-                    elem.amount > 0 ? "🌟" + elem?.amount : "🌟" + -elem.amount;
+                    elem.amount > 0 ? "🌟" + Number(elem?.amount)?.toFixed(2) : "🌟" + -Number(elem.amount)?.toFixed(2);
                   return (
                     <MDBox
                       mb={1}
@@ -294,8 +293,9 @@ export default function Wallet() {
                             fontWeight="bold"
                           >
                             {elem?.transactionType === "Bonus"
-                              ? myBonus
-                              : myAmount}
+                              ? (myBonus)
+                              
+                              : (myAmount)}
                           </MDTypography>
                         </Grid>
                       </Grid>
