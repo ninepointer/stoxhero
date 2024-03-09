@@ -476,13 +476,40 @@ const userDetailSchema = new mongoose.Schema({
   ],
   influencerDetails: {
     type: {
-      channelDetails: [
-        {
-          channel: String,
-          influencerHandle: String,
+      channelDetails: {
+        instagram: {
+          channelLink: String,
           followers: Number,
         },
-      ],
+        youtube:{
+          channelLink: String,
+          followers: Number,
+        },
+        telegram:{
+          channelLink: String,
+          followers: Number,
+        },
+        twitter:{
+          channelLink: String,
+          followers: Number,
+        },
+        discord:{
+          channelLink: String,
+          followers: Number,
+        },
+        whatsApp:{
+          channelLink: String,
+          followers: Number,
+        },
+        linkedIn:{
+          channelLink: String,
+          followers: Number,
+        },
+        facebook:{
+          channelLink: String,
+          followers: Number,
+        }
+      },
       city: String,
       state: String,
       tags: [String],
