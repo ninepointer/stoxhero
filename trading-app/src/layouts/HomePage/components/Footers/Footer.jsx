@@ -156,7 +156,7 @@ const Footer = () => {
           sx={{ pb: 6 }}
         >
           <Typography variant="body2" color="rgba(255, 255, 255, 0.6)">
-          © 2023, STOXHERO GAMES TECHNOLOGIES PRIVATE LIMITED.All rights reserved.
+          © 2024, STOXHERO GAMES TECHNOLOGIES PRIVATE LIMITED.All rights reserved.
           </Typography >
           <Typography variant="body2" color="rgba(255, 255, 255, 0.6)">Made with ❤️
 by

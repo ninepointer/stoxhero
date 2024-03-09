@@ -134,7 +134,7 @@ function Footer({ light }) {
               fontSize={size.sm}
               style={{textAlign:'center'}}
             >
-              © 2023, STOXHERO GAMES TECHNOLOGIES PRIVATE LIMITED. All rights reserved.
+              © 2024, STOXHERO GAMES TECHNOLOGIES PRIVATE LIMITED. All rights reserved.
             </MDBox>
           </Grid>
 

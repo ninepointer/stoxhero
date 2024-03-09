@@ -1045,16 +1045,21 @@ export default function Courses() {
 
                             <MDBox display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} flexDirection='column' alignContent='center' ml={isMobile ? 0 : 10} p={2}>
                               <MDBox display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent='center' height='auto'>
-                                <MDTypography style={{ fontSize: "22px", fontWeight: 700, color: '#ffffff' }}>
-                                  Instructor
+                                <MDTypography style={{ fontSize: "24px", fontWeight: 700, color: '#ffffff' }}>
+                                  Course Created and Instructed By
+                                </MDTypography>
+                              </MDBox>
+                              <MDBox display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent='center' height='auto'>
+                                <MDTypography style={{ fontSize: "24px", fontWeight: 700, color: '#E6F495' }}>
+                                  {`${instructor?.first_name} ${instructor?.last_name}`}
                                 </MDTypography>
                               </MDBox>
                               <MDBox display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} flexDirection={isMobile ? 'column' : 'row'} alignContent='center' alignItems="center" gap={2} mt={1}>
                                 <img src={instructor?.profilePhoto?.url} style={{ borderRadius: '50%', width: '90px', height: '90px' }} />
                                 <MDBox display='flex' justifyContent='center' flexDirection='column' alignContent='center' fontColor='#ffffff'>
-                                  <MDBox display='flex' alignContent='center' gap={1} sx={{cursor: 'pointer'}} onClick={()=>{openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.[0]['youtube']?.channelLink)}} ><span style={{color: '#ffffff', marginTop: '3px'}}><YouTubeIcon /></span> <span style={{color: '#ffffff'}}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.[0]['youtube']?.followers)} Subscribers`}</span></MDBox>
-                                  <MDBox display='flex' alignContent='center' gap={1} sx={{cursor: 'pointer'}} onClick={()=>{openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.[0]['instagram']?.channelLink)}}><span style={{color: '#ffffff', marginTop: '3px'}}><InstagramIcon /> </span> <span style={{color: '#ffffff'}}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.[0]['instagram']?.followers)}  Followers`}</span></MDBox>
-                                  <MDBox display='flex' alignContent='center' gap={1} sx={{cursor: 'pointer'}} onClick={()=>{openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.[0]['telegram']?.channelLink)}}><span style={{color: '#ffffff', marginTop: '3px'}}><TelegramIcon /></span> <span style={{color: '#ffffff'}}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.[0]['telegram']?.followers)}  Followers`}</span></MDBox>
+                                  <MDBox display='flex' alignContent='center' gap={1} sx={{cursor: 'pointer'}} onClick={()=>{openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.youtube?.channelLink)}} ><span style={{color: '#ffffff', marginTop: '3px'}}><YouTubeIcon color='red' /></span> <span style={{color: '#ffffff'}}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.youtube?.followers)} Subscribers`}</span></MDBox>
+                                  <MDBox display='flex' alignContent='center' gap={1} sx={{cursor: 'pointer'}} onClick={()=>{openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.instagram?.channelLink)}}><span style={{color: '#ffffff', marginTop: '3px'}}><InstagramIcon color='orange' /> </span> <span style={{color: '#ffffff'}}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.instagram?.followers)}  Followers`}</span></MDBox>
+                                  <MDBox display='flex' alignContent='center' gap={1} sx={{cursor: 'pointer'}} onClick={()=>{openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.telegram?.channelLink)}}><span style={{color: '#ffffff', marginTop: '3px'}}><TelegramIcon color='blue' /></span> <span style={{color: '#ffffff'}}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.telegram?.followers)}  Followers`}</span></MDBox>
                                   <MDBox display='flex' alignContent='center' gap={1}><span style={{color: '#ffffff', marginTop: '3px'}}><PlayCircleIcon /></span> <span style={{color: '#ffffff'}}>{`${count} Courses`}</span></MDBox>
                                 </MDBox>
                               </MDBox>
