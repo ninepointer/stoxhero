@@ -12,6 +12,7 @@ import { CircularProgress } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiUrl } from "../../constants/constants";
+import EnrolledUser from '../coursesInfluencer/data/enrolledUsers';
 
 const CoursePricing = ({setActiveStep, activeStep, steps}) => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
   const queryString = location.search;
   const urlParams = new URLSearchParams(queryString);
   const [editClicked, setEditClicked] = useState(false);
+  const [courses, setCourses] = useState([]);
 
   // Get the value of the "mobile" parameter
   const courseId = urlParams.get('id');
@@ -37,7 +39,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
   async function fetchCourseData(){
     try{
       const data = await axios.get(`${apiUrl}courses/${courseId}`, {withCredentials: true});
-
+      setCourses(data.data.data);
       setFormState({
         coursePrice: data?.data?.data?.coursePrice,
         discountedPrice: data?.data?.data?.discountedPrice,
@@ -206,9 +208,11 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
             xs={12}
             md={12}
             lg={12}
+            xl={12}
             display="flex"
             justifyContent="center"
             alignItems="center"
+            width="100%"
           >
             <Grid
               item
@@ -356,6 +360,19 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                   </>
                 )}
               </Grid>
+                    <Grid container
+            
+            xs={12}
+            md={12}
+            lg={12}
+            mt={4}
+            display="flex"
+            justifyContent="center"
+            alignItems="center">
+                    {(courses?.status === 'Published') &&
+                                            <EnrolledUser course={courses} />
+                                        }
+                    </Grid>
 
           </Grid>
           {renderSuccessSB}

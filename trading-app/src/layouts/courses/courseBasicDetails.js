@@ -695,7 +695,7 @@ const CreateCourse = (
                       }
                       component="label"
                     >
-                      Upload Video(1080X720)
+                      Upload Sales Video(1080X720)
                       <input
                           type="file"
                           onChange={handleSalesVideo}

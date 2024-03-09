@@ -278,7 +278,7 @@ const Courses = () => {
                                             </Grid>}
 
                                         {(courses?.status === 'Published') &&
-                                            <EnrolledUser courses={courses} />
+                                            <EnrolledUser course={courses} />
                                         }
                                     </CardActionArea>
                                 </Card>

@@ -6,7 +6,7 @@ import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import Card from "@mui/material/Card";
 import axios from "axios";
-// import moment from 'moment';
+import moment from 'moment';
 
 export default function EnrolledUsers({
   course,
@@ -15,13 +15,17 @@ export default function EnrolledUsers({
   let columns = [
     { Header: "Name", accessor: "name", align: "center" },
     { Header: "Enrollment Date", accessor: "date", align: "center" },
-    { Header: "Amount", accessor: "amount", align: "center" },
+    { Header: "Fee", accessor: "amount", align: "center" },
+    { Header: "Commission", accessor: "commission", align: "center" },
   ];
+  console.log('course is',course);
 
   let rows = [];
 
+
   course?.enrollments?.map((elem, index) => {
     let obj = {};
+    console.log('elem is', elem);
 
     obj.name = (
       <MDTypography
@@ -61,26 +65,36 @@ export default function EnrolledUsers({
         color="text"
         fontWeight="medium"
       >
-        {elem?.enrolledOn}
+        {moment(elem?.enrolledOn).format("DD-MM-YY hh:mm:ss a")}
       </MDTypography>
     );
 
-    // obj.amount = (
-    //     <MDTypography
-    //       component="a"
-    //       variant="caption"
-    //       color="text"
-    //       fontWeight="medium"
-    //     >
-    //       {elem?.enrolledOn}
-    //     </MDTypography>
-    //   );
+    obj.amount = (
+        <MDTypography
+          component="a"
+          variant="caption"
+          color="text"
+          fontWeight="medium"
+        >
+          {elem?.pricePaidByUser}
+        </MDTypography>
+      );
+    obj.commission = (
+        <MDTypography
+          component="a"
+          variant="caption"
+          color="text"
+          fontWeight="medium"
+        >
+          {(elem?.pricePaidByUser*((course?.commissionPercentage/100)??0)).toFixed(2)}
+        </MDTypography>
+      );
 
     rows.push(obj);
   });
 
   return (
-    <Card>
+    <Card sx={{ width: '100%' }}>
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
         <MDBox
           width="100%"
