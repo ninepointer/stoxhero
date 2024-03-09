@@ -360,9 +360,9 @@ const routes = [
   {
     type: "collapse",
     name: "Courses",
-    key: "courses",
+    key: "coursedashboard",
     icon: <LocalLibraryIcon/>,
-    route: "/courses",
+    route: "/coursedashboard",
     component: <Course />,
   },
   {

@@ -192,7 +192,7 @@ const List = ({ contentId, courseId, subTopics, reloadContent, setReloadContent 
                   />
                 </>
               )}
-              <MDBox mt={1}>
+              <MDBox>
                 <DataTable
                   table={{ columns, rows }}
                   isSorted={false}

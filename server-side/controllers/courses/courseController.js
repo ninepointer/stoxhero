@@ -868,57 +868,6 @@ exports.editContent = async (req, res) => {
   }
 };
 
-// exports.editSubTopic = async (req, res) => {
-//   try {
-//     const { id, contentId, subtopicId } = req.params;
-//     let { order, topic } = req.body;
-//     let url;
-//     if (req.files["filesVid"]?.length > 0) {
-//       url = await getAwsS3Key(
-//         req.files["fileVid"][0],
-//         "Video",
-//         `courses/video/${req.params.id}-${topic}-${Date.now()}`
-//       );
-//     }
-//     // console.log(url);
-//     const course = await Course.findById(id);
-//     if (!course) {
-//       return res.status(404).json({ message: "Course not found" });
-//     }
-
-//     let filterContent = course.courseContent.filter((elem) => {
-//       return elem?._id?.toString() === contentId?.toString();
-//     });
-
-//     let filterSubtopic = filterContent[0]?.subtopics?.filter((elem) => {
-//       return elem?._id?.toString() === subtopicId?.toString();
-//     });
-
-//     filterSubtopic[0].order = order;
-//     filterSubtopic[0].topic = topic;
-//     if (req.files["filesVid"]?.length > 0) {
-//       filterSubtopic[0].videoUrl = url?.url;
-//       filterSubtopic[0].videoKey = url?.key;
-//     }
-
-//     const newData = await course.save({ new: true });
-
-//     let newfilterQue = newData.courseContent.filter((elem) => {
-//       return elem?._id?.toString() === contentId?.toString();
-//     });
-
-//     let newfilterOpt = newfilterQue[0]?.subtopics?.filter((elem) => {
-//       return elem?._id?.toString() === subtopicId?.toString();
-//     });
-
-//     res
-//       .status(201)
-//       .json({ status: "success", data: newfilterQue[0]?.subtopics });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
 
 exports.editSubTopic = async (req, res) => {
   try {
@@ -964,11 +913,11 @@ exports.editSubTopic = async (req, res) => {
           "PDF",
           `courses/pdf/${req.params.id}-${topic}-${Date.now()}`
         );
-        filterSubtopic.notes.push({ url: pdfKey.url, key: pdfKey.key });
+        filterSubtopic.notes.push(pdfKey.url);
       }
     }
 
-    await course.save();
+    await course.save({validateBeforeSave: false});
 
     res.status(201).json({
       status: "success",
@@ -1767,9 +1716,14 @@ exports.getCourseByIdUser = async (req, res) => {
 exports.getCourseBySlugUser = async (req, res) => {
   try {
     const slug = req.query.slug;
-    const courses = await Course.findOne({ courseSlug : slug })
+    const userId = req?.user?._id;
+    const courses = await Course.findOne({ courseSlug : slug, 'enrollments.userId': new ObjectId(userId) })
       .populate("courseInstructors.id", "first_name last_name email")
       .select("-enrollments -createdOn -createdBy -commissionPercentage");
+
+    if(!courses){
+      return res.status(400).json({ status: "error", message: 'You dont have enrolled in this course please but it.', hasPurchased: false });
+    }
     res.status(200).json({ status: "success", data: courses });
   } catch (error) {
     res.status(500).json({

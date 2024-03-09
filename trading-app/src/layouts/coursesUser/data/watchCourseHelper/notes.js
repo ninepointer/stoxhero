@@ -37,7 +37,7 @@ const Notes = ({topics}) => {
 
     return (
         <>
-            <MDTypography style={{ fontSize: '25px', fontWeight: 800, color: headingColor, padding: '10px 10px 10px 15px', borderBottom: `.5px solid ${lightGrey}` }} >Notes</MDTypography>
+            <MDTypography style={{ fontSize: '25px', fontWeight: 800, color: headingColor, padding: '10px 10px 10px 15px', borderBottom: `.5px solid ${lightGrey}`, marginBottom: '5px' }} >Notes</MDTypography>
             <MDBox sx={{ display: 'flex', justifyContent: 'flex-start', flexDirection: 'column', alignContent: 'center', gap: 1 }}>
                 {topics?.map((elem, index)=>{
                     return(
@@ -53,7 +53,10 @@ const Notes = ({topics}) => {
                                                     color="dark"
                                                 />
                                                     :
-                                                    <DownloadIcon sx={{ cursor: 'pointer' }} onClick={() => { downloadPdf(subelem?.videoUrl, subelem?.topic, subelem?._id) }} />
+                                                    subelem?.notes?.length ?
+                                                    <DownloadIcon sx={{ cursor: 'pointer' }} onClick={() => { downloadPdf(subelem?.notes, subelem?.topic, subelem?._id) }} />
+                                                    :
+                                                    <MDTypography color='text' style={{ fontSize: '13px', fontWeight: 600, color: headingColor}} >N/A</MDTypography>
                                                 }
                                             </MDBox>
 
