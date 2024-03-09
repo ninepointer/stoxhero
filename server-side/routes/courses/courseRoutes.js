@@ -125,7 +125,7 @@ router.patch(
   "/:id/subtopic/:contentId",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  upload.fields([{ name: "fileVid", maxCount: 1 }]),
+  upload.fields([{ name: "fileVid", maxCount: 1 }, { name: "pdfFiles", maxCount: 10 }]),
   courseController.addSubTopic
 );
 
@@ -162,7 +162,7 @@ router.patch(
   "/:id/subtopic/:contentId/:subtopicId",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  upload.fields([{ name: "fileVid", maxCount: 1 }]),
+  upload.fields([{ name: "fileVid", maxCount: 1 }, { name: "pdfFiles", maxCount: 10 }]),
   courseController.editSubTopic
 );
 

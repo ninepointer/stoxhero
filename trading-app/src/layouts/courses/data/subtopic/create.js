@@ -36,11 +36,16 @@ export default function Create({
     topic: "" || subtopic?.topic,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [fileVid, setFileVid] = useState(null);
+  const [fileVid, setFileVid] = useState(subtopic?.videoUrl);
+  const [notes, setNotes] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = (event) => {
     setFileVid(event.target.files[0]);
+  };
+
+  const handleNotesChange = (event) => {
+    setNotes(event.target.files);
   };
 
   const handleUpload = async (e) => {
@@ -60,6 +65,15 @@ export default function Create({
       formData.append(`${elem}`, formState[elem]);
     }
     formData.append("fileVid", fileVid);
+
+    
+    for(let note of notes){
+      console.log('notes', note)
+      formData.append('pdfFiles', note);
+    }
+    // notes.forEach((file) => {
+    //   formData.append('pdfFiles', file);
+    // });
 
     if (subtopic?.topic) {
       try {
@@ -158,91 +172,6 @@ export default function Create({
     }
   };
 
-  async function onNext(e) {
-    e.preventDefault();
-
-    if (!formState?.order || !formState?.topic) {
-      setTimeout(() => {
-        setIsSubmitted(false);
-      }, 500);
-      return openErrorSB(
-        "Missing Field",
-        "Please fill all the mandatory fields"
-      );
-    }
-
-    if (subtopic?.topic) {
-      const res = await fetch(
-        `${apiUrl}courses/${courseId}/subtopic/${contentId}/${subtopic?._id}`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: {
-            "content-type": "application/json",
-            "Access-Control-Allow-Credentials": true,
-          },
-          body: JSON.stringify({
-            order: parseInt(formState?.order),
-            topic: formState?.topic,
-          }),
-        }
-      );
-
-      const data = await res.json();
-      if (!data.error) {
-        setTimeout(() => {
-          setIsSubmitted(true);
-        }, 500);
-        openSuccessSB(
-          data.message,
-          `Contest Reward Created with prize: ${data.data?.prize}`
-        );
-        setCreateForm(!createForm);
-        setData(data?.data);
-      } else {
-        setTimeout(() => {
-          setIsSubmitted(false);
-        }, 500);
-        console.log("Invalid Entry");
-        return openErrorSB("Couldn't Add Reward", data.error);
-      }
-    } else {
-      const res = await fetch(
-        `${apiUrl}courses/${courseId}/subtopic/${contentId}`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: {
-            "content-type": "application/json",
-            "Access-Control-Allow-Credentials": true,
-          },
-          body: JSON.stringify({
-            order: parseInt(formState?.order),
-            topic: formState?.topic,
-          }),
-        }
-      );
-
-      const data = await res.json();
-      if (!data.error) {
-        setTimeout(() => {
-          setIsSubmitted(true);
-        }, 500);
-        openSuccessSB(
-          data.message,
-          `Contest Reward Created with prize: ${data.data?.prize}`
-        );
-        setCreateForm(!createForm);
-        setData(data?.data?.subtopics);
-      } else {
-        setTimeout(() => {
-          setIsSubmitted(false);
-        }, 500);
-        console.log("Invalid Entry");
-        return openErrorSB("Couldn't Add Reward", data.error);
-      }
-    }
-  }
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -321,15 +250,12 @@ export default function Create({
 
             <Grid container mt={0.5} alignItems="center" justifyContent="center">
               <Grid
-                // item
                 container
                 spacing={1}
                 xs={12}
                 md={12}
                 xl={12}
                 display="flex"
-                // gap={1}
-                // mt={1}
                 justifyContent="center"
               >
                 <Grid item xs={12} md={6} xl={3}>
@@ -348,7 +274,6 @@ export default function Create({
                     }}
                   />
                 </Grid>
-
                 <Grid item xs={12} md={6} xl={9}>
                   <TextField
                     disabled={isSubmitted}
@@ -378,7 +303,7 @@ export default function Create({
                 display="flex"
                 justifyContent="center"
               >
-                <Grid item xs={12} md={8} xl={6}>
+                <Grid item xs={12} md={8} xl={4}>
                   <label>Topic Video</label>
                   <input type="file" onChange={handleFileChange} />
                   {uploadProgress > 0 && uploadProgress < 100 && (
@@ -389,11 +314,22 @@ export default function Create({
                   {uploadProgress == -1 && <span>Error in file upload. Try again.</span>}
                 </Grid>
 
+                <Grid item xs={12} md={8} xl={4}>
+                  <label>Notes</label>
+                  <input type="file" multiple onChange={handleNotesChange} />
+                  {/* {uploadProgress > 0 && uploadProgress < 100 && (
+                    <span>Upload Progress: {uploadProgress}%</span>
+                  )}
+                  {uploadProgress == 100 && <span>Storing Data in S3...</span>}
+                  {uploadProgress == 200 && <span>File uploaded successfully.</span>}
+                  {uploadProgress == -1 && <span>Error in file upload. Try again.</span>} */}
+                </Grid>
+
                 <Grid
                   item
                   xs={12}
                   md={6}
-                  xl={6}
+                  xl={4}
                   mt={1}
                   display="flex"
                   justifyContent="flex-end"
@@ -434,6 +370,26 @@ export default function Create({
 
 
 
+            {/* <Grid container mt={0.5} alignItems="center" justifyContent="center">
+              <Grid
+                container
+                spacing={1}
+                xs={12}
+                md={12}
+                xl={12}
+                display="flex"
+                justifyContent="center"
+              >
+                {subtopic?.notes?.map((elem) => {
+                  return (
+                    <Grid item xs={12} md={6} xl={3}>
+                      <embed src={elem} type="application/pdf" width="100%" height="500px" />
+                    </Grid>
+                  )
+                })}
+               
+              </Grid>
+            </Grid> */}
           {renderSuccessSB}
           {renderErrorSB}
         </MDBox>

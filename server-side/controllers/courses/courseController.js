@@ -638,41 +638,105 @@ exports.addContent = async (req, res) => {
   }
 };
 
+// exports.addSubTopic = async (req, res) => {
+//   try {
+//     const { id, contentId } = req.params;
+//     let { order, topic } = req.body;
+//     const url = await getAwsS3Key(
+//       req.files["fileVid"][0],
+//       "Video",
+//       `courses/video/${req.params.id}-${topic}-${Date.now()}`
+//     );
+//     console.log(url);
+//     const newOption = {
+//       order,
+//       topic,
+//       videoUrl: url.url,
+//       videoKey: url.key,
+//     };
+
+//     const course = await Course.findById(id);
+//     let filter = course.courseContent.filter((elem) => {
+//       return elem?._id?.toString() === contentId?.toString();
+//     });
+//     if (!course) {
+//       return res.status(404).json({ message: "Course not found" });
+//     }
+//     filter[0].subtopics.push(newOption);
+//     const newData = await course.save({ new: true, validateBeforeSave: false });
+
+//     const optionData = newData?.courseContent?.filter((elem) => {
+//       return elem?._id?.toString() === contentId?.toString();
+//     });
+//     res.status(201).json({ status: "success", data: optionData[0] });
+//   } catch (error) {
+//     res.status(400).json({ message: error.message });
+//   }
+// };
+
 exports.addSubTopic = async (req, res) => {
   try {
     const { id, contentId } = req.params;
     let { order, topic } = req.body;
-    const url = await getAwsS3Key(
+
+    // Handle video upload
+    const videoUrl = await getAwsS3Key(
       req.files["fileVid"][0],
       "Video",
       `courses/video/${req.params.id}-${topic}-${Date.now()}`
     );
-    console.log(url);
+
+    // Handle PDF files upload
+    const pdfFiles = req.files["pdfFiles"];
+
+    // Process PDF files and upload to storage if needed
+
     const newOption = {
       order,
       topic,
-      videoUrl: url.url,
-      videoKey: url.key,
+      videoUrl: videoUrl.url,
+      videoKey: videoUrl.key,
+      notes: [], // Initialize notes array
     };
 
+    // Push PDF files' URLs/keys to the notes array
+    if (pdfFiles) {
+      for (const pdfFile of pdfFiles) {
+        const pdfUrl = await getAwsS3Key(
+          pdfFile,
+          "PDF",
+          `courses/notes/${req.params.id}-${topic}-${Date.now()}`
+        );
+        newOption.notes.push(pdfUrl.url);
+      }
+    }
+
     const course = await Course.findById(id);
-    let filter = course.courseContent.filter((elem) => {
-      return elem?._id?.toString() === contentId?.toString();
-    });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
+
+    let filter = course.courseContent.filter((elem) => {
+      return elem?._id?.toString() === contentId?.toString();
+    });
+
     filter[0].subtopics.push(newOption);
-    const newData = await course.save({ new: true, validateBeforeSave: false });
+
+    const newData = await course.save({
+      new: true,
+      validateBeforeSave: false,
+    });
 
     const optionData = newData?.courseContent?.filter((elem) => {
       return elem?._id?.toString() === contentId?.toString();
     });
+
     res.status(201).json({ status: "success", data: optionData[0] });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 exports.editInstructor = async (req, res) => {
   try {
@@ -804,57 +868,118 @@ exports.editContent = async (req, res) => {
   }
 };
 
+// exports.editSubTopic = async (req, res) => {
+//   try {
+//     const { id, contentId, subtopicId } = req.params;
+//     let { order, topic } = req.body;
+//     let url;
+//     if (req.files["filesVid"]?.length > 0) {
+//       url = await getAwsS3Key(
+//         req.files["fileVid"][0],
+//         "Video",
+//         `courses/video/${req.params.id}-${topic}-${Date.now()}`
+//       );
+//     }
+//     // console.log(url);
+//     const course = await Course.findById(id);
+//     if (!course) {
+//       return res.status(404).json({ message: "Course not found" });
+//     }
+
+//     let filterContent = course.courseContent.filter((elem) => {
+//       return elem?._id?.toString() === contentId?.toString();
+//     });
+
+//     let filterSubtopic = filterContent[0]?.subtopics?.filter((elem) => {
+//       return elem?._id?.toString() === subtopicId?.toString();
+//     });
+
+//     filterSubtopic[0].order = order;
+//     filterSubtopic[0].topic = topic;
+//     if (req.files["filesVid"]?.length > 0) {
+//       filterSubtopic[0].videoUrl = url?.url;
+//       filterSubtopic[0].videoKey = url?.key;
+//     }
+
+//     const newData = await course.save({ new: true });
+
+//     let newfilterQue = newData.courseContent.filter((elem) => {
+//       return elem?._id?.toString() === contentId?.toString();
+//     });
+
+//     let newfilterOpt = newfilterQue[0]?.subtopics?.filter((elem) => {
+//       return elem?._id?.toString() === subtopicId?.toString();
+//     });
+
+//     res
+//       .status(201)
+//       .json({ status: "success", data: newfilterQue[0]?.subtopics });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 exports.editSubTopic = async (req, res) => {
   try {
     const { id, contentId, subtopicId } = req.params;
     let { order, topic } = req.body;
-    let url;
-    if (req.files["filesVid"]?.length > 0) {
-      url = await getAwsS3Key(
+    let videoUrl;
+
+    // Handle video upload if provided
+    if (req.files["fileVid"]?.length > 0) {
+      const videoKey = await getAwsS3Key(
         req.files["fileVid"][0],
         "Video",
         `courses/video/${req.params.id}-${topic}-${Date.now()}`
       );
+      videoUrl = videoKey.url;
     }
-    // console.log(url);
+
     const course = await Course.findById(id);
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    let filterContent = course.courseContent.filter((elem) => {
-      return elem?._id?.toString() === contentId?.toString();
-    });
+    let filterContent = course.courseContent.find(
+      (elem) => elem?._id?.toString() === contentId?.toString()
+    );
 
-    let filterSubtopic = filterContent[0]?.subtopics?.filter((elem) => {
-      return elem?._id?.toString() === subtopicId?.toString();
-    });
+    let filterSubtopic = filterContent?.subtopics?.find(
+      (elem) => elem?._id?.toString() === subtopicId?.toString()
+    );
 
-    filterSubtopic[0].order = order;
-    filterSubtopic[0].topic = topic;
-    if (req.files["filesVid"]?.length > 0) {
-      filterSubtopic[0].videoUrl = url?.url;
-      filterSubtopic[0].videoKey = url?.key;
+    filterSubtopic.order = order;
+    filterSubtopic.topic = topic;
+    if (videoUrl) {
+      filterSubtopic.videoUrl = videoUrl;
     }
 
-    const newData = await course.save({ new: true });
+    // Handle PDF uploads if provided
+    if (req.files["pdfFiles"]?.length > 0) {
+      filterSubtopic.notes = filterSubtopic.notes || [];
+      for (const pdfFile of req.files["pdfFiles"]) {
+        const pdfKey = await getAwsS3Key(
+          pdfFile,
+          "PDF",
+          `courses/pdf/${req.params.id}-${topic}-${Date.now()}`
+        );
+        filterSubtopic.notes.push({ url: pdfKey.url, key: pdfKey.key });
+      }
+    }
 
-    let newfilterQue = newData.courseContent.filter((elem) => {
-      return elem?._id?.toString() === contentId?.toString();
+    await course.save();
+
+    res.status(201).json({
+      status: "success",
+      data: filterContent.subtopics,
     });
-
-    let newfilterOpt = newfilterQue[0]?.subtopics?.filter((elem) => {
-      return elem?._id?.toString() === subtopicId?.toString();
-    });
-
-    res
-      .status(201)
-      .json({ status: "success", data: newfilterQue[0]?.subtopics });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 exports.deleteInstructor = async (req, res) => {
   try {
@@ -1246,7 +1371,15 @@ exports.getAwaitingApprovals = async (req, res) => {
           category: 1,
           level: 1,
           lectures: {
-            $size: "$courseContent",
+            $sum: {
+              $map: {
+                input: "$courseContent",
+                as: "content",
+                in: {
+                  $size: "$$content.subtopics"
+                }
+              }
+            }
           },
           averageRating: 1,
           userEnrolled: {
@@ -1313,7 +1446,15 @@ exports.getPendingApproval = async (req, res) => {
           category: 1,
           level: 1,
           lectures: {
-            $size: "$courseContent",
+            $sum: {
+              $map: {
+                input: "$courseContent",
+                as: "content",
+                in: {
+                  $size: "$$content.subtopics"
+                }
+              }
+            }
           },
           averageRating: 1,
           userEnrolled: {
@@ -1381,7 +1522,15 @@ exports.getPublished = async (req, res) => {
           category: 1,
           level: 1,
           lectures: {
-            $size: "$courseContent",
+            $sum: {
+              $map: {
+                input: "$courseContent",
+                as: "content",
+                in: {
+                  $size: "$$content.subtopics"
+                }
+              }
+            }
           },
           averageRating: 1,
           userEnrolled: {
@@ -1449,7 +1598,15 @@ exports.getUnpublished = async (req, res) => {
           category: 1,
           level: 1,
           lectures: {
-            $size: "$courseContent",
+            $sum: {
+              $map: {
+                input: "$courseContent",
+                as: "content",
+                in: {
+                  $size: "$$content.subtopics"
+                }
+              }
+            }
           },
           averageRating: 1,
           userEnrolled: {
@@ -1522,7 +1679,15 @@ exports.getUserCourses = async (req, res) => {
           category: 1,
           level: 1,
           lectures: {
-            $size: "$courseContent",
+            $sum: {
+              $map: {
+                input: "$courseContent",
+                as: "content",
+                in: {
+                  $size: "$$content.subtopics"
+                }
+              }
+            }
           },
           userEnrolled: {
             $size: "$enrollments",
@@ -2327,11 +2492,19 @@ exports.myCourses = async (req, res) => {
                 category: 1,
                 level: 1,
                 lectures: {
-                  $size: "$courseContent",
+                  $sum: {
+                    $map: {
+                      input: "$courseContent",
+                      as: "content",
+                      in: {
+                        $size: "$$content.subtopics"
+                      }
+                    }
+                  }
                 },
                 maxEnrolments: 1,
                 topics: "$courseContent",
-                coursePrgress: {
+                courseProgress: {
                   $divide: [
                     {
                       $size: { $ifNull: ["$enrollments.watched", []] },

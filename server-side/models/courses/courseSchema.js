@@ -70,6 +70,7 @@ const courseSchema = new Schema({
           topic: String,
           videoUrl: String,
           videoKey: String,
+          notes: [String]
         },
       ],
     },

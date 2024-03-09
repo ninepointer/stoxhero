@@ -379,7 +379,7 @@ const Courses = () => {
                                           >
                                             {elem?.courseDurationInMinutes}{" "}
                                             Min •{" "}
-                                            {elem?.courseContent?.length}{" "}
+                                            {elem?.lectures}{" "}
                                             Lectures • For {elem?.level}
                                           </MDTypography>
                                         </Grid>
