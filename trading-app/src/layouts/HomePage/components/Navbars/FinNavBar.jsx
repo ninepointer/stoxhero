@@ -273,7 +273,7 @@ const Navbar = () => {
               <Menu onClick={Handle} sx={{ color: "white" }} />
             </IconButton>
           ) : (
-            <Stack direction="row" spacing={5} mt={2} display='flex' justifyContent='center' alignContent='center' alignItems="center">
+            <Stack direction="row" spacing={5} mt={1.5} display='flex' justifyContent='center' alignContent='center' alignItems="center">
               <a href="https://play.google.com/store/apps/details?id=com.stoxhero.app" target='_blank'>
               <OutlinedButton sx={{ borderRadius: 3, color: 'light', lineHeight:3 }} />
               </a>

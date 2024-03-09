@@ -1,7 +1,4 @@
 import React, { useEffect, useState, useContext } from "react";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
 import { CardActionArea, Divider, Grid } from "@mui/material";
 import axios from "axios";
 import { useMediaQuery } from "@mui/material";
@@ -19,17 +16,24 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import { CircularProgress } from "@mui/material";
 import SMC from "../../../../assets/images/SMC.png";
+import logo from "../../../../assets/images/logo_light.png";
+import ondemand from "../../../../assets/images/ondemand.png";
+import community from "../../../../assets/images/community.png";
+import qa from "../../../../assets/images/qa.png";
+import simulator from "../../../../assets/images/simulator.png";
+import lifetime from "../../../../assets/images/lifetime.png";
+import coursecertificate from "../../../../assets/images/coursecertificate.png";
 import SMCM from "../../../../assets/images/SMCM.png";
 import NoData from "../../../../assets/images/noBlogFound.png";
-import PaymentIcon from "@mui/icons-material/Payment";
-import Groups2Icon from "@mui/icons-material/Groups2";
 import { Link } from "react-router-dom";
-import StarRating from "./starRatings.js";
-// import Card from '@mui/joy/Card';
-// import CardContent from '@mui/joy/CardContent';
-// import CardOverflow from '@mui/joy/CardOverflow';
-// import Typography from '@mui/joy/Typography';
-import SignupLoginPopup from './signupLoginPopup.jsx';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import StarRating from './starRatings.js'
+import SignupLoginPopup from './signupLoginPopup.jsx'
 
 
 export default function Courses() {
@@ -40,20 +44,24 @@ export default function Courses() {
   const [isLoading, setIsLoading] = useState(true);
   const slug = window.location.pathname.split("/")[2];
   const [checkPaid, setCheckPaid] = useState(false);
+  // Get a reference to the section you want to scroll to by its ID
+  
+  const scrollToSection = () => {
+    // Get a reference to the section you want to scroll to by its ID
+    const section = document.getElementById('courses');
+  
+    // Scroll to the section using window.scrollTo()
+    if (section) {
+      window.scrollTo({
+        top: section.offsetTop, // Scroll to the top of the section
+        behavior: 'smooth', // Smooth scrolling animation
+      });
+    }
+  };
 
   useEffect(() => {
     fetchData();
   }, [skip]);
-
-//   useEffect(() => {
-//     checkPaidFunc();
-// }, [data])
-
-// async function checkPaidFunc() {
-//     const check = await axios.get(`${apiUrl}courses/user/${courses?._id}/checkpaid`, { withCredentials: true })
-//     setCheckPaid(check.data.data);
-// }
-
 
   async function fetchData() {
     let call1 = axios.get(
@@ -91,9 +99,8 @@ export default function Courses() {
         alignContent="center"
         alignItems="center"
         style={{
-          backgroundColor: "white",
           height: "auto",
-          backgroundColor: "#FBFFFA",
+          backgroundColor: "black",
           width: "auto",
           maxWidth: "100%",
           minHeight: "100vh",
@@ -115,7 +122,7 @@ export default function Courses() {
               lg={12}
               style={{ maxWidth: "auto", height: "auto" }}
             >
-              <Grid
+              {/* <Grid
                 item
                 xs={12}
                 md={12}
@@ -126,9 +133,86 @@ export default function Courses() {
                 alignItems="center"
               >
                 <img
-                  src={isMobile ? SMCM : SMC}
-                  style={{ maxWidth: "80%", height: "auto", borderRadius: 10 }}
+                  // src={isMobile ? SMCM : SMC}
+                  src={SMC}
+                  style={{ maxWidth: "100%", height: "auto" }}
                 />
+              </Grid> */}
+              <Grid
+                item
+                xs={12}
+                md={12}
+                lg={12}
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                style={{ position: "relative" }} // Ensure relative positioning for the container
+              >
+                <img
+                  src={isMobile ? SMCM : SMC}
+                  style={{ maxWidth: "100%", height: "auto" }}
+                />
+                <MDButton
+                  sinze="small"
+                  style={{
+                    position: "absolute", // Position the button absolutely
+                    top: "90%", // Position the button in the center vertically
+                    left: "50%", // Position the button in the center horizontally
+                    transform: "translate(-50%, -90%)", // Adjust to center the button perfectly
+                    padding: "12px", // Add padding to the button
+                    backgroundColor: "#D5F47E", // Add background color to the button
+                    color: "black", // Set text color
+                    border: "0.25px solid #454341",
+                    borderRadius: "10px", // Add border radius
+                    cursor: "pointer", // Add pointer cursor
+                    // width: "15%"
+                  }}
+                  onClick={scrollToSection} // Call scrollToSection() on button click
+                >
+                  <MDTypography style={{fontSize:"18px", fontWeight:600}}>View Courses</MDTypography>
+                </MDButton>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={12}
+                lg={12}
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                style={{minWidth:'100%'}}
+              >
+                <MDBox p={5} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minWidth:'100%'}}>
+                <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{backgroundColor:'white', minWidth:'100%'}}>
+                  <Grid item xs={6} md={12} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+                    <img src={simulator} width={50} />
+                    <MDTypography variant='body3' textAlign="center">Stock<br />Simulator</MDTypography>
+                  </Grid>
+                  <Grid item xs={6} md={12} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+                    <img src={ondemand} width={50} />
+                    <MDTypography variant='body3' textAlign="center">On-Demand <br />Courses</MDTypography>
+                  </Grid>
+                  <Grid item xs={6} md={12} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+                    <img src={community} width={50} />
+                    <MDTypography  variant='body3'textAlign="center">Community <br />Channel</MDTypography>
+                  </Grid>
+                  <Grid item xs={6} md={12} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+                    <img src={lifetime} width={50} />
+                    <MDTypography variant='body3' textAlign="center">Lifetime <br />Access</MDTypography>
+                  </Grid>
+                  <Grid item xs={6} md={12} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+                    <img src={qa} width={50} />
+                    <MDTypography variant='body3' textAlign="center">Live Q&A<br />Sessions</MDTypography>
+                  </Grid>
+                  <Grid item xs={6} md={12} lg={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' flexDirection='column'>
+                    <img src={coursecertificate} width={50} />
+                    <MDTypography variant='body3' textAlign="center">Course<br />Certificate</MDTypography>
+                  </Grid>
+                </Grid>
+                </MDBox>
               </Grid>
               <Grid
                 item
@@ -149,12 +233,14 @@ export default function Courses() {
                   justifyContent="center"
                   alignContent="center"
                   alignItems="center"
+                  id={'courses'}
                 >
                   <Grid
                     item
                     xs={12}
                     md={12}
                     lg={12}
+                    mt={5}
                     display="flex"
                     justifyContent="center"
                     alignContent="center"
@@ -182,28 +268,52 @@ export default function Courses() {
                         justifyContent="center"
                         alignContent="center"
                         alignItems="center"
-                        style={{ maxWidth: "90%", height: "auto" }}
+                        style={{ maxWidth: "100%", height: "auto" }}
                       >
                         <MDBox
                           display="flex"
                           justifyContent="center"
                           alignContent="center"
                           alignItems="center"
+                          flexDirection="column"
                         >
                           <MDTypography
                             variant={isMobile ? "h3" : "h2"}
                             fontWeight="bold"
+                            color='light'
                             style={{ textAlign: "center" }}
                           >
-                            My flagship Stock Market Courses
+                            Courses by Vijay Verma
                           </MDTypography>
+                            <MDBox
+                              display="flex"
+                              justifyContent="center"
+                              alignContent="center"
+                              alignItems="center"
+                              flexDirection="row"
+                              gap={0.5}
+                              mt={1}
+                            >
+                              <MDTypography
+                                variant={isMobile ? "body3" : "body3"}
+                                fontWeight="bold"
+                                color='light'
+                                style={{ textAlign: "center" }}
+                              >
+                                powered by
+                              </MDTypography>
+                              <img src={logo} width={120}/>
+                            </MDBox>
                         </MDBox>
                       </Grid>
+
                       <Grid
                         item
                         xs={12}
                         md={12}
                         lg={12}
+                        mt={2}
+                        mb={5}
                         display="flex"
                         justifyContent="center"
                         alignContent="center"
@@ -222,7 +332,7 @@ export default function Courses() {
                             fontWeight="bold"
                             style={{ color: "grey" }}
                           >
-                            What do I offer?
+                            What do Vijay offers?
                           </MDTypography>
                         </MDBox>
                       </Grid>
@@ -236,7 +346,8 @@ export default function Courses() {
                           lg={12}
                           display="flex"
                           justifyContent="center"
-                          alignItems="stretch"
+                          alignItems="center"
+                          style={{minxWidth:'90%'}}
                         >
                           <MDBox
                             display="flex"
@@ -245,7 +356,7 @@ export default function Courses() {
                           >
                             <Grid
                               container
-                              spacing={3}
+                              spacing={5}
                               xs={12}
                               md={12}
                               lg={12}
@@ -274,8 +385,9 @@ export default function Courses() {
                                   >
                                     <Card
                                       style={{
-                                        maxWidth: "80%",
-                                        minWidth: "80%",
+                                        maxWidth: "90%",
+                                        minWidth: "90%",
+                                        backgroundColor:'#343434'
                                       }}
                                     >
                                       <Grid
@@ -317,6 +429,7 @@ export default function Courses() {
                                             }}
                                           />
                                         </Grid>
+
                                         <Grid
                                           item
                                           p={2}
@@ -335,7 +448,7 @@ export default function Courses() {
                                         >
                                           <Grid
                                             container
-                                            spacing={1}
+                                            spacing={1.5}
                                             xs={12}
                                             md={12}
                                             lg={12}
@@ -369,10 +482,12 @@ export default function Courses() {
                                               <MDTypography
                                                 variant="body1"
                                                 fontWeight="bold"
+                                                color="light"
                                               >
                                                 {elem?.courseName}
                                               </MDTypography>
                                             </Grid>
+
                                             <Grid
                                               item
                                               xs={12}
@@ -393,12 +508,14 @@ export default function Courses() {
                                             >
                                               <MDTypography
                                                 variant="caption"
-                                                fontWeight="bold"
+                                                fontWeight={500}
+                                                color="light"
                                               >
                                                 {elem?.courseOverview}
                                               </MDTypography>
                                             </Grid>
-                                            <Grid
+
+                                            {/* <Grid
                                               item
                                               xs={12}
                                               md={12}
@@ -419,14 +536,15 @@ export default function Courses() {
                                               <MDTypography
                                                 variant="caption"
                                                 fontWeight="bold"
+                                                color="light"
                                               >
                                                 By: {elem?.instructorName.join(', ')}
                                               </MDTypography>
-                                            </Grid>
+                                            </Grid> */}
                                           </Grid>
                                           <Grid
                                             container
-                                            spacing={1}
+                                            spacing={1.5}
                                             xs={12}
                                             md={12}
                                             lg={12}
@@ -457,8 +575,8 @@ export default function Courses() {
                                                   : "flex-start"
                                               }
                                             >
-                                              <MDTypography variant="body1">
-                                                <StarRating rating={Number(elem?.averageRating) || 4} />
+                                              <MDTypography variant="body1" color='light'>
+                                                <StarRating rating={Number(elem?.averageRating) || '4.0'} />
                                               </MDTypography>
                                             </Grid>
                                             <Grid
@@ -480,6 +598,7 @@ export default function Courses() {
                                               <MDTypography
                                                 variant="caption"
                                                 fontWeight="bold"
+                                                color="light"
                                               >
                                                 {elem?.courseDurationInMinutes}{" "}
                                                 Min •{" "}
@@ -507,7 +626,7 @@ export default function Courses() {
                                                 variant="caption"
                                                 fontWeight="bold"
                                                 style={{
-                                                  color: "#532B9E",
+                                                  color: "#E6F495",
                                                   textAlign: "center",
                                                 }}
                                               >
@@ -536,64 +655,17 @@ export default function Courses() {
                                         >
                                           <Grid
                                             container
-                                            spacing={1}
+                                            spacing={1.5}
                                             xs={12}
                                             md={12}
                                             lg={12}
                                             display="flex"
-                                            justifyContent={
-                                              isMobile ? "center" : "center"
-                                            }
+                                            justifyContent="center"
                                             alignContent="center"
                                             alignItems={
-                                              isMobile ? "center" : "flex-start"
+                                              isMobile ? "center" : "center"
                                             }
                                           >
-                                            <Grid
-                                              item
-                                              xs={12}
-                                              md={12}
-                                              lg={12}
-                                              display="flex"
-                                              justifyContent={
-                                                isMobile ? "center" : "center"
-                                              }
-                                              alignContent="center"
-                                              alignItems={
-                                                isMobile ? "center" : "center"
-                                              }
-                                            >
-                                              <SignupLoginPopup data={elem} slug={slug} checkPaid={checkPaid} />
-                                            </Grid>
-                                            <Grid
-                                              item
-                                              xs={12}
-                                              md={12}
-                                              lg={12}
-                                              display="flex"
-                                              justifyContent={
-                                                isMobile ? "center" : "center"
-                                              }
-                                              alignContent="center"
-                                              alignItems={
-                                                isMobile ? "center" : "center"
-                                              }
-                                            >
-                                              <MDButton
-                                                variant="outlined"
-                                                size="small"
-                                                color="info"
-                                                style={{ minWidth: "100%" }}
-                                                component={Link}
-                                                to={{
-                                                  pathname: `/courses/${slug}/details`,
-                                                  search: `?course=${elem?.courseSlug}`,
-                                                  state: { data: elem },
-                                                }}
-                                              >
-                                                Course Details
-                                              </MDButton>
-                                            </Grid>
                                             <Grid
                                               item
                                               xs={12}
@@ -611,6 +683,7 @@ export default function Courses() {
                                               <MDTypography
                                                 variant="body1"
                                                 fontWeight="bold"
+                                                color="light"
                                               >
                                                 ₹
                                                 {new Intl.NumberFormat(
@@ -619,9 +692,10 @@ export default function Courses() {
                                                     minimumFractionDigits: 0,
                                                     maximumFractionDigits: 0,
                                                   }
-                                                ).format(elem?.discountedPrice)}
+                                                ).format(elem?.discountedPrice)}/-
                                               </MDTypography>
                                             </Grid>
+
                                             <Grid
                                               item
                                               xs={12}
@@ -639,6 +713,7 @@ export default function Courses() {
                                               <MDTypography
                                                 variant="body2"
                                                 fontWeight="normal"
+                                                color="light"
                                                 style={{
                                                   textDecoration:
                                                     "line-through",
@@ -654,6 +729,66 @@ export default function Courses() {
                                                 ).format(elem?.coursePrice)}
                                               </MDTypography>
                                             </Grid>
+
+                                            <Grid
+                                              item
+                                              xs={12}
+                                              md={12}
+                                              lg={12}
+                                              display="flex"
+                                              justifyContent={
+                                                isMobile ? "center" : "center"
+                                              }
+                                              alignContent="center"
+                                              alignItems={
+                                                isMobile ? "center" : "center"
+                                              }
+                                            >
+                                              <SignupLoginPopup data={elem} slug={slug} checkPaid={checkPaid} />
+                                            </Grid>
+
+                                            <Grid
+                                              item
+                                              xs={12}
+                                              md={12}
+                                              lg={12}
+                                              display="flex"
+                                              justifyContent={
+                                                isMobile ? "center" : "center"
+                                              }
+                                              alignContent="center"
+                                              alignItems={
+                                                isMobile ? "center" : "center"
+                                              }
+                                            >
+                                              <MDButton
+                                                variant="outlined"
+                                                // style={{ minWidth: "100%" }}
+                                                component={Link}
+                                                to={{
+                                                  pathname: `/courses/${slug}/details`,
+                                                  search: `?course=${elem?.courseSlug}`,
+                                                  state: { data: elem },
+                                                }}
+                                                style={{
+                                                  padidng: "12px",
+                                                  fontSize: "18px",
+                                                  borderRadius: "10px",
+                                                  color: "black",
+                                                  // backgroundColor: "#E6F495",
+                                                  textAlign: "center",
+                                                  fontFamily: "Work Sans , sans-serif",
+                                                  fontWeight: 600,
+                                                  textTransform: "capitalize",
+                                                  width:'100%',
+                                                  color:"white",
+                                                }}
+                                                size="small"
+                                              >
+                                                <span>Course Details</span>
+                                              </MDButton>
+                                            </Grid>
+                                            
                                           </Grid>
                                         </Grid>
                                       </Grid>
@@ -663,6 +798,7 @@ export default function Courses() {
                               })}
                             </Grid>
                           </MDBox>
+
                         </Grid>
                       ) : (
                         <>
