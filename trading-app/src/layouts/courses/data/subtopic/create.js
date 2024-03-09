@@ -327,7 +327,7 @@ export default function Create({
                 <Grid item xs={12} md={8} xl={4}>
                   <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(subtopic?.videoUrl && !fileVid) ? "warning" : ((subtopic?.videoUrl && fileVid) || fileVid) ? "error" : "success"} component="label">
                     Topic Video
-                    <input hidden accept="image/*" type="file" onChange={handleFileChange} />
+                    <input hidden accept="*" type="file" onChange={handleFileChange} />
                   </MDButton>
                   {uploadProgress > 0 && uploadProgress < 100 && (
                     <span>Upload Progress: {uploadProgress}%</span>
