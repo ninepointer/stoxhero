@@ -1723,9 +1723,9 @@ exports.getCourseBySlugUser = async (req, res) => {
 
     if(!courses){
       const newCourse = await Course.findOne({courseSlug : slug}).select("-enrollments -createdOn -createdBy -commissionPercentage -courseContent")
-      return res.status(400).json({ status: "error", message: 'You dont have enrolled in this course please but it.', hasPurchased: false, data: newCourse });
+      return res.status(200).json({ status: "success", message: `You haven't enrolled in this course yet. Please purchase it to get started.`, hasPurchased: false, data: newCourse });
     }
-    res.status(200).json({ status: "success", data: courses });
+    res.status(200).json({ status: "success", data: courses, hasPurchased: false });
   } catch (error) {
     res.status(500).json({
       status: "error",

@@ -1,55 +1,68 @@
 import React from 'react';
 import Grid from '@mui/material/Grid';
-import {Box, Typography} from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import Payment from '../payment';
+import { useMediaQuery } from "@mui/material";
+import theme from "../../../HomePage/utils/theme/index";
 
-const EnrollPage = () => {
-  const rootStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: 'rgba(255, 0, 255, 0.5)', // Adjust the opacity as needed
-    position: 'relative',
-    zIndex: 1,
-  };
+const EnrollPage = ({ course, message }) => {
 
-  const backdropStyle = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backdropFilter: 'blur(5px)',
-  };
+    const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
-  const messageStyle = {
-    textAlign: 'center',
-    fontSize: '24px',
-    fontWeight: 'bold',
-    zIndex: 3,
-  };
-
-  return (
-    <Grid
-    container
-    xs={12}
-    sm={12}
-    md={12}
-    lg={12}
-    xl={12}
-    mt={25}
-    display='flex'
-    justifyContent='center'
-    position= 'absolute'
-    alignItems='center'
->
-    <Grid item xs={12} sx={{ zIndex: 4 }}>
-        <Typography variant="h6" align="center" color='#000000'>
-            You don't have enrolled in this course. Please buy it.
-        </Typography>
-    </Grid>
-</Grid>
-  );
+    return (
+        <Grid
+            container
+            xs={12}
+            sm={12}
+            md={12}
+            lg={12}
+            xl={12}
+            mt={25}
+            display='flex'
+            justifyContent='center'
+            position='absolute'
+            alignItems='center'
+        >
+            <Grid item xs={12} sx={{ zIndex: 4 }}>
+                <Typography variant="h6" align="center" color='#000000'>
+                    {message}
+                </Typography>
+                <Grid
+                    container
+                    spacing={1}
+                    xs={12}
+                    md={12}
+                    lg={12}
+                    mt={1}
+                    display="flex"
+                    justifyContent={
+                        isMobile ? "center" : "center"
+                    }
+                    alignContent="center"
+                    alignItems={
+                        isMobile ? "center" : "flex-start"
+                    }
+                >
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                        lg={2}
+                        display="flex"
+                        justifyContent={
+                            isMobile ? "center" : "center"
+                        }
+                        alignContent="center"
+                        alignItems={
+                            isMobile ? "center" : "center"
+                        }
+                    >
+                        <Payment data={course} checkPaid={false} isBlur={true} />
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+    );
 };
 
 export default EnrollPage;

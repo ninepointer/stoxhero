@@ -19,6 +19,8 @@ const Courses = () => {
     const [selectedSubtopic, setSelectedSubtopic] = useState({});
     const [selectedTopic, setSelectedTopic] = useState({});
     const [selectedButton, setSelectedButton] = React.useState('Overview');
+    const [hasPurchased, setHasPurchased] = useState(true);
+    const [message, setMessage] = useState("");
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
@@ -37,10 +39,11 @@ const Courses = () => {
         Promise.all([call1])
             .then(([api1Response]) => {
                 // Process the responses here
-                setCourses(api1Response?.data?.data)
+                setCourses(api1Response?.data?.data);
+                setHasPurchased(api1Response?.data?.hasPurchased);
                 setSelectedSubtopic(api1Response?.data?.data?.courseContent?.[0]?.subtopics?.[0]);
                 setSelectedTopic(api1Response?.data?.data?.courseContent?.[0]);
-
+                setMessage(api1Response?.data?.message)
             })
             .catch((error) => {
                 // Handle errors here
@@ -62,20 +65,25 @@ const Courses = () => {
                         position: 'relative',
                     }}
                 >
-                  <BlurPage />
 
-                    <MDBox
-                        style={{
-                            backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            backdropFilter: 'blur(3px)',
-                            zIndex: 2,
-                        }}
-                    ></MDBox>
+                    {
+                        !hasPurchased &&
+                        <>
+                            <BlurPage course={courses} message={message} />
+                            <MDBox
+                                style={{
+                                    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    backdropFilter: 'blur(3px)',
+                                    zIndex: 2,
+                                }}
+                            ></MDBox>
+                        </>
+                    }
                     
                     <Grid
                         container
@@ -89,7 +97,8 @@ const Courses = () => {
                         justifyContent={'center'}
                         alignContent='center'
                         flexWrap='wrap'
-                    >                        <Grid item xs={12} sm={12} md={12} lg={8.4} xl={8.4}>
+                    >                        
+                    <Grid item xs={12} sm={12} md={12} lg={8.4} xl={8.4}>
                             <MDBox>
                                 <MDBox style={{ backgroundColor: '#000000' }}>
                                     <Video videoData={selectedSubtopic} />
