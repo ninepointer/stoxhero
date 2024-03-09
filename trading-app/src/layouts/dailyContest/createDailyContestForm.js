@@ -257,10 +257,7 @@ function Index() {
   async function onSubmit(e, formState) {
     // console.log("inside submit")
     e.preventDefault();
-    if (!image) {
-      openSuccessSB("error", "Please select a file to upload");
-      return;
-    }
+    
 
     try {
       const formData = new FormData();
@@ -320,7 +317,7 @@ function Index() {
       });
 
       const data = await res.json();
-      console.log(data, res.status);
+
       if (res.status !== 201) {
         setTimeout(() => {
           setCreating(false);
@@ -514,7 +511,6 @@ function Index() {
   const contestFor = contest?.contestFor;
   const visibility = contest?.visibility || dailyContest?.visibility;
 
-  console.log("visibility", visibility);
   const link = contestFor === "College" ? "collegecontest" : "";
   return (
     <>
@@ -1228,13 +1224,7 @@ function Index() {
                     disabled={(isSubmitted || contest) && (!editing || saving)}
                     accept="image/*"
                     type="file"
-                    // onChange={(e)=>{setImage(e.target.files)}}
                     onChange={(e) => {
-                      // setFormState(prevState => ({
-                      //   ...prevState,
-                      //   image: e.target.files
-                      // }));
-                      // setImage(e.target.files);
                       handleImage(e);
                     }}
                   />

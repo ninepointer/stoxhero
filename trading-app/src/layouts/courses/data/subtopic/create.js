@@ -3,24 +3,19 @@ import { useContext, useState } from "react";
 import TextField from "@mui/material/TextField";
 import {
   Grid,
-  Card,
-  CardContent,
-  CardActionArea,
-  FormControlLabel,
-  FormGroup,
-  Checkbox,
+
 } from "@mui/material";
-import MDTypography from "../../../../components/MDTypography";
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
 import { CircularProgress, Typography } from "@mui/material";
 import MDSnackbar from "../../../../components/MDSnackbar";
 import { apiUrl } from "../../../../constants/constants";
 import FormControl from "@mui/material/FormControl";
 import axios from "axios";
+import { Document, Page, pdfjs } from 'react-pdf';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import MDTypography from "../../../../components/MDTypography";
+
 
 export default function Create({
   createForm,
@@ -36,16 +31,41 @@ export default function Create({
     topic: "" || subtopic?.topic,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [fileVid, setFileVid] = useState(subtopic?.videoUrl);
-  const [notes, setNotes] = useState([]);
+  const [fileVid, setFileVid] = useState(subtopic?.videoUrl || '');
+  const [notes, setNotes] = useState(subtopic?.notes || []);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [notesPreviewUrl, setNotesPreviewUrl] = useState('');
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
 
-  const handleFileChange = (event) => {
-    setFileVid(event.target.files[0]);
-  };
 
   const handleNotesChange = (event) => {
     setNotes(event.target.files);
+    let previewUrls = [];
+    const files = event.target.files;
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Add the preview URL to the array
+        previewUrls.push(reader.result);
+  
+        // If all files have been processed, update the state with the array of preview URLs
+        if (previewUrls.length === files.length) {
+          setNotesPreviewUrl(previewUrls);
+          // console.log("Title Preview URLs:", previewUrls);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setFileVid(event.target.files[0]);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setVideoPreviewUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleUpload = async (e) => {
@@ -64,16 +84,17 @@ export default function Create({
     for (let elem in formState) {
       formData.append(`${elem}`, formState[elem]);
     }
-    formData.append("fileVid", fileVid);
-
-    
-    for(let note of notes){
-      console.log('notes', note)
-      formData.append('pdfFiles', note);
+    if(videoPreviewUrl){
+      formData.append("fileVid", fileVid);
     }
-    // notes.forEach((file) => {
-    //   formData.append('pdfFiles', file);
-    // });
+
+    if(notesPreviewUrl?.length > 0){
+      for(let note of notes){
+        console.log('notes', note)
+        formData.append('pdfFiles', note);
+      }
+    }
+  
 
     if (subtopic?.topic) {
       try {
@@ -304,8 +325,10 @@ export default function Create({
                 justifyContent="center"
               >
                 <Grid item xs={12} md={8} xl={4}>
-                  <label>Topic Video</label>
-                  <input type="file" onChange={handleFileChange} />
+                  <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(subtopic?.videoUrl && !fileVid) ? "warning" : ((subtopic?.videoUrl && fileVid) || fileVid) ? "error" : "success"} component="label">
+                    Topic Video
+                    <input hidden accept="image/*" type="file" onChange={handleFileChange} />
+                  </MDButton>
                   {uploadProgress > 0 && uploadProgress < 100 && (
                     <span>Upload Progress: {uploadProgress}%</span>
                   )}
@@ -315,14 +338,10 @@ export default function Create({
                 </Grid>
 
                 <Grid item xs={12} md={8} xl={4}>
-                  <label>Notes</label>
-                  <input type="file" multiple onChange={handleNotesChange} />
-                  {/* {uploadProgress > 0 && uploadProgress < 100 && (
-                    <span>Upload Progress: {uploadProgress}%</span>
-                  )}
-                  {uploadProgress == 100 && <span>Storing Data in S3...</span>}
-                  {uploadProgress == 200 && <span>File uploaded successfully.</span>}
-                  {uploadProgress == -1 && <span>Error in file upload. Try again.</span>} */}
+                  <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(subtopic?.notes?.length && !notes?.length) ? "warning" : ((subtopic?.notes?.length && notes?.length) || notes?.length) ? "error" : "success"} component="label">
+                    Notes
+                    <input hidden accept="pdf/*" type="file" multiple onChange={handleNotesChange} />
+                  </MDButton>
                 </Grid>
 
                 <Grid
@@ -367,29 +386,72 @@ export default function Create({
               </Grid>
             </Grid>
 
-
-
-
-            {/* <Grid container mt={0.5} alignItems="center" justifyContent="center">
+            <Grid container mt={1} alignItems="center" justifyContent="center">
               <Grid
                 container
                 spacing={1}
                 xs={12}
                 md={12}
                 xl={12}
+                // gap={1}
                 display="flex"
-                justifyContent="center"
+                justifyContent="flex-start"
+                alignContent={'center'}
+                alignItems='center'
               >
-                {subtopic?.notes?.map((elem) => {
+                {videoPreviewUrl ?
+                <Grid item xs={12} md={6} xl={3} mr={1}>
+                  <video src={videoPreviewUrl} height={70} width={125}/>
+                </Grid>
+                :
+                <Grid item xs={12} md={6} xl={3} mr={1}>
+                  <video src={subtopic?.videoUrl} height={70} width={125}/>
+                </Grid>}
+
+                {notesPreviewUrl ?
+                notesPreviewUrl?.map((elem, index)=>{
                   return (
-                    <Grid item xs={12} md={6} xl={3}>
-                      <embed src={elem} type="application/pdf" width="100%" height="500px" />
+                    <Grid item xs={12} md={6} xl={2} display="flex"
+                      justifyContent="flex-start"
+                      flexDirection='column'
+                      alignContent={'center'}
+                      alignItems='center'>
+                      <PictureAsPdfIcon color='error' size={90} sx={{ height: '50px', width: '50px' }} />
+                      <MDTypography
+                        variant="caption"
+                        fontWeight="bold"
+                        color="text"
+                      >
+                        {`${(index + 1).toString().padStart(2, '0')}`}
+                      </MDTypography>
+
+                    </Grid>
+                  )
+                })
+                :
+                subtopic?.notes?.map((elem, index)=>{
+                  return(
+                    <Grid item xs={12} md={6} xl={2} display="flex"
+                      justifyContent="flex-start"
+                      flexDirection='column'
+                      alignContent={'center'}
+                      alignItems='center'>
+                      <PictureAsPdfIcon color='error' size={90} sx={{ height: '50px', width: '50px' }} />
+                      <MDTypography
+                        variant="caption"
+                        fontWeight="bold"
+                        color="text"
+                      >
+                        {`${(index + 1).toString().padStart(2, '0')}`}
+                      </MDTypography>
                     </Grid>
                   )
                 })}
-               
+                
               </Grid>
-            </Grid> */}
+            </Grid>
+
+
           {renderSuccessSB}
           {renderErrorSB}
         </MDBox>

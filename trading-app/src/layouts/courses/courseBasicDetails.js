@@ -165,6 +165,7 @@ const CreateCourse = (
     if (res.status === 200 || res.status == 201 || data) {
       openSuccessSB("Course Edited", data.message);
       setEditing(true);
+      setEditClicked(false);
       setCreatedCourse(data.data);
       setCourseData(data.data);
     } else {
@@ -654,6 +655,58 @@ const CreateCourse = (
                   </Grid>
                 )}
 
+                  <Grid item xs={12} md={6} xl={6}>
+                    <MDButton
+                      variant="outlined"
+                      style={{ fontSize: 10 }}
+                      fullWidth
+                      color={
+                        courseData?.courseImage && !file
+                          ? "warning"
+                          : (courseData?.courseImage && file) || file
+                            ? "error"
+                            : "success"
+                      }
+                      component="label"
+                    >
+                      Upload Image(1080X720)
+                      <input
+                          type="file"
+                          onChange={handleCourseImage}
+                          disabled={editing}
+                          accept="image/*"
+                          style={{ display: "none", cursor: "pointer" }}
+                          id="image-upload"
+                        />
+                    </MDButton>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={6}>
+                    <MDButton
+                      variant="outlined"
+                      style={{ fontSize: 10 }}
+                      fullWidth
+                      color={
+                        courseData?.salesVideo && !videoFile
+                          ? "warning"
+                          : (courseData?.salesVideo && videoFile) || videoFile
+                            ? "error"
+                            : "success"
+                      }
+                      component="label"
+                    >
+                      Upload Video(1080X720)
+                      <input
+                          type="file"
+                          onChange={handleSalesVideo}
+                          accept="*"
+                          disabled={editing}
+                          style={{ display: "none", cursor: "pointer" }}
+                          id="video-upload"
+                        />
+                    </MDButton>
+                  </Grid>
+
                 <Grid item xs={12} md={12} lg={12}>
                   <JoditEditor
                     ref={editor}
@@ -734,7 +787,7 @@ const CreateCourse = (
               alignItems="center"
               flexDirection="column"
             >
-              {!courseData?.courseImage ? (
+              {titlePreviewUrl ? (
                 <Grid
                   item
                   xs={12}
@@ -765,7 +818,6 @@ const CreateCourse = (
                     >
                       <MDTypography variant="button">Course Image</MDTypography>
                     </Grid>
-                    {titlePreviewUrl ? (
                       <Grid
                         item
                         mt={0.5}
@@ -783,9 +835,21 @@ const CreateCourse = (
                           style={{ maxWidth: "100%" }}
                         />
                       </Grid>
-                    ) : (
+                  </Grid>
+                </Grid>
+                ) : (
+                  courseData?.courseImage ?
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
+                      lg={12}
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
                       <Grid
-                        item
+                        container
                         mt={0.5}
                         xs={12}
                         md={12}
@@ -793,128 +857,147 @@ const CreateCourse = (
                         display="flex"
                         justifyContent="center"
                         alignItems="center"
-                        style={{
-                          maxWidth: "100%",
-                          minHeight: "220px",
-                          border: "1px dashed #ccc",
-                        }}
+                        style={{ maxWidth: "100%", border: "1px dotted #ccc" }}
                       >
-                        <input
-                          type="file"
-                          onChange={handleCourseImage}
-                          disabled={editing}
-                          accept="image/*"
-                          style={{ display: "none", cursor: "pointer" }}
-                          id="image-upload"
+                        <img
+                          src={courseData?.courseImage}
+                          alt="Preview"
+                          style={{ maxWidth: "100%" }}
                         />
-                        <label
-                          htmlFor="image-upload"
-                          style={{ cursor: "pointer" }}
-                        >
-                          <Grid
-                            container
-                            xs={12}
-                            md={12}
-                            lg={12}
-                            display="flex"
-                            justifyContent="center"
-                            alignItems="center"
-                          >
-                            <Grid
-                              item
-                              xs={12}
-                              md={12}
-                              lg={12}
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                            >
-                              <img src={UploadImage} width="20px" />
-                            </Grid>
-                            <Grid
-                              item
-                              xs={12}
-                              md={12}
-                              lg={12}
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                            >
-                              <MDTypography variant="caption" component="span">
-                                {!formState?.courseImage?.name
-                                  ? "Upload Image"
-                                  : "Upload Another Image"}
-                              </MDTypography>
-                            </Grid>
-                          </Grid>
-                        </label>
                       </Grid>
-                    )}
-                  </Grid>
-                </Grid>
-              ) : (
-                <Grid
-                  item
-                  xs={12}
-                  md={12}
-                  lg={12}
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Grid
-                    container
-                    mt={0.5}
-                    xs={12}
-                    md={12}
-                    lg={12}
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    style={{ maxWidth: "100%", border: "1px dotted #ccc" }}
-                  >
-                    <img
-                      src={courseData?.courseImage}
-                      alt="Preview"
-                      style={{ maxWidth: "100%" }}
-                    />
-                  </Grid>
-                </Grid>
-              )}
-
-              {!courseData?.salesVideo ? (
-                <Grid
-                  item
-                  mt={1}
-                  xs={12}
-                  md={12}
-                  lg={12}
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  style={{ minWidth: "100%" }}
-                >
-                  <Grid
-                    container
-                    xs={12}
-                    md={12}
-                    lg={12}
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                  >
+                    </Grid>
+                    :
                     <Grid
                       item
                       xs={12}
                       md={12}
                       lg={12}
                       display="flex"
-                      justifyContent="flex-start"
+                      justifyContent="center"
+                      alignItems="center"
+                      style={{ minWidth: "100%" }}
+                    >
+                      <Grid
+                        container
+                        xs={12}
+                        md={12}
+                        lg={12}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <Grid
+                          item
+                          xs={12}
+                          md={12}
+                          lg={12}
+                          display="flex"
+                          justifyContent="flex-start"
+                          alignItems="center"
+                        >
+                          <Grid
+                            item
+                            mt={0.5}
+                            xs={12}
+                            md={12}
+                            lg={12}
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            style={{
+                              maxWidth: "100%",
+                              minHeight: "220px",
+                              border: "1px dashed #ccc",
+                            }}
+                          >
+                            <input
+                              type="file"
+                              onChange={handleCourseImage}
+                              disabled={editing}
+                              accept="image/*"
+                              style={{ display: "none", cursor: "pointer" }}
+                              id="image-upload"
+                            />
+                            <label
+                              htmlFor="image-upload"
+                              style={{ cursor: "pointer" }}
+                            >
+                              <Grid
+                                container
+                                xs={12}
+                                md={12}
+                                lg={12}
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                              >
+                                <Grid
+                                  item
+                                  xs={12}
+                                  md={12}
+                                  lg={12}
+                                  display="flex"
+                                  justifyContent="center"
+                                  alignItems="center"
+                                >
+                                  <img src={UploadImage} width="20px" />
+                                </Grid>
+                                <Grid
+                                  item
+                                  xs={12}
+                                  md={12}
+                                  lg={12}
+                                  display="flex"
+                                  justifyContent="center"
+                                  alignItems="center"
+                                >
+                                  <MDTypography variant="caption" component="span">
+                                    {!formState?.courseImage?.name
+                                      ? "Upload Image"
+                                      : "Upload Another Image"}
+                                  </MDTypography>
+                                </Grid>
+                              </Grid>
+                            </label>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                )}
+
+                {titleVideoPreviewUrl ? (
+                  <Grid
+                    item
+                    mt={1}
+                    xs={12}
+                    md={12}
+                    lg={12}
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    style={{ minWidth: "100%" }}
+                  >
+                    <Grid
+                      container
+                      xs={12}
+                      md={12}
+                      lg={12}
+                      display="flex"
+                      justifyContent="center"
                       alignItems="center"
                     >
-                      <MDTypography variant="button">Sales Video</MDTypography>
-                    </Grid>
-                    {titleVideoPreviewUrl ? (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={12}
+                        display="flex"
+                        justifyContent="flex-start"
+                        alignItems="center"
+                      >
+                        <MDTypography variant="button">Sales Video</MDTypography>
+                      </Grid>
+
                       <Grid
                         item
                         mt={0.5}
@@ -932,9 +1015,22 @@ const CreateCourse = (
                           style={{ maxWidth: "100%" }}
                         />
                       </Grid>
-                    ) : (
+                    </Grid>
+                  </Grid>
+                ) : (
+
+                  courseData?.salesVideo ?
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
+                      lg={12}
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
                       <Grid
-                        item
+                        container
                         mt={0.5}
                         xs={12}
                         md={12}
@@ -942,95 +1038,117 @@ const CreateCourse = (
                         display="flex"
                         justifyContent="center"
                         alignItems="center"
-                        style={{
-                          maxWidth: "100%",
-                          minHeight: "220px",
-                          border: "1px dashed #ccc",
-                        }}
+                        style={{ maxWidth: "100%", border: "1px dotted #ccc" }}
                       >
-                        <input
-                          type="file"
-                          onChange={handleSalesVideo}
-                          accept="*"
-                          disabled={editing}
-                          style={{ display: "none", cursor: "pointer" }}
-                          id="video-upload"
+                        <video
+                          controls // This adds controls like play, pause, and volume.
+                          src={courseData?.salesVideo} // Set the video source dynamically.
+                          alt="Preview" // Provide alternative text for accessibility.
+                          style={{ maxWidth: "100%" }} // Ensure the video doesn't exceed container width.
                         />
-                        <label
-                          htmlFor="video-upload"
-                          style={{ cursor: "pointer" }}
+                      </Grid>
+                    </Grid>
+                    :
+                    <Grid
+                      item
+                      mt={1}
+                      xs={12}
+                      md={12}
+                      lg={12}
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      style={{ minWidth: "100%" }}
+                    >
+                      <Grid
+                        container
+                        xs={12}
+                        md={12}
+                        lg={12}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <Grid
+                          item
+                          xs={12}
+                          md={12}
+                          lg={12}
+                          display="flex"
+                          justifyContent="flex-start"
+                          alignItems="center"
                         >
+
                           <Grid
-                            container
+                            item
+                            mt={0.5}
                             xs={12}
                             md={12}
                             lg={12}
                             display="flex"
                             justifyContent="center"
                             alignItems="center"
+                            style={{
+                              maxWidth: "100%",
+                              minHeight: "220px",
+                              border: "1px dashed #ccc",
+                            }}
                           >
-                            <Grid
-                              item
-                              xs={12}
-                              md={12}
-                              lg={12}
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
+                            <input
+                              type="file"
+                              onChange={handleSalesVideo}
+                              accept="*"
+                              disabled={editing}
+                              style={{ display: "none", cursor: "pointer" }}
+                              id="video-upload"
+                            />
+                            <label
+                              htmlFor="video-upload"
+                              style={{ cursor: "pointer" }}
                             >
-                              <img src={UploadVideo} width="20px" />
-                            </Grid>
-                            <Grid
-                              item
-                              xs={12}
-                              md={12}
-                              lg={12}
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                            >
-                              <MDTypography variant="caption" component="span">
-                                {!formState?.salesVideo?.name
-                                  ? "Upload Video"
-                                  : "Upload Another Video"}
-                              </MDTypography>
-                            </Grid>
+                              <Grid
+                                container
+                                xs={12}
+                                md={12}
+                                lg={12}
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                              >
+                                <Grid
+                                  item
+                                  xs={12}
+                                  md={12}
+                                  lg={12}
+                                  display="flex"
+                                  justifyContent="center"
+                                  alignItems="center"
+                                >
+                                  <img src={UploadVideo} width="20px" />
+                                </Grid>
+                                <Grid
+                                  item
+                                  xs={12}
+                                  md={12}
+                                  lg={12}
+                                  display="flex"
+                                  justifyContent="center"
+                                  alignItems="center"
+                                >
+                                  <MDTypography variant="caption" component="span">
+                                    {!formState?.salesVideo?.name
+                                      ? "Upload Video"
+                                      : "Upload Another Video"}
+                                  </MDTypography>
+                                </Grid>
+                              </Grid>
+                            </label>
                           </Grid>
-                        </label>
+
+                        </Grid>
                       </Grid>
-                    )}
-                  </Grid>
-                </Grid>
-              ) : (
-                <Grid
-                  item
-                  xs={12}
-                  md={12}
-                  lg={12}
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Grid
-                    container
-                    mt={0.5}
-                    xs={12}
-                    md={12}
-                    lg={12}
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    style={{ maxWidth: "100%", border: "1px dotted #ccc" }}
-                  >
-                    <video
-                      controls // This adds controls like play, pause, and volume.
-                      src={courseData?.salesVideo} // Set the video source dynamically.
-                      alt="Preview" // Provide alternative text for accessibility.
-                      style={{ maxWidth: "100%" }} // Ensure the video doesn't exceed container width.
-                    />
-                  </Grid>
-                </Grid>
-              )}
+                    </Grid>
+                )}
             </Grid>
           </Grid>
           {renderSuccessSB}

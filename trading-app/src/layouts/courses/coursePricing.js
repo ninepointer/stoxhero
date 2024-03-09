@@ -113,6 +113,8 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
         "Pricing Edited",
         ""
       );
+      setEditClicked(false);
+      setEditing(true);
     
     } else {
       openErrorSB("Error", data.message);

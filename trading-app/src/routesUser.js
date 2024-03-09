@@ -99,7 +99,7 @@ import PaymentStatus from "./layouts/paymentTest/paymentStatus";
 // import Challenge from './layouts/UserDailyChallenge'
 import { FaAffiliatetheme } from "react-icons/fa";
 import AffiliateDashboard from "./layouts/myAffiliateDashboard"
-
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 
 const routes = [
 
@@ -385,7 +385,7 @@ const routes = [
     type: "collapse",
     name: "Course",
     key: "course",
-    icon: <VideoChatIcon/>,
+    icon: <AutoStoriesIcon/>,
     route: "/course",
     component: <InfluencerCourse />,
   },
