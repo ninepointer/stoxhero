@@ -242,7 +242,10 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
   const initiatePayment = async () => {
     try {
       setIsPaymentStart(true);
-      await createUser();
+      if(createUser){
+        await createUser();
+      }
+      
       const res = await axios.post(`${apiUrl}payment/initiate`, { amount: Number((amount - discountAmount - bonusRedemption) * 100) + actualAmount * 100, redirectTo: window.location.href, paymentFor: 'Course', productId: data?._id, coupon: verifiedCode, bonusRedemption }, { withCredentials: true });
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
