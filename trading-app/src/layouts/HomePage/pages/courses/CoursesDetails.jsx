@@ -130,7 +130,7 @@ export default function Courses() {
                                         })}
                                      
                                     </Grid>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center'>
+                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' flexWrap='wrap'>
                                         <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5}>
                                             <LanguageIcon color='white' />
                                             <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.courseLanguages}`}</MDTypography>

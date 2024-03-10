@@ -1051,18 +1051,18 @@ export default function Courses() {
                             }}
                           >
 
-                            <MDBox display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} flexDirection='column' alignContent='center' ml={isMobile ? 0 : 10} p={2}>
-                              <MDBox display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent='center' height='auto'>
+                            <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} flexDirection='column' alignContent='center' ml={isMobile ? 0 : 10} p={2}>
+                              <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} alignContent='center' height='auto'>
                                 <MDTypography style={{ fontSize: "24px", fontWeight: 700, color: '#ffffff' }}>
                                   Course Created and Instructed By
                                 </MDTypography>
                               </MDBox>
-                              <MDBox display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent='center' height='auto'>
+                              <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} alignContent='center' height='auto'>
                                 <MDTypography style={{ fontSize: "24px", fontWeight: 700, color: '#E6F495' }}>
                                   {`${instructor?.first_name} ${instructor?.last_name}`}
                                 </MDTypography>
                               </MDBox>
-                              <MDBox display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} flexDirection={isMobile ? 'column' : 'row'} alignContent='center' alignItems="center" gap={2} mt={1}>
+                              <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} flexDirection={isMobile ? 'column' : 'row'} alignContent='center' alignItems={isMobile?"flex-start":"center"} gap={2} mt={1}>
                                 <img src={instructor?.profilePhoto?.url} style={{ borderRadius: '50%', width: '90px', height: '90px' }} />
                                 <MDBox display='flex' justifyContent='center' flexDirection='column' alignContent='center' fontColor='#ffffff'>
                                   <MDBox display='flex' alignContent='center' gap={1} sx={{cursor: 'pointer'}} onClick={()=>{openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.youtube?.channelLink)}} ><span style={{color: '#ffffff', marginTop: '3px'}}><YouTubeIcon color='red' /></span> <span style={{color: '#ffffff'}}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.youtube?.followers)} Subscribers`}</span></MDBox>
