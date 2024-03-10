@@ -82,6 +82,14 @@ export default function Courses() {
     }
   };
 
+  function getNumLectures(courseContent){
+    let lectures =0;
+    for(let obj of courseContent){
+      lectures+=obj?.subtopics?.length;
+    }
+    return lectures;
+  }
+
   useEffect(() => {
     fetchData();
   }, [skip]);
@@ -773,7 +781,7 @@ export default function Courses() {
                                               >
                                                 {elem?.courseDurationInMinutes}{" "}
                                                 Min •{" "}
-                                                {elem?.courseContent?.length}{" "}
+                                                {getNumLectures(elem?.courseContent)}{" "}
                                                 Lectures • For {elem?.level}
                                               </MDTypography>
                                             </Grid>
