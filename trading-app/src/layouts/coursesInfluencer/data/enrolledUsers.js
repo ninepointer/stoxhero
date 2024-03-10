@@ -76,7 +76,7 @@ export default function EnrolledUsers({
           color="text"
           fontWeight="medium"
         >
-          ₹{Number(elem?.pricePaidByUser).toFixed(2)}
+          ₹{Number(elem?.pricePaidByUser-elem?.gstAmount).toFixed(2)}
         </MDTypography>
       );
     obj.commission = (
@@ -86,7 +86,7 @@ export default function EnrolledUsers({
           color="text"
           fontWeight="medium"
         >
-          ₹{(elem?.pricePaidByUser*((course?.commissionPercentage/100)??0)).toFixed(2)}
+          ₹{(elem?.pricePaidByUser-elem?.gstAmount*((course?.commissionPercentage/100)??0)).toFixed(2)}
         </MDTypography>
       );
 
