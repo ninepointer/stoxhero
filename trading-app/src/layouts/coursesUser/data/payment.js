@@ -251,7 +251,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
         await createUser();
       }
       
-      const res = await axios.post(`${apiUrl}payment/initiate`, { amount: Number((amount - discountAmount - bonusRedemption) * 100) + actualAmount * 100, redirectTo: "https://www.stoxhero.com/courses", paymentFor: 'Course', productId: data?._id, coupon: verifiedCode, bonusRedemption }, { withCredentials: true });
+      const res = await axios.post(`${apiUrl}payment/initiate`, { amount: Number((amount - discountAmount - bonusRedemption) * 100) + actualAmount * 100, redirectTo: "https://stoxhero.com/courses", paymentFor: 'Course', productId: data?._id, coupon: verifiedCode, bonusRedemption }, { withCredentials: true });
       console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href = res?.data?.data?.instrumentResponse?.redirectInfo?.url;
       setIsPaymentStart(false);
