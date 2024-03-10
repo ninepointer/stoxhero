@@ -2308,21 +2308,6 @@ exports.handleDeductCourseFee = async (
       }
     }
 
-    // if (!req?.user?.paidDetails?.paidDate) {
-    //   const updatePaidDetails = await User.findOneAndUpdate(
-    //     { _id: new ObjectId(userId) },
-    //     {
-    //       $set: {
-    //         'paidDetails.paidDate': new Date(),
-    //         'paidDetails.paidStatus': 'Inactive',
-    //         'paidDetails.paidProduct': new ObjectId('6517d48d3aeb2bb27d650de5'),
-    //         'paidDetails.paidProductPrice': courseFee
-    //       }
-    //     },
-    //     { new: true }
-    //   );
-    //   await client.del(`${req?.user?._id.toString()}authenticatedUser`);
-    // }
     return {
       statusCode: 200,
       data: {
