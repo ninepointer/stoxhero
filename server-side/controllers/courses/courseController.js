@@ -1672,9 +1672,6 @@ exports.getUserCourses = async (req, res) => {
         user?.referredBy
       );
       course = await Course.aggregate(pipeline)
-        .sort({ courseStartTime: -1 })
-        .skip(skip)
-        .limit(limit);
 
       count = await Course.countDocuments({
         status: "Published",
@@ -1684,9 +1681,6 @@ exports.getUserCourses = async (req, res) => {
       count = await Course.countDocuments({ status: "Published" });
 
       course = await Course.aggregate(pipeline)
-        .sort({ courseStartTime: -1 })
-        .skip(skip)
-        .limit(limit);
     }
 
     res.status(200).json({ status: "success", data: course, count: count });
@@ -2407,6 +2401,13 @@ exports.purchaseIntent = async (req, res) => {
 exports.myCourses = async (req, res) => {
   try {
     const userId = req.user._id;
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
+
+    const count = await Course.countDocuments({
+      status: "Published",
+      "enrollments.userId": new ObjectId(userId),
+    });
 
     const result = await Course.aggregate([
       {
@@ -2420,12 +2421,6 @@ exports.myCourses = async (req, res) => {
           localField: "courseInstructors.id",
           foreignField: "_id",
           as: "instructor",
-        },
-      },
-      {
-        $sort: {
-          courseStartTime: -1,
-          _id: -1,
         },
       },
       {
@@ -2497,10 +2492,16 @@ exports.myCourses = async (req, res) => {
               },
             },
             {
-              $skip: 0,
+              $sort: {
+                courseStartTime: -1,
+                _id: -1,
+              },
             },
             {
-              $limit: 10,
+              $skip: skip,
+            },
+            {
+              $limit: limit,
             },
           ],
           rating: [
@@ -2542,6 +2543,7 @@ exports.myCourses = async (req, res) => {
       status: "success",
       message: "Data Fetched successfully",
       data: dataArr,
+      count: count
     });
   } catch (error) {
     console.log(error);
