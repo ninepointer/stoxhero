@@ -2097,13 +2097,15 @@ exports.handleDeductCourseFee = async (
       };
     }
 
+    const totalAmountWithoutGST = (course?.discountedPrice - (Number(discountAmount) || 0) - (Number(bonusRedemption) || 0));
+
     let obj = {
       userId: userId,
       actualFee: course?.coursePrice,
       discountedFee: course?.discountedPrice,
       discountUsed: discountAmount,
       pricePaidByUser: courseFee,
-      gstAmount: (courseFee * setting[0]?.courseGstPercentage) / 100,
+      gstAmount: (totalAmountWithoutGST * setting[0]?.courseGstPercentage) / 100,
       enrolledOn: new Date(),
     };
     if (Number(bonusRedemption)) {
@@ -2119,10 +2121,6 @@ exports.handleDeductCourseFee = async (
       },
       { new: true }
     );
-
-    // console.log(result)
-    // Save the updated document
-    // await result.save();
 
     wallet.transactions = [
       ...wallet.transactions,
@@ -2306,6 +2304,41 @@ exports.handleDeductCourseFee = async (
           course?._id
         );
       }
+    }
+
+    const pricePaidByUser = courseFee;
+    const gst = (totalAmountWithoutGST * setting[0]?.courseGstPercentage) / 100;
+    const commissionPercentage = course?.commissionPercentage;
+    const totalInfluencer = course?.courseInstructors?.length;
+    const finalAmount = ((pricePaidByUser-gst)*commissionPercentage/100)/totalInfluencer;
+
+    for(const elem of course?.courseInstructors){
+      const wallet = await UserWallet.findOne({ userId: elem?.id });
+      wallet.transactions = [
+        ...wallet.transactions,
+        {
+          title: "Course Credited",
+          description: `Amount credited for the course purchase of ${courseName}`,
+          transactionDate: new Date(),
+          amount: finalAmount,
+          transactionId: uuid.v4(),
+          transactionType: "Cash",
+        },
+      ];
+      await wallet.save({validateBeforeSave: false});
+
+      await createUserNotification({
+        title: "Course Amount Credited",
+        description: `₹${finalAmount} credited as Course purchase of ${course?.courseName}`,
+        notificationType: "Individual",
+        notificationCategory: "Informational",
+        productCategory: "Course",
+        user: elem?.id,
+        priority: "Low",
+        channels: ["App", "Email"],
+        createdBy: "63ecbc570302e7cf0153370c",
+        lastModifiedBy: "63ecbc570302e7cf0153370c",
+      });
     }
 
     return {
