@@ -192,6 +192,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
   }
 
   const buySubscription = async () => {
+    
     if (userWallet < Number(amount - discountAmount - bonusRedemption)) {
       window.webengage.track('course_payment_low_balance', {
         user: getDetails?.userDetails?._id,
@@ -206,6 +207,8 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
       courseId: data?._id,
       amount: Number(amount - discountAmount - bonusRedemption)
     })
+
+    setIsPaymentStart(true);
     const res = await fetch(`${apiUrl}courses/user/deductcoursefee`, {
       method: "PATCH",
       credentials: "include",
@@ -225,12 +228,14 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
         ...messege,
         error: dataResp.message
       })
+      setIsPaymentStart(false);
     } else {
       // navigate(`/courses`)
       setMessege({
         ...messege,
         thanksMessege: dataResp.message
       })
+      setIsPaymentStart(false);
     }
   }
 
@@ -502,6 +507,11 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
                             }}
                           />
                           :
+
+                          isPaymentStart ?
+                            <CircularProgress size={20} color="light"
+                            />
+                            :
                           <ArrowForwardIosIcon
                             sx={{
                               mt: "8px",
