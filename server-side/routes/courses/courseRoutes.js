@@ -63,15 +63,15 @@ router
     courseController.getAllCourses
   );
 
-router.route("/info").post(
-  Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  upload.fields([
-    { name: "courseImage", maxCount: 1 },
-    { name: "salesVideo", maxCount: 1 },
-  ]),
-  courseController.createCourseInfo
-);
+// router.route("/info").post(
+//   Authenticate,
+//   restrictTo("Admin", "SuperAdmin"),
+//   upload.fields([
+//     { name: "courseImage", maxCount: 1 },
+//     { name: "salesVideo", maxCount: 1 },
+//   ]),
+//   courseController.createCourseInfo
+// );
 
 router
   .route("/pricing/:id")

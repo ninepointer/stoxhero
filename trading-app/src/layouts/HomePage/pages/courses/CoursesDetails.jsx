@@ -77,7 +77,6 @@ export default function Courses() {
             .then(([api1Response]) => {
                 // Process the responses here
                 setCourses(api1Response.data.data)
-
             })
             .catch((error) => {
                 // Handle errors here
@@ -100,163 +99,162 @@ export default function Courses() {
                 <ThemeProvider theme={theme}>
                     <FinNavbar />
                     {courses ?
-                    <>
-                    <MDBox mt={10} p={3} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{minWidth:'100%', backgroundColor:'#343434'}}>
-                    
-                    <Grid container spacing={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{maxWidth:'90%'}}>
-                            <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
-                                <Grid container spacing={2} xs={12} md={12} lg={6} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{minWidth:'100%'}}>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
-                                        <MDTypography variant='h3' color='light'>{courses?.courseName}</MDTypography>
-                                    </Grid>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                                        <MDTypography variant='body3' fontSize={15} color='light'>{courses?.courseOverview}</MDTypography>
-                                    </Grid>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center'>
-                                    
-                                        {courses?.courseInstructors?.map((courses) => {
-                                            return (
-                                                <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center' flexDirection='row'>
-                                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignItems='flex-start' alignContent='flex-start' flexDirection='row'>
-                                                    <img src={courses?.image} alt="something here" style={{width: '50px', height:'50px', borderRadius:'50%'}}/>&nbsp;
-                                                    <MDTypography  color='light'>{`${courses?.id?.first_name + " " + courses?.id?.last_name}`}</MDTypography>
-                                                    </Grid>
-                                                    {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignItems='center' alignContent='center' flexDirection='row'>
+                        <>
+                            <MDBox mt={10} p={3} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ minWidth: '100%', backgroundColor: '#343434' }}>
+                                <Grid container spacing={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='flex-start' style={{ maxWidth: '90%' }}>
+                                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
+                                        <Grid container spacing={2} xs={12} md={12} lg={6} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{ minWidth: '100%' }}>
+                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
+                                                <MDTypography variant='h3' color='light'>{courses?.courseName}</MDTypography>
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                                <MDTypography variant='body3' fontSize={15} color='light'>{courses?.courseOverview}</MDTypography>
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center'>
+
+                                                {courses?.courseInstructors?.map((courses) => {
+                                                    return (
+                                                        <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center' flexDirection='row'>
+                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignItems='flex-start' alignContent='flex-start' flexDirection='row'>
+                                                                <img src={courses?.image} alt="something here" style={{ width: '50px', height: '50px', borderRadius: '50%' }} />&nbsp;
+                                                                <MDTypography color='light'>{`${courses?.id?.first_name + " " + courses?.id?.last_name}`}</MDTypography>
+                                                            </Grid>
+                                                            {/* <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignItems='center' alignContent='center' flexDirection='row'>
                                                         <MDTypography color='light'>Created By:</MDTypography>
                                                         <MDTypography color='light'>{`${courses?.id?.first_name + " " + courses?.id?.last_name}`}</MDTypography>
                                                     </Grid> */}
-                                                </Grid>
-                                            )
-                                        })}
-                                     
+                                                        </Grid>
+                                                    )
+                                                })}
+
+                                            </Grid>
+                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' flexWrap='wrap'>
+                                                <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
+                                                    <LanguageIcon color='white' />
+                                                    <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.courseLanguages}`}</MDTypography>
+                                                </MDBox>
+                                                <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
+                                                    <CategoryIcon color='white' />
+                                                    <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.category}`}</MDTypography>
+                                                </MDBox>
+                                                <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
+                                                    <SiOpslevel color='white' />
+                                                    <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.level}`}</MDTypography>
+                                                </MDBox>
+                                                <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
+                                                    <AvTimerIcon color='white' />
+                                                    <MDTypography variant='body3' fontSize={15} color='light' >{`${(courses?.courseDurationInMinutes / 60).toFixed(0)} hours`}</MDTypography>
+                                                </MDBox>
+                                                <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
+                                                    <DvrIcon color='white' />
+                                                    <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.courseType}`}</MDTypography>
+                                                </MDBox>
+                                            </Grid>
+                                            <Grid gap={2} item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center'>
+                                                <MDTypography variant='body3' color='light' style={{ textDecoration: 'line-through' }}>
+                                                    ₹{new Intl.NumberFormat(
+                                                        undefined,
+                                                        {
+                                                            minimumFractionDigits: 0,
+                                                            maximumFractionDigits: 0,
+                                                        }
+                                                    ).format(courses?.coursePrice)}/-
+                                                </MDTypography>
+                                                <MDTypography variant='body3' color='light'>
+                                                    ₹{new Intl.NumberFormat(
+                                                        undefined,
+                                                        {
+                                                            minimumFractionDigits: 0,
+                                                            maximumFractionDigits: 0,
+                                                        }
+                                                    ).format(courses?.discountedPrice)}/-
+                                                </MDTypography>
+                                                <MDTypography variant='body3' color='light' style={{ maxWidth: '50%' }}>
+                                                    <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} />
+                                                </MDTypography>
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' flexWrap='wrap'>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
-                                            <LanguageIcon color='white' />
-                                            <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.courseLanguages}`}</MDTypography>
-                                        </MDBox>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
-                                            <CategoryIcon color='white'/>
-                                            <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.category}`}</MDTypography>
-                                        </MDBox>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
-                                            <SiOpslevel color='white'/>
-                                            <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.level}`}</MDTypography>
-                                        </MDBox>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
-                                            <AvTimerIcon color='white'/>
-                                            <MDTypography variant='body3' fontSize={15} color='light' >{`${(courses?.courseDurationInMinutes/60).toFixed(0)} hours`}</MDTypography>
-                                        </MDBox>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
-                                            <DvrIcon color='white'/>
-                                            <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.courseType}`}</MDTypography>
-                                        </MDBox>
-                                    </Grid>
-                                    <Grid gap={2} item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center'>
-                                        <MDTypography variant='body3' color='light' style={{textDecoration:'line-through'}}>
-                                        ₹{new Intl.NumberFormat(
-                                            undefined,
-                                            {
-                                                minimumFractionDigits: 0,
-                                                maximumFractionDigits: 0,
-                                            }
-                                        ).format(courses?.coursePrice)}/-
-                                        </MDTypography>
-                                        <MDTypography variant='body3' color='light'>
-                                        ₹{new Intl.NumberFormat(
-                                            undefined,
-                                            {
-                                                minimumFractionDigits: 0,
-                                                maximumFractionDigits: 0,
-                                            }
-                                        ).format(courses?.discountedPrice)}/-
-                                        </MDTypography>
-                                        <MDTypography variant='body3' color='light' style={{maxWidth:'50%'}}>
-                                            <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} />
-                                        </MDTypography>
-                                    </Grid>
-                                </Grid>    
-                            </Grid>
-                            <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                                <video src={courses.salesVideo} style={{ width: '100%', height: 'auto' }} controls />
-                            </Grid>
-                    </Grid>
-                    </MDBox>
-                    <MDBox p={3} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start' style={{minWidth:'100%', backgroundColor:'white'}}>
-                        <Grid container spacing={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start' style={{maxWidth:'90%'}}>
-                            <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start'>
-                                <Grid container mt={5} p={3} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{border:'1px solid lightgrey', borderRadius:5}}>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
-                                        <MDTypography variant='h3' fontSize={20} color='dark'>About the course</MDTypography>
-                                    </Grid>
-                                    <Grid item mt={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-                                        <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} style={{ fontFamily: 'Work Sans , sans-serif' }} />
+                                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                        <video src={courses.salesVideo} style={{ width: '100%', height: 'auto' }} controls />
                                     </Grid>
                                 </Grid>
-                            </Grid>
-                            <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start'>
-                                <Grid container spacing={1} mt={5} p={0} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{width:'100%'}}>
-                                        <MDTypography variant='h3' fontSize={20} color='dark'>Course Content</MDTypography>
+                            </MDBox>
+                            <MDBox p={3} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start' style={{ minWidth: '100%', backgroundColor: 'white' }}>
+                                <Grid container spacing={5} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start' style={{ maxWidth: '90%' }}>
+                                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start'>
+                                        <Grid container mt={5} p={3} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{ border: '1px solid lightgrey', borderRadius: 5 }}>
+                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
+                                                <MDTypography variant='h3' fontSize={20} color='dark'>About the course</MDTypography>
+                                            </Grid>
+                                            <Grid item mt={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                                                <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} style={{ fontFamily: 'Work Sans , sans-serif' }} />
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
-                                    <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{width:'100%'}}>
-                                        
-                                        <div style={{width:'100%'}}>
-                                        {courses?.courseContent?.map((courses) => (
-                                            <Accordion>
-                                                <AccordionSummary
-                                                expandIcon={<ExpandMoreIcon />}
-                                                aria-controls="panel1-content"
-                                                id="panel1-header"
-                                                >
-                                                    <MDBox display='flex' justifyContent='center' flexDirection='row' alignItems='center' gap={2}>
-                                                        <MDTypography variant='body3' fontSize={20} fontWeight={600}>{courses?.order}. {courses?.topic}</MDTypography>
-                                                        <MDTypography variant='caption'>{courses?.subtopics?.length} lecture(s)</MDTypography>
-                                                    </MDBox>
-                                                </AccordionSummary>
-                                                {courses?.subtopics?.map((item, index, duration) => (
-                                                <AccordionDetails style={{marginLeft:25}}>
-                                                    <MDTypography variant='caption' fontSize={15}>{courses?.order}.{item?.order} {item?.topic}</MDTypography>
-                                                </AccordionDetails>
-                                                ))}
-                                            </Accordion>
-                                        ))} 
-                                        </div>
-                                        
-                                    </Grid> 
-                                    <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{width:'100%'}}>
-                                        <MDTypography variant='h3' fontSize={20} color='dark'>Course Benefits</MDTypography>
+                                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start'>
+                                        <Grid container spacing={1} mt={5} p={0} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
+                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+                                                <MDTypography variant='h3' fontSize={20} color='dark'>Course Content</MDTypography>
+                                            </Grid>
+                                            <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+
+                                                <div style={{ width: '100%' }}>
+                                                    {courses?.courseContent?.map((courses) => (
+                                                        <Accordion>
+                                                            <AccordionSummary
+                                                                expandIcon={<ExpandMoreIcon />}
+                                                                aria-controls="panel1-content"
+                                                                id="panel1-header"
+                                                            >
+                                                                <MDBox display='flex' justifyContent='center' flexDirection='row' alignItems='center' gap={2}>
+                                                                    <MDTypography variant='body3' fontSize={20} fontWeight={600}>{courses?.order}. {courses?.topic}</MDTypography>
+                                                                    <MDTypography variant='caption'>{courses?.subtopics?.length} lecture(s)</MDTypography>
+                                                                </MDBox>
+                                                            </AccordionSummary>
+                                                            {courses?.subtopics?.map((item, index, duration) => (
+                                                                <AccordionDetails style={{ marginLeft: 25 }}>
+                                                                    <MDTypography variant='caption' fontSize={15}>{courses?.order}.{item?.order} {item?.topic}</MDTypography>
+                                                                </AccordionDetails>
+                                                            ))}
+                                                        </Accordion>
+                                                    ))}
+                                                </div>
+
+                                            </Grid>
+                                            <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+                                                <MDTypography variant='h3' fontSize={20} color='dark'>Course Benefits</MDTypography>
+                                            </Grid>
+                                            <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+
+                                                <div style={{ width: '100%' }}>
+                                                    <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+                                                        {courses?.courseBenefits?.map((courses) => (
+
+                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+                                                                <MDBox display='flex' justifyContent='center' flexDirection='row' alignItems='center' gap={2}>
+                                                                    <CandlestickChartIcon />
+                                                                    <MDTypography variant='body3' fontSize={20} fontWeight={600} color='dark'>{courses?.benefits}</MDTypography>
+                                                                </MDBox>
+                                                            </Grid>
+                                                        ))}
+                                                    </Grid>
+                                                </div>
+
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
-                                    <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{width:'100%'}}>
-                                        
-                                        <div style={{width:'100%'}}>
-                                        <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{width:'100%'}}>
-                                        {courses?.courseBenefits?.map((courses) => (
-                                            
-                                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{width:'100%'}}>
-                                                    <MDBox display='flex' justifyContent='center' flexDirection='row' alignItems='center' gap={2}>
-                                                         <CandlestickChartIcon/>
-                                                         <MDTypography variant='body3' fontSize={20} fontWeight={600} color='dark'>{courses?.benefits}</MDTypography>
-                                                     </MDBox>
-                                                </Grid>
-                                        ))} 
-                                         </Grid>
-                                        </div>
-                                        
-                                    </Grid> 
+                                </Grid>
+                            </MDBox>
+                        </>
+                        :
+                        <>
+                            <Grid container spacing={1} xs={12} md={6} lg={12}>
+                                <Grid item mt={2} xs={6} md={3} lg={12} style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <CircularProgress color='dark' />
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    </MDBox>
-                    </>
-                    :
-                    <>
-                    <Grid container spacing={1} xs={12} md={6} lg={12}>
-                        <Grid item mt={2} xs={6} md={3} lg={12} style={{ display: 'flex', justifyContent: 'center' }}>
-                            <CircularProgress color='dark' />
-                        </Grid>
-                    </Grid>
-                    </>
+                        </>
                     }
                 </ThemeProvider>
             </MDBox>

@@ -80,10 +80,21 @@ const getAwsS3Key = async (file, type, key) => {
 
 exports.createCourse = async (req, res) => {
   // Destructure fields from req.body
+  for (let elem in req.body) {
+    if (req.body[elem] === "undefined" || req.body[elem] === "null") {
+      req.body[elem] = null;
+    }
+
+    if (req.body[elem] === "false") {
+      req.body[elem] = false;
+    }
+
+    if (req.body[elem] === "true") {
+      req.body[elem] = true;
+    }
+  }
   const {
     courseName,
-    courseInstructor,
-    aboutInstructor,
     courseLanguages,
     courseDurationInMinutes,
     courseOverview,
@@ -99,12 +110,12 @@ exports.createCourse = async (req, res) => {
     courseContent,
     courseLink,
     commissionPercentage,
-    tags,
-    level, bestSeller
+    tags, type, courseType,
+    level, bestSeller, category
   } = req.body;
 
   // Basic validation (example: check if courseName and coursePrice are provided)
-  if (!courseName || coursePrice === undefined) {
+  if (!courseName) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
@@ -132,18 +143,17 @@ exports.createCourse = async (req, res) => {
     const course = new Course({
       courseName,
       courseSlug,
-      courseInstructor,
-      aboutInstructor,
       courseImage,
       courseLanguages,
       courseDurationInMinutes: Math.abs(Number(courseDurationInMinutes)),
       courseOverview,
-      courseImage,
       courseDescription,
-      courseStartTime,
-      courseEndTime,
-      registrationStartTime,
-      registrationEndTime,
+      ...(courseType !== 'Recorded' && {
+          courseStartTime,
+          courseEndTime,
+          registrationStartTime,
+          registrationEndTime
+      }),
       maxParticipants,
       coursePrice,
       discountedPrice,
@@ -152,10 +162,12 @@ exports.createCourse = async (req, res) => {
       courseLink,
       commissionPercentage,
       tags,
-      enrollments,
       level,
       salesVideo,
-    });
+      bestSeller, category,
+      courseType, type
+  });
+  
 
     await course.save();
     res.status(201).json({
@@ -1585,7 +1597,7 @@ exports.getUnpublished = async (req, res) => {
 exports.getUserCourses = async (req, res) => {
   try {
     const userId = req.user._id;
-    const user = await User.findById(new ObjectId(userId));
+    const user = await User.findById(new ObjectId(userId)).populate('referredBy', 'role')
     const skip = Number(Number(req.query.skip) || 0);
     const limit = Number(Number(req.query.limit) || 10);
 
@@ -1668,7 +1680,7 @@ exports.getUserCourses = async (req, res) => {
 
     let course;
     let count;
-    if (user?.referredBy) {
+    if (user?.referredBy?._id && user?.referredBy?.role?.toString() === '65dc6817586cba2182f05561') {
       pipeline[0]["$match"]["courseInstructors.id"] = new ObjectId(
         user?.referredBy
       );

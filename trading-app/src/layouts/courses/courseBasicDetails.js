@@ -10,7 +10,7 @@ import MDTypography from "../../components/MDTypography";
 import MDBox from "../../components/MDBox";
 import MDButton from "../../components/MDButton";
 import axios from "axios";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, FormControlLabel, FormGroup, Checkbox } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
@@ -106,7 +106,7 @@ const CreateCourse = (
       if (elem !== "courseImage") formData.append(`${elem}`, formState[elem]);
     }
 
-    const res = await fetch(`${apiUrl}courses/info`, {
+    const res = await fetch(`${apiUrl}courses`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -705,6 +705,30 @@ const CreateCourse = (
                           id="video-upload"
                         />
                     </MDButton>
+                  </Grid>
+
+                  <Grid item xs={12} md={6} xl={6}>
+                    <FormGroup>
+                      <FormControlLabel
+                        checked={
+                          courseData?.bestSeller !== undefined &&
+                            !editing &&
+                            formState?.bestSeller === undefined
+                            ? courseData?.bestSeller
+                            : formState?.bestSeller
+                        }
+                        disabled={editing}
+                        onChange={(e) => {
+                          // console.log("checkbox", e.target.checked, e.target.value);
+                          setFormState((prevState) => ({
+                            ...prevState,
+                            bestSeller: e.target.checked,
+                          }));
+                        }}
+                        control={<Checkbox />}
+                        label="Best Seller"
+                      />
+                    </FormGroup>
                   </Grid>
 
                 <Grid item xs={12} md={12} lg={12}>
