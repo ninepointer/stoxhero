@@ -166,7 +166,7 @@ export default function Courses() {
                 style={{ position: "relative" }} // Ensure relative positioning for the container
               >
                 <img
-                  src={isMobile ? SMCM : SMC}
+                  src={isMobile ? (instructor?.influencerDetails?.bannerImageMobile || SMCM) : (instructor?.influencerDetails?.bannerImageWeb || SMC)}
                   style={{ maxWidth: "100%", height: "auto" }}
                 />
                 <MDButton

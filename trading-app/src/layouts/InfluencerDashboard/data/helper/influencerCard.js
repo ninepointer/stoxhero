@@ -1,13 +1,13 @@
 import {useState, useEffect, useContext} from 'react';
 import axios from "axios";
-import MDBox from '../../../components/MDBox';
-import MDButton from '../../../components/MDButton'
+import MDBox from '../../../../components/MDBox';
+import MDButton from '../../../../components/MDButton'
 import {Card, Grid} from '@mui/material';
-import MDTypography from '../../../components/MDTypography';
-import MDAvatar from '../../../components/MDAvatar'
-import { CircularProgress, LinearProgress, Paper } from '@mui/material';
-import { apiUrl } from '../../../constants/constants';
-import Prateek from '../../../assets/images/cofounder_prateek.png'
+import MDTypography from '../../../../components/MDTypography';
+import MDAvatar from '../../../../components/MDAvatar'
+// import { CircularProgress, LinearProgress, Paper } from '@mui/material';
+// import { apiUrl } from '../../../../constants/constants';
+import Prateek from '../../../../assets/images/cofounder_prateek.png'
 import { SocialIcon } from 'react-social-icons'
 
 export default function Dashboard() {

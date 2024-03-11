@@ -1,9 +1,9 @@
 import {useState, useEffect, useContext} from 'react';
 import axios from "axios";
-import MDBox from '../../../components/MDBox';
-import MDButton from '../../../components/MDButton'
+import MDBox from '../../../../components/MDBox';
+import MDButton from '../../../../components/MDButton'
 import {Card, Grid} from '@mui/material';
-import MDTypography from '../../../components/MDTypography';
+import MDTypography from '../../../../components/MDTypography';
 import { CircularProgress, LinearProgress, Paper } from '@mui/material';
 import { saveAs } from 'file-saver';
 import moment from 'moment'
@@ -11,7 +11,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { apiUrl } from '../../../constants/constants';
+import { apiUrl } from '../../../../constants/constants';
 
 export default function Dashboard() {
   let [isLoading,setIsLoading] = useState(false)

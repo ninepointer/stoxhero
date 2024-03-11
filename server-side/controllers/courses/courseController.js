@@ -1894,7 +1894,11 @@ exports.handleDeductCourseFee = async (
   bonusRedemption,
   req
 ) => {
+
+  const session = await mongoose.startSession();
+
   try {
+    session.startTransaction();
     let affiliate, affiliateProgram;
     const course = await Course.findOne({ _id: new ObjectId(courseId) });
     const wallet = await UserWallet.findOne({ userId: userId });
@@ -2093,13 +2097,7 @@ exports.handleDeductCourseFee = async (
       course?.maxEnrolments &&
       course?.maxEnrolments <= course?.enrollments?.length
     ) {
-      // if (!course.potentialParticipants.includes(userId)) {
-      //   const course = await Course.findOneAndUpdate({ _id: new ObjectId(courseId) }, {
-      //     $push: {
-      //       potentialParticipants: userId
-      //     }
-      //   });
-      // }
+
       return {
         statusCode: 400,
         data: {
@@ -2132,7 +2130,7 @@ exports.handleDeductCourseFee = async (
           enrollments: obj,
         },
       },
-      { new: true }
+      { new: true, session: session}
     );
 
     wallet.transactions = [
@@ -2146,7 +2144,7 @@ exports.handleDeductCourseFee = async (
         transactionType: "Cash",
       },
     ];
-    await wallet.save();
+    await wallet.save({session});
 
     if (!updateParticipants || !wallet) {
       return {
@@ -2262,7 +2260,7 @@ exports.handleDeductCourseFee = async (
         channels: ["App", "Email"],
         createdBy: "63ecbc570302e7cf0153370c",
         lastModifiedBy: "63ecbc570302e7cf0153370c",
-      });
+      }, session);
       if (user?.fcmTokens?.length > 0) {
         await sendMultiNotifications(
           "StoxHero Cashback",
@@ -2286,7 +2284,7 @@ exports.handleDeductCourseFee = async (
       channels: ["App", "Email"],
       createdBy: "63ecbc570302e7cf0153370c",
       lastModifiedBy: "63ecbc570302e7cf0153370c",
-    });
+    }, session);
     if (user?.fcmTokens?.length > 0) {
       await sendMultiNotifications(
         "Course Fee Deducted",
@@ -2338,7 +2336,7 @@ exports.handleDeductCourseFee = async (
           transactionType: "Cash",
         },
       ];
-      await wallet.save({validateBeforeSave: false});
+      await wallet.save({validateBeforeSave: false, session: session});
 
       await createUserNotification({
         title: "Course Amount Credited",
@@ -2351,8 +2349,24 @@ exports.handleDeductCourseFee = async (
         channels: ["App", "Email"],
         createdBy: "63ecbc570302e7cf0153370c",
         lastModifiedBy: "63ecbc570302e7cf0153370c",
-      });
+      }, session);
     }
+
+    const userUpdate = await User.findOneAndUpdate({_id: new ObjectId(userId)}, {
+      $push: {
+        $course: {
+          courseId: course?._id,
+          pricePaid: pricePaidByUser,
+          gst: gst,
+          coursePrice: course?.discountedPrice,
+          discountUsed: Number(discountAmount) || 0,
+          enrolledOn: new Date(),
+          bonusRedemption: Number(bonusRedemption) || 0
+        }
+      }
+    }, {session: session});
+
+    await session.commitTransaction();
 
     return {
       statusCode: 200,
@@ -2373,7 +2387,12 @@ exports.handleDeductCourseFee = async (
         error: e.message,
       },
     };
-  }
+
+    await session.abortTransaction();
+  }finally{
+    session.endSession();
+    
+}
 };
 
 exports.checkPaidCourses = async (req, res, next) => {

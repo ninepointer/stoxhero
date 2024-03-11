@@ -452,6 +452,18 @@ const userDetailSchema = new mongoose.Schema({
       ref: "intern-batch",
     },
   ],
+  course: [{
+    courseId: {
+      type: Schema.Types.ObjectId,
+      ref: "course",
+    },
+    pricePaid: Number,
+    gst: Number,
+    coursePrice: Number,
+    discountUsed: Number,
+    enrolledOn: Date,
+    bonusRedemption: Number
+  }],
   gstAgreement: Boolean,
   lastLoggedInDevice: {
     deviceType: String,
