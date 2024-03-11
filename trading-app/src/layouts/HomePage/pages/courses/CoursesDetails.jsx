@@ -130,24 +130,24 @@ export default function Courses() {
                                         })}
                                      
                                     </Grid>
-                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center'>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5}>
+                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='space-between' alignContent='center' alignItems='center' flexWrap='wrap'>
+                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
                                             <LanguageIcon color='white' />
                                             <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.courseLanguages}`}</MDTypography>
                                         </MDBox>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5}>
+                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
                                             <CategoryIcon color='white'/>
                                             <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.category}`}</MDTypography>
                                         </MDBox>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5}>
+                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
                                             <SiOpslevel color='white'/>
                                             <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.level}`}</MDTypography>
                                         </MDBox>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5}>
+                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
                                             <AvTimerIcon color='white'/>
                                             <MDTypography variant='body3' fontSize={15} color='light' >{`${(courses?.courseDurationInMinutes/60).toFixed(0)} hours`}</MDTypography>
                                         </MDBox>
-                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5}>
+                                        <MDBox display='flex' alignItems='center' alignContent='center' gap={0.5} mr={1}>
                                             <DvrIcon color='white'/>
                                             <MDTypography variant='body3' fontSize={15} color='light' >{`${courses?.courseType}`}</MDTypography>
                                         </MDBox>

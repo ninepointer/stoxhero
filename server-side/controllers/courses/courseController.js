@@ -21,6 +21,7 @@ const Product = require("../../models/Product/product");
 const {
   creditAffiliateAmount,
 } = require("../affiliateProgramme/affiliateController");
+const emailService = require("../../utils/emailService");
 
 
 const s3 = new AWS.S3({
@@ -2317,8 +2318,8 @@ exports.handleDeductCourseFee = async (
       wallet.transactions = [
         ...wallet.transactions,
         {
-          title: "Course Credited",
-          description: `Amount credited for the course purchase of ${courseName}`,
+          title: "Course Commission Credited",
+          description: `Commission credited for the course purchase of ${courseName}`,
           transactionDate: new Date(),
           amount: finalAmount,
           transactionId: uuid.v4(),
