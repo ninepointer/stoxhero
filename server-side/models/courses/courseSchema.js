@@ -106,6 +106,29 @@ const courseSchema = new Schema({
   salesVideo: String,
   averageRating: { type: Number, default: 0 },
   hookVideo: String,
+  bestSeller: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  createdOn: {
+    type: Date,
+    required: true,
+    default: () => new Date(),
+  },
+  lastModifiedOn: {
+    type: Date,
+    required: true,
+    default: () => new Date(),
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: "user-personal-detail",
+  },
+  lastModifiedBy: {
+    type: Schema.Types.ObjectId,
+    ref: "user-personal-detail",
+  },
 });
 
 courseSchema.methods.calculateAverageRating = function () {

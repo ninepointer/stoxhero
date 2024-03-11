@@ -99,7 +99,7 @@ exports.createCourse = async (req, res) => {
     courseLink,
     commissionPercentage,
     tags,
-    level,
+    level, bestSeller
   } = req.body;
 
   // Basic validation (example: check if courseName and coursePrice are provided)
@@ -177,7 +177,7 @@ exports.getAdminPublished = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({ status: "Published" });
     const courses = await Course.find({ status: "Published" })
-      .sort({ courseStartTime: -1 })
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
@@ -196,7 +196,7 @@ exports.getAdminAwaitingApproval = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({ status: "Sent To Creator" });
     const courses = await Course.find({ status: "Sent To Creator" })
-      .sort({ courseStartTime: -1 })
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
@@ -215,7 +215,7 @@ exports.getAdminUnpublished = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({ status: "Unpublished" });
     const courses = await Course.find({ status: "Unpublished" })
-      .sort({ courseStartTime: -1 })
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
@@ -236,7 +236,7 @@ exports.getAdminPendingApproval = async (req, res) => {
       status: "Pending Admin Approval",
     });
     const courses = await Course.find({ status: "Pending Admin Approval" })
-      .sort({ courseStartTime: -1 })
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
@@ -255,7 +255,7 @@ exports.getAdminDraft = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({ status: "Draft" });
     const courses = await Course.find({ status: "Draft" })
-      .sort({ courseStartTime: -1 })
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
     res.status(200).json({ status: "success", data: courses, count: count });
@@ -1297,7 +1297,7 @@ exports.getAwaitingApprovals = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: -1,
+          _id: -1,
           _id: -1,
         },
       },
@@ -1309,7 +1309,7 @@ exports.getAwaitingApprovals = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: -1,
+          _id: -1,
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -1372,7 +1372,7 @@ exports.getPendingApproval = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: -1,
+          _id: -1,
           _id: -1,
         },
       },
@@ -1384,7 +1384,7 @@ exports.getPendingApproval = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: -1,
+          _id: -1,
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -1447,7 +1447,7 @@ exports.getPublished = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: -1,
+          _id: -1,
           _id: -1,
         },
       },
@@ -1459,7 +1459,7 @@ exports.getPublished = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: -1,
+          _id: -1,
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -1523,7 +1523,7 @@ exports.getUnpublished = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: -1,
+          _id: -1,
           _id: -1,
         },
       },
@@ -1535,7 +1535,7 @@ exports.getUnpublished = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: -1,
+          _id: -1,
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -1610,7 +1610,7 @@ exports.getUserCourses = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: -1,
+          _id: -1,
           courseImage: 1,
           courseSlug: 1,
           coursePrice: 1,
@@ -1757,7 +1757,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
       },
       {
         $sort: {
-          courseStartTime: -1,
+          _id: -1,
           _id: -1,
         },
       },
@@ -1769,7 +1769,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
       {
         $project: {
           courseName: 1,
-          courseStartTime: -1,
+          _id: -1,
           courseOverview: 1,
           courseSlug: 1,
           courseImage: 1,
@@ -1803,7 +1803,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
     ];
 
     const course = await Course.aggregate(pipeline)
-      .sort({ courseStartTime: -1 })
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -2464,7 +2464,7 @@ exports.myCourses = async (req, res) => {
             {
               $project: {
                 courseName: 1,
-                courseStartTime: -1,
+                _id: -1,
                 courseSlug: 1,
                 courseImage: 1,
                 coursePrice: 1,
@@ -2511,7 +2511,7 @@ exports.myCourses = async (req, res) => {
             },
             {
               $sort: {
-                courseStartTime: -1,
+                _id: -1,
                 _id: -1,
               },
             },
