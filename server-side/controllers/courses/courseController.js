@@ -22,7 +22,7 @@ const {
   creditAffiliateAmount,
 } = require("../affiliateProgramme/affiliateController");
 const emailService = require("../../utils/emailService");
-
+const InfluencerTransaction = require('../../models/Influencer/influencer-transaction')
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -2133,6 +2133,7 @@ exports.handleDeductCourseFee = async (
       { new: true, session: session}
     );
 
+    const userWalletId = uuid.v4();
     wallet.transactions = [
       ...wallet.transactions,
       {
@@ -2140,7 +2141,7 @@ exports.handleDeductCourseFee = async (
         description: `Amount deducted for the course fee of ${courseName}`,
         transactionDate: new Date(),
         amount: -courseFee,
-        transactionId: uuid.v4(),
+        transactionId: userWalletId,
         transactionType: "Cash",
       },
     ];
@@ -2325,6 +2326,7 @@ exports.handleDeductCourseFee = async (
 
     for(const elem of course?.courseInstructors){
       const wallet = await UserWallet.findOne({ userId: elem?.id });
+      const walletTransactionId = uuid.v4();
       wallet.transactions = [
         ...wallet.transactions,
         {
@@ -2332,7 +2334,7 @@ exports.handleDeductCourseFee = async (
           description: `Commission credited for the course purchase of ${courseName}`,
           transactionDate: new Date(),
           amount: finalAmount,
-          transactionId: uuid.v4(),
+          transactionId: walletTransactionId,
           transactionType: "Cash",
         },
       ];
@@ -2350,11 +2352,26 @@ exports.handleDeductCourseFee = async (
         createdBy: "63ecbc570302e7cf0153370c",
         lastModifiedBy: "63ecbc570302e7cf0153370c",
       }, session);
+
+      await InfluencerTransaction.create([{
+        influencerWalletTId: walletTransactionId,
+        buyerWalletTId: userWalletId,
+        product: new ObjectId('65f053dc1e78925c8675ed81'),
+        specificProduct: new ObjectId(course?._id),
+        productActualPrice: course?.coursePrice,
+        productDiscountedPrice: course?.discountedPrice,
+        pricePaidByUser: pricePaidByUser,
+        buyer: new ObjectId(userId),
+        influencer: new ObjectId(elem?.id),
+        lastModifiedBy: new ObjectId(userId),
+        influencerPayout: finalAmount,
+        transactionDate: new Date()
+      }], {session: session})
     }
 
     const userUpdate = await User.findOneAndUpdate({_id: new ObjectId(userId)}, {
       $push: {
-        $course: {
+        course: {
           courseId: course?._id,
           pricePaid: pricePaidByUser,
           gst: gst,
@@ -2365,6 +2382,7 @@ exports.handleDeductCourseFee = async (
         }
       }
     }, {session: session});
+
 
     await session.commitTransaction();
 

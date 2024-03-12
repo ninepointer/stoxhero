@@ -10,6 +10,7 @@ const moment = require('moment');
 const Product = require('../../models/Product/product');
 const uuid = require('uuid');
 const {sendMultiNotifications} = require('../../utils/fcmService')
+const InfluencerTransaction = require('../../models/Influencer/influencer-transaction')
 
 
 
@@ -801,7 +802,7 @@ exports.getMyAffiliatePayout = async (req, res) => {
   try {
     let userId = req.user._id;
 
-    if(req?.user?.role === "6448f834446977851c23b3f5"){
+    if(req?.user?.role === "65dc6817586cba2182f05561"){
       userId = req.query.influencerId;
     }
     const {startDate, endDate} = req.query;
@@ -930,11 +931,11 @@ exports.getMyAffiliatePayout = async (req, res) => {
   }
 }
 
-exports.getMyAffiliateTransaction = async (req, res) => {
+exports.getMyInfluencerTransaction = async (req, res) => {
   try {
     let userId = req.user._id;
 
-    if(req?.user?.role === "6448f834446977851c23b3f5"){
+    if(req?.user?.role === "65dc6817586cba2182f05561"){
       userId = req.query.influencerId;
     }
     const {startDate, endDate} = req.query;
@@ -948,23 +949,23 @@ exports.getMyAffiliateTransaction = async (req, res) => {
     const newEndDate = new Date(endDate).setHours(23, 59, 59, 999)
 
     // console.log(userId, startDate, endDate)
-    const count = await Course.countDocuments({
-      affiliate: new ObjectId(
+    const count = await InfluencerTransaction.countDocuments({
+      influencer: new ObjectId(
         userId
       ),
-      createdOn: {
+      transactionDate: {
         $gte: new Date(startDate),
         $lte: new Date(newEndDate)
       }
 
     });
-    const product = await Course.aggregate([
+    const product = await InfluencerTransaction.aggregate([
       {
         $match: {
-          affiliate: new ObjectId(
+          influencer: new ObjectId(
             userId
           ),
-          createdOn: {
+          transactionDate: {
             $gte: new Date(startDate),
             $lte: new Date(newEndDate)
           }
@@ -978,14 +979,7 @@ exports.getMyAffiliateTransaction = async (req, res) => {
           as: "buyer",
         },
       },
-      {
-        $lookup: {
-          from: "products",
-          localField: "product",
-          foreignField: "_id",
-          as: "product",
-        },
-      },
+   
       {
         $project:
           {
@@ -995,14 +989,9 @@ exports.getMyAffiliateTransaction = async (req, res) => {
                 0,
               ],
             },
-            product_name: {
-              $arrayElemAt: [
-                "$product.productName",
-                0,
-              ],
-            },
             _id: 0,
-            payout: "$affiliatePayout",
+            payout: "$influencerPayout",
+            userPaid: "$pricePaidByUser",
             productDiscountedPrice:
               "$productDiscountedPrice",
             date: "$createdOn",
@@ -1033,7 +1022,7 @@ exports.getAffiliateReferralsSummery = async(req, res) => {
   try {
     let userId = req.user._id;
 
-    if(req?.user?.role === "6448f834446977851c23b3f5"){
+    if(req?.user?.role === "65dc6817586cba2182f05561"){
       userId = req.query.influencerId;
     }
     const {startDate, endDate} = req.query;
@@ -1181,7 +1170,7 @@ exports.getBasicInfluencerOverview = async(req,res) => {
   // console.log(req.user.role)
   let userId = req.user._id;
 
-  if(req?.user?.role === "6448f834446977851c23b3f5"){
+  if(req?.user?.role === "65dc6817586cba2182f05561"){
     userId = req.query.influencerId;
   }
   // console.log("userId", userId)
@@ -1244,7 +1233,7 @@ exports.getLast30daysInfluencerData = async(req,res) => {
   const startDate = moment().subtract(30, 'days').startOf('day');
   let userId = req.user._id;
 
-  if(req?.user?.role === "6448f834446977851c23b3f5"){
+  if(req?.user?.role === "65dc6817586cba2182f05561"){
     userId = req.query.influencerId;
   }
   const data = await Course.aggregate([
@@ -1412,7 +1401,7 @@ exports.getAdminAffiliatePayout = async (req, res) => {
   try {
     let userId = req.user._id;
 
-    if(req?.user?.role === "6448f834446977851c23b3f5"){
+    if(req?.user?.role === "65dc6817586cba2182f05561"){
       userId = req.query.influencerId;
     }
     const {startDate, endDate} = req.query;
@@ -1625,7 +1614,7 @@ exports.getAdminAffiliateTransaction = async (req, res) => {
   try {
     let userId = req.user._id;
 
-    if(req?.user?.role === "6448f834446977851c23b3f5"){
+    if(req?.user?.role === "65dc6817586cba2182f05561"){
       userId = req.query.influencerId;
     }
     const {startDate, endDate} = req.query;
@@ -1758,7 +1747,7 @@ exports.getAdminAffiliateReferralsSummery = async(req, res) => {
   try {
     let userId = req.user._id;
 
-    if(req?.user?.role === "6448f834446977851c23b3f5"){
+    if(req?.user?.role === "65dc6817586cba2182f05561"){
       userId = req.query.influencerId;
     }
     const {startDate, endDate} = req.query;
@@ -1950,7 +1939,7 @@ exports.getAdminBasicAffiliateOverview = async(req,res) => {
   // console.log(req.user.role)
   let userId = req.user._id;
 
-  if(req?.user?.role === "6448f834446977851c23b3f5"){
+  if(req?.user?.role === "65dc6817586cba2182f05561"){
     userId = req.query.influencerId;
   }
   const {affiliateType, affiliatePrograme, influencerId} = req.query;
@@ -2164,7 +2153,7 @@ exports.getAdminLast30daysAffiliateData = async(req,res) => {
   const startDate = moment().subtract(30, 'days').startOf('day');
   let userId = req.user._id;
 
-  if(req?.user?.role === "6448f834446977851c23b3f5"){
+  if(req?.user?.role === "65dc6817586cba2182f05561"){
     userId = req.query.influencerId;
   }
   const SIGNUP_PRODUCT_ID = '6586e95dcbc91543c3b6c181';
