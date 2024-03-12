@@ -1177,7 +1177,7 @@ exports.getAffiliateReferralsSummery = async(req, res) => {
 }
 
 
-exports.getBasicAffiliateOverview = async(req,res) => {
+exports.getBasicInfluencerOverview = async(req,res) => {
   // console.log(req.user.role)
   let userId = req.user._id;
 
@@ -1185,152 +1185,61 @@ exports.getBasicAffiliateOverview = async(req,res) => {
     userId = req.query.influencerId;
   }
   // console.log("userId", userId)
-  // const user = await User.findById(new ObjectId(userId)).select('first_name last_name profilePhoto');
-  // const affiliateProgram = await Affiliate.findOne({
-  //   "affiliates.userId": new ObjectId(userId)
-  // }).select('rewardPerSignup commissionPercentage');
-  // const totalSignedupUser = await 
+  const user = await User.findById(new ObjectId(userId)).select('first_name last_name profilePhoto referrals');
 
-  const affiliateRaffrelData = await User.aggregate([
+  const affiliateRaffrelData = await Course.aggregate([
     {
       $match: {
-        _id: new ObjectId(userId),
+        "courseInstructors.id": new ObjectId(
+          userId
+        ),
       },
     },
     {
       $unwind: {
-        path: "$affiliateReferrals",
+        path: "$enrollments",
       },
-    },
-    {
-      $lookup: {
-        from: "user-personal-details",
-        localField:
-          "affiliateReferrals.referredUserId",
-        foreignField: "_id",
-        as: "user",
-      },
-    },
-    {
-      $unwind:{
-        path:"$user"
-      }
     },
     {
       $group: {
-        _id: {},
-        count: {
-          $count: {},
+        _id: {
         },
-        activeCount: {
+        totalOrder: {
+          $sum: 1,
+        },
+        totalEarnings: {
           $sum: {
-            $cond: [
-              { $eq: ["$user.activationDetails.activationStatus", "Active"] },
-              1,
-              0
-            ]
-          }
+            $multiply: [
+              {
+                $subtract: [
+                  "$enrollments.pricePaidByUser",
+                  "$enrollments.gstAmount",
+                ],
+              },
+              {
+                $divide: [
+                  "$commissionPercentage",
+                  100,
+                ],
+              },
+            ],
+          },
         },
-        paidCount: {
-          $sum: {
-            $cond: [
-              { $in: ["$user.paidDetails.paidStatus", ["Active", "Inactive"]] },
-              1,
-              0
-            ]
-          }
-        },
-        paidActiveCount:{
-          $sum: {
-            $cond: [
-              { $eq: ["$user.paidDetails.paidStatus", "Active"] },
-              1,
-              0
-            ]
-          }
-        },
-        payout: {
-          $sum: "$affiliateReferrals.affiliateEarning",
-        },
-      },
-    },
-    {
-      $project: {
-        affiliateRefferalCount: "$count",
-        activeAffiliateRefferalCount: "$activeCount",
-        paidAffiliateRefferalCount: "$paidCount",
-        paidActiveAffiliateRefferalCount: "$paidActiveCount",
-        _id: 0,
-        affiliateRefferalPayout: "$payout",
       },
     },
   ]);
 
-  const lifetimeearningProduct = await Course.aggregate([
-    {
-      $match: {
-        affiliate: new ObjectId(
-          userId
-        ),
-        product: {$ne: new ObjectId("6586e95dcbc91543c3b6c181")}
-      },
-    },
-    {
-      $group: {
-        _id: {},
-        amount: {
-          $sum: "$affiliatePayout",
-        },
-      },
-    },
-    {
-      $project: {
-        amount: 1,
-        _id: 0,
-      },
-    },
-  ])
-
-  const lifetimeearningSignUp = await User.aggregate([
-    {
-      $match: {
-        _id: new ObjectId(
-          userId
-        ),
-      },
-    },
-    {
-      $unwind: {
-        path: "$affiliateReferrals",
-      },
-    },
-    {
-      $group: {
-        _id: {},
-        payout: {
-          $sum: "$affiliateReferrals.affiliateEarning",
-        },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        amount: "$payout",
-      },
-    },
-  ])
 
   res.status(200).json({status:"success", data:{
     ...affiliateRaffrelData[0], 
-    rewardPerReferral:affiliateProgram?.rewardPerSignup, 
-    commissionPercentage: affiliateProgram?.commissionPercentage, 
     userName: `${user?.first_name} ${user?.last_name}`, 
     image: user?.profilePhoto, 
-    lifetimeEarning: ((lifetimeearningSignUp[0]?.amount || 0) + (lifetimeearningProduct[0]?.amount || 0))}})
+    totalSignUp: user?.referrals?.length
+  }})
 
 }
 
-exports.getLast30daysAffiliateData = async(req,res) => {
+exports.getLast30daysInfluencerData = async(req,res) => {
   const endDate = moment();
   const startDate = moment().subtract(30, 'days').startOf('day');
   let userId = req.user._id;

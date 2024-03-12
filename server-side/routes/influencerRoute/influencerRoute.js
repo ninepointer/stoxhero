@@ -15,11 +15,11 @@ router.route('/myaffiliaterafferals').get(Authenticate, getAffiliateReferralsSum
 router.route('/mysummery').get(Authenticate, getMyAffiliatePayout);
 router.route('/mytransactions').get(Authenticate, getMyAffiliateTransaction);
 
-router.route('/overview').get(Authenticate, controller.getBasicAffiliateOverview);
-router.route('/last30daysdata').get(Authenticate, controller.getLast30daysAffiliateData);
-router.route('/affiliatetype').get(Authenticate, controller.getAffiliateType);
-router.route('/programbytype').get(Authenticate, controller.getAffiliateProgrammeByType);
-router.route('/affiliatebyprograme').get(Authenticate, controller.getAffiliateByProgramme);
+router.route('/overview').get(Authenticate, controller.getBasicInfluencerOverview);
+router.route('/last30daysdata').get(Authenticate, controller.getLast30daysInfluencerData);
+// router.route('/affiliatetype').get(Authenticate, controller.getAffiliateType);
+// router.route('/programbytype').get(Authenticate, controller.getAffiliateProgrammeByType);
+// router.route('/affiliatebyprograme').get(Authenticate, controller.getAffiliateByProgramme);
 
 
 router.route('/adminsummery').get(Authenticate, controller.getAdminAffiliatePayout);
