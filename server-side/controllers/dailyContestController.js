@@ -3789,6 +3789,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
     const { contestFee, contestName, contestId, coupon, bonusRedemption } =
       req.body;
     const userId = req.user._id;
+    const referredBy = req.user.referredBy;
     const result = await exports.handleSubscriptionDeduction(
       userId,
       contestFee,
@@ -3796,6 +3797,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
       contestId,
       coupon,
       bonusRedemption,
+      referredBy,
       req
     );
 
@@ -3815,7 +3817,7 @@ exports.handleSubscriptionDeduction = async (
   contestName,
   contestId,
   coupon,
-  bonusRedemption,
+  bonusRedemption, referredBy,
   req
 ) => {
   try {
@@ -3823,6 +3825,28 @@ exports.handleSubscriptionDeduction = async (
       affiliateProgram,
       ignoreDiscount = false;
     const contest = await Contest.findOne({ _id: new ObjectId(contestId) });
+    if(contest?.courseInstructors?.length > 0){
+      for(const subelem of contest?.courseInstructors){
+        if(subelem?.id?.toString() === (referredBy)?.toString()){            
+          if(subelem?.fee !== undefined || subelem?.fee !== null){
+            
+            const checkCoursePurchased = await Course.aggregate([
+              {
+                $match: {
+                  "courseInstructors.id": new ObjectId(
+                    referredBy
+                  ),
+                  "enrollments.userId": new ObjectId(userId)
+                },
+              }
+            ])
+            if(checkCoursePurchased[0]){
+              contest.entryFee = subelem?.fee
+            } 
+          } 
+        }
+      }
+    }
     const wallet = await UserWallet.findOne({ userId: userId });
     const user = await User.findOne({ _id: userId });
     const setting = await Setting.find({});
