@@ -235,6 +235,17 @@ const contestSchema = new Schema({
   },
   faqs: [{ order: Number, question: String, answer: String }],
   eventFormat: [{ order: Number, event: String, description: String }],
+  courseInstructors: [
+    {
+      id: {
+        type: Schema.Types.ObjectId,
+        ref: "user-personal-detail",
+      },
+      image: String,
+      about: String,
+      fee: Number
+    },
+  ],
 });
 
 const contestData = mongoose.model("daily-contest", contestSchema);

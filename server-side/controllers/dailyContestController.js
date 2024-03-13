@@ -9,6 +9,8 @@ const uuid = require("uuid");
 const UserWallet = require("../models/UserWallet/userWalletSchema");
 const emailService = require("../utils/emailService");
 const Registration = require("../models/DailyContest/contestRegistration");
+const Course = require("../models/courses/courseSchema");
+
 const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
@@ -732,6 +734,7 @@ exports.getUserUpcomingContestss = async (req, res) => {
 
 exports.getUserUpcomingContests = async (req, res) => {
   try {
+    const referredBy = req.user.referredBy;
     const userId = req.user._id; // Assuming this is the logged-in user's ID
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -794,10 +797,43 @@ exports.getUserUpcomingContests = async (req, res) => {
       { path: "portfolio", select: "portfolioName _id portfolioValue" },
     ]);
 
+    const newContest = [];
+    for(const elem of contests){
+      if(elem?.courseInstructors?.length > 0){
+        for(const subelem of elem?.courseInstructors){
+          if(subelem?.id?.toString() === (referredBy)?.toString()){ //referredBy Id            
+            if(subelem?.fee !== undefined || subelem?.fee !== null){
+              
+              const checkCoursePurchased = await Course.aggregate([
+                {
+                  $match: {
+                    "courseInstructors.id": new ObjectId(
+                      referredBy
+                    ),
+                    "enrollments.userId": new ObjectId(userId)
+                  },
+                }
+              ])
+              if(checkCoursePurchased[0]){
+                elem.entryFee = subelem?.fee
+                newContest.push(elem);
+              } else{
+                newContest.push(elem);
+              }
+            } else{
+              newContest.push(elem);
+            }
+          }
+        }
+      } else{
+        newContest.push(elem);
+      }
+    }
+
     res.status(200).json({
       status: "success",
       message: "Upcoming TestZones fetched successfully",
-      data: contests,
+      data: newContest,
     });
   } catch (error) {
     res.status(500).json({
@@ -811,6 +847,7 @@ exports.getUserUpcomingContests = async (req, res) => {
 exports.getUserLiveContests = async (req, res) => {
   try {
     const userId = req.user._id; // Assuming this is the logged-in user's ID
+    const referredBy = req.user.referredBy;
 
     let contests = await Contest.aggregate([
       {
@@ -869,12 +906,44 @@ exports.getUserLiveContests = async (req, res) => {
       { path: "portfolio", select: "portfolioName _id portfolioValue" },
     ]);
 
-    // console.log(contest)
+    const newContest = [];
+    for(const elem of contests){
+      if(elem?.courseInstructors?.length > 0){
+        for(const subelem of elem?.courseInstructors){
+          if(subelem?.id?.toString() === (referredBy)?.toString()){ //referredBy Id            
+            if(subelem?.fee !== undefined || subelem?.fee !== null){
+              
+              const checkCoursePurchased = await Course.aggregate([
+                {
+                  $match: {
+                    "courseInstructors.id": new ObjectId(
+                      referredBy
+                    ),
+                    "enrollments.userId": new ObjectId(userId)
+                  },
+                }
+              ])
+              if(checkCoursePurchased[0]){
+                elem.entryFee = subelem?.fee
+                newContest.push(elem);
+              } else{
+                newContest.push(elem);
+              }
+            } else{
+              newContest.push(elem);
+            }
+          }
+        }
+      } else{
+        newContest.push(elem);
+      }
+    }
+
 
     res.status(200).json({
       status: "success",
       message: "Live TestZones fetched successfully",
-      data: contests,
+      data: newContest,
     });
   } catch (error) {
     console.log(error);
@@ -885,6 +954,105 @@ exports.getUserLiveContests = async (req, res) => {
     });
   }
 };
+
+// exports.getUserLiveContests = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const referredBy = req.user.referredBy;
+
+//     const contests = await Contest.aggregate([
+//       {
+//         $match: {
+//           contestFor: "StoxHero",
+//           contestStatus: "Active",
+//           contestStartTime: { $lte: new Date() },
+//           contestEndTime: { $gte: new Date() },
+//           $or: [
+//             { visibility: true },
+//             { visibility: false, potentialParticipants: userId },
+//           ],
+//         },
+//       },
+//       {
+//         $addFields: {
+//           isUserParticipating: { $in: [userId, "$participants.userId"] },
+//           isPaid: { $gt: ["$entryFee", 0] },
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "courses",
+//           let: { instructorId: referredBy, userId: userId },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: {
+//                   $and: [
+//                     { $eq: ["$$instructorId", "$courseInstructors.id"] },
+//                     { $eq: ["$$userId", "$enrollments.userId"] },
+//                   ],
+//                 },
+//               },
+//             },
+//           ],
+//           as: "courseInfo",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           hasPurchasedCourse: { $gt: [{ $size: "$courseInfo" }, 0] },
+//         },
+//       },
+//       {
+//         $addFields: {
+//           entryFee: {
+//             $cond: [
+//               {
+//                 $and: [
+//                   { $gt: [{ $size: "$courseInfo" }, 0] },
+//                   { $ne: [{ $arrayElemAt: ["$courseInfo.fee", 0] }, null] }, // Adjusted line
+//                 ],
+//               },
+//               { $arrayElemAt: ["$courseInfo.fee", 0] }, // If condition is true, use courseInfo.fee
+//               "$entryFee", // Otherwise, use the existing entryFee
+//             ],
+//           },
+//         },
+//       },
+//       {
+//         $sort: {
+//           isUserParticipating: -1,
+//           isPaid: -1,
+//           contestEndTime: 1,
+//           entryFee: 1,
+//         },
+//       },
+//       {
+//         $project: {
+//           allowedUsers: 0,
+//           potentialParticipants: 0,
+//           contestSharedBy: 0,
+//           purchaseIntent: 0,
+//           courseInfo: 0,
+//         },
+//       },
+//     ]);
+
+//     res.status(200).json({
+//       status: "success",
+//       message: "Live TestZones fetched successfully",
+//       data: contests,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({
+//       status: "error",
+//       message: "Error in fetching live TestZones",
+//       error: error.message,
+//     });
+//   }
+// };
+
 
 exports.getUserLiveContestss = async (req, res) => {
   try {
@@ -947,6 +1115,8 @@ exports.getUserLiveContestss = async (req, res) => {
 exports.getUserFeaturedContests = async (req, res) => {
   try {
     const userId = req.user._id;
+    const referredBy = req.user.referredBy;
+
     const contests = await Contest.find(
       {
         featured: true,
@@ -1004,11 +1174,45 @@ exports.getUserFeaturedContests = async (req, res) => {
       .populate("portfolio", "portfolioName _id portfolioValue")
       .sort({ contestStartTime: 1 });
 
-    const liveFeatured = contests.filter((elem) => {
+
+      const newContest = [];
+      for(const elem of contests){
+        if(elem?.courseInstructors?.length > 0){
+          for(const subelem of elem?.courseInstructors){
+            if(subelem?.id?.toString() === (referredBy)?.toString()){ //referredBy Id            
+              if(subelem?.fee !== undefined || subelem?.fee !== null){
+                
+                const checkCoursePurchased = await Course.aggregate([
+                  {
+                    $match: {
+                      "courseInstructors.id": new ObjectId(
+                        referredBy
+                      ),
+                      "enrollments.userId": new ObjectId(userId)
+                    },
+                  }
+                ])
+                if(checkCoursePurchased[0]){
+                  elem.entryFee = subelem?.fee
+                  newContest.push(elem);
+                } else{
+                  newContest.push(elem);
+                }
+              } else{
+                newContest.push(elem);
+              }
+            }
+          }
+        } else{
+          newContest.push(elem);
+        }
+      }
+
+    const liveFeatured = newContest.filter((elem) => {
       return elem.contestStartTime <= new Date();
     });
 
-    const upcomingFeatured = contests.filter((elem) => {
+    const upcomingFeatured = newContest.filter((elem) => {
       return elem.contestStartTime > new Date();
     });
     // console.log('contests', contests[0].rewards);
@@ -6840,6 +7044,120 @@ exports.getEventFormat = async (req, res) => {
       _id: new ObjectId(eventId),
     }).select("eventFormat");
     res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.editInstructor = async (req, res) => {
+  try {
+    const { instructorId } = req.params;
+    const { about, fee } = req.body;
+    let imageUrl;
+    if (req?.files?.["instructorImage"]) {
+      imageUrl = await getAwsS3Url(req.files["instructorImage"][0], "Image");
+    }
+    const contest = await Contest.findOneAndUpdate(
+      {
+        _id: new ObjectId(req.params.id),
+        "courseInstructors._id": instructorId, // Match instructorId in courseInstructors
+      },
+      {
+        $set: {
+          "courseInstructors.$.image": imageUrl,
+          "courseInstructors.$.about": about,
+          "courseInstructors.$.fee": fee,
+        },
+      },
+      { new: true, select: "courseInstructors" }
+    );
+
+    if (!contest) {
+      return res.status(404).json({ message: "Contest not found" });
+    }
+    res.status(200).json({ data: contest, status: "success" });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.deleteInstructor = async (req, res) => {
+  try {
+    const { instructorId } = req.params;
+    const contest = await Contest.findOneAndUpdate(
+      {
+        _id: new ObjectId(req.params.id),
+      },
+      {
+        $pull: {
+          courseInstructors: { _id: instructorId }, // Remove instructor with matching id
+        },
+      },
+      { new: true, select: "courseInstructors" }
+    );
+    if (!contest) {
+      return res.status(404).json({ message: "Contest not found" });
+    }
+    res.status(200).json({ data: contest, status: "success" });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getCourseInstructor = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const courses = await Contest.findOne({ _id: new ObjectId(courseId) })
+      .populate("courseInstructors.id", "first_name last_name mobile email")
+      .select("courseInstructors");
+    res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.addInstructor = async (req, res) => {
+  try {
+    const { about, instructor, fee } = req.body;
+    let image;
+    if (req.files["instructorImage"]) {
+      image = await getAwsS3Url(req.files["instructorImage"][0]);
+    }
+
+    console.log("image", image);
+    const contest = await Contest.findByIdAndUpdate(
+      new ObjectId(req.params.id),
+      {
+        $push: {
+          courseInstructors: {
+            id: instructor,
+            image,
+            about, fee
+          },
+        },
+      },
+      { new: true, select: "courseInstructors" }
+    );
+    if (!contest) {
+      return res.status(404).json({ message: "Contest not found" });
+    }
+    res.status(200).json({ data: contest, status: "success" });
   } catch (error) {
     res.status(500).json({
       status: "error",

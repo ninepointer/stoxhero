@@ -304,6 +304,7 @@ async function singleProcess() {
     app.use('/api/v1/battletrade', require('./routes/battles/battleTradeRoute'));
     app.use('/api/v1/pageview', require("./routes/pageView/pageView"));
     app.use('/api/v1/affiliate', require("./routes/affiliateProgramme/affiliateRoute"));
+    app.use('/api/v1/influencer', require("./routes/influencerRoute/influencerRoute"));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));

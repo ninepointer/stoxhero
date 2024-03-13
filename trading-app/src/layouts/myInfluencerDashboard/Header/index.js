@@ -96,7 +96,7 @@ export default function Dashboard() {
   useEffect(() => {
     setIsLoading(true)
     if (affiliateData || userDetails?.role?.roleName === userRole) {
-      let call1 = axios.get((`${apiUrl}affiliate/${userDetails?.role?.roleName === adminRole ? "adminlast30daysdata" : "last30daysdata"}?affiliateId=${affiliateData?.affiliateId}&affiliateType=${affiliateData?.affiliateType}&affiliatePrograme=${affiliateData?.affiliatePrograme}`), {
+      let call1 = axios.get((`${apiUrl}influencer/${userDetails?.role?.roleName === adminRole ? "adminlast30daysdata" : "last30daysdata"}?affiliateId=${affiliateData?.affiliateId}&affiliateType=${affiliateData?.affiliateType}&affiliatePrograme=${affiliateData?.affiliatePrograme}`), {
         withCredentials: true,
         headers: {
           Accept: "application/json",

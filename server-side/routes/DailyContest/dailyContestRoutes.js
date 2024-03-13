@@ -78,13 +78,25 @@ router.get('/contest/:id', Authenticate, contestController.getContest);
 router.get('/usercontestdata/:id', Authenticate, contestController.userContestDetail);
 router.get("/:id/faq", Authenticate, restrictTo("Admin", "SuperAdmin"), contestController.getFAQ);
 router.get("/:id/eventformat", Authenticate, restrictTo("Admin", "SuperAdmin"), contestController.getEventFormat);
+router.get(
+  "/:id/instructor",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  contestController.getCourseInstructor
+);
 
 router.put('/contest/:id', Authenticate, restrictTo('Admin', 'SuperAdmin'), upload.fields([
     { name: "image", maxCount: 1 },
   ]), contestController.editContest);
 router.patch('/switchUser/:contestId', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.switchUser);
 router.patch("/:id/faq", Authenticate, restrictTo("Admin", "SuperAdmin"), contestController.addFaq);
-
+router.patch(
+  "/:id/instructor",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  upload.fields([{ name: "instructorImage", maxCount: 1 }]),
+  contestController.addInstructor
+);
 router.patch("/:id/eventformat", Authenticate, restrictTo("Admin", "SuperAdmin"), contestController.addEventFormat);
 router.put('/purchaseintent/:id', Authenticate, contestController.purchaseIntent);
 
@@ -104,6 +116,13 @@ router.route('/:id/rewards').get(contestController.getRewards).patch(Authenticat
 router.route('/:id/rewards/:rewardId').patch(Authenticate, restrictTo('Admin', 'SuperAdmin'), contestController.editReward);
 router.patch("/:id/faq/:faqId", Authenticate, restrictTo("Admin", "SuperAdmin"), contestController.editFaq);
 router.patch("/:id/eventformat/:eventId", Authenticate, restrictTo("Admin", "SuperAdmin"), contestController.editEventFormat);
+router.patch(
+  "/:id/instructor/:instructorId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  upload.fields([{ name: "instructorImage", maxCount: 1 }]),
+  contestController.editInstructor
+);
 router.get('/contests/upcoming', Authenticate, contestController.getUpcomingContests);
 router.get('/contests/userlive', Authenticate, contestController.getUserLiveContests);
 router.get('/collegecontests/userupcoming', Authenticate, contestController.getCollegeUserUpcomingContests);
@@ -144,6 +163,11 @@ router.get('/draft', Authenticate, restrictTo('Admin', 'SuperAdmin'), contestCon
 
 router.delete("/:id/faq/:faqId", Authenticate, restrictTo("Admin", "SuperAdmin"), contestController.deleteFAQ);
 router.delete("/:id/eventformat/:eventId", Authenticate, restrictTo("Admin", "SuperAdmin"), contestController.deleteEventFormat);
-
+router.delete(
+  "/:id/instructor/:instructorId",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  contestController.deleteInstructor
+);
 
 module.exports=router;

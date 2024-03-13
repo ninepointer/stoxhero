@@ -50,6 +50,7 @@ import ContestRewards from "./data/reward/contestReward";
 import { apiUrl } from "../../constants/constants";
 import Faq from "./data/faq/list";
 import EventFormat from "./data/eventFormat/list";
+import Influencer from './data/addInstructor/viewList'
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -1591,6 +1592,18 @@ function Index() {
                 </MDBox>
               </Grid>
             )}
+
+              {(isSubmitted || contest) && (
+                <Grid item xs={12} md={12} xl={12} mt={2}>
+                  <MDBox>
+                    <Influencer
+                      contestId={
+                        contest != undefined ? contest?._id : dailyContest?._id
+                      }
+                    />
+                  </MDBox>
+                </Grid>
+              )}
 
             {(isSubmitted || contest) && (
               <Grid item xs={12} md={12} xl={12} mt={2}>
