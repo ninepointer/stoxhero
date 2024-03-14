@@ -318,7 +318,7 @@ export default function Create({ createForm, setCreateForm, contestId, instructo
                                                 <MDButton variant="contained" size="small" color="success" onClick={(e) => { onNext(e, formState) }}>Save</MDButton>
                                             </Grid>
                                             <Grid item xs={12} md={2} xl={2} width="100%">
-                                                <MDButton variant="contained" size="small" color="warning" onClick={(e) => { setCreateForm(!createForm) }}>Back</MDButton>
+                                                <MDButton variant="contained" size="small" color="warning" onClick={(e) => { setCreateForm(!createForm); setFormState({}) }}>Back</MDButton>
                                             </Grid>
                                         </>
                                     )}

@@ -94,7 +94,7 @@ const List = ({ contestId }) => {
                     <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
                         Instructor
                     </MDTypography>
-                    <MDButton hidden={true} variant="outlined" size="small" color="black" onClick={() => setCreateForm(true)}>
+                    <MDButton hidden={true} variant="outlined" size="small" color="black" onClick={() => {setCreateForm(true); setId({})}}>
                         Add Instructor
                     </MDButton>
 

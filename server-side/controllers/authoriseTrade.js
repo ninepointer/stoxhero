@@ -583,7 +583,12 @@ const marginFirstCase = async (req, res, next, availableMargin, prevMargin, from
     const requiredMargin = await calculateRequiredMargin(req, req.body.Quantity, data, (from===stock && true));
 
     if((availableMargin-requiredMargin) > 0){
-        req.body.margin = requiredMargin+prevMargin;
+        if(req.body.order_type === 'LIMIT'){
+            req.body.margin = requiredMargin;
+        } else{
+            req.body.margin = requiredMargin+prevMargin;
+        }
+        
         return next();
     } else{
         await takeRejectedTrade(req, res, from);

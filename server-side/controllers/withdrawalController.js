@@ -87,12 +87,12 @@ exports.uploadToS3 = async(req, res, next) => {
 exports.createWithdrawal = async(req,res,next) => {
     const userId = req.user._id;
     const{amount}=req.body
-    const user = await User.findById(userId).select('KYCStatus fcmTokens');
+    const user = await User.findById(userId).select('KYCStatus fcmTokens role');
     if(!user.KYCStatus || user?.KYCStatus!='Approved'){
         return res.status(400).json({status:'error', message:'KYC not completed. Complete KYC and try again.'})
     }
     if(!amount){
-        return res.status(200).json({status:'error', message:'Enter a valid amount'});
+        return res.status(400).json({status:'error', message:'Enter a valid amount'});
     }
     const tomorrowDate = new Date();
     tomorrowDate.setHours(18, 29, 59, 0);
@@ -105,7 +105,7 @@ exports.createWithdrawal = async(req,res,next) => {
     user: user?._id,
     $and: [
         { withdrawalRequestDate: { $lte: tomorrowDate } },
-        { withdrawalRequestDate: { $gte: currentDate } }
+        { withdrawalRequestDate: { $gte: currentDateTime } }
     ]
     });
 
@@ -130,13 +130,15 @@ exports.createWithdrawal = async(req,res,next) => {
         return res.status(400).json({status:'error', message:`The minimum amount that can be withdrawn is ₹${appSettings.minWithdrawal}`});
     }
 
-    if(walletBalance >= appSettings?.walletBalanceUpperLimit){
-        if(amount>walletBalance - appSettings?.maxWithdrawalHigh && amount > appSettings?.maxWithdrawal){
-            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${(Math.max(walletBalance-appSettings?.maxWithdrawalHigh, appSettings?.maxWithdrawal)).toFixed(2)}`});
-        }
-    }else{
-        if(amount>appSettings.maxWithdrawal){
-            return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings.maxWithdrawal}`});
+    if(user?.role?.toString != '65dc6817586cba2182f05561'){
+        if(walletBalance >= appSettings?.walletBalanceUpperLimit){
+            if(amount>walletBalance - appSettings?.maxWithdrawalHigh && amount > appSettings?.maxWithdrawal){
+                return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${(Math.max(walletBalance-appSettings?.maxWithdrawalHigh, appSettings?.maxWithdrawal)).toFixed(2)}`});
+            }
+        }else{
+            if(amount>appSettings.maxWithdrawal){
+                return res.status(400).json({status:'error', message:`The maximum amount that can be withdrawn is ₹${appSettings.maxWithdrawal}`});
+            }
         }
     }
     const transactionId = uuid.v4();

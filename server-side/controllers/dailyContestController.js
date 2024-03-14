@@ -7019,6 +7019,19 @@ exports.getEventFormat = async (req, res) => {
 exports.editInstructor = async (req, res) => {
   try {
     const { instructorId } = req.params;
+    for (let elem in req.body) {
+      if (req.body[elem] === "undefined" || req.body[elem] === "null") {
+        delete req.body[elem];
+      }
+
+      if (req.body[elem] === "false") {
+        req.body[elem] = false;
+      }
+
+      if (req.body[elem] === "true") {
+        req.body[elem] = true;
+      }
+    }
     const { about, fee, isPurchaseRequired } = req.body;
     let imageUrl;
     if (req?.files?.["instructorImage"]) {
@@ -7098,6 +7111,19 @@ exports.getCourseInstructor = async (req, res) => {
 
 exports.addInstructor = async (req, res) => {
   try {
+    for (let elem in req.body) {
+      if (req.body[elem] === "undefined" || req.body[elem] === "null") {
+        delete req.body[elem];
+      }
+
+      if (req.body[elem] === "false") {
+        req.body[elem] = false;
+      }
+
+      if (req.body[elem] === "true") {
+        req.body[elem] = true;
+      }
+    }
     const { about, instructor, fee, isPurchaseRequired } = req.body;
     let image;
     if (req.files["instructorImage"]) {
