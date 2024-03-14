@@ -2397,8 +2397,36 @@ exports.participateUsers = async (req, res) => {
   try {
     const { id } = req.params; // ID of the contest
     const userId = req.user._id;
+    const referredBy = req.user.referredBy;
 
     const contest = await Contest.findOne({ _id: id });
+
+    if(contest?.courseInstructors?.length > 0){
+      for(const subelem of contest?.courseInstructors){
+        if(subelem?.id?.toString() === (referredBy)?.toString()){            
+          if(subelem?.fee !== undefined || subelem?.fee !== null){
+            
+            const checkCoursePurchased = await Course.aggregate([
+              {
+                $match: {
+                  "courseInstructors.id": new ObjectId(
+                    referredBy
+                  ),
+                  "enrollments.userId": new ObjectId(userId)
+                },
+              }
+            ])
+            if(!checkCoursePurchased[0]){
+              const referredUser = await User.findById(new ObjectId(referredBy));
+              return res.status(404).json({
+                status: "error",
+                message: `You haven't enrolled in ${referredUser?.first_name} ${referredUser?.last_name}'s courses yet. Please enroll in ${referredUser?.first_name} ${referredUser?.last_name}'s courses to participate in this test zone.`,
+              });
+            } 
+          } 
+        }
+      }
+    }
 
     for (let i = 0; i < contest.participants?.length; i++) {
       if (contest.participants[i]?.userId?.toString() === userId?.toString()) {
