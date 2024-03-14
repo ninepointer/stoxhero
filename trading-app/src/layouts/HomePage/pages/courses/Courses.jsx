@@ -174,7 +174,7 @@ export default function Courses() {
                   style={{
                     position: "absolute", // Position the button absolutely
                     top: isMobile ? "80%" : "90%", // Position the button in the center vertically
-                    left: isMobile ? "50%" : "40%", // Position the button in the center horizontally
+                    left: isMobile ? "50%" : "39%", // Position the button in the center horizontally
                     transform: "translate(-50%, -90%)", // Adjust to center the button perfectly
                     padding: "12px", // Add padding to the button
                     backgroundColor: "#D5F47E", // Add background color to the button
