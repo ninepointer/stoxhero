@@ -21,6 +21,7 @@ const List = ({ contestId }) => {
         { Header: "Name", accessor: "name", align: "center" },
         { Header: "Mobile", accessor: "mobile", align: "center" },
         { Header: "Contest Fee", accessor: "fee", align: "center" },
+        { Header: "Purchase Required", accessor: "isPurchaseRequired", align: "center" },
         { Header: "Image", accessor: "instructorImage", align: "center" },
     ];
 
@@ -66,6 +67,11 @@ const List = ({ contestId }) => {
         obj.fee = (
             <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
                 {elem?.fee}
+            </MDTypography>
+        );
+        obj.isPurchaseRequired = (
+            <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+                {elem?.isPurchaseRequired ? 'Yes' : 'No'}
             </MDTypography>
         );
         obj.instructorImage = (

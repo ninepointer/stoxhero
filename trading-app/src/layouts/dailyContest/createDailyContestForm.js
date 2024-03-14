@@ -1093,6 +1093,29 @@ function Index() {
                 <FormGroup>
                   <FormControlLabel
                     checked={
+                      contest?.visibleToInfluencerUser !== undefined &&
+                      !editing &&
+                      formState?.visibleToInfluencerUser === undefined
+                        ? contest?.visibleToInfluencerUser
+                        : formState?.visibleToInfluencerUser
+                    }
+                    disabled={(isSubmitted || contest) && (!editing || saving)}
+                    control={<Checkbox />}
+                    onChange={(e) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        visibleToInfluencerUser: e.target.checked,
+                      }));
+                    }}
+                    label="Visible To Influencer User"
+                  />
+                </FormGroup>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3}>
+                <FormGroup>
+                  <FormControlLabel
+                    checked={
                       contest?.visibility !== undefined &&
                       !editing &&
                       formState?.visibility === undefined
