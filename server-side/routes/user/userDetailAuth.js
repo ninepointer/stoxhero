@@ -87,7 +87,7 @@ const uploadMultiple = multer({
 const checkFileError = async (req, res, next) => {
   const files = req.files;
   for (let key in files) {
-    console.log("file size", files[key][0].size);
+    // console.log("file size", files[key][0].size);
     if (files[key][0].size > 2 * 1024 * 1024) {
       // 2MB size check
       return res.status(400).json({
@@ -1122,7 +1122,7 @@ router.patch(
   uploadToS3,
   async (req, res, next) => {
     try {
-      console.log(req.profilePhotoUrl);
+      // console.log(req.profilePhotoUrl);
       if (!req.profilePhotoUrl) {
         return res.status(404).json({ message: "Please upload a file" });
       }

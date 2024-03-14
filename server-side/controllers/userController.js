@@ -649,7 +649,8 @@ exports.getUsers = async (req, res) => {
           status: "Active",
         },
       ],
-    }).select(
+    }).populate('influencerDetails.city', 'name')
+    .select(
       "first_name last_name email mobile _id myReferralCode influencerDetails slug"
     );
     res.status(200).json({

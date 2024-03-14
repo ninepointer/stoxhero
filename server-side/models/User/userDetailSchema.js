@@ -522,7 +522,10 @@ const userDetailSchema = new mongoose.Schema({
           followers: Number,
         }
       },
-      city: String,
+      city: {
+        type: Schema.Types.ObjectId,
+        ref: "city",
+      },
       state: String,
       tags: [String],
       addedOn: Date,
