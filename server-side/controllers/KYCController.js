@@ -92,18 +92,105 @@ exports.getAllPendingApprovalKYC = async (req, res, next) => {
     .sort({KYCActionDate: -1})
     res.status(200).json({status:'success', data: pendingKYCUsers, results: pendingKYCUsers.length})
 }
+exports.getAllPendingApprovalKYPageC = async (req, res, next) => {
+  // Extract page and limit from query parameters. Default to page 1 and limit 10 if not provided
+  let { page, limit } = req.query;
+  page = page * 1 || 1; // Convert to number and default to 1
+  limit = limit * 1 || 50; // Convert to number and default to 50
+  const skip = (page - 1) * limit;
+
+  try {
+      // Get the total number of documents matching the criteria
+      const total = await User.countDocuments({ KYCStatus: 'Pending Approval' });
+
+      // Find the documents, skip the previous pages, and limit to the page size
+      const pendingKYCUsers = await User.find({ KYCStatus: 'Pending Approval' })
+                                        .sort({ KYCActionDate: -1 })
+                                        .skip(skip)
+                                        .limit(limit);
+
+      res.status(200).json({
+          status: 'success',
+          data: pendingKYCUsers,
+          results: pendingKYCUsers.length,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          totalResults: total
+      });
+  } catch (error) {
+      // In case of an error, pass it to the error handling middleware
+      next(error);
+  }
+}
+
 
 exports.getApporvedKYC = async (req,res,next) => {
     const approvedKYCs = await User.find({KYCStatus:'Approved'})
     .sort({KYCActionDate: -1})
     res.status(200).json({status:'success', data: approvedKYCs, results: approvedKYCs.length})
 }
+exports.getApprovedKYCPage = async (req, res, next) => {
+  let { page, limit } = req.query;
+  page = page * 1 || 1; // Convert to number, defaulting to 1 if undefined
+  limit = limit * 1 || 50; // Convert to number, defaulting to 10 if undefined
+  const skip = (page - 1) * limit;
+
+  try {
+      const total = await User.countDocuments({ KYCStatus: 'Approved' });
+      const approvedKYCs = await User.find({ KYCStatus: 'Approved' })
+                                     .sort({ KYCActionDate: -1 })
+                                     .skip(skip)
+                                     .limit(limit);
+
+      res.status(200).json({
+          status: 'success',
+          data: approvedKYCs,
+          results: approvedKYCs.length,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          totalResults: total
+      });
+  } catch (error) {
+      next(error);
+  }
+}
+
 
 exports.getRejectedKYCS = async (req,res,next) => {
     const rejectedKYCS = await User.find({KYCStatus:'Rejected'})
     .sort({KYCActionDate: -1})
     res.status(200).json({status:'success', data: rejectedKYCS, results: rejectedKYCS.length})
 }
+
+exports.getRejectedKYCSPage = async (req, res, next) => {
+  let { page, limit } = req.query;
+  page = page * 1 || 1;
+  limit = limit * 1 || 50;
+  const skip = (page - 1) * limit;
+
+  try {
+      const total = await User.countDocuments({ KYCStatus: 'Rejected' });
+      const rejectedKYCS = await User.find({ KYCStatus: 'Rejected' })
+                                     .sort({ KYCActionDate: -1 })
+                                     .skip(skip)
+                                     .limit(limit);
+
+      res.status(200).json({
+          status: 'success',
+          data: rejectedKYCS,
+          results: rejectedKYCS.length,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          totalResults: total
+      });
+  } catch (error) {
+      next(error);
+  }
+}
+
 
 exports.approveKYC = async(req,res,next) => {
     const userId = req.params.id;
