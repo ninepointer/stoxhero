@@ -39,9 +39,7 @@ export default function Dashboard() {
   let [isLoading,setIsLoading] = useState([])
   const [affiliateOverview,setAffiliateOverview] = useState([]);
   const [affiliateRafferalSummery,setAffiliateRafferalSummery] = useState([]);
-  // const [affiliateReferrals,setAffiliateReferrals] = useState([]);
   const date = new Date();
-  // const lastMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   const [startDate, setStartDate] = React.useState(dayjs(date).startOf('day'));
   const [endDate, setEndDate] = useState(dayjs(date).endOf('day'));
   const [title, setTitle] = useState('')
@@ -57,7 +55,6 @@ export default function Dashboard() {
     setSuccessSB(true);
   }
   const closeSuccessSB = () => setSuccessSB(false);
-
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -118,7 +115,6 @@ export default function Dashboard() {
 
   }, [affiliateData])
 
-  
   useEffect(() => {
     setIsLoading(true)
     if (affiliateData || userDetails?.role?.roleName === userRole) {
@@ -146,8 +142,6 @@ export default function Dashboard() {
     }
 
   }, [affiliateData])
-
-
 
   async function handleShowDetails(){
     setShowDetailClicked(!showDetailClicked);
@@ -225,7 +219,6 @@ export default function Dashboard() {
         break;
     }
   };
-  
 
 
   return (
