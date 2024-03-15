@@ -21,6 +21,7 @@ const List = ({ contestId }) => {
         { Header: "Name", accessor: "name", align: "center" },
         { Header: "Mobile", accessor: "mobile", align: "center" },
         { Header: "Contest Fee", accessor: "fee", align: "center" },
+        { Header: "Purchase Required", accessor: "isPurchaseRequired", align: "center" },
         { Header: "Image", accessor: "instructorImage", align: "center" },
     ];
 
@@ -68,6 +69,11 @@ const List = ({ contestId }) => {
                 {elem?.fee}
             </MDTypography>
         );
+        obj.isPurchaseRequired = (
+            <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+                {elem?.isPurchaseRequired ? 'Yes' : 'No'}
+            </MDTypography>
+        );
         obj.instructorImage = (
             elem?.image ?
             <img src={elem?.image} style={{width: "100px", height: "100px"}} />
@@ -88,7 +94,7 @@ const List = ({ contestId }) => {
                     <MDTypography variant="text" fontSize={12} color="black" mt={0.7} alignItems="center" gutterBottom>
                         Instructor
                     </MDTypography>
-                    <MDButton hidden={true} variant="outlined" size="small" color="black" onClick={() => setCreateForm(true)}>
+                    <MDButton hidden={true} variant="outlined" size="small" color="black" onClick={() => {setCreateForm(true); setId({})}}>
                         Add Instructor
                     </MDButton>
 

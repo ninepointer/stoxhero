@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { useContext, useState } from "react";
 import TextField from '@mui/material/TextField';
-import { Grid, Card, CardContent, CardActionArea } from "@mui/material";
+import { Grid, Card, CardContent, CardActionArea, FormControlLabel, Checkbox, FormGroup } from "@mui/material";
 import MDTypography from "../../../../components/MDTypography";
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton"
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
+// import MenuItem from '@mui/material/MenuItem';
+// import Select from '@mui/material/Select';
+// import InputLabel from '@mui/material/InputLabel';
 import { CircularProgress, Typography } from "@mui/material";
 import MDSnackbar from "../../../../components/MDSnackbar";
 import { apiUrl } from '../../../../constants/constants';
-import FormControl from '@mui/material/FormControl';
+// import FormControl from '@mui/material/FormControl';
 import User from './users';
 
 export default function Create({ createForm, setCreateForm, contestId, instructor }) {
@@ -20,7 +20,8 @@ export default function Create({ createForm, setCreateForm, contestId, instructo
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [formState, setFormState] = useState({
         about: "" || instructor?.about,
-        fee: '' || instructor?.fee
+        fee: '' || instructor?.fee,
+        isPurchaseRequired: false || instructor?.isPurchaseRequired
     });
     const [selectedUser, setSelectedUser] = useState({
         id: '' || instructor?.id?._id,
@@ -60,14 +61,16 @@ export default function Create({ createForm, setCreateForm, contestId, instructo
             formData.append("instructorImage", instructorImage[0]);
         }
 
-        if (selectedUser?.id) {
-            formData.append("instructor", selectedUser?.id);
-        }
-
         for (let elem in formState) {
             formData.append(`${elem}`, formState[elem]);
         }
 
+
+        if (selectedUser?.id) {
+            formData.append("instructor", selectedUser?.id);
+        }
+
+       
         if (instructor?.about) {
             const res = await fetch(`${apiUrl}dailycontest/${contestId}/instructor/${instructor?._id}`, {
                 method: "PATCH",
@@ -201,7 +204,7 @@ export default function Create({ createForm, setCreateForm, contestId, instructo
                                         disabled={isSubmitted}
                                         id="outlined-required"
                                         placeholder='Contest Fee*'
-                                        // inputMode='numeric'
+                                        type='number'
                                         fullWidth
                                         value={formState?.fee}
                                         onChange={(e) => {
@@ -236,71 +239,90 @@ export default function Create({ createForm, setCreateForm, contestId, instructo
                             <Grid item xs={12} md={6} xl={12} display="flex"
                                 justifyContent="space-between"
                                 alignItems="center" gap={2}>
-                            <Grid item xs={12} md={6} xl={3}>
-                                <Grid container xs={12} md={12} xl={12} display="flex" justifyContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                    {previewUrl ?
+                                <Grid item xs={12} md={6} xl={3}>
+                                    <Grid container xs={12} md={12} xl={12} display="flex" justifyContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                        {previewUrl ?
 
-                                        <Grid item xs={12} md={12} xl={3} style={{ maxWidth: '100%', height: 'auto' }}>
-                                            <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                                                <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                                                    <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
-                                                        <CardActionArea>
-                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                    <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
-                                                                        <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
-                                                                            Image
-                                                                        </Typography>
-                                                                    </MDBox>
-                                                                </CardContent>
-                                                            </Grid>
-                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                <img src={previewUrl} style={{ maxWidth: '100%', height: 'auto', borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
-                                                            </Grid>
-                                                        </CardActionArea>
-                                                    </Card>
+                                            <Grid item xs={12} md={12} xl={3} style={{ maxWidth: '100%', height: 'auto' }}>
+                                                <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                                                    <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                                                        <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
+                                                            <CardActionArea>
+                                                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                                                    <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                                                        <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
+                                                                            <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
+                                                                                Image
+                                                                            </Typography>
+                                                                        </MDBox>
+                                                                    </CardContent>
+                                                                </Grid>
+                                                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                                                    <img src={previewUrl} style={{ maxWidth: '100%', height: 'auto', borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                                                                </Grid>
+                                                            </CardActionArea>
+                                                        </Card>
+                                                    </Grid>
                                                 </Grid>
                                             </Grid>
-                                        </Grid>
-                                        :
-                                        <Grid item xs={12} md={12} xl={3} style={{ maxWidth: '100%', height: 'auto' }}>
-                                            <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                                                <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
-                                                    <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
-                                                        <CardActionArea>
-                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                    <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
-                                                                        <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
-                                                                            Image
-                                                                        </Typography>
-                                                                    </MDBox>
-                                                                </CardContent>
-                                                            </Grid>
-                                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
-                                                                <img src={instructor?.image} style={{ maxWidth: '100%', height: 'auto', borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
-                                                            </Grid>
-                                                        </CardActionArea>
-                                                    </Card>
+                                            :
+                                            <Grid item xs={12} md={12} xl={3} style={{ maxWidth: '100%', height: 'auto' }}>
+                                                <Grid container xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                                                    <Grid item xs={12} md={12} xl={12} style={{ maxWidth: '100%', height: 'auto' }}>
+                                                        <Card sx={{ minWidth: '100%', cursor: 'pointer' }}>
+                                                            <CardActionArea>
+                                                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                                                    <CardContent display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                                                        <MDBox mb={-2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ width: '100%', height: 'auto' }}>
+                                                                            <Typography variant="caption" fontFamily='Segoe UI' fontWeight={600} style={{ textAlign: 'center' }}>
+                                                                                Image
+                                                                            </Typography>
+                                                                        </MDBox>
+                                                                    </CardContent>
+                                                                </Grid>
+                                                                <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
+                                                                    <img src={instructor?.image} style={{ maxWidth: '100%', height: 'auto', borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} />
+                                                                </Grid>
+                                                            </CardActionArea>
+                                                        </Card>
+                                                    </Grid>
                                                 </Grid>
                                             </Grid>
-                                        </Grid>
-                                    }
+                                        }
+                                    </Grid>
                                 </Grid>
-                            </Grid>
 
-                            <Grid item xs={12} md={6} xl={9} display='flex' justifyContent={'flex-end'} gap={2} >
-                                {!isSubmitted && (
-                                    <>
-                                        <Grid item xs={12} md={2} xl={1} width="100%">
-                                            <MDButton variant="contained" size="small" color="success" onClick={(e) => { onNext(e, formState) }}>Save</MDButton>
-                                        </Grid>
-                                        <Grid item xs={12} md={2} xl={1} width="100%">
-                                            <MDButton variant="contained" size="small" color="warning" onClick={(e) => { setCreateForm(!createForm) }}>Back</MDButton>
-                                        </Grid>
-                                    </>
-                                )}
-                            </Grid>
+                                <Grid item xs={12} md={6} xl={3}>
+                                    <FormGroup>
+                                        <FormControlLabel
+                                            checked={
+                                                formState?.isPurchaseRequired
+                                            }
+                                            // disabled={(isSubmitted || contest) && (!editing || saving)}
+                                            control={<Checkbox />}
+                                            onChange={(e) => {
+                                                setFormState((prevState) => ({
+                                                    ...prevState,
+                                                    isPurchaseRequired: e.target.checked,
+                                                }));
+                                            }}
+                                            label="Is Purchase Required"
+                                        />
+                                    </FormGroup>
+                                </Grid>
+
+                                <Grid item xs={12} md={6} xl={6} display='flex' justifyContent={'flex-end'} >
+                                    {!isSubmitted && (
+                                        <>
+                                            <Grid item xs={12} md={2} xl={2} width="100%">
+                                                <MDButton variant="contained" size="small" color="success" onClick={(e) => { onNext(e, formState) }}>Save</MDButton>
+                                            </Grid>
+                                            <Grid item xs={12} md={2} xl={2} width="100%">
+                                                <MDButton variant="contained" size="small" color="warning" onClick={(e) => { setCreateForm(!createForm); setFormState({}) }}>Back</MDButton>
+                                            </Grid>
+                                        </>
+                                    )}
+                                </Grid>
                             </Grid>
                         </Grid>
                         {renderSuccessSB}

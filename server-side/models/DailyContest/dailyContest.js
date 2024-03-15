@@ -8,7 +8,7 @@ const contestSchema = new Schema({
   },
   slug: {
     type: String,
-    required: true,
+    // required: true,
     unique: true,
   },
   image: {
@@ -225,6 +225,11 @@ const contestSchema = new Schema({
     required: true,
     default: false,
   },
+  visibleToInfluencerUser: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   product: {
     type: Schema.Types.ObjectId,
     ref: "product",
@@ -243,7 +248,12 @@ const contestSchema = new Schema({
       },
       image: String,
       about: String,
-      fee: Number
+      fee: Number,
+      isPurchaseRequired: {
+        type: Boolean,
+        required: true,
+        default: false,
+      }
     },
   ],
 });
