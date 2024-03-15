@@ -138,6 +138,256 @@ const UnformattedSchool = require("../../models/School/unformatedSchool");
 const NewSchool = require("../../models/School/newSchool");
 const City = require("../../models/City/city");
 
+router.get('/revenuesplitmonth', async (req, res, next) => {
+  try {
+    const startDate = new Date('2023-03-31T18:30:00.000+00:00')
+    const endDate = new Date('2023-04-30T18:29:59.999+00:00')
+
+    const bonus = await userWallet.aggregate([
+      {
+        $unwind: {
+          path: "$transactions",
+        },
+      },
+
+      {
+        $match: {
+
+          $or: [
+
+            {
+              "transactions.title": "Sign up Bonus",
+            },
+            {
+              "transactions.title":
+                "TenX Joining Bonus",
+            },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: {
+            user: "$userId",
+          },
+          bonusAmount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $or: [
+                    {
+                      $eq: [
+                        "$transactions.title",
+                        "Sign up Bonus",
+                      ],
+                    },
+                    {
+                      $eq: [
+                        "$transactions.title",
+                        "Tenx Joining Bonus",
+                      ],
+                    },
+                  ],
+                },
+                then: "$transactions.amount",
+                else: 0,
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          user: "$_id.user",
+          bonus: "$bonusAmount",
+          _id: 0
+        }
+      },
+      {
+        $match: {
+          bonus: { $gt: 0 }
+        }
+      }
+
+    ]);
+
+    const prevRevenue = await userWallet.aggregate([
+      {
+        $unwind: {
+          path: "$transactions",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              "transactions.title": "TestZone Fee",
+            },
+            {
+              "transactions.title": "Battle Fee",
+            },
+            {
+              "transactions.title": "MarginX Fee",
+            },
+            {
+              "transactions.title":
+                "Bought TenX Trading Subscription",
+            }
+          ],
+          "transactions.transactionDate": {
+            $lt: new Date(startDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            user: "$userId",
+          },
+          amount: {
+            $sum: {
+              $multiply: [
+                "$transactions.amount",
+                -1,
+              ]
+
+            },
+          },
+
+        },
+      },
+
+      {
+        $project: {
+          revenue: "$amount",
+          user: "$_id.user",
+          _id: 0,
+        },
+      },
+    ])
+
+    const currentRevenue = await userWallet.aggregate([
+      {
+        $unwind: {
+          path: "$transactions",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              "transactions.title": "TestZone Fee",
+            },
+            {
+              "transactions.title": "Battle Fee",
+            },
+            {
+              "transactions.title": "MarginX Fee",
+            },
+            {
+              "transactions.title":
+                "Bought TenX Trading Subscription",
+            }
+          ],
+          "transactions.transactionDate": {
+            $gte: new Date(startDate),
+            $lt: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            user: "$userId",
+          },
+          amount: {
+            $sum: {
+              $multiply: [
+                "$transactions.amount",
+                -1,
+              ]
+
+            },
+          },
+
+        },
+      },
+
+      {
+        $project: {
+          revenue: "$amount",
+          user: "$_id.user",
+          _id: 0,
+        },
+      },
+    ])
+
+    console.log('lengths', bonus.length, prevRevenue.length, currentRevenue.length)
+
+    // const obj = {
+    //   revenue: 0,
+    //   bonus: 0
+    // }
+
+
+    // for(let elem of currentRevenue){
+    //   const bonusData = bonus.filter(subelem => subelem.user?.toString() === elem?.user?.toString());
+    //   const currRev = elem?.revenue;
+    //   const prev = prevRevenue.filter(subelem => subelem.user?.toString() === elem?.user?.toString());
+    //   const prevRev = prev?.[0]?.revenue || 0;
+    //   const mybonus = bonusData?.[0]?.bonus || 0;
+    //   const bonusUsed = prevRev > mybonus ? mybonus : prevRev;
+    //   const bonusRemains = mybonus - bonusUsed;
+
+    //   const actualRevenue = currRev > bonusRemains ? (currRev - bonusRemains) : 0;
+    //   const currentBonusUsed = currRev > bonusRemains ?  bonusRemains : currRev;
+    //   obj.revenue += actualRevenue;
+    //   obj.bonus += currentBonusUsed;
+    // }
+
+    const obj = calculateRevenueAndBonus(prevRevenue, currentRevenue, bonus);
+
+
+    console.log(obj);
+
+    const response = {
+      data: obj,
+      status: "success",
+      message: "Data fetched successfully",
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    console.log(e);
+  }
+})
+
+
+function calculateRevenueAndBonus(prevRevenue, currentRevenue, bonus) {
+  const obj = {
+    actualRevenue: 0,
+    bonusAmount: 0
+  };
+
+  const userBonusMap = new Map(bonus.map(entry => [entry.user.toString(), entry.bonus]));
+
+  for (const elem of currentRevenue) {
+    const currRev = elem.revenue;
+    const prev = prevRevenue.find(entry => entry.user.toString() === elem.user.toString());
+    const prevRev = prev ? prev.revenue : 0;
+    const mybonus = userBonusMap.get(elem.user.toString()) || 0;
+    const bonusUsed = Math.min(prevRev, mybonus);
+    const bonusRemains = mybonus - bonusUsed;
+
+    const actualRevenue = Math.max(currRev - bonusRemains, 0);
+    const currentBonusUsed = Math.min(currRev, bonusRemains);
+    obj.actualRevenue += actualRevenue;
+    obj.bonusAmount += currentBonusUsed;
+  }
+
+  return obj;
+}
+
+
 router.get("/schoolaff", async (req, res) => {
   try {
     const updateResult = await School.updateMany({}, [
