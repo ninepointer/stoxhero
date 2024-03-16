@@ -728,7 +728,7 @@ const Workshop = () => {
                         justifyContent="flex-start"
                         // alignItems="center"
                         id='about_instructor'
-                        style={{ maxWidth: isMobile ? '100%' : "80%" }}
+                        style={{ maxWidth: isMobile ? '100%' : "85%" }}
                       >
                         <MDBox
                           display="flex"
