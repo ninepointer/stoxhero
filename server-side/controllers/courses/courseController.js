@@ -1841,7 +1841,21 @@ exports.getCourseBySlug = async (req, res) => {
           delete topics.notes
         }
       }
-    res.status(200).json({ status: "success", data: newCourse });
+
+      let obj = {};
+      for(let elem of newCourse?.courseInstructors){
+        const user = await User.findOne({ _id: elem?.id }).select(
+          "_id first_name last_name influencerDetails profilePhoto"
+        );
+
+        obj={
+          first_name: user?.first_name,
+          last_name: user?.last_name,
+          influencerDetails: user?.influencerDetails,
+          profilePhoto: user?.profilePhoto
+        }
+      }
+    res.status(200).json({ status: "success", data: newCourse, instructor: obj });
   } catch (error) {
     console.log(error)
     res.status(500).json({
@@ -2597,7 +2611,7 @@ exports.enrollUser = async (req, res, next) => {
                 <p>Email: <span class="password">${user.email}</span></p>
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
                 <p>${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Name: <span class="password">${course.courseName}</span></p>
-                <p>${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee: <span class="password">₹${courseFee}/-</span></p>
+                
 
                 ${course?.courseType === 'Live' &&
       (`<p>Start Date: <span class="password">${moment(course?.courseStartTime).format('DD MMM HH:MM:ss a')}</span></p>

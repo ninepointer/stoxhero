@@ -710,7 +710,7 @@ export default function Courses() {
                                               isMobile ? "center" : "flex-start"
                                             }
                                           >
-                                            <Grid
+                                             <Grid
                                               item
                                               xs={12}
                                               md={12}
@@ -721,24 +721,18 @@ export default function Courses() {
                                                   ? "center"
                                                   : "flex-start"
                                               }
-                                              alignContent="center"
-                                              alignItems={
-                                                isMobile
-                                                  ? "center"
-                                                  : "flex-start"
+                                              alignContent={
+                                                isMobile ? "center" : "flex-end"
                                               }
+                                              alignItems="center"
                                             >
                                               <MDTypography
-                                                variant="body1"
+                                                variant="caption"
+                                                fontWeight="bold"
                                                 color="light"
+                                                mt={1.5}
                                               >
-                                                {/* <StarRating
-                                                  rating={
-                                                    Number(
-                                                      elem?.averageRating
-                                                    ) || "4.0"
-                                                  }
-                                                /> */}
+                                                Workshop Starts : {moment(elem?.courseStartTime).format('DD MMM HH:MM:ss a')}
                                               </MDTypography>
                                             </Grid>
                                             <Grid
@@ -764,10 +758,8 @@ export default function Courses() {
                                               >
                                                 {elem?.courseDurationInMinutes}{" "}
                                                 Min 
-                                                {/* •{" "}
-                                                {getNumLectures(elem?.courseContent)}{" "}
-                                                Lectures */}
-                                                 • For {elem?.level}
+                                                •{" "}
+                                                For {elem?.level}
                                               </MDTypography>
                                             </Grid>
                                             <Grid
@@ -794,8 +786,8 @@ export default function Courses() {
                                                   textAlign: "center",
                                                 }}
                                               >
-                                                Access to free StoxHero trading
-                                                simulator along with this course
+                                                {`Access to free StoxHero trading
+                                                simulator along with this ${elem?.type==='Workshop' ? 'workshop' : 'course'}`}
                                               </MDTypography>
                                             </Grid>
                                           </Grid>
@@ -830,7 +822,7 @@ export default function Courses() {
                                               isMobile ? "center" : "center"
                                             }
                                           >
-                                            {elem?.discountedPrice !== 0 && 
+                                            {elem?.discountedPrice !== 0 ? 
                                             <>
                                             <Grid
                                               item
@@ -897,6 +889,31 @@ export default function Courses() {
                                               </MDTypography>
                                             </Grid>
                                             </>
+                                            :
+                                            <Grid
+                                          item
+                                          xs={12}
+                                          md={12}
+                                          lg={12}
+                                          display="flex"
+                                          justifyContent={
+                                            isMobile ? "center" : "center"
+                                          }
+                                          alignContent="center"
+                                          alignItems={
+                                            isMobile ? "center" : "center"
+                                          }
+                                        >
+                                          <MDTypography
+                                            variant="body2"
+                                            fontWeight="bold"
+                                            // padding={.5}
+                                            style={{ color: '#E6F495', borderRadius: '5px'}}
+                                           
+                                          >
+                                            Free Entry
+                                          </MDTypography>
+                                        </Grid>
                                             }
 
                                             <Grid

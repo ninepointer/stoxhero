@@ -223,7 +223,7 @@ export default function Courses() {
                                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start'>
                                         <Grid container mt={5} p={3} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{ border: '1px solid lightgrey', borderRadius: 5 }}>
                                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
-                                                <MDTypography variant='h3' fontSize={20} color='dark'>About the course</MDTypography>
+                                                <MDTypography variant='h3' fontSize={20} color='dark'>{`About the ${courses?.type === 'Workshop' ? 'workshop' : 'course'}`}</MDTypography>
                                             </Grid>
                                             <Grid item mt={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                                                 <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} style={{ fontFamily: 'Work Sans , sans-serif' }} />
@@ -232,36 +232,42 @@ export default function Courses() {
                                     </Grid>
                                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start'>
                                         <Grid container spacing={1} mt={5} p={0} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
-                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
-                                                <MDTypography variant='h3' fontSize={20} color='dark'>Course Content</MDTypography>
-                                            </Grid>
-                                            <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+                                            {courses?.type !== 'Workshop' ?
+                                                <>
+                                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+                                                        <MDTypography variant='h3' fontSize={20} color='dark'>{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Content`}</MDTypography>
+                                                    </Grid>
+                                                    <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
 
-                                                <div style={{ width: '100%' }}>
-                                                    {courses?.courseContent?.map((courses) => (
-                                                        <Accordion>
-                                                            <AccordionSummary
-                                                                expandIcon={<ExpandMoreIcon />}
-                                                                aria-controls="panel1-content"
-                                                                id="panel1-header"
-                                                            >
-                                                                <MDBox display='flex' justifyContent='center' flexDirection='row' alignItems='center' gap={2}>
-                                                                    <MDTypography variant='body3' fontSize={20} fontWeight={600}>{courses?.order}. {courses?.topic}</MDTypography>
-                                                                    <MDTypography variant='caption'>{courses?.subtopics?.length} lecture(s)</MDTypography>
-                                                                </MDBox>
-                                                            </AccordionSummary>
-                                                            {courses?.subtopics?.map((item, index, duration) => (
-                                                                <AccordionDetails style={{ marginLeft: 25 }}>
-                                                                    <MDTypography variant='caption' fontSize={15}>{courses?.order}.{item?.order} {item?.topic}</MDTypography>
-                                                                </AccordionDetails>
+                                                        <div style={{ width: '100%' }}>
+                                                            {courses?.courseContent?.map((courses) => (
+                                                                <Accordion>
+                                                                    <AccordionSummary
+                                                                        expandIcon={<ExpandMoreIcon />}
+                                                                        aria-controls="panel1-content"
+                                                                        id="panel1-header"
+                                                                    >
+                                                                        <MDBox display='flex' justifyContent='center' flexDirection='row' alignItems='center' gap={2}>
+                                                                            <MDTypography variant='body3' fontSize={20} fontWeight={600}>{courses?.order}. {courses?.topic}</MDTypography>
+                                                                            <MDTypography variant='caption'>{courses?.subtopics?.length} lecture(s)</MDTypography>
+                                                                        </MDBox>
+                                                                    </AccordionSummary>
+                                                                    {courses?.subtopics?.map((item, index, duration) => (
+                                                                        <AccordionDetails style={{ marginLeft: 25 }}>
+                                                                            <MDTypography variant='caption' fontSize={15}>{courses?.order}.{item?.order} {item?.topic}</MDTypography>
+                                                                        </AccordionDetails>
+                                                                    ))}
+                                                                </Accordion>
                                                             ))}
-                                                        </Accordion>
-                                                    ))}
-                                                </div>
+                                                        </div>
 
-                                            </Grid>
+                                                    </Grid>
+                                                </>
+                                                :
+                                                <></>
+                                            }
                                             <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
-                                                <MDTypography variant='h3' fontSize={20} color='dark'>Course Benefits</MDTypography>
+                                                <MDTypography variant='h3' fontSize={20} color='dark'>{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Benefits`}</MDTypography>
                                             </Grid>
                                             <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
 

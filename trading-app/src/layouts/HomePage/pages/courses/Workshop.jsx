@@ -21,10 +21,18 @@ import Lightbulb from "../../../../assets/images/Light Bulb Check.png";
 import SignupLoginPopup from "./signupLoginPopup";
 
 import ShowChartIcon from '@mui/icons-material/ShowChart';
+import { FaTelegram } from "react-icons/fa";
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import TelegramIcon from '@mui/icons-material/Telegram';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 
 
 const Workshop = () => {
+    // let instructor;
+    let count;
     const [courseDetails, setCourseDetails] = useState(false);
+    const [instructor, setInstructor] = useState({});
     const location = useLocation();
     let campaignCode = location?.state?.campaignCode;
     const params = new URLSearchParams(location?.search);
@@ -38,12 +46,27 @@ const Workshop = () => {
             const res = await axios.get(
                 `${apiUrl}courses/user/${slug}/slug`
             );
+            setInstructor(res?.data?.instructor);
             setCourseDetails(res?.data?.data);
             //   setDetails((prev) => ({ ...prev, contest: res?.data?.data?._id }));
         } catch (e) {
             console.log(e);
         }
     };
+
+    function formatNumber(num) {
+        if (num >= 1000000) {
+            return (num / 1000000)?.toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return (num / 1000)?.toFixed(1) + 'K';
+        } else {
+            return num?.toString();
+        }
+    }
+
+    function openSocialMediaHandle(url) {
+        window.open(url, '_blank');
+    }
 
     useEffect(() => {
         const url = location?.pathname?.split("/");
@@ -583,7 +606,7 @@ const Workshop = () => {
                                         textAlign: "center",
                                     }}
                                 >
-                                    Introductory training on the virtual trading platform
+                                    Access to exclusive live video content
                                 </MDTypography>
                             </Grid>
                             <Grid
@@ -607,7 +630,7 @@ const Workshop = () => {
                                     variant={isMobile ? "caption" : "h3"}
                                     style={{ fontWeight: 500, color: "white" }}
                                 >
-                                    Interactive sessions on market analysis and risk management.
+                                    Interactive sessions on market analysis and risk management
                                 </MDTypography>
                             </Grid>
                             <Grid
@@ -655,7 +678,7 @@ const Workshop = () => {
                                     variant={isMobile ? "caption" : "h3"}
                                     style={{ fontWeight: 500, color: "white" }}
                                 >
-                                    Virtual trading competition with market simulation.
+                                    ⁠Insights into crafting personalised trading strategies and setups.
                                 </MDTypography>
                             </Grid>
                         </Grid>
@@ -693,6 +716,73 @@ const Workshop = () => {
                             Easy | Riskfree | Fun
                         </MDTypography>
                     </Grid>
+
+                    <Grid
+                        item
+                        xs={12}
+                        mt={2}
+                        spacing={4}
+                        md={12}
+                        lg={12}
+                        display="flex"
+                        justifyContent="flex-start"
+                        // alignItems="center"
+                        id='about_instructor'
+                        style={{ minxWidth: "75%" }}
+                      >
+                        <MDBox
+                          display="flex"
+                          justifyContent="flex-start"
+                          alignItems="stretch"
+                        >
+                          <Grid
+                            container
+                            // spacing={5}
+                            xs={12}
+                            md={12}
+                            lg={12}
+                            display="flex"
+                            justifyContent={
+                              isMobile ? "center" : "flex-start"
+                            }
+                            alignContent="center"
+                            alignItems="center"
+                            style={{
+                              maxWidth: isMobile ? "100%" : "75%",
+                              height: "auto",
+                            }}
+                          >
+
+                            <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} flexDirection='column' alignContent='center' ml={isMobile ? 0 : 10} p={2}>
+                              <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} alignContent='center' height='auto'>
+                                <MDTypography style={{ fontSize: "24px", fontWeight: 700, color: '#ffffff' }}>
+                                  Course Created and Instructed By
+                                </MDTypography>
+                              </MDBox>
+                              <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} alignContent='center' height='auto'>
+                                <MDTypography style={{ fontSize: "24px", fontWeight: 700, color: '#E6F495' }}>
+                                  {`${instructor?.first_name} ${instructor?.last_name}`}
+                                </MDTypography>
+                              </MDBox>
+                              <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} flexDirection={isMobile ? 'column' : 'row'} alignContent='center' alignItems={isMobile ? "flex-start" : "center"} gap={2} mt={1}>
+                                <img src={instructor?.profilePhoto?.url} style={{ borderRadius: '50%', width: '90px', height: '90px' }} />
+                                <MDBox display='flex' justifyContent='center' flexDirection='column' alignContent='center' fontColor='#ffffff'>
+                                  <MDBox display='flex' alignContent='center' gap={1} sx={{ cursor: 'pointer' }} onClick={() => { openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.youtube?.channelLink) }} ><span style={{ color: '#ffffff', marginTop: '3px' }}><YouTubeIcon color='red' /></span> <span style={{ color: '#ffffff' }}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.youtube?.followers)} Subscribers`}</span></MDBox>
+                                  <MDBox display='flex' alignContent='center' gap={1} sx={{ cursor: 'pointer' }} onClick={() => { openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.instagram?.channelLink) }}><span style={{ color: '#ffffff', marginTop: '3px' }}><InstagramIcon color='orange' /> </span> <span style={{ color: '#ffffff' }}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.instagram?.followers)}  Followers`}</span></MDBox>
+                                  <MDBox display='flex' alignContent='center' gap={1} sx={{ cursor: 'pointer' }} onClick={() => { openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.telegram?.channelLink) }}><span style={{ color: '#ffffff', marginTop: '3px' }}><TelegramIcon color='blue' /></span> <span style={{ color: '#ffffff' }}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.telegram?.followers)}  Followers`}</span></MDBox>
+                                  {/* <MDBox display='flex' alignContent='center' gap={1}><span style={{ color: '#ffffff', marginTop: '3px' }}><PlayCircleIcon /></span> <span style={{ color: '#ffffff' }}>{`${count} Courses`}</span></MDBox> */}
+                                </MDBox>
+                              </MDBox>
+
+                              <MDBox display='flex' justifyContent='center' flexDirection='column' alignContent='center' height='auto' width={isMobile ? '100%' : '50%'} mt={1}>
+                                <MDTypography style={{ fontSize: "16px", fontWeight: 500, color: '#ffffff', textAlign: 'justify' }}>
+                                  {instructor?.influencerDetails?.about || 'Lorum ipsum dolor sit amet, consectetur adipiscing elit. Sed aliquam ultricies eros, a consectetur turpis maximus sed. Quisque convallis, lorem vitae ultrices consequat, nibh justo fermentum dui, et sodales justo magna non elit. Nulla facilisi. Integer auctor consequat diam, id fermentum magna efficitur eu.'}
+                                </MDTypography>
+                              </MDBox>
+                            </MDBox>
+                          </Grid>
+                        </MDBox>
+                      </Grid>
 
                     <Grid
                         item
