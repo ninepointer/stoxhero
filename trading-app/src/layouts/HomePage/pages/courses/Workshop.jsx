@@ -756,7 +756,7 @@ const Workshop = () => {
                             <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} flexDirection='column' alignContent='center' ml={isMobile ? 0 : 10} p={2}>
                               <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} alignContent='center' height='auto'>
                                 <MDTypography style={{ fontSize: "24px", fontWeight: 700, color: '#ffffff' }}>
-                                  Course Created and Instructed By
+                                  {`${courseDetails?.type==='Workshop' ? 'Workshop' : 'Course'} Created and Instructed By`}
                                 </MDTypography>
                               </MDBox>
                               <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} alignContent='center' height='auto'>
