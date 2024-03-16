@@ -721,14 +721,14 @@ const Workshop = () => {
                         item
                         xs={12}
                         mt={2}
-                        spacing={4}
+                        // spacing={4}
                         md={12}
                         lg={12}
                         display="flex"
                         justifyContent="flex-start"
                         // alignItems="center"
                         id='about_instructor'
-                        style={{ minxWidth: "75%" }}
+                        style={{ maxWidth: isMobile ? '100%' : "80%" }}
                       >
                         <MDBox
                           display="flex"
@@ -748,7 +748,7 @@ const Workshop = () => {
                             alignContent="center"
                             alignItems="center"
                             style={{
-                              maxWidth: isMobile ? "100%" : "75%",
+                              maxWidth: isMobile ? "100%" : "100%",
                               height: "auto",
                             }}
                           >
