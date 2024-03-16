@@ -228,7 +228,10 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                 id="outlined-required"
                 // label='Course Name *'
                 placeholder="Course Price"
-                value={formState?.coursePrice || ''}
+                value={
+                  formState?.coursePrice
+                  // formState?.coursePrice || ''
+                }
                 fullWidth
                 type="number"
                 onChange={(e) => {
@@ -255,7 +258,8 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                 // label='Course Name *'
                 placeholder="Course Discounted Price"
                 value={
-                  formState?.discountedPrice || ''
+                  formState?.discountedPrice
+                  // formState?.discountedPrice || ''
                 }
                 fullWidth
                 type="number"
@@ -283,7 +287,8 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
                 // label='Course Name *'
                 placeholder="Commission Percentage"
                 value={
-                  formState?.commissionPercentage || ''
+                  formState?.commissionPercentage
+                  // formState?.commissionPercentage===0 ? 0 : (formState?.commissionPercentage || '')
                 }
                 fullWidth
                 type="number"

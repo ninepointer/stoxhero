@@ -1373,8 +1373,8 @@ exports.addInfluencer = async (req, res) => {
       req.files["bannerImageWeb"][0],
       "Image",
       id,
-      2560,
-      480
+      1874,
+      629
     );
   }
   if (req.files["bannerImageMobile"] && req.files["bannerImageMobile"][0]) {
@@ -1415,7 +1415,7 @@ exports.addInfluencer = async (req, res) => {
     if (bannerImageWebUrl) influencerObj.bannerImageWeb = bannerImageWebUrl;
     if (bannerImageMobileUrl)
       influencerObj.bannerImageMobile = bannerImageMobileUrl;
-    console.log("args", req.body, bannerImageWebUrl, bannerImageMobileUrl);
+    // console.log("args", req.body, bannerImageWebUrl, bannerImageMobileUrl);
     user.influencerDetails = influencerObj;
 
     await user.save({ validateBeforeSave: false });
@@ -1432,14 +1432,14 @@ exports.addInfluencer = async (req, res) => {
 exports.editInfluencer = async (req, res) => {
   const id = req.params.id;
   let bannerImageWebUrl, bannerImageMobileUrl;
-  console.log(req.files);
+  // console.log(req.files);
   if (req.files["bannerImageWeb"] && req.files["bannerImageWeb"][0]) {
     bannerImageWebUrl = await getAwsS3Url(
       req.files["bannerImageWeb"][0],
       "Image",
       id,
-      2560,
-      480
+      1874,
+      629
     );
   }
   if (req.files["bannerImageMobile"] && req.files["bannerImageMobile"][0]) {
@@ -1452,7 +1452,7 @@ exports.editInfluencer = async (req, res) => {
     );
   }
   const { state, city, tags, about, myReferralCode, slug } = req.body;
-  console.log("req body", req.body);
+  // console.log("req body", req.body);
   try {
     const user = await UserDetail.findOne({
       _id: new ObjectId(id),
@@ -1466,11 +1466,11 @@ exports.editInfluencer = async (req, res) => {
     if (user?.myReferralCode != myReferralCode) {
       user.myReferralCode = myReferralCode;
     }
-    console.log(Boolean(slug), slug);
+    // console.log(Boolean(slug), slug);
     if (Boolean(slug) && user?.slug != slug) {
       user.slug = slug;
     }
-    console.log(city, state, about, user.influencerDetails);
+    // console.log(city, state, about, user.influencerDetails);
     if (!user.influencerDetails) {
       user.influencerDetails = {};
     }

@@ -37,7 +37,7 @@ import DvrIcon from '@mui/icons-material/Dvr';
 import AvTimerIcon from '@mui/icons-material/AvTimer';
 import { SiOpslevel } from "react-icons/si";
 import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
-// import theme from "../../utils/theme/index";
+import moment from 'moment'
 
 
 
@@ -151,28 +151,66 @@ export default function Courses() {
                                                 </MDBox>
                                             </Grid>
                                             <Grid gap={2} item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center'>
-                                                <MDTypography variant='body3' color='light' style={{ textDecoration: 'line-through' }}>
-                                                    ₹{new Intl.NumberFormat(
-                                                        undefined,
-                                                        {
-                                                            minimumFractionDigits: 0,
-                                                            maximumFractionDigits: 0,
-                                                        }
-                                                    ).format(courses?.coursePrice)}/-
-                                                </MDTypography>
-                                                <MDTypography variant='body3' color='light'>
-                                                    ₹{new Intl.NumberFormat(
-                                                        undefined,
-                                                        {
-                                                            minimumFractionDigits: 0,
-                                                            maximumFractionDigits: 0,
-                                                        }
-                                                    ).format(courses?.discountedPrice)}/-
-                                                </MDTypography>
+
+                                                { courses?.discountedPrice !==0 &&
+                                                    <>
+                                                        <MDTypography variant='body3' color='light' style={{ textDecoration: 'line-through' }}>
+                                                            ₹{new Intl.NumberFormat(
+                                                                undefined,
+                                                                {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0,
+                                                                }
+                                                            ).format(courses?.coursePrice)}/-
+                                                        </MDTypography>
+                                                        <MDTypography variant='body3' color='light'>
+                                                            ₹{new Intl.NumberFormat(
+                                                                undefined,
+                                                                {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0,
+                                                                }
+                                                            ).format(courses?.discountedPrice)}/-
+                                                        </MDTypography>
+                                                    </>
+                                                }
+
                                                 <MDTypography variant='body3' color='light' style={{ maxWidth: '50%' }}>
-                                                    <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} />
+                                                    <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} workshop={courses?.type==='Workshop' ? true: false} fromCourses={courses?.type==='Workshop' ? true: false} />
                                                 </MDTypography>
                                             </Grid>
+
+                                            <Grid container justifyContent='flex-start' mt={3}>
+                                                <Grid item xs={12} md={12} lg={12} pl={3}>
+                                                    {courses?.courseType === 'Live' && (
+                                                        <Grid container justifyContent='flex-start' alignItems='center' spacing={2}>
+                                                            <Grid >
+                                                                <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
+                                                                🕑{`Registration Start : ${moment(courses?.registrationStartTime).format('DD MMM hh:mm a')}`}
+                                                                </MDTypography>
+                                                            </Grid>
+                                                            <Grid >
+                                                                <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
+                                                                🕑{`Registration End : ${moment(courses?.registrationEndTime).format('DD MMM hh:mm a')}`}
+                                                                </MDTypography>
+                                                            </Grid>
+                                                            <Grid >
+                                                                <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
+                                                                🕑{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Start : ${moment(courses?.courseStartTime).format('DD MMM hh:mm a')}`}
+                                                                </MDTypography>
+                                                            </Grid>
+                                                            <Grid >
+                                                                <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
+                                                                🕑{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} End : ${moment(courses?.courseEndTime).format('DD MMM hh:mm a')}`}
+                                                                </MDTypography>
+                                                            </Grid>
+                                                        </Grid>
+                                                    )}
+                                                </Grid>
+                                            </Grid>
+
+
+
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='center' alignItems='center'>

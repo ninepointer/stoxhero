@@ -57,6 +57,12 @@ router.put(
     courseController.purchaseIntent
 );
 
+router.patch(
+  "/:id/enroll",
+  Authenticate,
+  courseController.enrollUser
+);
+
 router
   .route("/rating/:id")
   .get(courseController.getCourseRating)

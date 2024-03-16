@@ -12,10 +12,15 @@ import Payment from "../../../coursesUser/data/payment.js";
 import TestZonePayment from "../../../UserDailyContest/data/payment.js";
 import theme from "../../utils/theme/index";
 import { useMediaQuery } from "@mui/material";
+import WorkshopMessage from './workshopMessage.jsx';
+import axios from 'axios';
+import {useNavigate} from 'react-router-dom';
 
-const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
+const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon, workshop, fromCourses }) => {
   const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
   const [showPay, setShowPay] = React.useState(false);
+  const courseId = data?._id;
   const [detail, setDetails] = useState({
     first_name: "",
     last_name: "",
@@ -25,20 +30,25 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
     enterMobile: false,
     enterOtp: false,
     otpGenerate: false,
-    errorMessage: "",
+    apiMessage: "",
+    enrollMessage: '',
+    enrollSuccess: false,
     isLogin: "",
     signedUp: false,
     college: "",
   });
   const [resendTimer, setResendTimer] = useState(30); // Resend timer in seconds
   const [timerActive, setTimerActive] = useState(false); // Flag to check if timer is active
-  const [timeoutId, setTimeoutId] = useState(null);
+  const [isCheckPaid, setIsCheckPaid] = useState(false);
 
   const confirmOtpUrl = testzone
     ? `dailycontest/featured/confirmotp`
     : `verifyphoneloginmobile`;
   const createUserUrl = testzone
     ? `dailycontest/featured/createuser`
+    :
+    workshop ?
+    `verifyotp`
     : `createuserbycourse`;
   const [buttonClicked, setButtonClicked] = useState(false);
   const dailycontestId = data?._id;
@@ -47,19 +57,17 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
     confirmOtp: false,
     signup: false,
   });
+  const discountedPrice = data?.discountedPrice;
 
   const handleClose = () => {
     setOpen(false);
+    isCheckPaid && navigate(`/courses`);
   };
 
   const ResendTimerSi = (seconds) => {
     let remainingTime = seconds;
 
     const timer = setInterval(() => {
-      // Display the remaining time
-      // console.log(Remaining time: ${remainingTime} seconds);
-
-      // Decrease the remaining time by 1 second
       setResendTimer(remainingTime--);
 
       // Check if the timer has reached 0
@@ -102,7 +110,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
     const { mobile } = detail;
 
     setButtonLoading((prev) => ({ ...prev, getOtp: true }));
-    setDetails((prev) => ({ ...prev, errorMessage: "" }));
+    setDetails((prev) => ({ ...prev, apiMessage: "" }));
 
     if (mobile.length !== 10) {
       if (mobile.length === 12 && mobile.startsWith("91")) {
@@ -112,12 +120,12 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
         setButtonLoading((prev) => ({ ...prev, getOtp: false }));
         setDetails((prev) => ({
           ...prev,
-          errorMessage: "Enter 10 digit mobile number",
+          apiMessage: "Enter 10 digit mobile number",
         }));
         setDetails((prev) => ({ ...prev, otpGenerate: false }));
         return setDetails((prev) => ({
           ...prev,
-          errorMessage: "Enter 10 digit mobile number",
+          apiMessage: "Enter 10 digit mobile number",
         }));
       }
     }
@@ -148,8 +156,20 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
       // setOTPGenerated(false)
       setButtonLoading((prev) => ({ ...prev, getOtp: true }));
       setDetails((prev) => ({ ...prev, otpGenerate: false }));
-      setDetails((prev) => ({ ...prev, errorMessage: data.info }));
+      setDetails((prev) => ({ ...prev, apiMessage: data.info }));
       // return openSuccessSB("Error", data.info, "Error")
+    }
+  }
+
+  async function checkPaidFuncCourses(){
+    try{
+      const data = await axios.get(`${apiUrl}courses/user/${courseId}/checkpaid`, {withCredentials: true});
+      setIsCheckPaid(data?.data?.data);
+      // setDetails((prev) => ({ ...prev, enterOtp: false }));
+      // setDetails((prev) => ({ ...prev, isLogin: false }));  
+      // setDetails((prev) => ({ ...prev, otpGenerate: false }));  
+    } catch(err){
+
     }
   }
 
@@ -157,7 +177,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
     const { mobile, mobile_otp } = detail;
     setButtonLoading((prev) => ({ ...prev, getOtp: false }));
     setButtonLoading((prev) => ({ ...prev, confirmOtp: true }));
-    setDetails((prev) => ({ ...prev, errorMessage: "" }));
+    setDetails((prev) => ({ ...prev, apiMessage: "" }));
     if (mobile.length !== 10) {
       if (mobile.length === 12 && mobile.startsWith("91")) {
       } else if (mobile.length === 11 && mobile.startsWith("0")) {
@@ -165,7 +185,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
         setButtonLoading((prev) => ({ ...prev, confirmOtp: false }));
         setDetails((prev) => ({
           ...prev,
-          errorMessage: "Enter 10 digit mobile number",
+          apiMessage: "Enter 10 digit mobile number",
         }));
         setDetails((prev) => ({ ...prev, enterOtp: false }));
         // return openSuccessSB("Invalid mobile Number", "Enter 10 digit mobile number", "Error")
@@ -194,21 +214,28 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
       // setOTPGenerated(true);
       setButtonLoading((prev) => ({ ...prev, confirmOtp: false }));
       setDetails((prev) => ({ ...prev, enterOtp: true }));
+    
+      if(workshop && discountedPrice === 0 && data.login ){
+        await enrollToWorkshop();
+      }
       setDetails((prev) => ({ ...prev, isLogin: data.login }));
+   
       // return openSuccessSB("OTP Sent", data.info, "SUCCESS");
     } else {
       // setOTPGenerated(false)
       setButtonLoading((prev) => ({ ...prev, confirmOtp: false }));
       setDetails((prev) => ({ ...prev, enterOtp: false }));
-      setDetails((prev) => ({ ...prev, errorMessage: data.message }));
+      setDetails((prev) => ({ ...prev, apiMessage: data.message }));
       // return openSuccessSB("Error", data.info, "Error")
     }
+
+    await checkPaidFuncCourses();
   }
 
   async function createUser() {
     setButtonClicked(true);
     // setButtonLoading(prev => ({...prev, signup: true}))
-    setDetails((prev) => ({ ...prev, errorMessage: "" }));
+    setDetails((prev) => ({ ...prev, apiMessage: "" }));
     const { first_name, last_name, email, mobile, mobile_otp, college } =
       detail;
 
@@ -228,27 +255,54 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
         slug,
         dailycontestId: dailycontestId,
         referrerCode: referrerCode,
-        college: college,
+        college: college, workshop
       }),
     });
 
     const data = await res.json();
     if (res.status === 201) {
       setButtonClicked(false);
-      // setButtonLoading(prev => ({...prev, signup: false}))
-      // setDetails(prev => ({...prev, signedUp: true}));
-      // setDetails(prev => ({...prev, isLogin: true}));
+      return;
     } else {
       setButtonClicked(false);
-      // setButtonLoading(prev => ({...prev, signup: false}))
-      // setDetails(prev => ({...prev, signedUp: false}));
-      setDetails((prev) => ({ ...prev, errorMessage: data.message }));
+      setDetails((prev) => ({ ...prev, apiMessage: data.message }));
+      return;
+    }
+  }
+
+  async function enrollToWorkshop() {
+    
+    const res = await fetch(`${apiUrl}courses/user/${courseId}/enroll`, {
+      method: "PATCH",
+      credentials:"include",
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": false,
+      },
+      body: JSON.stringify({
+        
+      }),
+    });
+
+    const data = await res.json();
+    if (res.status === 200) {
+      // setButtonClicked(false);
+      setDetails((prev) => ({ ...prev, enrollMessage: data.message }));
+      setDetails((prev) => ({ ...prev, enrollSuccess: true }));
+    } else {
+      // setButtonClicked(false);
+      setDetails((prev) => ({ ...prev, enrollMessage: data.message }));
     }
   }
 
   async function signUpProceed() {
     setButtonClicked(true);
     setButtonLoading((prev) => ({ ...prev, signup: true }));
+    if(workshop && discountedPrice === 0){
+      await createUser();
+      await enrollToWorkshop();
+    }
+
     setDetails((prev) => ({ ...prev, signedUp: false }));
     setDetails((prev) => ({ ...prev, isLogin: false }));
 
@@ -279,15 +333,17 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
       setButtonLoading((prev) => ({ ...prev, signup: false }));
       setDetails((prev) => ({ ...prev, signedUp: true }));
       setDetails((prev) => ({ ...prev, isLogin: true }));
-      setDetails((prev) => ({ ...prev, errorMessage: data.message }));
+      setDetails((prev) => ({ ...prev, apiMessage: data.message }));
     }
+
+
   }
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   return (
     <>
-      {testzone ? (
+      {(testzone || (workshop && !fromCourses)) ? (
         <MDBox
           display="flex"
           justifyContent="center"
@@ -335,7 +391,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
             setOpen(true);
           }}
         >
-          <span>Buy Now</span>
+          <span>{ workshop ? `Register Now` : `Buy Now`}</span>
         </MDButton>
       )}
 
@@ -352,9 +408,9 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
             fontWeight="bold"
             textAlign="center"
           >
-            {detail.isLogin === false
+            {(detail.isLogin === false
               ? "Please fill your details"
-              : "Please enter mobile number"}
+              : "Please enter mobile number")}
           </MDTypography>
         </DialogTitle>
         <DialogContent
@@ -367,6 +423,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
             alignItems: "center",
           }}
         >
+         
           {!detail.enterOtp ? (
             <>
               <Grid
@@ -438,7 +495,16 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
             <></>
           )}
 
-          {detail.isLogin ? (
+
+          {
+          isCheckPaid ?
+          (<WorkshopMessage
+            message={`It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Courses" tab`}
+            success={true}
+            setOpenParent={setOpen}
+          />)
+          :
+          detail.isLogin ? (
             testzone ? (
               <TestZonePayment
                 signedUp={detail.signedUp}
@@ -451,7 +517,17 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
                 referrerCode={referrerCode}
                 isCoupon={isCoupon}
               />
-            ) : (
+            )
+            :
+            (workshop && data?.discountedPrice === 0) ?
+            (
+              <WorkshopMessage
+                message={detail?.enrollMessage}
+                success={detail?.enrollSuccess}
+                setOpenParent={setOpen}
+              />
+            )
+            : (
               <Payment
                 data={data}
                 byLink={true}
@@ -463,7 +539,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
               />
             )
           ) : (
-            detail.isLogin === false && (
+            (detail.isLogin === false) && (
               <>
                 <Grid
                   item
@@ -615,14 +691,14 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon }) => {
             )
           )}
 
-          {detail.errorMessage && (
+          {detail.apiMessage && (
             <MDTypography
               fontSize={11}
               color="error"
               fontWeight="bold"
               textAlign="center"
             >
-              {detail.errorMessage}
+              {detail.apiMessage}
             </MDTypography>
           )}
 
