@@ -293,14 +293,14 @@ const routes = [
     route: "/affiliatedashboard",
     component: <AffiliateDashboard />,
   },
-  {
-    type: "collapse",
-    name: "Influencer Dashboard",
-    key: "influencerdashboard",
-    icon: <FaAffiliatetheme/>,
-    route: "/influencerdashboard",
-    component: <InfluencerDashboard />,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Influencer Dashboard",
+  //   key: "influencerdashboard",
+  //   icon: <FaAffiliatetheme/>,
+  //   route: "/influencerdashboard",
+  //   component: <InfluencerDashboard />,
+  // },
   {
     type: "collapse",
     name: "Marketing Dashboard",
