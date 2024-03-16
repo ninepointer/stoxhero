@@ -1661,11 +1661,11 @@ exports.getUserCourses = async (req, res) => {
       course = await Course.aggregate(pipeline)
 
       count = await Course.countDocuments({
-        status: "Published",
+        status: "Published", type: 'Course',
         "courseInstructors.id": new ObjectId(user?.referredBy),
       });
     } else {
-      count = await Course.countDocuments({ status: "Published" });
+      count = await Course.countDocuments({ status: "Published", type: 'Course' });
 
       course = await Course.aggregate(pipeline)
     }
@@ -1791,9 +1791,6 @@ exports.getCoursesByUserSlug = async (req, res) => {
     ];
 
     const course = await Course.aggregate(pipeline)
-      // .sort({ _id: -1 })
-      // .skip(skip)
-      // .limit(limit);
 
       for(let elem of course){
         for(const subelem of elem?.courseContent){
@@ -1806,7 +1803,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
       }
 
     const count = await Course.countDocuments({
-      status: "Published",
+      status: "Published", type: 'Course',
       "courseInstructors.id": new ObjectId(user?._id),
     });
 
@@ -2715,7 +2712,7 @@ exports.myCourses = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
 
     const count = await Course.countDocuments({
-      status: "Published",
+      status: "Published", type: 'Course',
       "enrollments.userId": new ObjectId(userId),
     });
 
@@ -2781,14 +2778,16 @@ exports.myCourses = async (req, res) => {
                 maxEnrolments: 1,
                 topics: "$courseContent",
                 courseProgress: {
-                  $divide: [
-                    {
-                      $size: { $ifNull: ["$enrollments.watched", []] },
+                  $cond: {
+                    if: { $eq: [{ $size: { $ifNull: ["$courseContent", []] } }, 0] },
+                    then: 0, // or any other default value you prefer
+                    else: {
+                      $divide: [
+                        { $size: { $ifNull: ["$enrollments.watched", []] } },
+                        { $size: { $ifNull: ["$courseContent", []] } },
+                      ],
                     },
-                    {
-                      $size: { $ifNull: ["$courseContent", []] },
-                    },
-                  ],
+                  },
                 },
                 instructorName: {
                   $map: {
@@ -2852,7 +2851,8 @@ exports.myCourses = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Data Fetched successfully",
-      data: dataArr,
+      workshop: dataArr?.filter((elem)=>elem?.type==='Workshop'),
+      data: dataArr?.filter((elem)=>elem?.type==='Course'),
       count: count
     });
   } catch (error) {
