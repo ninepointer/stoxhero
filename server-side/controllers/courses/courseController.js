@@ -15,8 +15,8 @@ const Setting = require("../../models/settings/setting");
 const Coupon = require("../../models/coupon/coupon");
 const AffiliateProgram = require("../../models/affiliateProgram/affiliateProgram");
 const ReferralProgram = require("../../models/campaigns/referralProgram");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const { streamUpload } = require("@uppy/companion");
+// const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+// const { streamUpload } = require("@uppy/companion");
 const Product = require("../../models/Product/product");
 const {
   creditAffiliateAmount,
@@ -103,7 +103,7 @@ exports.createCourse = async (req, res) => {
     courseEndTime,
     registrationStartTime,
     registrationEndTime,
-    maxParticipants,
+    maxEnrolments,
     coursePrice,
     discountedPrice,
     courseBenefits,
@@ -154,7 +154,7 @@ exports.createCourse = async (req, res) => {
           registrationStartTime,
           registrationEndTime
       }),
-      maxParticipants,
+      maxEnrolments,
       coursePrice,
       discountedPrice,
       courseBenefits,

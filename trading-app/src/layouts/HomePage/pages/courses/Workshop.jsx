@@ -19,19 +19,14 @@ import ChartBarUp from "../../../../assets/images/Chart Bar Up.png";
 import Videoplay from "../../../../assets/images/Video Play.png";
 import Lightbulb from "../../../../assets/images/Light Bulb Check.png";
 import SignupLoginPopup from "./signupLoginPopup";
-
-import ShowChartIcon from '@mui/icons-material/ShowChart';
-import { FaTelegram } from "react-icons/fa";
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TelegramIcon from '@mui/icons-material/Telegram';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-
+import {useNavigate} from 'react-router-dom';
 
 const Workshop = () => {
-    // let instructor;
-    let count;
     const [courseDetails, setCourseDetails] = useState(false);
+    const navigate = useNavigate();
     const [instructor, setInstructor] = useState({});
     const location = useLocation();
     let campaignCode = location?.state?.campaignCode;
@@ -50,6 +45,7 @@ const Workshop = () => {
             setCourseDetails(res?.data?.data);
             //   setDetails((prev) => ({ ...prev, contest: res?.data?.data?._id }));
         } catch (e) {
+            navigate('/')
             console.log(e);
         }
     };
