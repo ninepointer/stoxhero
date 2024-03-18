@@ -187,7 +187,7 @@ exports.getContestScoreboard = async (req, res) => {
 
         const contestScoreboard = await DailyContestMockUser.aggregate(pipeline)
         await client.set(`contestscorboard`, JSON.stringify(contestEarnings));
-        await client.expire(`contestscorboard`, 600);
+        await client.expire(`contestscorboard`, 2400);
   
         res.status(200).json({
             status:"success",
@@ -454,7 +454,7 @@ exports.getHomePageContestEarnings = async (req, res) => {
       const contestEarnings = await Contest.aggregate(pipeline)
 
       await client.set(`homepagecontestearning`, JSON.stringify(contestEarnings));
-      await client.expire(`homepagecontestearning`, 600);
+      await client.expire(`homepagecontestearning`, 2400);
 
       res.status(200).json({
         status: "success",
