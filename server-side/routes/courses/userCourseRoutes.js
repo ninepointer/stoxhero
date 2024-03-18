@@ -14,6 +14,12 @@ router.get(
 );
 
 router.get(
+  "/homeworkshop",
+  Authenticate,
+  courseController.getUserWorkshop
+);
+
+router.get(
     "/mycourses",
     Authenticate,
     courseController.myCourses

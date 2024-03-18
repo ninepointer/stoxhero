@@ -426,7 +426,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon, worksho
                 fontSize={18}
                 textAlign="center"
               >
-                {`It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Courses" tab`}
+                {`It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Library" tab`}
               </MDTypography>
 
               <DialogActions style={{ justifyContent: 'flex-end' }}>

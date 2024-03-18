@@ -186,7 +186,7 @@ exports.getContestScoreboard = async (req, res) => {
         ]
 
         const contestScoreboard = await DailyContestMockUser.aggregate(pipeline)
-        await client.set(`contestscorboard`, JSON.stringify(contestEarnings));
+        await client.set(`contestscorboard`, JSON.stringify(contestScoreboard));
         await client.expire(`contestscorboard`, 2400);
   
         res.status(200).json({

@@ -41,23 +41,30 @@ const Notes = ({topics}) => {
                         <React.Fragment key={elem?._id}>
                             {
                                 elem?.subtopics?.map((subelem, subindex)=>{
-                                    return(
+                                    return (
                                         <React.Fragment key={subelem?._id}>
-                                            <MDBox display='flex' justifyContent='space-between' alignContent='center' alignItems='center' textAlign='justify' gap={2} style={{width: !isMobile && '400px', padding: '0px 20px 0px 20px'}}>
-                                                <MDTypography style={{ fontSize: '16px', fontWeight: 600, color: headingColor}} >{index+1}.{subindex+1} : {subelem?.topic}</MDTypography>
-                                                {isDownload[subelem?._id] ? <CircularProgress
-                                                    size={20}
-                                                    color="dark"
-                                                />
-                                                    :
-                                                    subelem?.notes?.length ?
-                                                    <DownloadIcon sx={{ cursor: 'pointer' }} onClick={() => { downloadPdf(subelem?.notes, subelem?.topic, subelem?._id) }} />
-                                                    :
-                                                    <MDTypography color='text' style={{ fontSize: '13px', fontWeight: 600, color: headingColor}} >N/A</MDTypography>
-                                                }
-                                            </MDBox>
-
-                                            <Divider style={{ margin: 1 }} />
+                                            {/* {subelem?.notes?.length ? */}
+                                            <>
+                                                <MDBox display='flex' justifyContent='space-between' alignContent='center' alignItems='center' textAlign='justify' gap={2} style={{ width: !isMobile && '400px', padding: '0px 20px 0px 20px' }}>
+                                                    <MDTypography style={{ fontSize: '16px', fontWeight: 600, color: headingColor }} >{index + 1}.{subindex + 1} : {subelem?.topic}</MDTypography>
+                                                    {isDownload[subelem?._id] ? <CircularProgress
+                                                        size={20}
+                                                        color="dark"
+                                                    />
+                                                        :
+                                                        subelem?.notes?.length ?
+                                                            <DownloadIcon sx={{ cursor: 'pointer' }} onClick={() => { downloadPdf(subelem?.notes, subelem?.topic, subelem?._id) }} />
+                                                            :
+                                                            <MDTypography color='text' style={{ fontSize: '13px', fontWeight: 600, color: headingColor }} >N/A</MDTypography>
+                                                    }
+                                                </MDBox>
+                                                <Divider style={{ margin: 1 }} />
+                                            </>
+                                             {/* :
+                                             <>
+                                             <MDTypography style={{ fontSize: '16px', fontWeight: 600, color: headingColor }} >Notes is not available yet!</MDTypography>
+                                             </>
+                                            } */}
                                         </React.Fragment>
                                     )
                                 })

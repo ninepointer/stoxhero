@@ -499,7 +499,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon, worksho
           {
           isCheckPaid ?
           (<WorkshopMessage
-            message={`It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Courses" tab`}
+            message={`It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Library" tab`}
             success={true}
             setOpenParent={setOpen}
           />)

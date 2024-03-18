@@ -1568,6 +1568,78 @@ exports.getUnpublished = async (req, res) => {
   }
 };
 
+
+exports.getUserWorkshop = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(new ObjectId(userId)).populate('referredBy', 'role')
+
+    const pipeline = [
+      {
+        $match: {
+          status: "Published",
+          type: 'Workshop',
+          registrationStartTime: {$lt: new Date()}
+        },
+      },
+      {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
+        $project: {
+          courseName: 1,
+          _id: -1,
+          courseImage: 1,
+          courseSlug: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          averageRating: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          userEnrolled: {
+            $size: "$enrollments",
+          },
+          maxEnrolments: 1,
+          isPaid: {
+            $in: [new ObjectId(userId), "$enrollments.userId"],
+          },
+        },
+      },
+      {
+        "$sort": {
+          "courseStartTime": -1,
+          "_id": -1
+        }
+      },
+    ];
+
+    let course;
+    if (user?.referredBy?._id && user?.referredBy?.role?.toString() === '65dc6817586cba2182f05561') {
+      pipeline[0]["$match"]["courseInstructors.id"] = new ObjectId(
+        user?.referredBy
+      );
+      course = await Course.aggregate(pipeline)
+
+    } else {
+      course = await Course.aggregate(pipeline)
+    }
+
+    res.status(200).json({ status: "success", data: course });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: "error", message: "something went wrong" });
+  }
+};
+
 exports.getUserCourses = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -2114,7 +2186,7 @@ exports.handleDeductCourseFee = async (
           statusCode: 400,
           data: {
             status: "error",
-            message: `It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Courses" tab`,
+            message: `It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Library" tab`,
           },
         };
       }
@@ -2492,7 +2564,7 @@ exports.enrollUser = async (req, res, next) => {
        
         return res.status(400).json({
           status: "error",
-          message: `It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Courses" tab`,
+          message: `It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Library" tab`,
         });
       }
     }
