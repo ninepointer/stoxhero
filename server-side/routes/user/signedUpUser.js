@@ -661,7 +661,7 @@ router.patch("/verifyotp", async (req, res) => {
     } else if (match) {
       creation = "Affiliate SignUp";
     } else if(workshop){
-      creation = "Workshop SignUp";
+      creation = "Influencer SignUp";
     } else {
       creation = "Auto SignUp";
     }
@@ -1847,7 +1847,7 @@ router.patch("/createuserbycourse", async (req, res) => {
   }
 
   try {
-    let creation = "Referral SignUp";
+    let creation = "Influencer SignUp";
 
     let obj = {
       first_name: first_name?.trim() || parents_name?.split(" ")?.[0] || "N/A",

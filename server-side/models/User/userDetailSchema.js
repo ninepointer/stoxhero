@@ -202,8 +202,8 @@ const userDetailSchema = new mongoose.Schema({
       "Referral SignUp",
       "Contest SignUp",
       "Campaign SignUp",
-      'Workshop SignUp'
-     
+      // 'Workshop SignUp',
+      'Influencer SignUp'
     ],
   },
   employeeid: {
