@@ -219,18 +219,114 @@ exports.getLast30daysInfluencerData = async(req,res) => {
   res.status(200).json({status:'success', data:data});
 }
 
-exports.getInfluencerUsers = async(influencerId)=>{
-  try{
+exports.getInfluencerUsers = async (influencerId) => {
+  const data = await influencerUser(influencerId);
+  return data;
+}
 
+const influencerUser = async(influencerId) => {
+  try {
+
+    // Get today's date
+    const today = moment();
+    const todayStartDate = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const firstDayOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
+    const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+    // Get the start of the week (assuming the week starts on Sunday)
     const users = await User.aggregate([
       {
         $match: {
-          referredBy: new ObjectId(influencerId)
+          referredBy: new ObjectId(influencerId),
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          todayCount: {
+            $sum: {
+              $cond: [{ $gte: ["$joining_date", new Date(todayStartDate)] }, 1, 0] // Count documents created today
+            }
+          },
+          thisWeekCount: {
+            $sum: {
+              $cond: [{ $gte: ["$joining_date", new Date(firstDayOfWeek)] }, 1, 0] // Count documents created this week
+            }
+          },
+          thisMonthCount: {
+            $sum: {
+              $cond: [{ $gte: ["$joining_date", new Date(firstDayOfMonth)] }, 1, 0] // Count documents created this week
+            }
+          },
+          lifetimeCount: { $sum: 1 } // Count all documents (lifetime count)
         }
       }
-    ])
+    ]);
 
-  } catch(err){
+    // Access the counts
+    const obj = {};
+    const countResult = users[0];
+    obj.todayCount = countResult.todayCount;
+    obj.thisWeekCount = countResult.thisWeekCount;
+    obj.thisMonthCount = countResult.thisMonthCount;
+    obj.lifetimeCount = countResult.lifetimeCount;
+
+    return obj;
+
+  } catch (err) {
     console.log(err);
   }
 }
+
+exports.getInfluencerUsersApi = async (req, res) => {
+  try{
+    const influencerId = req.user._id;
+    const data = await influencerUser(influencerId);
+  
+    res.status(200).json({status:'success', data:data});
+  } catch(err){
+    res.status(500).json({status:'error', error: err.message});
+  }
+}
+
+exports.getLast60daysInfluencerUserData = async(req,res) => {
+  try{
+    const endDate = moment();
+    const startDate = moment().subtract(60, 'days').startOf('day');
+    const userId = req.user._id;
+  
+    // if(req?.user?.role === "65dc6817586cba2182f05561"){
+    //   userId = req.query.influencerId;
+    // }
+    const data = await User.aggregate([
+      {
+        $match: {
+          referredBy: new ObjectId(userId),
+          joining_date: {$gte: new Date(startDate)}
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$joining_date",
+            },
+          },
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1
+        }
+      }
+    ]);
+    res.status(200).json({status:'success', data:data});
+  
+  } catch(err){
+    res.status(500).json({status:'error', error: err.message});
+  }
+}
+

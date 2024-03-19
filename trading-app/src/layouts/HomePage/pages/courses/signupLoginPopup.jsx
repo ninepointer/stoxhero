@@ -255,7 +255,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon, worksho
         slug,
         dailycontestId: dailycontestId,
         referrerCode: referrerCode,
-        college: college, workshop
+        college: college, workshop: courseId
       }),
     });
 
@@ -631,7 +631,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon, worksho
                   />
                 </Grid>
 
-                <Grid
+                {!workshop && <Grid
                   item
                   xs={12}
                   md={12}
@@ -659,7 +659,7 @@ const Form = ({ data, slug, checkPaid, testzone, referrerCode, isCoupon, worksho
                       }));
                     }}
                   />
-                </Grid>
+                </Grid>}
 
                 <Grid
                   item

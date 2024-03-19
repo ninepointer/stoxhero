@@ -1,0 +1,36 @@
+body {
+    /* background: radial-gradient(
+      ellipse farthest-corner at center top,
+      #012619,
+      #000
+    ); */
+    /* height: 100vh; */
+    /* width: 100vw; */
+    /* font-family: "Comfortaa", sans-serif; */
+  }
+  
+  .counter-app {
+    /* font-family: sans-serif; */
+    text-align: center;
+    color: rgb(0, 0, 0);
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    /* font-family: "Comfortaa", sans-serif; */
+  }
+  
+  .counter-container {
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    /* font-family: "Comfortaa", sans-serif; */
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: center;
+    padding-top: 2rem;
+    width: 100%;
+    gap: 0.5rem;
+  }

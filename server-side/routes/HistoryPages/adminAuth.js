@@ -32,7 +32,7 @@ const Instrument = require("../../models/Instruments/instrumentSchema");
 // const Instrument = require('../')
 const { takeAutoTrade } = require("../../controllers/contestTradeController");
 const { deletePnlKey } = require("../../controllers/deletePnlKey");
-const { client, getValue } = require("../../marketData/redisClient");
+const { client, client8, getValue } = require("../../marketData/redisClient");
 // const {overallPnlTrader} = require("../../controllers/infinityController");
 const {
   marginDetail,
@@ -137,6 +137,29 @@ const School = require("../../models/School/School");
 const UnformattedSchool = require("../../models/School/unformatedSchool");
 const NewSchool = require("../../models/School/newSchool");
 const City = require("../../models/City/city");
+const {getInfluencerUsers} = require('../../controllers/influencer/influencerController')
+const { getIOValue } = require('../../marketData/socketio');
+
+// client8.connect()
+// .then(async (res) => {
+    
+//     console.log("redis connected of client3", res)
+// })
+// .catch((err) => {
+//     console.log("redis not connected", err)
+// })
+
+router.get("/influencerUser", async (req, res) => {
+  // await client8.connect();
+
+  // await client8.PUBLISH("data-receive", JSON.stringify({
+  //   status: "success",
+  //   id: '63788f3991fc4bf629de6df0',
+  //   data: { obj: 1 }
+  // }))
+
+  res.send('ok');
+});
 
 router.get("/schoolaff", async (req, res) => {
   try {

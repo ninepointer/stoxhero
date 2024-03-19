@@ -32,6 +32,7 @@ const webSocketService = require('./services/chartService/chartService');
 const { updateUserWallet } = require('./controllers/internshipTradeController');
 const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument");
 const {notificationSender} = require("./notificationSender")
+const {SocketDataReceiver} = require("./socketDataReceiver")
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -425,6 +426,7 @@ async function singleProcess() {
     }
 
     notificationSender().then(()=>{});
+    SocketDataReceiver().then(()=>{});
 }
 
 

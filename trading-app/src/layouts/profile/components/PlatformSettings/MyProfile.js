@@ -43,8 +43,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
   const [action, setAction] = useState(false);
   const [selectedOption, setSelectedOption] = useState("automatic");
 
-  console.log("rendering", getDetails?.userDetails);
-
   const blankImageUrl = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%' height='130px'%3E%3Crect width='100%' height='130px' fill='lightgrey'/%3E%3Ctext x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='15px' fill='black'%3EDocument Preview%3C/text%3E%3C/svg%3E`;
 
   const [formStatePD, setFormStatePD] = React.useState({
@@ -686,9 +684,9 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
           <Grid item xs={12} md={6} xl={3}>
             <TextField
               required
-              disabled={!editablePD}
+              disabled={(!editablePD || formStateKYC.KYCStatus === "Approved")}
               id="outlined-required"
-              label="First Name"
+              label="First Name(As on bank account)"
               value={formStatePD.first_name}
               fullWidth
               // onChange={(e) => {setFormStatePD({first_name: e.target.value})}}
@@ -704,9 +702,9 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
           <Grid item xs={12} md={6} xl={3}>
             <TextField
               required
-              disabled={!editablePD}
+              disabled={(!editablePD || formStateKYC.KYCStatus === "Approved")}
               id="outlined-required"
-              label="Last Name"
+              label="Last Name(As on bank account)"
               value={formStatePD.last_name}
               fullWidth
               onChange={(e) => {

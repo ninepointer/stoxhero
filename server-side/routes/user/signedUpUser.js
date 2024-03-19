@@ -31,12 +31,23 @@ const { sendMultiNotifications } = require("../../utils/fcmService");
 const AffiliateTransaction = require("../../models/affiliateProgram/affiliateTransactions");
 const {ObjectId} = require('mongodb')
 const { promisify } = require('util');
-const {client} = require("../../marketData/redisClient");
 const School = require('../../models/School/School');
 const bcrypt = require("bcryptjs");
 const moment = require('moment');
+const {getInfluencerUsers} = require('../../controllers/influencer/influencerController')
+const { getIOValue } = require('../../marketData/socketio');
+const {client, client8, getValue} = require('../../marketData/redisClient');
+const Course = require('../../models/courses/courseSchema');
 
 
+
+client8.connect()
+  .then(async (res) => {
+    console.log("redis connected of client3", res)
+  })
+  .catch((err) => {
+    console.log("redis not connected", err)
+  })
 
 router.get("/send", async (req, res) => {
   // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
@@ -596,6 +607,11 @@ router.patch("/verifyotp", async (req, res) => {
     }
   }
 
+  if(workshop){
+    const course = await Course.findById(new ObjectId(workshop));
+    referredBy = course?.courseInstructors?.[0]?.id;
+  }
+
   user.code = referrerCode;
   user.collegeName = college;
   user.first_name = first_name;
@@ -656,12 +672,12 @@ router.patch("/verifyotp", async (req, res) => {
       creation = "School SignUp";
     } else if (campaign) {
       creation = "Campaign SignUp";
-    } else if (referredBy && !match) {
-      creation = "Referral SignUp";
+    } else if (workshop) {
+      creation = "Influencer SignUp";
     } else if (match) {
       creation = "Affiliate SignUp";
-    } else if(workshop){
-      creation = "Influencer SignUp";
+    } else if (referredBy && !match){
+      creation = "Referral SignUp";
     } else {
       creation = "Auto SignUp";
     }
@@ -794,10 +810,47 @@ router.patch("/verifyotp", async (req, res) => {
         token: token,
       });
 
+    if (workshop) {
+      let isRedisConnected = getValue();
+      if (isRedisConnected && await client.HEXISTS('influencer', `user`)) {
+        let influencerUsers = await client.HGET('influencer', `user`);
+        influencerUsers = JSON.parse(influencerUsers);
+        const obj = {
+          "todayCount": influencerUsers.todayCount + 1,
+          "thisWeekCount": influencerUsers.thisWeekCount + 1,
+          "thisMonthCount": influencerUsers.thisMonthCount + 1,
+          "lifetimeCount": influencerUsers.lifetimeCount + 1
+        }
+
+        await client8.PUBLISH("data-receive", JSON.stringify({
+          status: "success",
+          id: referredBy?.toString(),
+          influencerUser: true,
+          data: obj
+        }))
+      } else {
+        let influencerUsers = await getInfluencerUsers(referredBy);
+
+        const obj = {
+          "todayCount": influencerUsers.todayCount + 1,
+          "thisWeekCount": influencerUsers.thisWeekCount + 1,
+          "thisMonthCount": influencerUsers.thisMonthCount + 1,
+          "lifetimeCount": influencerUsers.lifetimeCount + 1
+        }
+
+        await client8.PUBLISH("data-receive", JSON.stringify({
+          status: "success",
+          id: referredBy?.toString(),
+          influencerUser: true,
+          data: obj
+        }))
+        await client.HSET('influencer', `user`, JSON.stringify(obj));
+      }
+    }
     // now inserting userId in free portfolio's
 
     //inserting user details to referredBy user and updating wallet balance
-    if (referredBy) {
+    if (referredBy && !workshop) {
       if (match) {
         let referrerCodeMatch = await User.findOne({
           myReferralCode: referrerCode,
@@ -1763,6 +1816,9 @@ router.patch("/createuserbyworkshop", async (req, res) => {
 });
 
 router.patch("/createuserbycourse", async (req, res) => {
+  let isRedisConnected = getValue();
+  const io = getIOValue();
+
   let { first_name, last_name, email, mobile, mobile_otp, slug, fcmTokenData } =
     req.body;
 
@@ -1949,6 +2005,43 @@ router.patch("/createuserbycourse", async (req, res) => {
     res.cookie("jwtoken", token, {
       expires: new Date(Date.now() + 25892000000),
     });
+
+    
+    if (isRedisConnected && await client.HEXISTS('influencer', `user`)) {
+      let influencerUsers = await client.HGET('influencer', `user`);
+      influencerUsers = JSON.parse(influencerUsers);
+      const obj = {
+        "todayCount": influencerUsers.todayCount + 1,
+        "thisWeekCount": influencerUsers.thisWeekCount + 1,
+        "thisMonthCount": influencerUsers.thisMonthCount + 1,
+        "lifetimeCount": influencerUsers.lifetimeCount + 1
+      }
+
+      console.log(obj)
+      await client8.PUBLISH("data-receive", JSON.stringify({
+        status: "success",
+        id: referredBy?.toString(),
+        influencerUser: true,
+        data: obj
+      }))
+
+    } else {
+      let influencerUsers = await getInfluencerUsers(referredBy);
+      const obj = {
+        "todayCount": influencerUsers.todayCount + 1,
+        "thisWeekCount": influencerUsers.thisWeekCount + 1,
+        "thisMonthCount": influencerUsers.thisMonthCount + 1,
+        "lifetimeCount": influencerUsers.lifetimeCount + 1
+      }
+      await client8.PUBLISH("data-receive", JSON.stringify({
+        status: "success",
+        id: referredBy?.toString(),
+        influencerUser: true,
+        data: obj
+      }))
+
+      await client.HSET('influencer', `user`, JSON.stringify(obj));
+    }
 
     // console.log("res:",res)
     res
