@@ -46,6 +46,7 @@ import Contact from "./layouts/HomePage/pages/Contact";
 import TradeViewTenX from "./layouts/tenXTrading/TradeView/main";
 import TutorialVideo from './layouts/tutorials';
 import InfluencerCourse from './layouts/coursesInfluencer';
+import InfluencerDashboard from './layouts/myInfluencerDashboard';
 import UserCourse from './layouts/coursesUser';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import InfluencerCourseData from './layouts/coursesInfluencer/courseDataIndex';
@@ -102,7 +103,14 @@ import AffiliateDashboard from "./layouts/myAffiliateDashboard"
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 
 const routes = [
-
+  {
+    type: "collapse",
+    name: "Influencer Dashboard",
+    key: "myinfluencerdashboard",
+    icon: <FaAffiliatetheme/>,
+    route: "/myinfluencerdashboard",
+    component: <InfluencerDashboard />,
+  },
   {
     type: "collapse",
     name: "Affiliate Dashboard",
