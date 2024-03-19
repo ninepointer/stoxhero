@@ -15,15 +15,15 @@ const Setting = require("../../models/settings/setting");
 const Coupon = require("../../models/coupon/coupon");
 const AffiliateProgram = require("../../models/affiliateProgram/affiliateProgram");
 const ReferralProgram = require("../../models/campaigns/referralProgram");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const { streamUpload } = require("@uppy/companion");
+// const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+// const { streamUpload } = require("@uppy/companion");
 const Product = require("../../models/Product/product");
 const {
   creditAffiliateAmount,
 } = require("../affiliateProgramme/affiliateController");
 const emailService = require("../../utils/emailService");
 const InfluencerTransaction = require('../../models/Influencer/influencer-transaction')
-
+const moment = require('moment')
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -103,7 +103,7 @@ exports.createCourse = async (req, res) => {
     courseEndTime,
     registrationStartTime,
     registrationEndTime,
-    maxParticipants,
+    maxEnrolments,
     coursePrice,
     discountedPrice,
     courseBenefits,
@@ -111,7 +111,7 @@ exports.createCourse = async (req, res) => {
     courseLink,
     commissionPercentage,
     tags, type, courseType,
-    level, bestSeller, category
+    level, bestSeller, category, meetLink, metaTitle, metaDescription, metaKeywords
   } = req.body;
 
   // Basic validation (example: check if courseName and coursePrice are provided)
@@ -131,11 +131,11 @@ exports.createCourse = async (req, res) => {
   }
   let courseImage, salesVideo;
   if (req.files["courseImage"]) {
-    courseImage = await getAwsS3Url(req.files["logo"][0], "Image");
+    courseImage = await getAwsS3Url(req.files["courseImage"][0], "Image");
   }
 
   if (req.files["salesVideo"]) {
-    salesVideo = await getAwsS3Url(req.files["image"][0], "Video");
+    salesVideo = await getAwsS3Url(req.files["salesVideo"][0], "Video");
   }
   const courseSlug = courseName.replace(/ /g, "-").toLowerCase();
   try {
@@ -154,7 +154,7 @@ exports.createCourse = async (req, res) => {
           registrationStartTime,
           registrationEndTime
       }),
-      maxParticipants,
+      maxEnrolments,
       coursePrice,
       discountedPrice,
       courseBenefits,
@@ -165,7 +165,7 @@ exports.createCourse = async (req, res) => {
       level,
       salesVideo,
       bestSeller, category,
-      courseType, type
+      courseType, type, meetLink, metaTitle, metaDescription, metaKeywords
   });
   
 
@@ -287,7 +287,17 @@ exports.getCourseById = async (req, res) => {
     const courses = await Course.findOne({ _id: new ObjectId(courseId) })
       .populate("courseInstructors.id", "first_name last_name email")
       .populate("enrollments.userId", "first_name last_name creationProcess");
-    res.status(200).json({ status: "success", data: courses });
+
+      const newCourse = JSON.parse(JSON.stringify(courses))
+      for(const subelem of newCourse?.courseContent){
+        for(const topics of subelem?.subtopics){
+          delete topics.videoUrl
+          delete topics.videoKey
+          delete topics.notes
+        }
+      }
+    res.status(200).json({ status: "success", data: newCourse });
+
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -653,42 +663,6 @@ exports.addContent = async (req, res) => {
     });
   }
 };
-
-// exports.addSubTopic = async (req, res) => {
-//   try {
-//     const { id, contentId } = req.params;
-//     let { order, topic } = req.body;
-//     const url = await getAwsS3Key(
-//       req.files["fileVid"][0],
-//       "Video",
-//       `courses/video/${req.params.id}-${topic}-${Date.now()}`
-//     );
-//     console.log(url);
-//     const newOption = {
-//       order,
-//       topic,
-//       videoUrl: url.url,
-//       videoKey: url.key,
-//     };
-
-//     const course = await Course.findById(id);
-//     let filter = course.courseContent.filter((elem) => {
-//       return elem?._id?.toString() === contentId?.toString();
-//     });
-//     if (!course) {
-//       return res.status(404).json({ message: "Course not found" });
-//     }
-//     filter[0].subtopics.push(newOption);
-//     const newData = await course.save({ new: true, validateBeforeSave: false });
-
-//     const optionData = newData?.courseContent?.filter((elem) => {
-//       return elem?._id?.toString() === contentId?.toString();
-//     });
-//     res.status(201).json({ status: "success", data: optionData[0] });
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// };
 
 exports.addSubTopic = async (req, res) => {
   try {
@@ -1594,6 +1568,78 @@ exports.getUnpublished = async (req, res) => {
   }
 };
 
+
+exports.getUserWorkshop = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(new ObjectId(userId)).populate('referredBy', 'role')
+
+    const pipeline = [
+      {
+        $match: {
+          status: "Published",
+          type: 'Workshop',
+          registrationStartTime: {$lt: new Date()}
+        },
+      },
+      {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
+        $project: {
+          courseName: 1,
+          _id: -1,
+          courseImage: 1,
+          courseSlug: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          averageRating: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          userEnrolled: {
+            $size: "$enrollments",
+          },
+          maxEnrolments: 1,
+          isPaid: {
+            $in: [new ObjectId(userId), "$enrollments.userId"],
+          },
+        },
+      },
+      {
+        "$sort": {
+          "courseStartTime": -1,
+          "_id": -1
+        }
+      },
+    ];
+
+    let course;
+    if (user?.referredBy?._id && user?.referredBy?.role?.toString() === '65dc6817586cba2182f05561') {
+      pipeline[0]["$match"]["courseInstructors.id"] = new ObjectId(
+        user?.referredBy
+      );
+      course = await Course.aggregate(pipeline)
+
+    } else {
+      course = await Course.aggregate(pipeline)
+    }
+
+    res.status(200).json({ status: "success", data: course });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: "error", message: "something went wrong" });
+  }
+};
+
 exports.getUserCourses = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -1687,16 +1733,16 @@ exports.getUserCourses = async (req, res) => {
       course = await Course.aggregate(pipeline)
 
       count = await Course.countDocuments({
-        status: "Published",
+        status: "Published", type: 'Course',
         "courseInstructors.id": new ObjectId(user?.referredBy),
       });
     } else {
-      count = await Course.countDocuments({ status: "Published" });
+      count = await Course.countDocuments({ status: "Published", type: 'Course' });
 
       course = await Course.aggregate(pipeline)
     }
 
-    res.status(200).json({ status: "success", data: course, count: count });
+    res.status(200).json({ status: "success", data: course.filter((elem)=>elem?.type==='Course') , workshop: course.filter((elem)=>elem?.type==='Workshop'), count: count });
   } catch (err) {
     console.log(err);
     res.status(500).json({ status: "error", message: "something went wrong" });
@@ -1785,6 +1831,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
           _id: -1,
           courseOverview: 1,
           courseSlug: 1,
+          type: 1,
           courseImage: 1,
           coursePrice: 1,
           averageRating: 1,
@@ -1816,12 +1863,19 @@ exports.getCoursesByUserSlug = async (req, res) => {
     ];
 
     const course = await Course.aggregate(pipeline)
-      .sort({ _id: -1 })
-      .skip(skip)
-      .limit(limit);
+
+      for(let elem of course){
+        for(const subelem of elem?.courseContent){
+          for(const topics of subelem?.subtopics){
+            delete topics.videoUrl
+            delete topics.videoKey
+            delete topics.notes
+          }
+        }
+      }
 
     const count = await Course.countDocuments({
-      status: "Published",
+      status: "Published", type: 'Course',
       "courseInstructors.id": new ObjectId(user?._id),
     });
 
@@ -1829,7 +1883,7 @@ exports.getCoursesByUserSlug = async (req, res) => {
       .status(200)
       .json({
         status: "success",
-        data: course,
+        data: course.filter((elem)=>elem?.type==='Course') , workshop: course.filter((elem)=>elem?.type==='Workshop'),
         count: count,
         instructor: {
           first_name: user?.first_name,
@@ -1850,8 +1904,32 @@ exports.getCourseBySlug = async (req, res) => {
     const courses = await Course.findOne({ courseSlug: slug })
       .populate("courseInstructors.id", "first_name last_name email")
       .select("-enrollments -createdOn -createdBy");
-    res.status(200).json({ status: "success", data: courses });
+
+      const newCourse = JSON.parse(JSON.stringify(courses))
+      for(const subelem of newCourse?.courseContent){
+        for(const topics of subelem?.subtopics){
+          delete topics.videoUrl
+          delete topics.videoKey
+          delete topics.notes
+        }
+      }
+
+      let obj = {};
+      for(let elem of newCourse?.courseInstructors){
+        const user = await User.findOne({ _id: elem?.id }).select(
+          "_id first_name last_name influencerDetails profilePhoto"
+        );
+
+        obj={
+          first_name: user?.first_name,
+          last_name: user?.last_name,
+          influencerDetails: user?.influencerDetails,
+          profilePhoto: user?.profilePhoto
+        }
+      }
+    res.status(200).json({ status: "success", data: newCourse, instructor: obj });
   } catch (error) {
+    console.log(error)
     res.status(500).json({
       status: "error",
       message: "Something went wrong",
@@ -1922,12 +2000,33 @@ exports.handleDeductCourseFee = async (
 
     //check course is lived
 
+    if (course?.type === 'Workshop') {
+      if (course?.registrationStartTime > new Date()) {
+        return {
+          statusCode: 400,
+          data: {
+            status: "error",
+            message: "Registration for this workshop has not yet begun. Please try again once registration begins.",
+          },
+        };
+      }
+      if (course?.registrationEndTime < new Date()) {
+        return {
+          statusCode: 400,
+          data: {
+            status: "error",
+            message: "Registration for this workshop has ended. Please check this space regularly for upcoming workshops.",
+          },
+        };
+      }
+    }
+
     if (course?.status !== "Published") {
       return {
         statusCode: 400,
         data: {
           status: "error",
-          message: "This course is not valid. Please join another one.",
+          message: `This ${course?.type === 'Workshop' ? 'workshop' : 'course'} is not valid. Please join another one.`,
         },
       };
     }
@@ -1941,7 +2040,7 @@ exports.handleDeductCourseFee = async (
         statusCode: 400,
         data: {
           status: "error",
-          message: "This course has ended. Please join another one.",
+          message: `This ${course?.type === 'Workshop' ? 'workshop' : 'course'} has ended. Please join another one.`,
         },
       };
     }
@@ -1951,7 +2050,7 @@ exports.handleDeductCourseFee = async (
     if (
       bonusRedemption > totalBonusAmount ||
       bonusRedemption >
-        course?.discountedPrice * setting[0]?.maxBonusRedemptionPercentage
+      course?.discountedPrice * setting[0]?.maxBonusRedemptionPercentage
     ) {
       return {
         statusCode: 400,
@@ -2039,7 +2138,7 @@ exports.handleDeductCourseFee = async (
         } else {
           cashbackAmount = Math.min(
             (couponDoc?.discount / 100) *
-              (course?.discountedPrice - bonusRedemption),
+            (course?.discountedPrice - bonusRedemption),
             couponDoc?.maxDiscount
           );
         }
@@ -2066,7 +2165,7 @@ exports.handleDeductCourseFee = async (
         statusCode: 400,
         data: {
           status: "error",
-          message: "Incorrect Course fee amount",
+          message: `Incorrect ${course?.type === 'Workshop' ? 'workshop' : 'course'} fee amount`,
         },
       };
     }
@@ -2076,7 +2175,7 @@ exports.handleDeductCourseFee = async (
         data: {
           status: "error",
           message:
-            "You do not have enough balance to enroll in this Course. Please add money to your StoxHero Wallet.",
+            `You do not have enough balance to enroll in this ${course?.type === 'Workshop' ? 'workshop' : 'course'}. Please add money to your StoxHero Wallet.`,
         },
       };
     }
@@ -2087,7 +2186,7 @@ exports.handleDeductCourseFee = async (
           statusCode: 400,
           data: {
             status: "error",
-            message: "You have already enrolled in this Course.",
+            message: `It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Library" tab`,
           },
         };
       }
@@ -2103,7 +2202,7 @@ exports.handleDeductCourseFee = async (
         data: {
           status: "error",
           message:
-            "The course is already full. We sincerely appreciate your enthusiasm to enrollment in our courses. Please enroll in other courses.",
+            `The ${course?.type === 'Workshop' ? 'workshop' : 'course'} is already full. We sincerely appreciate your enthusiasm to enrollment in our ${course?.type === 'Workshop' ? 'workshops' : 'courses'}. Please enroll in other courses or workshops.`,
         },
       };
     }
@@ -2130,22 +2229,22 @@ exports.handleDeductCourseFee = async (
           enrollments: obj,
         },
       },
-      { new: true, session: session}
+      { new: true, session: session }
     );
 
     const userWalletId = uuid.v4();
     wallet.transactions = [
       ...wallet.transactions,
       {
-        title: "Course Fee",
-        description: `Amount deducted for the course fee of ${courseName}`,
+        title: `${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee`,
+        description: `Amount deducted for the ${course?.type === 'Workshop' ? 'workshop' : 'course'} fee of ${courseName}`,
         transactionDate: new Date(),
         amount: -courseFee,
         transactionId: userWalletId,
         transactionType: "Cash",
       },
     ];
-    await wallet.save({session});
+    await wallet.save({ session });
 
     if (!updateParticipants || !wallet) {
       return {
@@ -2159,13 +2258,13 @@ exports.handleDeductCourseFee = async (
 
     let recipients = [user.email, "team@stoxhero.com"];
     let recipientString = recipients.join(",");
-    let subject = "Course Fee - StoxHero";
+    let subject = `${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee - StoxHero`;
     let message = `
         <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="UTF-8">
-                <title>Course Fee Deducted</title>
+                <title>${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee Deducted</title>
                 <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -2231,13 +2330,18 @@ exports.handleDeductCourseFee = async (
                 <div class="container">
                 <h1>Course Fee</h1>
                 <p>Hello ${user.first_name},</p>
-                <p>Congratulations on enrolling in the course! Here are your transaction details.</p>
+                <p>Congratulations on enrolling in the ${course?.type === 'Workshop' ? 'workshop' : 'course'}! Here are your transaction details.</p>
                 <p>User ID: <span class="userid">${user.employeeid}</span></p>
                 <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
                 <p>Email: <span class="password">${user.email}</span></p>
                 <p>Mobile: <span class="password">${user.mobile}</span></p>
-                <p>Course Name: <span class="password">${course.courseName}</span></p>
-                <p>Course Fee: <span class="password">₹${courseFee}/-</span></p>
+                <p>${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Name: <span class="password">${course.courseName}</span></p>
+                <p>${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee: <span class="password">₹${courseFee}/-</span></p>
+
+                ${course?.courseType === 'Live' &&
+      (`<p>Start Date: <span class="password">${moment(course?.courseStartTime).format('DD MMM HH:MM:ss a')}</span></p>
+                <p>End Date: <span class="password">${moment(course?.courseEndTime).format('DD MMM HH:MM:ss a')}</span></p>`)
+      }
                 </div>
             </body>
             </html>
@@ -2275,8 +2379,8 @@ exports.handleDeductCourseFee = async (
       }
     }
     await createUserNotification({
-      title: "Course Fee Deducted",
-      description: `₹${courseFee} deducted as Course fee for ${course?.courseName}`,
+      title: `${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee Deducted`,
+      description: `₹${courseFee} deducted as ${course?.type === 'Workshop' ? 'Workshop' : 'Course'} fee for ${course?.courseName}`,
       notificationType: "Individual",
       notificationCategory: "Informational",
       productCategory: "Course",
@@ -2288,8 +2392,8 @@ exports.handleDeductCourseFee = async (
     }, session);
     if (user?.fcmTokens?.length > 0) {
       await sendMultiNotifications(
-        "Course Fee Deducted",
-        `₹${courseFee} deducted as Course fee for ${course?.courseName}`,
+        `${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee Deducted`,
+        `₹${courseFee} deducted as ${course?.type === 'Workshop' ? 'Workshop' : 'Course'} fee for ${course?.courseName}`,
         user?.fcmTokens?.map((item) => item.token),
         null,
         { route: "wallet" }
@@ -2322,27 +2426,27 @@ exports.handleDeductCourseFee = async (
     const gst = (totalAmountWithoutGST * setting[0]?.courseGstPercentage) / 100;
     const commissionPercentage = course?.commissionPercentage;
     const totalInfluencer = course?.courseInstructors?.length;
-    const finalAmount = ((pricePaidByUser-gst)*commissionPercentage/100)/totalInfluencer;
+    const finalAmount = ((pricePaidByUser - gst) * commissionPercentage / 100) / totalInfluencer;
 
-    for(const elem of course?.courseInstructors){
-      const wallet = await UserWallet.findOne({ userId: elem?.id });
+    for (const elem of course?.courseInstructors) {
       const walletTransactionId = uuid.v4();
-      wallet.transactions = [
-        ...wallet.transactions,
-        {
-          title: "Course Commission Credited",
-          description: `Commission credited for the course purchase of ${courseName}`,
-          transactionDate: new Date(),
-          amount: finalAmount,
-          transactionId: walletTransactionId,
-          transactionType: "Cash",
-        },
-      ];
-      await wallet.save({validateBeforeSave: false, session: session});
+
+      const wallet = await UserWallet.findOneAndUpdate({ userId: new ObjectId(elem?.id) }, {
+        $push: {
+          transactions: {
+            title: `${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Commission Credited`,
+            description: `Commission credited for the ${course?.type === 'Workshop' ? 'workshop' : 'course'} purchase of ${courseName}`,
+            transactionDate: new Date(),
+            amount: finalAmount,
+            transactionId: walletTransactionId,
+            transactionType: "Cash",
+          }
+        }
+      }, { session: session });
 
       await createUserNotification({
-        title: "Course Amount Credited",
-        description: `₹${finalAmount} credited as Course purchase of ${course?.courseName}`,
+        title: `${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Amount Credited`,
+        description: `₹${finalAmount} credited as ${course?.type === 'Workshop' ? 'Workshop' : 'Course'} purchase of ${course?.courseName}`,
         notificationType: "Individual",
         notificationCategory: "Informational",
         productCategory: "Course",
@@ -2366,10 +2470,10 @@ exports.handleDeductCourseFee = async (
         lastModifiedBy: new ObjectId(userId),
         influencerPayout: finalAmount,
         transactionDate: new Date()
-      }], {session: session})
+      }], { session: session })
     }
 
-    const userUpdate = await User.findOneAndUpdate({_id: new ObjectId(userId)}, {
+    const userUpdate = await User.findOneAndUpdate({ _id: new ObjectId(userId) }, {
       $push: {
         course: {
           courseId: course?._id,
@@ -2381,7 +2485,7 @@ exports.handleDeductCourseFee = async (
           bonusRedemption: Number(bonusRedemption) || 0
         }
       }
-    }, {session: session});
+    }, { session: session });
 
 
     await session.commitTransaction();
@@ -2391,12 +2495,13 @@ exports.handleDeductCourseFee = async (
       data: {
         status: "success",
         message:
-          "Congratulations on successfully enrolling in the course! It will be a valuable experience for you.",
+          `Congratulations on successfully enrolling in the ${course?.type === 'Workshop' ? 'workshop' : 'course'}! It will be a valuable experience for you.`,
         data: updateParticipants,
       },
     };
   } catch (e) {
     console.log(e);
+    await session.abortTransaction();
     return {
       statusCode: 500,
       data: {
@@ -2405,6 +2510,226 @@ exports.handleDeductCourseFee = async (
         error: e.message,
       },
     };
+  } finally {
+    session.endSession();
+  }
+};
+
+exports.enrollUser = async (req, res, next) => {
+
+  const courseId = req.params.id;
+  const userId = req.user._id;
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+    const course = await Course.findOne({ _id: new ObjectId(courseId) });
+    const user = await User.findOne({ _id: userId });
+
+    if(course?.type === 'Workshop'){
+      if(new Date(course?.registrationStartTime) > new Date()){
+        return res.status(400).json({
+          status: "error",
+          message: "Registration for this workshop has not yet begun. Please try again once registration begins.",
+        });
+      }
+      if(new Date(course?.registrationEndTime) < new Date()){
+        return res.status(400).json({
+          status: "error",
+          message: "Registration for this workshop has ended. Please check this space regularly for upcoming workshops.",
+        })
+      }
+    }
+
+    if (course?.status !== "Published") {
+      return res.status(400).json({
+        status: "error",
+        message: `This ${course?.type === 'Workshop' ? 'workshop' : 'course'} is not valid. Please join another one.`,
+      });
+    }
+
+    if (
+      course?.courseStartTime &&
+      course?.courseEndTime &&
+      course?.courseEndTime <= new Date()
+    ) {
+      return res.status(400).json({
+        status: "error",
+        message: `This ${course?.type === 'Workshop' ? 'workshop' : 'course'} has ended. Please join another one.`,
+      });
+    }
+
+    for (let i = 0; i < course.enrollments?.length; i++) {
+      if (course.enrollments[i]?.userId?.toString() === userId?.toString()) {
+       
+        return res.status(400).json({
+          status: "error",
+          message: `It looks like you've already enrolled. Please go to your account and view the more details under the "Courses --> My Library" tab`,
+        });
+      }
+    }
+
+    if (
+      course?.maxEnrolments &&
+      course?.maxEnrolments <= course?.enrollments?.length
+    ) {
+
+      return res.status(400).json({
+        status: "error",
+        message:
+        `The ${course?.type === 'Workshop' ? 'workshop' : 'course'} is already full. We sincerely appreciate your enthusiasm to enrollment in our ${course?.type === 'Workshop' ? 'workshops' : 'courses'}. Please enroll in other courses or workshops.`,
+        });
+      
+    }
+
+    let obj = {
+      userId: userId,
+      actualFee: course?.coursePrice,
+      discountedFee: course?.discountedPrice,
+      discountUsed: 0,
+      pricePaidByUser: 0,
+      gstAmount: 0,
+      enrolledOn: new Date(),
+    };
+ 
+
+    const updateParticipants = await Course.findOneAndUpdate(
+      { _id: new ObjectId(courseId) },
+      {
+        $push: {
+          enrollments: obj,
+        },
+      },
+      { new: true, session: session}
+    );
+
+    let recipients = [user.email, "team@stoxhero.com"];
+    let recipientString = recipients.join(",");
+    let subject = `${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee - StoxHero`;
+    let message = `
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee Deducted</title>
+                <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ccc;
+                }
+
+                h1 {
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                }
+
+                p {
+                    margin: 0 0 20px;
+                }
+
+                .userid {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .password {
+                    display: inline-block;
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }
+
+                .login-button {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
+
+                .login-button:hover {
+                    background-color: #0069d9;
+                }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                <h1>Course Fee</h1>
+                <p>Hello ${user.first_name},</p>
+                <p>Congratulations on enrolling in the ${course?.type === 'Workshop' ? 'workshop' : 'course'}! Here are your transaction details.</p>
+                <p>User ID: <span class="userid">${user.employeeid}</span></p>
+                <p>Full Name: <span class="password">${user.first_name} ${user.last_name}</span></p>
+                <p>Email: <span class="password">${user.email}</span></p>
+                <p>Mobile: <span class="password">${user.mobile}</span></p>
+                <p>${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Name: <span class="password">${course.courseName}</span></p>
+                
+
+                ${course?.courseType === 'Live' &&
+      (`<p>Start Date: <span class="password">${moment(course?.courseStartTime).format('DD MMM HH:MM:ss a')}</span></p>
+                <p>End Date: <span class="password">${moment(course?.courseEndTime).format('DD MMM HH:MM:ss a')}</span></p>`)
+      }
+                </div>
+            </body>
+            </html>
+
+        `;
+    if (process.env.PROD === "true") {
+      emailService(recipientString, subject, message);
+      // console.log("Subscription Email Sent")
+    }
+  
+
+    const userUpdate = await User.findOneAndUpdate({_id: new ObjectId(userId)}, {
+      $push: {
+        course: {
+          courseId: course?._id,
+          pricePaid: 0,
+          gst: 0,
+          coursePrice: course?.discountedPrice,
+          discountUsed: 0,
+          enrolledOn: new Date(),
+        }
+      }
+    }, {session: session});
+
+
+    await session.commitTransaction();
+
+    return res.status(200).json({
+      status: "success",
+      message:
+      `Congratulations on successfully enrolling in the ${course?.type === 'Workshop' ? 'workshop' : 'course'}! It will be a valuable experience for you.`,
+      data: updateParticipants,
+    });
+    
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: e.message,
+    });
 
     await session.abortTransaction();
   }finally{
@@ -2473,7 +2798,7 @@ exports.myCourses = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
 
     const count = await Course.countDocuments({
-      status: "Published",
+      status: "Published", type: 'Course',
       "enrollments.userId": new ObjectId(userId),
     });
 
@@ -2539,14 +2864,16 @@ exports.myCourses = async (req, res) => {
                 maxEnrolments: 1,
                 topics: "$courseContent",
                 courseProgress: {
-                  $divide: [
-                    {
-                      $size: { $ifNull: ["$enrollments.watched", []] },
+                  $cond: {
+                    if: { $eq: [{ $size: { $ifNull: ["$courseContent", []] } }, 0] },
+                    then: 0, // or any other default value you prefer
+                    else: {
+                      $divide: [
+                        { $size: { $ifNull: ["$enrollments.watched", []] } },
+                        { $size: { $ifNull: ["$courseContent", []] } },
+                      ],
                     },
-                    {
-                      $size: { $ifNull: ["$courseContent", []] },
-                    },
-                  ],
+                  },
                 },
                 instructorName: {
                   $map: {
@@ -2610,7 +2937,8 @@ exports.myCourses = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Data Fetched successfully",
-      data: dataArr,
+      workshop: dataArr?.filter((elem)=>elem?.type==='Workshop'),
+      data: dataArr?.filter((elem)=>elem?.type==='Course'),
       count: count
     });
   } catch (error) {

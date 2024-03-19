@@ -9,8 +9,8 @@ import { CircularProgress } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDButton from '../../../components/MDButton';
 import { Link } from 'react-router-dom'
-import AllCourses from '../data/allCourses';
-import MyCourses from '../data/myCourses';
+import AllCourses from '../data/allCourse/allCourses';
+import MyCourses from '../data/myCourse/myCourses';
 
 
 export default function LabTabs() {
@@ -31,8 +31,8 @@ export default function LabTabs() {
       <TabContext value={value}>
         <MDBox sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="All Courses" value="1" />
-            <Tab label="My Courses" value="2" />
+            <Tab label="StoxHero Library" value="1" />
+            <Tab label="My Library" value="2" />
           </TabList>
         </MDBox>
         <TabPanel value="1">

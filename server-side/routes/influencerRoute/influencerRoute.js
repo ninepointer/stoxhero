@@ -22,17 +22,17 @@ router.route('/last30daysdata').get(Authenticate, controller.getLast30daysInflue
 // router.route('/affiliatebyprograme').get(Authenticate, controller.getAffiliateByProgramme);
 
 
-router.route('/adminsummery').get(Authenticate, controller.getAdminAffiliatePayout);
-router.route('/admintransactions').get(Authenticate, controller.getAdminAffiliateTransaction);
-router.route('/adminaffiliaterafferals').get(Authenticate, controller.getAdminAffiliateReferralsSummery);
-router.route('/adminlast30daysdata').get(Authenticate, controller.getAdminLast30daysAffiliateData);
-router.route('/adminoverview').get(Authenticate, controller.getAdminBasicAffiliateOverview);
+// router.route('/adminsummery').get(Authenticate, controller.getAdminAffiliatePayout);
+// router.route('/admintransactions').get(Authenticate, controller.getAdminAffiliateTransaction);
+// router.route('/adminaffiliaterafferals').get(Authenticate, controller.getAdminAffiliateReferralsSummery);
+// router.route('/adminlast30daysdata').get(Authenticate, controller.getAdminLast30daysAffiliateData);
+// router.route('/adminoverview').get(Authenticate, controller.getAdminBasicAffiliateOverview);
 
 
-router.route('/affiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getAffiliateOverview);
-router.route('/ytaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getYoutubeAffiliateOverview);
-router.route('/shaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getStoxHeroAffiliateOverview);
-router.route('/oiaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getOfflineInstituteAffiliateOverview);
+// router.route('/affiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getAffiliateOverview);
+// router.route('/ytaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getYoutubeAffiliateOverview);
+// router.route('/shaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getStoxHeroAffiliateOverview);
+// router.route('/oiaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getOfflineInstituteAffiliateOverview);
 // router.route('/draft').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getDraftAffiliatePrograms);
 // router.route('/inactive').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getInactiveAffiliatePrograms);
 // router.route('/expired').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), controller.getExpiredAffiliatePrograms);

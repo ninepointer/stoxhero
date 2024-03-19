@@ -20,6 +20,7 @@ import ReactGA from "react-ga";
 import TopContestPortfolios from "../data/topContestPortfolios";
 import TestZoneChampions from "../data/testZoneChampions";
 import PracticeAndPrepare from "../data/practiceAndPrepare";
+import Workshop from '../data/workshop/workshop';
 
 export default function Dashboard() {
   let baseUrl =
@@ -286,6 +287,26 @@ export default function Dashboard() {
           })}
         </Slider>
       )}
+
+      <Grid
+        container
+        // spacing={0.75}
+        xs={12}
+        md={12}
+        lg={12}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="start"
+        flexDirection="row"
+      >
+        <Grid item xs={12} md={12} lg={12}>
+          <MDBox style={{ borderRadius: 5 }}>
+            <Workshop
+            />
+          </MDBox>
+        </Grid>
+      </Grid>
+
       <Grid
         container
         spacing={0.75}
@@ -297,7 +318,7 @@ export default function Dashboard() {
         alignItems="start"
         flexDirection="row"
       >
-        <Grid item xs={12} md={12} lg={12} mt={1}>
+        <Grid item xs={12} md={12} lg={12} mt={.5}>
           {!isLoading ? (
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
               <TopContestPortfolios

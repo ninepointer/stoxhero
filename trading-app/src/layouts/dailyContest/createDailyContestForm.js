@@ -338,8 +338,6 @@ function Index() {
     } catch (err) {}
   }
 
-  // console.log("dailyContest", dailyContest)
-
   async function onEdit(e, formState) {
     try {
       e.preventDefault();
@@ -543,8 +541,8 @@ function Index() {
             {(contestFor === "College" || !visibility) && (
               <MDTypography variant="caption" fontWeight="bold" color="text">
                 Link: {Url}
-                {contestFor === "College" ? "collegetestzone" : "testzone"}/
-                {contest?.slug || dailyContest?.slug}/{formattedDate}
+                {contestFor === "College" ? "collegetestzone" : "competitions"}/
+                {contest?.slug || dailyContest?.slug}
                 {!visibility && "?campaigncode=****&referral=****"}
               </MDTypography>
             )}

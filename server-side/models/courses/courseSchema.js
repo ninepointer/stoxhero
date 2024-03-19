@@ -97,6 +97,10 @@ const courseSchema = new Schema({
     },
   ],
   suggestChanges: [String],
+  meetLink: String,
+  metaTitle: String,
+  metaDescription: String,
+  metaKeywords: String,
   level: {
     type: String,
     enum: ["Beginner", "Intermediate", "Advanced", ""],
