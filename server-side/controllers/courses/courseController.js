@@ -1274,6 +1274,7 @@ exports.getAwaitingApprovals = async (req, res) => {
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
       status: "Sent To Creator",
+      type: 'Course'
     });
     const courses = await Course.aggregate([
       {
@@ -1284,7 +1285,6 @@ exports.getAwaitingApprovals = async (req, res) => {
       },
       {
         $sort: {
-          _id: -1,
           _id: -1,
         },
       },
@@ -1337,7 +1337,12 @@ exports.getAwaitingApprovals = async (req, res) => {
       },
     ]);
 
-    res.status(200).json({ status: "success", data: courses, count: count });
+    res.status(200).json({ 
+      status: "success", 
+      data: courses.filter((elem)=> ((elem?.type==='Course'))), 
+      workshop: courses.filter((elem)=> ((elem?.type==='Workshop'))),
+      count: count
+     });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -1354,7 +1359,7 @@ exports.getPendingApproval = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
-      status: "Pending Admin Approval",
+      status: "Pending Admin Approval", type: 'Course'
     });
     const courses = await Course.aggregate([
       {
@@ -1365,7 +1370,6 @@ exports.getPendingApproval = async (req, res) => {
       },
       {
         $sort: {
-          _id: -1,
           _id: -1,
         },
       },
@@ -1418,7 +1422,10 @@ exports.getPendingApproval = async (req, res) => {
       },
     ]);
 
-    res.status(200).json({ status: "success", data: courses, count: count });
+    res.status(200).json({ status: "success", 
+    data: courses.filter((elem)=> ((elem?.type==='Course'))), 
+    workshop: courses.filter((elem)=> ((elem?.type==='Workshop'))),
+    count: count });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -1435,7 +1442,8 @@ exports.getPublished = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
-      status: "Published",
+      courseEndTime: {$gte: new Date()},
+      status: "Published", type: 'Course'
     });
     const courses = await Course.aggregate([
       {
@@ -1446,7 +1454,6 @@ exports.getPublished = async (req, res) => {
       },
       {
         $sort: {
-          _id: -1,
           _id: -1,
         },
       },
@@ -1469,7 +1476,6 @@ exports.getPublished = async (req, res) => {
           courseEndTime: 1,
           courseType: 1,
           courseDurationInMinutes: 1,
-          courseType: 1,
           type: 1,
           status: 1,
           category: 1,
@@ -1500,7 +1506,22 @@ exports.getPublished = async (req, res) => {
       },
     ]);
 
-    res.status(200).json({ status: "success", data: courses, count: count });
+    const newCourse = (courses.filter((elem)=> elem?.type==='Course')).filter((elem, index)=>{
+      // console.log('name', elem?.courseName, index);
+      if(elem?.courseType==='Live' && elem?.registrationStartTime && elem?.courseEndTime){
+        // console.log('name', elem?.courseName, index);
+        return (elem?.courseEndTime && new Date(elem?.courseEndTime) >= new Date())
+      } else{
+        return elem;
+      }
+    })
+
+    res.status(200).json({ 
+      status: "success", 
+      data: newCourse, 
+      workshop: courses.filter((elem)=> ((elem?.type==='Workshop') && (elem?.courseEndTime && elem?.courseEndTime >= new Date()) )),
+      count: count
+     });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -1517,7 +1538,7 @@ exports.getUnpublished = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
     const count = await Course.countDocuments({
       "courseInstructors.id": new ObjectId(userId),
-      status: "Unpublished",
+      status: "Unpublished", type: 'Course'
     });
     const courses = await Course.aggregate([
       {
@@ -1528,7 +1549,6 @@ exports.getUnpublished = async (req, res) => {
       },
       {
         $sort: {
-          _id: -1,
           _id: -1,
         },
       },
@@ -1582,7 +1602,95 @@ exports.getUnpublished = async (req, res) => {
       },
     ]);
 
-    res.status(200).json({ status: "success", data: courses, count: count });
+    res.status(200).json({ status: "success", 
+    workshop: courses.filter((elem)=> ((elem?.type==='Workshop'))),
+    data: courses.filter((elem)=> ((elem?.type==='Course'))), count: count });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getInfluencerCompleted = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
+    const count = await Course.countDocuments({
+      "courseInstructors.id": new ObjectId(userId),
+      status: "Published",
+      type: 'Course',
+      courseEndTime: {$lt: new Date()}
+    });
+    const courses = await Course.aggregate([
+      {
+        $match: {
+          status: "Published",
+          courseEndTime: {$lt: new Date()},
+          "courseInstructors.id": new ObjectId(userId),
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+      {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
+        $project: {
+          courseName: 1,
+          _id: -1,
+          courseImage: 1,
+          courseOverview: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          courseType: 1,
+          type: 1,
+          status: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $sum: {
+              $map: {
+                input: "$courseContent",
+                as: "content",
+                in: {
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
+          },
+          averageRating: 1,
+          userEnrolled: {
+            $size: "$enrollments",
+          },
+          maxEnrolments: 1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ]);
+
+    res.status(200).json({ status: "success", 
+    workshop: courses.filter((elem)=> ((elem?.type==='Workshop'))),
+    data: courses.filter((elem)=> ((elem?.type==='Course'))), count: count });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -1696,39 +1804,6 @@ exports.getUserCourses = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
 
     const pipeline = [
-      // {
-      //   $addFields: {
-      //     isPaid: {
-      //       $in: [new ObjectId(userId), "$enrollments.userId"],
-      //     }
-      //   },
-      // },
-      // {
-      //   $match: {
-      //     status: "Published",
-      //     // type: 'Workshop',
-      //     $and: [
-      //       { registrationStartTime: { $exists: true, $lt: new Date() } },
-      //       { registrationEndTime: { $exists: true } },
-      //       { courseEndTime: { $exists: true } }
-      //     ],
-      //     $or: [
-      //       {
-      //         $and: [
-      //           { "isPaid": true },
-      //           { "courseEndTime": { $gte: new Date() } }
-      //         ]
-      //       },
-      //       {
-      //         $and: [
-      //           { "isPaid": false },
-      //           { "registrationEndTime": { $gte: new Date() } }
-      //         ]
-      //       }
-      //     ]
-      //   }
-      // },
-      
       {
         $match: {
           status: "Published",
@@ -1827,10 +1902,21 @@ exports.getUserCourses = async (req, res) => {
       course = await Course.aggregate(pipeline)
     }
 
+    const newCourse = (course.filter((elem)=> elem?.type==='Course')).filter((elem, index)=>{
+      // console.log('name', elem?.courseName, index);
+      if(elem?.courseType==='Live' && elem?.registrationStartTime && elem?.courseEndTime){
+        // console.log('name', elem?.courseName, index);
+        return (elem?.registrationStartTime && new Date(elem?.registrationStartTime) <= new Date()) && (((elem?.courseEndTime && elem?.isPaid) && (new Date(elem?.courseEndTime) >= new Date())) || (elem?.registrationEndTime && (new Date(elem?.registrationEndTime) >= new Date())));
+      } else{
+        return elem;
+      }
+    })
+
     res.status(200).json({ 
       status: "success", 
-      data: course.filter((elem)=> elem?.type==='Course'), 
-      workshop: course.filter((elem)=> ((elem?.type==='Workshop') && (elem?.registrationStartTime && elem?.registrationStartTime <= new Date()) && ((elem?.courseEndTime && (elem?.courseEndTime >= new Date())) || (elem?.registrationEndTime && (elem?.registrationEndTime >= new Date()))))),
+      // data: course.filter((elem)=> elem?.type==='Course'), 
+      data: newCourse,
+      workshop: course.filter((elem)=> ((elem?.type==='Workshop') && (elem?.registrationStartTime && elem?.registrationStartTime <= new Date()) && (((elem?.courseEndTime && elem?.isPaid) && (elem?.courseEndTime >= new Date())) || (elem?.registrationEndTime && (elem?.registrationEndTime >= new Date()))))),
       count: count 
     });
   } catch (err) {
@@ -1974,11 +2060,22 @@ exports.getCoursesByUserSlug = async (req, res) => {
       "courseInstructors.id": new ObjectId(user?._id),
     });
 
+    const newCourse = (course.filter((elem)=> elem?.type==='Course')).filter((elem, index)=>{
+      // console.log('name', elem?.courseName, index);
+      if(elem?.courseType==='Live' && elem?.registrationStartTime && elem?.courseEndTime){
+        // console.log('name', elem?.courseName, index);
+        return (elem?.registrationStartTime && new Date(elem?.registrationStartTime) <= new Date()) && ((elem?.courseEndTime && (new Date(elem?.courseEndTime) >= new Date())) || (elem?.registrationEndTime && (new Date(elem?.registrationEndTime) >= new Date())));
+      } else{
+        return elem;
+      }
+    })
+
     res
       .status(200)
       .json({
         status: "success",
-        data: course.filter((elem)=>elem?.type==='Course') , 
+        data: newCourse,
+        // data: course.filter((elem)=>elem?.type==='Course') , 
         workshop: course.filter((elem)=> ((elem?.type==='Workshop') && (elem?.registrationStartTime && elem?.registrationStartTime <= new Date()) && ((elem?.courseEndTime && (elem?.courseEndTime >= new Date())) || (elem?.registrationEndTime && (elem?.registrationEndTime >= new Date()))))),
         count: count,
         instructor: {
@@ -2821,13 +2918,14 @@ exports.enrollUser = async (req, res, next) => {
     
   } catch (e) {
     console.log(e);
+    await session.abortTransaction();
     return res.status(500).json({
       status: "error",
       message: "Something went wrong",
       error: e.message,
     });
 
-    await session.abortTransaction();
+    
   }finally{
     session.endSession();
     
@@ -3005,11 +3103,22 @@ exports.myCourses = async (req, res) => {
       }
     ]);
 
+    const newCourse = (result.filter((elem)=> elem?.type==='Course')).filter((elem, index)=>{
+      // console.log('name', elem?.courseName, index);
+      if(elem?.courseType==='Live' && elem?.registrationStartTime && elem?.courseEndTime){
+        // console.log('name', elem?.courseName, index);
+        return (elem?.registrationStartTime && new Date(elem?.registrationStartTime) <= new Date()) && ((elem?.courseEndTime && (new Date(elem?.courseEndTime) >= new Date())) || (elem?.registrationEndTime && (new Date(elem?.registrationEndTime) >= new Date())));
+      } else{
+        return elem;
+      }
+    })
+
     res.status(200).json({
       status: "success",
       message: "Data Fetched successfully",
       workshop: result?.filter((elem)=> ((elem?.type==='Workshop') && (elem?.registrationStartTime && elem?.registrationStartTime <= new Date()) && ((elem?.courseEndTime && (elem?.courseEndTime >= new Date())) || (elem?.registrationEndTime && (elem?.registrationEndTime >= new Date()))))),
-      data: result?.filter((elem)=>elem?.type==='Course'),
+      data: newCourse,
+      //  result?.filter((elem)=>elem?.type==='Course'),
       count: count
     });
   } catch (error) {

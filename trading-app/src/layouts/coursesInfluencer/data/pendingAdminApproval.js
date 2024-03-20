@@ -14,6 +14,7 @@ const Courses = () => {
     const [skip, setSkip] = useState(0);
     const [count, setCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [workshop, setWorkshop] = useState([]);
 
     useEffect(() => {
         fetchData();
@@ -32,6 +33,7 @@ const Courses = () => {
             .then(([api1Response]) => {
                 setCourses(api1Response.data.data);
                 setCount(api1Response.data.count);
+                setWorkshop(api1Response?.data?.workshop)
                 setTimeout((() => setIsLoading(false)), 500);
             })
             .catch((error) => {
@@ -45,7 +47,7 @@ const Courses = () => {
 
     return (
         <>
-            {courses && <CoursesList data={courses} isLoading={isLoading} />}
+            {courses && <CoursesList workshop={workshop} data={courses} isLoading={isLoading} />}
             {courses?.length > 0 &&
                 <Grid item xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                     <Stack spacing={2}>

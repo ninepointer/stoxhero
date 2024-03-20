@@ -40,6 +40,7 @@ import AwaitingApproval from '../data/awaitingApproval';
 import PendingAdminApproval from '../data/pendingAdminApproval';
 import Published from '../data/published';
 import Unpublished from '../data/unpublished';
+import Completed from '../data/completed';
 
 
 export default function LabTabs() {
@@ -64,6 +65,7 @@ export default function LabTabs() {
             <Tab label="Pending Admin Approval" value="2" />
             <Tab label="Published" value="3" />
             <Tab label="Unpublished" value="4" />
+            <Tab label="Completed" value="5" />
           </TabList>
         </MDBox>
         <TabPanel value="1">
@@ -111,6 +113,19 @@ export default function LabTabs() {
             :
             <MDBox style={{ minWidth: '100%' }}>
               <Unpublished />
+            </MDBox>
+          }
+        </TabPanel>
+
+        <TabPanel value="5">
+          {isLoading ?
+
+            <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+              <CircularProgress color="info" />
+            </MDBox>
+            :
+            <MDBox style={{ minWidth: '100%' }}>
+              <Completed />
             </MDBox>
           }
         </TabPanel>

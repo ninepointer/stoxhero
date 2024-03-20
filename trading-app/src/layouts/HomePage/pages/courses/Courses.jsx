@@ -732,7 +732,7 @@ export default function Courses() {
                                                 color="light"
                                                 mt={1.5}
                                               >
-                                                Workshop Starts : {moment(elem?.courseStartTime).format('DD MMM hh:mm:ss a')}
+                                                Workshop Starts : {moment(elem?.courseStartTime).format('DD MMM hh:mm a')}
                                               </MDTypography>
                                             </Grid>
                                             <Grid

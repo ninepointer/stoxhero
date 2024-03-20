@@ -317,7 +317,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
 
   const handleOpenNewTab = async (data) => {
     if(workshop){
-      openSuccessSB('Information', `Workshop will start on ${moment(data?.courseStartTime)?.format('DD MMM hh:mm:ss a')}.`);
+      openSuccessSB('Information', `Workshop will start on ${moment(data?.courseStartTime)?.format('DD MMM hh:mm a')}.`);
       return;
     }
     const newTab = window.open(`/watchcourse?course=${data?.courseSlug}`, '_blank');

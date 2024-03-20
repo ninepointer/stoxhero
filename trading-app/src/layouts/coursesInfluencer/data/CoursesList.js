@@ -21,14 +21,37 @@ import { Link } from 'react-router-dom'
 import { useMediaQuery } from "@mui/material";
 import theme from "../../HomePage/utils/theme/index";
 import StarRating from "../../HomePage/pages/courses/starRatings.js";
+import Workshop from './WorkshopList.js';
 
-
-export default function CoursesList({ data, isLoading }) {
+export default function CoursesList({ data, isLoading, workshop }) {
 
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   return (
     <>
+      {workshop?.length !== 0 &&
+        <>
+          <MDTypography
+            variant="body2"
+            fontWeight="bold"
+            fontSize='20px'
+            ml={isMobile ? 0 : 2}
+            textAlign={isMobile ? 'center' : 'left'}
+          >
+            {`Workshops`}
+          </MDTypography>
+          <Workshop data={workshop} />
+          <MDTypography
+            variant="body2"
+            fontWeight="bold"
+            fontSize='20px'
+            ml={isMobile ? 0 : 2}
+            textAlign={isMobile ? 'center' : 'left'}
+          >
+            {`Courses`}
+          </MDTypography>
+        </>}
+
       {!isLoading ? (
         <Grid
           // mt={10}

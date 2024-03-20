@@ -326,7 +326,7 @@ const Courses = ({data, showPay, setShowPay}) => {
                                         >
                                           <MDTypography variant="caption"
                                             fontWeight="bold">
-                                            Workshop Starts : {moment(elem?.courseStartTime).format('DD MMM hh:mm:ss a')}
+                                            Workshop Starts : {moment(elem?.courseStartTime).format('DD MMM hh:mm a')}
                                           </MDTypography>
                                         </Grid>
                                         <Grid

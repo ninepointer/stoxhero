@@ -28,6 +28,12 @@ router.get(
     courseController.getUnpublished
 );
 
+router.get(
+    "/completed",
+    Authenticate,
+    courseController.getInfluencerCompleted
+);
+
 router.patch(
     "/:id/suggestchange",
     Authenticate,
