@@ -1830,7 +1830,7 @@ exports.getUserCourses = async (req, res) => {
     res.status(200).json({ 
       status: "success", 
       data: course.filter((elem)=> elem?.type==='Course'), 
-      workshop: course.filter((elem)=> ((elem?.type==='Workshop') && (elem?.registrationStartTime && elem?.registrationStartTime <= new Date()) && (((elem?.isPaid && elem?.courseEndTime) && (elem?.courseEndTime >= new Date())) || ((elem?.isPaid && elem?.registrationEndTime) && (elem?.registrationEndTime >= new Date()))))),
+      workshop: course.filter((elem)=> ((elem?.type==='Workshop') && (elem?.registrationStartTime && elem?.registrationStartTime <= new Date()) && ((elem?.courseEndTime && (elem?.courseEndTime >= new Date())) || (elem?.registrationEndTime && (elem?.registrationEndTime >= new Date()))))),
       count: count 
     });
   } catch (err) {

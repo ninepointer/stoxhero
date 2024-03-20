@@ -426,7 +426,7 @@ exports.getUpcomingStoxHeroCarousels = async(req, res, next)=>{
 exports.getHomePageCarousels = async(req, res, next)=>{
   const userRoleId = req.user.role
   const userRoleName = await UserRole.findById(userRoleId);
-  const roleFilter = userRoleName?.roleName === "User" ? "StoxHero" : userRoleName.roleName === 'Infinity Trader' ? "Infinity" : "All"
+  const roleFilter = (userRoleName?.roleName !== 'Infinity Trader') ? "StoxHero" : userRoleName.roleName === 'Infinity Trader' ? "Infinity" : "All"
   const count = await Carousel.countDocuments({carouselEndDate: {$gte : new Date()}, carouselStartDate : {$lte : new Date()} , status: 'Live', visibility: roleFilter})
   let liveCarousels = [];
   try{
