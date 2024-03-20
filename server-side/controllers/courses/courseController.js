@@ -1299,6 +1299,7 @@ exports.getAwaitingApprovals = async (req, res) => {
           _id: -1,
           courseImage: 1,
           coursePrice: 1,
+          courseOverview: 1,
           discountedPrice: 1,
           courseDurationInMinutes: 1,
           courseType: 1,
@@ -1373,6 +1374,7 @@ exports.getPendingApproval = async (req, res) => {
           courseName: 1,
           _id: -1,
           courseImage: 1,
+          courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
           courseDurationInMinutes: 1,
@@ -1448,6 +1450,7 @@ exports.getPublished = async (req, res) => {
           courseName: 1,
           _id: -1,
           courseImage: 1,
+          courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
           courseDurationInMinutes: 1,
@@ -1524,6 +1527,7 @@ exports.getUnpublished = async (req, res) => {
           courseName: 1,
           _id: -1,
           courseImage: 1,
+          courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
           courseDurationInMinutes: 1,
@@ -1593,6 +1597,7 @@ exports.getUserWorkshop = async (req, res) => {
           _id: -1,
           courseImage: 1,
           courseSlug: 1,
+          courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
           averageRating: 1,
@@ -1672,6 +1677,7 @@ exports.getUserCourses = async (req, res) => {
           _id: -1,
           courseImage: 1,
           courseSlug: 1,
+          courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
           averageRating: 1,
@@ -2805,6 +2811,7 @@ exports.myCourses = async (req, res) => {
     const result = await Course.aggregate([
       {
         $match: {
+          status: "Published",
           "enrollments.userId": new ObjectId(userId),
         },
       },
@@ -2829,116 +2836,80 @@ exports.myCourses = async (req, res) => {
         },
       },
       {
-        $facet: {
-          alldata: [
-            {
-              $match: {
-                "enrollments.userId": new ObjectId(userId),
-              },
-            },
-            {
-              $project: {
-                courseName: 1,
-                _id: -1,
-                courseSlug: 1,
-                courseImage: 1,
-                coursePrice: 1,
-                discountedPrice: 1,
-                userEnrolled: 1,
-                courseDurationInMinutes: 1,
-                courseType: 1,
-                type: 1,
-                category: 1,
-                level: 1,
-                lectures: {
-                  $sum: {
-                    $map: {
-                      input: "$courseContent",
-                      as: "content",
-                      in: {
-                        $size: "$$content.subtopics",
-                      },
-                    },
-                  },
-                },
-                maxEnrolments: 1,
-                topics: "$courseContent",
-                courseProgress: {
-                  $cond: {
-                    if: { $eq: [{ $size: { $ifNull: ["$courseContent", []] } }, 0] },
-                    then: 0, // or any other default value you prefer
-                    else: {
-                      $divide: [
-                        { $size: { $ifNull: ["$enrollments.watched", []] } },
-                        { $size: { $ifNull: ["$courseContent", []] } },
-                      ],
-                    },
-                  },
-                },
-                instructorName: {
-                  $map: {
-                    input: "$instructor",
-                    as: "inst",
-                    in: {
-                      $concat: ["$$inst.first_name", " ", "$$inst.last_name"],
-                    },
-                  },
-                },
-              },
-            },
-            {
-              $sort: {
-                _id: -1,
-                _id: -1,
-              },
-            },
-            {
-              $skip: skip,
-            },
-            {
-              $limit: limit,
-            },
-          ],
-          rating: [
-            {
-              $unwind: "$ratings",
-            },
-            {
-              $group: {
-                _id: "$_id",
-                rating: {
-                  $sum: "$ratings.rating",
-                },
-              },
-            },
-            {
-              $project: {
-                rating: "$rating",
-                _id: 1,
-              },
-            },
-          ],
+        $match: {
+          "enrollments.userId": new ObjectId(userId),
         },
       },
+      {
+        $project: {
+          courseName: 1,
+          _id: -1,
+          courseSlug: 1,
+          courseOverview: 1,
+          courseImage: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          userEnrolled: 1,
+          courseDurationInMinutes: 1,
+          courseType: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $sum: {
+              $map: {
+                input: "$courseContent",
+                as: "content",
+                in: {
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
+          },
+          maxEnrolments: 1,
+          averageRating: 1,
+          topics: "$courseContent",
+          courseProgress: {
+            $cond: {
+              if: { $eq: [{ $size: { $ifNull: ["$courseContent", []] } }, 0] },
+              then: 0, // or any other default value you prefer
+              else: {
+                $divide: [
+                  { $size: { $ifNull: ["$enrollments.watched", []] } },
+                  { $size: { $ifNull: ["$courseContent", []] } },
+                ],
+              },
+            },
+          },
+          instructorName: {
+            $map: {
+              input: "$instructor",
+              as: "inst",
+              in: {
+                $concat: ["$$inst.first_name", " ", "$$inst.last_name"],
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: -1
+        }
+      },
+      {
+        $skip: skip
+      },
+      {
+        $limit: limit
+      }
     ]);
-
-    const allData = result?.[0]?.alldata;
-    const ratingData = result?.[0]?.rating;
-
-    const dataArr = [];
-    for (let subelem of allData) {
-      const match = ratingData.filter(
-        (elem) => elem?._id?.toString() === subelem?._id?.toString()
-      );
-      subelem.rating = match?.[0]?.rating / subelem?.userEnrolled || 0;
-      dataArr.push(subelem);
-    }
 
     res.status(200).json({
       status: "success",
       message: "Data Fetched successfully",
-      workshop: dataArr?.filter((elem)=>elem?.type==='Workshop'),
-      data: dataArr?.filter((elem)=>elem?.type==='Course'),
+      workshop: result?.filter((elem)=>elem?.type==='Workshop'),
+      data: result?.filter((elem)=>elem?.type==='Course'),
       count: count
     });
   } catch (error) {

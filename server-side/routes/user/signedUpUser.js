@@ -810,6 +810,8 @@ router.patch("/verifyotp", async (req, res) => {
         token: token,
       });
 
+      const courseUserSignupBonus = 100;
+      const courseUserSignupCurrency = 'Cash';
     if (workshop) {
       let isRedisConnected = getValue();
       if (isRedisConnected && await client.HEXISTS('influencer', `user`)) {
@@ -846,6 +848,12 @@ router.patch("/verifyotp", async (req, res) => {
         }))
         await client.HSET('influencer', `user`, JSON.stringify(obj));
       }
+
+      await addSignupBonus(
+        newuser?.upsertedId,
+        courseUserSignupBonus,
+        courseUserSignupCurrency
+      );
     }
     // now inserting userId in free portfolio's
 
@@ -2000,7 +2008,7 @@ router.patch("/createuserbycourse", async (req, res) => {
       );
     const token = await populatedUser.generateAuthToken();
 
-    console.log("Token:", token);
+    // console.log("Token:", token);
 
     res.cookie("jwtoken", token, {
       expires: new Date(Date.now() + 25892000000),
@@ -2017,7 +2025,7 @@ router.patch("/createuserbycourse", async (req, res) => {
         "lifetimeCount": influencerUsers.lifetimeCount + 1
       }
 
-      console.log(obj)
+      // console.log(obj)
       await client8.PUBLISH("data-receive", JSON.stringify({
         status: "success",
         id: referredBy?.toString(),
@@ -2054,76 +2062,13 @@ router.patch("/createuserbycourse", async (req, res) => {
         token: token,
       });
 
-    if (referredBy) {
-        if (match) {
-            let referrerCodeMatch = await User.findOne({ myReferralCode: referrerCode });
-            const updateProgramme = await AffiliatePrograme.findOneAndUpdate(
-                { _id: new ObjectId(affiliateObj?._id) },
-                {
-                    $push: {
-                        referrals: {
-                            userId: newuser.upsertedId,
-                            joinedOn: new Date(),
-                            affiliateUserId: referrerCodeMatch?._id
-                        }
-                    }
-                },
-
-                { new: true, validateBeforeSave: false }
-            );
-
-            await affiliateObj.save();
-
-            if (referrerCode) {
-                const saveAffiliate = await User.findOneAndUpdate(
-                    { _id: new ObjectId(referrerCodeMatch?._id) },
-                    {
-                        $push: {
-                            affiliateReferrals: {
-                                referredUserId: newuser.upsertedId,
-                                joiningDate: populatedUser.createdOn,
-                                affiliateProgram: affiliateObj._id,
-                                affiliateEarning: affiliateObj.rewardPerSignup,
-                                affiliateCurrency: affiliateObj.currency
-                            }
-                        }
-                    },
-                );
-
-                await referrerCodeMatch.save({ validateBeforeSave: false });
-
-            }
-        } else {
-            // referral?.users?.push({ userId: newuser.upsertedId, joinedOn: new Date() })
-            await referral.save();
-
-            const referralProgramme = await Referral.findOneAndUpdate({ status: "Active" }, {
-                $push: {
-                    users: {
-                        userId: newuser.upsertedId,
-                        joinedOn: new Date()
-                    }
-                }
-            })
-
-            if (referrerCode) {
-                const saveReferrals = await User.findOneAndUpdate(
-                    { myReferralCode: referrerCode },
-                    {
-                        $push: {
-                            referrals: {
-                                referredUserId: newuser.upsertedId,
-                                joiningDate: populatedUser?.createdOn,
-                                referralProgram: referralProgramme._id,
-                                referralEarning: referralProgramme.rewardPerReferral,
-                                referralCurrency: referralProgramme.currency,
-                            }
-                        }
-                    },
-                );
-            }
-        }
-    }
+      const courseUserSignupBonus = 100;
+      const courseUserSignupCurrency = 'Cash';
+      await addSignupBonus(
+        newuser?.upsertedId,
+        courseUserSignupBonus,
+        courseUserSignupCurrency
+      );
 
     if (!newuser)
       return res

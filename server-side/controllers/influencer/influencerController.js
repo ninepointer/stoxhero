@@ -330,3 +330,173 @@ exports.getLast60daysInfluencerUserData = async(req,res) => {
   }
 }
 
+const influencerRevenue = async(influencerId) => {
+  try {
+
+    // Get today's date
+    const today = moment();
+    const todayStartDate = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const firstDayOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
+    const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+    // Get the start of the week (assuming the week starts on Sunday)
+    const revenueData = await Course.aggregate([
+      {
+        $match: {
+          "courseInstructors.id": ObjectId(
+            "63788f3991fc4bf629de6df0"
+          ),
+        },
+      },
+      {
+        $unwind: {
+          path: "$enrollments",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "enrollments.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+        },
+      },
+      {
+        $facet: {
+          normalUser: [
+            {
+              $match: {
+                "user.referredBy": {
+                  $ne: ObjectId(
+                    "63788f3991fc4bf629de6df0"
+                  ),
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {},
+                totalOrder: {
+                  $sum: 1,
+                },
+                totalEarnings: {
+                  $sum: {
+                    $multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+          influencerUser: [
+            {
+              $match: {
+                "user.referredBy": ObjectId(
+                  "63788f3991fc4bf629de6df0"
+                ),
+              },
+            },
+            {
+              $group: {
+                _id: {},
+                totalOrder: {
+                  $sum: 1,
+                },
+                totalEarnings: {
+                  $sum: {
+                    $multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: {},
+          todayCount: {
+            $sum: {
+              $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(todayStartDate)] }, 1, 0] // Count documents created today
+            }
+          },
+          thisWeekCount: {
+            $sum: {
+              $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfWeek)] }, 1, 0] // Count documents created this week
+            }
+          },
+          thisMonthCount: {
+            $sum: {
+              $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfMonth)] }, 1, 0] // Count documents created this week
+            }
+          },
+          lifetimeCount: { $sum: 1 },
+          totalOrder: {
+            $sum: 1,
+          },
+          totalEarnings: {
+            $sum: {
+              $multiply: [
+                {
+                  $subtract: [
+                    "$enrollments.pricePaidByUser",
+                    "$enrollments.gstAmount",
+                  ],
+                },
+                {
+                  $divide: [
+                    "$commissionPercentage",
+                    100,
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    // Access the counts
+    const obj = {};
+    const countResult = users[0];
+    obj.todayCount = countResult.todayCount;
+    obj.thisWeekCount = countResult.thisWeekCount;
+    obj.thisMonthCount = countResult.thisMonthCount;
+    obj.lifetimeCount = countResult.lifetimeCount;
+
+    return obj;
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+

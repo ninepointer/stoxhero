@@ -132,16 +132,26 @@ exports.getContestScoreboard = async (req, res) => {
           {
             $project: {
               traderFirstName: {
-                $arrayElemAt: [
-                  "$trader_details.first_name",
-                  0,
-                ],
+                $ifNull: [
+                  {
+                    $arrayElemAt: [
+                      "$trader_details.first_name",
+                      0
+                    ]
+                  },
+                  "StoxHero"
+                ]
               },
               traderLastName: {
-                $arrayElemAt: [
-                  "$trader_details.last_name",
-                  0,
-                ],
+                $ifNull: [
+                  {
+                    $arrayElemAt: [
+                      "$trader_details.last_name",
+                      0
+                    ]
+                  },
+                  "StoxHero"
+                ]
               },
               traderProfilePhoto: {
                 $arrayElemAt: [

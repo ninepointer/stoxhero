@@ -1,51 +1,61 @@
 // if(process.env.PROD){
 
-    // let isRedisConnected ;
-    // function setValue(value){
-    //     isRedisConnected = value;
-    // }
+//     let isRedisConnected ;
+//     function setValue(value){
+//         isRedisConnected = value;
+//     }
 
-    // function getValue(){
-    //     return isRedisConnected;
-    // }
-    // const redis = require('redis');
-    // client = redis.createClient(
-    //     {
-    //         url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
-    //     }
-    // )
+//     function getValue(){
+//         return isRedisConnected;
+//     }
+//     const redis = require('redis');
+//     client = redis.createClient(
+//         {
+//             url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
+//         }
+//     )
 
-    // client2 = redis.createClient(
-    //     {
-    //         url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
-    //     }
-    // )
-    // client3 = redis.createClient(
-    //     {
-    //         url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
-    //     }
-    // )
-    // client4 = redis.createClient(
-    //     {
-    //         url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
-    //     }
-    // )
-    // client5 = redis.createClient(
-    //     {
-    //         url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
-    //     }
-    // )
-    // client6 = redis.createClient(
-    //     {
-    //         url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
-    //     }
-    // )
+//     client2 = redis.createClient(
+//         {
+//             url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
+//         }
+//     )
+//     client3 = redis.createClient(
+//         {
+//             url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
+//         }
+//     )
+//     client4 = redis.createClient(
+//         {
+//             url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
+//         }
+//     )
+//     client5 = redis.createClient(
+//         {
+//             url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
+//         }
+//     )
+//     client6 = redis.createClient(
+//         {
+//             url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
+//         }
+//     )
+//             client7 = redis.createClient(
+//         {
+//             url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
+//         }
+//     )
+//     client8 = redis.createClient(
+//         {
+//             url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
+//         }
+//     )
 
-    // const ioredis = require('ioredis');
+//     const ioredis = require('ioredis');
 
-    // const clientForIORedis = new ioredis("redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com");
+//     const clientForIORedis = new ioredis("redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com");
 
-    // module.exports = {client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
+//     module.exports = {client7, client8, client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
 
 // }
 // else if(process.env.STAGE){
@@ -87,10 +97,20 @@
     //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
     //     }
     // )
+        // client7 = redis.createClient(
+    //     {
+    //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
+    //     }
+    // )
+    // client8 = redis.createClient(
+    //     {
+    //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
+    //     }
+    // )
 
     // const ioredis = require('ioredis');
     // const clientForIORedis = new ioredis(`redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`);
-    // module.exports = {client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
+    // module.exports = {client7, client8, client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
 
 // }
 // else{

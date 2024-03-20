@@ -12,7 +12,7 @@ import logo from "../../../assets/images/logo1.jpeg";
 const Scoreboard = () => {
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  const [sortedTraders, setSortedTraders] = useState([]);
+  // const [sortedTraders, setSortedTraders] = useState([]);
   const [traders, setTraders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,10 +20,10 @@ const Scoreboard = () => {
     // const name = 'SARTHAK SINGHAL';
 
     const cname = name
-      .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+      ?.toLowerCase()
+      ?.split(" ")
+      ?.map((word) => word?.charAt(0)?.toUpperCase() + word?.slice(1))
+      ?.join(" ");
 
     return cname;
   }
