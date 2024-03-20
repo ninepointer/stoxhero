@@ -317,7 +317,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
 
   const handleOpenNewTab = async (data) => {
     if(workshop){
-      openSuccessSB('Information', `Workshop will start on ${moment(data?.courseStartTime)?.format('DD MMM HH:MM:ss a')}.`);
+      openSuccessSB('Information', `Workshop will start on ${moment(data?.courseStartTime)?.format('DD MMM hh:mm:ss a')}.`);
       return;
     }
     const newTab = window.open(`/watchcourse?course=${data?.courseSlug}`, '_blank');
@@ -526,11 +526,11 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
                   </MDBox>
                 </DialogContentText>
                 {value == 'wallet' &&
-                  <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2}  >
-                    <MDBox onClick={() => { buySubscription() }} border="1px solid #4CAF50" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid #fff" } }} style={{ backgroundColor: "#4CAF50" }} >
+                  <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" alignContent='center' mt={2}  >
+                    <MDBox onClick={() => { buySubscription() }} border="1px solid #4CAF50" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" alignContent='center' sx={{ height: "40px", width: { xs: "100%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid #fff" } }} style={{ backgroundColor: "#4CAF50" }} >
 
-                      <MDBox display="flex" justifyContent="center">
-                        <Typography variant="body2" color="#fff" style={{ marginRight: '14px', marginLeft: "8px" }} >Stoxhero Wallet</Typography>
+                      <MDBox display="flex" justifyContent="center" alignContent='center' alignItem='center'>
+                        <Typography variant="body2" color="#fff" style={{ marginRight: '14px', marginLeft: '8px' }} >StoxHero Wallet</Typography>
                         <AccountBalanceWalletIcon sx={{ marginTop: "5px", color: "#fff", marginRight: "4px" }} />
                         <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#fff" > {`₹${Number(userWallet)?.toFixed(2)}`}</Typography>
                       </MDBox>

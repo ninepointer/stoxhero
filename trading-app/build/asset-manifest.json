@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.114e63a2.css",
-    "main.js": "/static/js/main.055ec80f.js",
+    "main.js": "/static/js/main.f9af7e23.js",
     "static/js/703.0d407a6f.chunk.js": "/static/js/703.0d407a6f.chunk.js",
     "static/js/513.75e0454c.chunk.js": "/static/js/513.75e0454c.chunk.js",
     "reactPlayerYouTube.js": "/static/js/reactPlayerYouTube.71208139.chunk.js",
@@ -51,13 +51,11 @@
     "static/media/noBlogFound.png": "/static/media/noBlogFound.4ddd13042030ba7d7853.png",
     "static/media/cofounder_prateek.png": "/static/media/cofounder_prateek.8b80785643ed20d54374.png",
     "static/media/aboutuspage.png": "/static/media/aboutuspage.453ced44a7e1e109495f.png",
-    "static/media/paidcontest.png": "/static/media/paidcontest.6a260763a26c2576e483.png",
     "static/media/main-bg-1_1.webp": "/static/media/main-bg-1_1.b051114fdd6a41f500f0.webp",
     "static/media/fa-brands-400.ttf": "/static/media/fa-brands-400.6205fd00fb1b573e9f0f.ttf",
     "static/media/cofounder_kush.png": "/static/media/cofounder_kush.a15f09621173b0f8c7fc.png",
     "static/media/wallet-buy.png": "/static/media/wallet-buy.73ff4537d14f90cdd751.png",
     "static/media/affiliate.jpg": "/static/media/affiliate.10a0792096923f40472b.jpg",
-    "static/media/freecontests.gif": "/static/media/freecontests.74c99cdc1ee8f4eadd32.gif",
     "static/media/paymentQrc.jpg": "/static/media/paymentQrc.276551d24b426b1b6901.jpg",
     "static/media/cancelled.jpg": "/static/media/cancelled.26c3f116735c004854a4.jpg",
     "static/media/news-image.png": "/static/media/news-image.855ff87f184705fcbd09.png",
@@ -239,7 +237,7 @@
     "static/media/mew.svg": "/static/media/mew.abd579786274219a78079f023ed7b335.svg",
     "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "main.114e63a2.css.map": "/static/css/main.114e63a2.css.map",
-    "main.055ec80f.js.map": "/static/js/main.055ec80f.js.map",
+    "main.f9af7e23.js.map": "/static/js/main.f9af7e23.js.map",
     "703.0d407a6f.chunk.js.map": "/static/js/703.0d407a6f.chunk.js.map",
     "513.75e0454c.chunk.js.map": "/static/js/513.75e0454c.chunk.js.map",
     "reactPlayerYouTube.71208139.chunk.js.map": "/static/js/reactPlayerYouTube.71208139.chunk.js.map",
@@ -259,6 +257,6 @@
   },
   "entrypoints": [
     "static/css/main.114e63a2.css",
-    "static/js/main.055ec80f.js"
+    "static/js/main.f9af7e23.js"
   ]
 }

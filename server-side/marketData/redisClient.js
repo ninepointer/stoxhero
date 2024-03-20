@@ -97,7 +97,7 @@
     //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
     //     }
     // )
-        // client7 = redis.createClient(
+    //     client7 = redis.createClient(
     //     {
     //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
     //     }

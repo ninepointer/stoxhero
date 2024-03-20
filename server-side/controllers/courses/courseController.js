@@ -1300,6 +1300,11 @@ exports.getAwaitingApprovals = async (req, res) => {
           courseImage: 1,
           coursePrice: 1,
           courseOverview: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          courseType: 1,
           discountedPrice: 1,
           courseDurationInMinutes: 1,
           courseType: 1,
@@ -1377,6 +1382,11 @@ exports.getPendingApproval = async (req, res) => {
           courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          courseType: 1,
           courseDurationInMinutes: 1,
           courseType: 1,
           type: 1,
@@ -1453,6 +1463,11 @@ exports.getPublished = async (req, res) => {
           courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          courseType: 1,
           courseDurationInMinutes: 1,
           courseType: 1,
           type: 1,
@@ -1532,6 +1547,11 @@ exports.getUnpublished = async (req, res) => {
           discountedPrice: 1,
           courseDurationInMinutes: 1,
           courseType: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          courseType: 1,
           type: 1,
           status: 1,
           category: 1,
@@ -1572,19 +1592,42 @@ exports.getUnpublished = async (req, res) => {
   }
 };
 
-
 exports.getUserWorkshop = async (req, res) => {
   try {
     const userId = req.user._id;
     const user = await User.findById(new ObjectId(userId)).populate('referredBy', 'role')
-
+    
     const pipeline = [
+      {
+        $addFields: {
+          isPaid: {
+            $in: [new ObjectId(userId), "$enrollments.userId"],
+          }
+        },
+      },
       {
         $match: {
           status: "Published",
           type: 'Workshop',
-          registrationStartTime: {$lt: new Date()}
-        },
+          $and: [
+            { registrationStartTime: { $lt: new Date() } },
+            // { registrationEndTime: { $gte: new Date() } }
+          ],
+          $or: [
+            {
+              $and: [
+                { "isPaid": true },
+                { "courseEndTime": { $gte: new Date() } }
+              ]
+            },
+            {
+              $and: [
+                { "isPaid": false },
+                { "registrationEndTime": { $gte: new Date() } }
+              ]
+            }
+          ]
+        }
       },
       {
         $addFields: {
@@ -1653,6 +1696,39 @@ exports.getUserCourses = async (req, res) => {
     const limit = Number(Number(req.query.limit) || 10);
 
     const pipeline = [
+      // {
+      //   $addFields: {
+      //     isPaid: {
+      //       $in: [new ObjectId(userId), "$enrollments.userId"],
+      //     }
+      //   },
+      // },
+      // {
+      //   $match: {
+      //     status: "Published",
+      //     // type: 'Workshop',
+      //     $and: [
+      //       { registrationStartTime: { $exists: true, $lt: new Date() } },
+      //       { registrationEndTime: { $exists: true } },
+      //       { courseEndTime: { $exists: true } }
+      //     ],
+      //     $or: [
+      //       {
+      //         $and: [
+      //           { "isPaid": true },
+      //           { "courseEndTime": { $gte: new Date() } }
+      //         ]
+      //       },
+      //       {
+      //         $and: [
+      //           { "isPaid": false },
+      //           { "registrationEndTime": { $gte: new Date() } }
+      //         ]
+      //       }
+      //     ]
+      //   }
+      // },
+      
       {
         $match: {
           status: "Published",
@@ -1682,6 +1758,10 @@ exports.getUserCourses = async (req, res) => {
           discountedPrice: 1,
           averageRating: 1,
           courseDurationInMinutes: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
           courseType: 1,
           type: 1,
           category: 1,
@@ -1710,7 +1790,6 @@ exports.getUserCourses = async (req, res) => {
               },
             },
           },
-
           isPaid: {
             $in: [new ObjectId(userId), "$enrollments.userId"],
           },
@@ -1748,7 +1827,12 @@ exports.getUserCourses = async (req, res) => {
       course = await Course.aggregate(pipeline)
     }
 
-    res.status(200).json({ status: "success", data: course.filter((elem)=>elem?.type==='Course') , workshop: course.filter((elem)=>elem?.type==='Workshop'), count: count });
+    res.status(200).json({ 
+      status: "success", 
+      data: course.filter((elem)=> elem?.type==='Course'), 
+      workshop: course.filter((elem)=> ((elem?.type==='Workshop') && (elem?.registrationStartTime && elem?.registrationStartTime <= new Date()) && (((elem?.isPaid && elem?.courseEndTime) && (elem?.courseEndTime >= new Date())) || ((elem?.isPaid && elem?.registrationEndTime) && (elem?.registrationEndTime >= new Date()))))),
+      count: count 
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ status: "error", message: "something went wrong" });
@@ -1840,6 +1924,11 @@ exports.getCoursesByUserSlug = async (req, res) => {
           type: 1,
           courseImage: 1,
           coursePrice: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          courseType: 1,
           averageRating: 1,
           discountedPrice: 1,
           courseDurationInMinutes: 1,
@@ -1889,7 +1978,8 @@ exports.getCoursesByUserSlug = async (req, res) => {
       .status(200)
       .json({
         status: "success",
-        data: course.filter((elem)=>elem?.type==='Course') , workshop: course.filter((elem)=>elem?.type==='Workshop'),
+        data: course.filter((elem)=>elem?.type==='Course') , 
+        workshop: course.filter((elem)=> ((elem?.type==='Workshop') && (elem?.registrationStartTime && elem?.registrationStartTime <= new Date()) && ((elem?.courseEndTime && (elem?.courseEndTime >= new Date())) || (elem?.registrationEndTime && (elem?.registrationEndTime >= new Date()))))),
         count: count,
         instructor: {
           first_name: user?.first_name,
@@ -2345,8 +2435,8 @@ exports.handleDeductCourseFee = async (
                 <p>${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee: <span class="password">₹${courseFee}/-</span></p>
 
                 ${course?.courseType === 'Live' &&
-      (`<p>Start Date: <span class="password">${moment(course?.courseStartTime).format('DD MMM HH:MM:ss a')}</span></p>
-                <p>End Date: <span class="password">${moment(course?.courseEndTime).format('DD MMM HH:MM:ss a')}</span></p>`)
+      (`<p>Start Date: <span class="password">${moment(course?.courseStartTime).format('DD MMM hh:mm:ss a')}</span></p>
+                <p>End Date: <span class="password">${moment(course?.courseEndTime).format('DD MMM hh:mm:ss a')}</span></p>`)
       }
                 </div>
             </body>
@@ -2692,8 +2782,8 @@ exports.enrollUser = async (req, res, next) => {
                 
 
                 ${course?.courseType === 'Live' &&
-      (`<p>Start Date: <span class="password">${moment(course?.courseStartTime).format('DD MMM HH:MM:ss a')}</span></p>
-                <p>End Date: <span class="password">${moment(course?.courseEndTime).format('DD MMM HH:MM:ss a')}</span></p>`)
+      (`<p>Start Date: <span class="password">${moment(course?.courseStartTime).format('DD MMM hh:mm:ss a')}</span></p>
+                <p>End Date: <span class="password">${moment(course?.courseEndTime).format('DD MMM hh:mm:ss a')}</span></p>`)
       }
                 </div>
             </body>
@@ -2831,6 +2921,11 @@ exports.myCourses = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
         $unwind: {
           path: "$enrollments",
         },
@@ -2849,6 +2944,11 @@ exports.myCourses = async (req, res) => {
           courseImage: 1,
           coursePrice: 1,
           discountedPrice: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          courseType: 1,
           userEnrolled: 1,
           courseDurationInMinutes: 1,
           courseType: 1,
@@ -2908,7 +3008,7 @@ exports.myCourses = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Data Fetched successfully",
-      workshop: result?.filter((elem)=>elem?.type==='Workshop'),
+      workshop: result?.filter((elem)=> ((elem?.type==='Workshop') && (elem?.registrationStartTime && elem?.registrationStartTime <= new Date()) && ((elem?.courseEndTime && (elem?.courseEndTime >= new Date())) || (elem?.registrationEndTime && (elem?.registrationEndTime >= new Date()))))),
       data: result?.filter((elem)=>elem?.type==='Course'),
       count: count
     });

@@ -42,102 +42,103 @@ function Summary({topPerformer, startOfWeek, endOfWeek}) {
         return formattedDate;
       }
 
-  return (
-    <MDBox bgColor="light" minHeight='auto'>
-        <Grid container display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={12} lg={12}>
-                <Grid container xs={12} md={12} lg={12} mt={.5} mb={.5} display='flex' alignItems='center'>
-                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-start'>
-                        <MDTypography ml={1} fontSize={15} fontWeight="bold">TestZone Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
+    return (
+        <MDBox bgColor="light" minHeight='auto'>
+            <Grid container display='flex' justifyContent='center' alignItems='center'>
+                <Grid item xs={12} md={12} lg={12}>
+                    <Grid container xs={12} md={12} lg={12} mt={.5} mb={.5} display='flex' alignItems='center'>
+                        <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-start'>
+                            <MDTypography ml={1} fontSize={15} fontWeight="bold">TestZone Leaderboard of the Week [{formattedDate(startOfWeek)} - {formattedDate(endOfWeek)}]</MDTypography>
+                        </Grid>
+                        <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-end'>
+                            <MDButton variant='text' color='dark' size="small" onClick={() => {
+                                window.webengage.track('viewall_testzone_profile_clicked', {
+                                    user: getDetails?.userDetails?._id
+                                }); navigate('/toptestzoneportfolios')
+                            }}>View All</MDButton>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='flex-end'>
-                        <MDButton variant='text' color='dark' size="small" onClick={()=>{
-                            window.webengage.track('viewall_testzone_profile_clicked', {
-                                user: getDetails?.userDetails?._id
-                        }); navigate('/toptestzoneportfolios')}}>View All</MDButton>
-                    </Grid>
-                </Grid>
-                    <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
-                        
-                        {topPerformer?.map((e,index)=>{
+                    <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center' >
+
+                        {topPerformer?.map((e, index) => {
                             return (
-                            <Grid item xs={6} md={4} lg={2}>
-                            <Card sx={{ minWidth: '100%' }}>
-                            <CardContent>
-                                <MDAvatar
-                                    src={e?.profile_picture ? e?.profile_picture?.url : logo}
-                                    alt={"Stock"}
-                                    size="lg"
-                                    padding="10px"
-                                    sx={({ borders: { borderWidth }, palette: { white } }) => ({
-                                    border: `${borderWidth[2]} solid ${white.main}`,
-                                    cursor: "pointer",
-                                    position: "relative",
-                                    ml: -1,
-                                    // padding: "1px",
-                                    "&:hover, &:focus": {
-                                        zIndex: "10",
-                                    },
-                                    })}
-                                //     sx={{,
-                                //     cursor: "pointer",
-                                //         position: "relative",
-                                //         ml: -1,
-                                //         "&:hover, &:focus": {
-                                //             zIndex: "10",
-                                //         },
-                                
-                                // }}
-                                />
-                                <MDTypography fontSize={15} fontWeight='bold'>
-                                    #{index +1} {TruncatedName(e?.first_name)}
-                                </MDTypography>
+                                <Grid item xs={6} md={4} lg={2}>
+                                    <Card sx={{ minWidth: '100%' }}>
+                                        <CardContent>
+                                            <MDAvatar
+                                                src={e?.profile_picture ? e?.profile_picture?.url : logo}
+                                                alt={"Stock"}
+                                                size="lg"
+                                                padding="10px"
+                                                sx={({ borders: { borderWidth }, palette: { white } }) => ({
+                                                    border: `${borderWidth[2]} solid ${white.main}`,
+                                                    cursor: "pointer",
+                                                    position: "relative",
+                                                    ml: -1,
+                                                    // padding: "1px",
+                                                    "&:hover, &:focus": {
+                                                        zIndex: "10",
+                                                    },
+                                                })}
+                                            //     sx={{,
+                                            //     cursor: "pointer",
+                                            //         position: "relative",
+                                            //         ml: -1,
+                                            //         "&:hover, &:focus": {
+                                            //             zIndex: "10",
+                                            //         },
 
-                                <MDTypography mt={1} fontSize={12}>
-                                    Zones Played: {e?.contests}
-                                </MDTypography>
+                                            // }}
+                                            />
+                                            <MDTypography fontSize={15} fontWeight='bold'>
+                                                #{index + 1} {TruncatedName(e?.first_name)}
+                                            </MDTypography>
 
-                                <MDTypography mt={1} fontSize={12}>
-                                    Zones Won: {e?.contestsWon}
-                                </MDTypography>
+                                            <MDTypography mt={1} fontSize={12}>
+                                                Zones Played: {e?.contests}
+                                            </MDTypography>
 
-                                <MDTypography mt={1} fontSize={12}>
-                                    StrikeRate: {(e?.strikeRate).toFixed(0)}%
-                                </MDTypography>
+                                            <MDTypography mt={1} fontSize={12}>
+                                                Zones Won: {e?.contestsWon}
+                                            </MDTypography>
 
-                                <MDTypography mt={1} mb={-3} fontSize={12}>
-                                    Earnings: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e?.totalPayout)}
-                                </MDTypography>
+                                            <MDTypography mt={1} fontSize={12}>
+                                                StrikeRate: {(e?.strikeRate).toFixed(0)}%
+                                            </MDTypography>
 
-                            </CardContent>
-                            <CardActions>
-                                <MDButton 
-                                    size="small"
-                                    component = {Link}
-                                    to={{
-                                        pathname: `/testzoneprofile/${e?.userid}`,
-                                      }}
-                                    state={{data: e}}
-                                    onClick={()=>{
-                                        window.webengage.track('user_testzone_profile_clicked', {
-                                            userId: e?.trader,
-                                            user: getDetails?.userDetails?._id
-                                          })
-                                    }}
-                                >
-                                    Zone Profile
-                                </MDButton>
-                            </CardActions>
-                            </Card>
-                            </Grid>
+                                            <MDTypography mt={1} mb={-3} fontSize={12}>
+                                                Earnings: ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(e?.totalPayout)}
+                                            </MDTypography>
+
+                                        </CardContent>
+                                        <CardActions>
+                                            <MDButton
+                                                size="small"
+                                                component={Link}
+                                                to={{
+                                                    pathname: `/testzoneprofile/${e?.userid}`,
+                                                }}
+                                                state={{ data: e }}
+                                                onClick={() => {
+                                                    window.webengage.track('user_testzone_profile_clicked', {
+                                                        userId: e?.trader,
+                                                        user: getDetails?.userDetails?._id
+                                                    })
+                                                }}
+                                            >
+                                                Zone Profile
+                                            </MDButton>
+                                        </CardActions>
+                                    </Card>
+                                </Grid>
                             )
                         })}
-                       
+
                     </Grid>
+                </Grid>
             </Grid>
-        </Grid>
-    </MDBox>
-)
+        </MDBox>
+    )
 }
 
 export default Summary;

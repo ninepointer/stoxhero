@@ -813,6 +813,7 @@ router.patch("/verifyotp", async (req, res) => {
       const courseUserSignupBonus = 100;
       const courseUserSignupCurrency = 'Cash';
     if (workshop) {
+      // const setting = await Setting.findOne();
       let isRedisConnected = getValue();
       if (isRedisConnected && await client.HEXISTS('influencer', `user`)) {
         let influencerUsers = await client.HGET('influencer', `user`);
