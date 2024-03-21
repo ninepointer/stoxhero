@@ -207,7 +207,7 @@ export default function Courses() {
                     cursor: "pointer", // Add pointer cursor
                     // width: "15%"
                   }}
-                  onClick={() => { window.open("https://t.me/stpstoxhero", '_blank'); }}
+                  onClick={() => { window.open(instructor?.influencerDetails?.shTelegramCommunityLink, '_blank'); }}
                 >
                   <MDTypography
                     style={{

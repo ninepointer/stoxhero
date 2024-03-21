@@ -51,6 +51,7 @@ const referralProgramSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    maxReferralsPayoutCap:Number,
     status:{
         type:String,
         required: true,
