@@ -1142,8 +1142,6 @@ exports.pendingOrderMain = async () => {
                     pnlData = await client.get(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`)
                 }
 
-                console.log("responseData", responseData)
-
                 if(!pnlData){
                     return;
                 }
@@ -1160,7 +1158,9 @@ exports.pendingOrderMain = async () => {
                         Math.abs(symbolArr[i]?.Quantity) === Math.abs(Number(Quantity)) &&
                         symbolArr[i]?.buyOrSell === buyOrSell &&
                         symbolArr[i]?.sub_product_id?.toString() === sub_product_id?.toString() &&
-                        symbolArr[i]?.type !== type) {
+                        symbolArr[i]?.type !== type)
+                    // if (symbolArr[i]?._id?.toString() === _id?.toString())
+                         {
 
                         const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]?._id) })
                         update.status = "Cancelled";

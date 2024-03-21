@@ -50,6 +50,7 @@ import ContestRewards from "./data/reward/contestReward";
 import { apiUrl } from "../../constants/constants";
 import Faq from "./data/faq/list";
 import EventFormat from "./data/eventFormat/list";
+import Influencer from './data/addInstructor/viewList'
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -337,8 +338,6 @@ function Index() {
     } catch (err) {}
   }
 
-  // console.log("dailyContest", dailyContest)
-
   async function onEdit(e, formState) {
     try {
       e.preventDefault();
@@ -542,8 +541,8 @@ function Index() {
             {(contestFor === "College" || !visibility) && (
               <MDTypography variant="caption" fontWeight="bold" color="text">
                 Link: {Url}
-                {contestFor === "College" ? "collegetestzone" : "testzone"}/
-                {contest?.slug || dailyContest?.slug}/{formattedDate}
+                {contestFor === "College" ? "collegetestzone" : "competitions"}/
+                {contest?.slug || dailyContest?.slug}
                 {!visibility && "?campaigncode=****&referral=****"}
               </MDTypography>
             )}
@@ -1092,6 +1091,29 @@ function Index() {
                 <FormGroup>
                   <FormControlLabel
                     checked={
+                      contest?.visibleToInfluencerUser !== undefined &&
+                      !editing &&
+                      formState?.visibleToInfluencerUser === undefined
+                        ? contest?.visibleToInfluencerUser
+                        : formState?.visibleToInfluencerUser
+                    }
+                    disabled={(isSubmitted || contest) && (!editing || saving)}
+                    control={<Checkbox />}
+                    onChange={(e) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        visibleToInfluencerUser: e.target.checked,
+                      }));
+                    }}
+                    label="Visible To Influencer User"
+                  />
+                </FormGroup>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3}>
+                <FormGroup>
+                  <FormControlLabel
+                    checked={
                       contest?.visibility !== undefined &&
                       !editing &&
                       formState?.visibility === undefined
@@ -1591,6 +1613,18 @@ function Index() {
                 </MDBox>
               </Grid>
             )}
+
+              {(isSubmitted || contest) && (
+                <Grid item xs={12} md={12} xl={12} mt={2}>
+                  <MDBox>
+                    <Influencer
+                      contestId={
+                        contest != undefined ? contest?._id : dailyContest?._id
+                      }
+                    />
+                  </MDBox>
+                </Grid>
+              )}
 
             {(isSubmitted || contest) && (
               <Grid item xs={12} md={12} xl={12} mt={2}>

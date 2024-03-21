@@ -8,7 +8,7 @@ const contestSchema = new Schema({
   },
   slug: {
     type: String,
-    required: true,
+    // required: true,
     unique: true,
   },
   image: {
@@ -225,6 +225,11 @@ const contestSchema = new Schema({
     required: true,
     default: false,
   },
+  visibleToInfluencerUser: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   product: {
     type: Schema.Types.ObjectId,
     ref: "product",
@@ -235,6 +240,22 @@ const contestSchema = new Schema({
   },
   faqs: [{ order: Number, question: String, answer: String }],
   eventFormat: [{ order: Number, event: String, description: String }],
+  courseInstructors: [
+    {
+      id: {
+        type: Schema.Types.ObjectId,
+        ref: "user-personal-detail",
+      },
+      image: String,
+      about: String,
+      fee: Number,
+      isPurchaseRequired: {
+        type: Boolean,
+        required: true,
+        default: false,
+      }
+    },
+  ],
 });
 
 const contestData = mongoose.model("daily-contest", contestSchema);

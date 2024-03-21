@@ -132,16 +132,26 @@ exports.getContestScoreboard = async (req, res) => {
           {
             $project: {
               traderFirstName: {
-                $arrayElemAt: [
-                  "$trader_details.first_name",
-                  0,
-                ],
+                $ifNull: [
+                  {
+                    $arrayElemAt: [
+                      "$trader_details.first_name",
+                      0
+                    ]
+                  },
+                  "StoxHero"
+                ]
               },
               traderLastName: {
-                $arrayElemAt: [
-                  "$trader_details.last_name",
-                  0,
-                ],
+                $ifNull: [
+                  {
+                    $arrayElemAt: [
+                      "$trader_details.last_name",
+                      0
+                    ]
+                  },
+                  "StoxHero"
+                ]
               },
               traderProfilePhoto: {
                 $arrayElemAt: [
@@ -186,8 +196,8 @@ exports.getContestScoreboard = async (req, res) => {
         ]
 
         const contestScoreboard = await DailyContestMockUser.aggregate(pipeline)
-        await client.set(`contestscorboard`, JSON.stringify(contestEarnings));
-        await client.expire(`contestscorboard`, 600);
+        await client.set(`contestscorboard`, JSON.stringify(contestScoreboard));
+        await client.expire(`contestscorboard`, 2400);
   
         res.status(200).json({
             status:"success",
@@ -454,7 +464,7 @@ exports.getHomePageContestEarnings = async (req, res) => {
       const contestEarnings = await Contest.aggregate(pipeline)
 
       await client.set(`homepagecontestearning`, JSON.stringify(contestEarnings));
-      await client.expire(`homepagecontestearning`, 600);
+      await client.expire(`homepagecontestearning`, 2400);
 
       res.status(200).json({
         status: "success",

@@ -49,6 +49,10 @@ const CreateCourse = (
     courseType: courseData?.courseType || "",
     courseDurationInMinutes: courseData?.courseDurationInMinutes || "",
     courseDescription: courseData?.courseDescription || "",
+    meetLink: courseData?.meetLink || "",
+    metaTitle: courseData?.metaTitle || "",
+    metaDescription: courseData?.metaDescription || "",
+    metaKeywords: courseData?.metaKeywords || "",
   });
   const editor = useRef(null);
   const [file, setFile] = useState(null);
@@ -729,6 +733,82 @@ const CreateCourse = (
                         label="Best Seller"
                       />
                     </FormGroup>
+                  </Grid>
+
+                  {formState?.type=== 'Workshop' && <Grid item xs={12} md={6} lg={6}>
+                    <TextField
+                      disabled={editing}
+                      id="outlined-required"
+                      type="text"
+                      placeholder="Meet Link"
+                      value={
+                        formState?.meetLink
+                      }
+                      fullWidth
+                      onChange={(e) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          meetLink: (e.target.value),
+                        }));
+                      }}
+                    />
+                  </Grid>}
+
+                  <Grid item xs={12} md={6} lg={6}>
+                    <TextField
+                      disabled={editing}
+                      id="outlined-required"
+                      type="text"
+                      placeholder="Meta Title"
+                      value={
+                        formState?.metaTitle
+                      }
+                      fullWidth
+                      onChange={(e) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          metaTitle: (e.target.value),
+                        }));
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={6} lg={6}>
+                    <TextField
+                      disabled={editing}
+                      id="outlined-required"
+                      type="text"
+                      placeholder="Meta Description"
+                      value={
+                        formState?.metaDescription
+                      }
+                      fullWidth
+                      onChange={(e) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          metaDescription: (e.target.value),
+                        }));
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={6} lg={6}>
+                    <TextField
+                      disabled={editing}
+                      id="outlined-required"
+                      type="text"
+                      placeholder="Meta Keywords"
+                      value={
+                        formState?.metaKeywords
+                      }
+                      fullWidth
+                      onChange={(e) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          metaKeywords: (e.target.value),
+                        }));
+                      }}
+                    />
                   </Grid>
 
                 <Grid item xs={12} md={12} lg={12}>

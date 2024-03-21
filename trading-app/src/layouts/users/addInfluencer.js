@@ -19,7 +19,17 @@ import axios from "axios";
 import { apiUrl } from "../../constants/constants";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
-import UploadImage from "../../assets/images/uploadimage.png";
+// import UploadImage from "../../assets/images/uploadimage.png";
+import { Autocomplete, Box } from "@mui/material";
+import { styled } from '@mui/material';
+
+
+
+const CustomAutocomplete = styled(Autocomplete)`
+  .MuiAutocomplete-clearIndicator {
+    color: white;
+  }
+`;
 
 const DeactivateUser = () => {
   const [reRender, setReRender] = useState(true);
@@ -31,9 +41,15 @@ const DeactivateUser = () => {
   const [file, setFile] = useState(null);
   const [edit, setEdit] = useState(false);
   const [fileMobile, setFileMobile] = useState(null);
+  const [cityData, setCityData] = useState([]);
+  const [userState, setUserState] = useState('');
+  // const [userCity, setUserCity] = useState('');
+
+  const [value, setValue] = useState({
+    _id: '',
+    name: ""
+  })
   const [influencerData, setInfluencerData] = useState({
-    state: "",
-    city: "",
     tags: "",
     about: "",
   });
@@ -43,11 +59,33 @@ const DeactivateUser = () => {
     followers: "",
   });
   const [created, setCreated] = useState(false);
-  // const { columns, rows } = RoleData(reRender);
-  console.log("selected", selectedUser);
-  console.log("channels data", channelsData);
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+
+  const handleStateChange = (event, newValue) => {
+    setUserState(newValue);
+    setValue({
+      _id: '',
+      name: ""
+    })
+    setCityData([]);
+    // setUserCity('');
+
+  }
+
+  const getCities = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}cities/bystate/${userState}`);
+      if (res.data.status == 'success') {
+        setCityData(res.data.data);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  useEffect(() => {
+    getCities();
+  }, [userState])
+
   const handleBannerImageWeb = (event) => {
     setFile(event.target.files[0]);
     const file = event.target.files[0];
@@ -122,7 +160,7 @@ const DeactivateUser = () => {
 
   const handleEditInfluencer = async (elem) => {
     const res = await axios.get(
-      `${baseUrl}api/v1/user/searchuser?search=${elem?.mobile}`,
+      `${apiUrl}user/searchuser?search=${elem?.mobile}`,
       {
         withCredentials: true,
         headers: {
@@ -133,17 +171,27 @@ const DeactivateUser = () => {
       }
     );
     if (res.data.status == "success") setEdit(true);
-    console.log("edit select", res.data.data[0]);
+    setUserState('');
+    setValue({
+      _id: '',
+      name: ""
+    })
     setSelectedUser({
       ...res.data.data[0],
       slug: res.data.data[0]?.slug,
       about: res.data.data[0]?.influencerDetails?.about,
       tags: res.data.data[0]?.influencerDetails?.tags.join(),
       state: res.data.data[0]?.influencerDetails?.state,
-      city: res.data.data[0]?.influencerDetails?.city,
+      city: res.data.data[0]?.influencerDetails?.city?._id,
       bannerImageMobile: res.data.data[0]?.influencerDetails?.bannerImageMobile,
       bannerImageWeb: res.data.data[0]?.influencerDetails?.bannerImageWeb,
     });
+
+    setUserState(res.data.data[0]?.influencerDetails?.state);
+    setValue({
+      _id: res.data.data[0]?.influencerDetails?.city?._id,
+      name: res.data.data[0]?.influencerDetails?.city?.name
+    })
     setInfluencerData({
       ...res.data.data[0],
       slug: res.data.data[0]?.slug,
@@ -153,12 +201,10 @@ const DeactivateUser = () => {
       city: res.data.data[0]?.influencerDetails?.city,
     });
   };
-  console.log("infdata", influencerData);
 
   useEffect(() => {
-    // axios.get(`${baseUrl}api/v1/readmocktradecompanypagination/${skip}/${limit}`)
     axios
-      .get(`${baseUrl}api/v1/influencer`, { withCredentials: true })
+      .get(`${apiUrl}influencer`, { withCredentials: true })
       .then((res) => {
         setData(res?.data?.data);
         setChannelsData(res?.data?.data?.influencerDetails?.channelDetails);
@@ -221,8 +267,7 @@ const DeactivateUser = () => {
     }
 
     const payload = {
-      city,
-      state,
+     
       tags,
       about,
       myReferralCode: selectedUser?.myReferralCode,
@@ -231,6 +276,9 @@ const DeactivateUser = () => {
     for (let elem in payload) {
       if (elem !== "bannerImageWeb") formData.append(`${elem}`, payload[elem]);
     }
+
+    formData.append(`city`, value?._id);
+    formData.append(`state`, userState);
 
     try {
       const res = await axios.post(
@@ -266,8 +314,7 @@ const DeactivateUser = () => {
     }
 
     const payload = {
-      city,
-      state,
+     
       tags,
       about,
       myReferralCode: selectedUser?.myReferralCode,
@@ -276,6 +323,9 @@ const DeactivateUser = () => {
     for (let elem in payload) {
       if (elem !== "bannerImageWeb") formData.append(`${elem}`, payload[elem]);
     }
+
+    formData.append(`city`, value?._id);
+    formData.append(`state`, userState);
 
     try {
       const res = await axios.patch(
@@ -288,7 +338,7 @@ const DeactivateUser = () => {
           },
         }
       );
-      console.log(res.data);
+
       if (res.status == 201 && res.data.status == "success") {
         openSuccessSB("Success", "Influencer Edited Successfully");
         setCreated(true);
@@ -316,23 +366,25 @@ const DeactivateUser = () => {
           withCredentials: true,
         }
       );
-      console.log(res.data);
+
       if (res.data.status == "success") {
         setCreated(true);
-        console.log("ho gaya");
       }
     } catch (e) {
       console.log(e);
     }
   };
 
+  const handleCityChange = (event, newValue) => {
+    // setUserCity(newValue?.name);
+    setValue(newValue);
+  };
+
   const handleRemoveInfluencer = async (elem) => {
-    console.log("elem is", elem);
     try {
       const res = await axios.delete(`${apiUrl}user/influencer/${elem?._id}`, {
         withCredentials: true,
       });
-      console.log(res.data);
       if (res.data.status == "success") {
         setReRender(!reRender);
         setEdit(false);
@@ -490,36 +542,110 @@ const DeactivateUser = () => {
                   spacing={2}
                   // style={{ maxWidth: "100%", height: "auto" }}
                 >
-                  <Grid
+                   <Grid
                     item
                     xs={12}
                     md={12}
                     xl={3}
                     style={{ maxWidth: "100%", height: "auto" }}
                   >
-                    <TextField
-                      label="City"
-                      value={selectedUser?.city}
-                      name="city"
-                      fullWidth
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    md={12}
-                    xl={3}
-                    style={{ maxWidth: "100%", height: "auto" }}
-                  >
-                    <TextField
+                    {/* <TextField
                       label="State"
                       value={selectedUser?.state}
                       name="state"
                       fullWidth
                       onChange={handleChange}
+                    /> */}
+                    <CustomAutocomplete
+                    id="country-select-demo"
+                    sx={{
+                      width: "100%",
+                      '& .MuiAutocomplete-clearIndicator': {
+                        color: 'dark',
+                      },
+                    }}
+                    options={['Andaman & Nicobar', 'Andhra Pradesh', 'Arunachal Pradesh', "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Delhi",
+                      "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu & Kashmir", "Jharkhand", "Karnataka", "Kerala", "Ladakh",
+                      "Lakshadeep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Pondicherry",
+                      "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"]}
+                    value={userState}
+                    // disabled={otpGen}
+                    onChange={handleStateChange}
+                    autoHighlight
+                    getOptionLabel={(option) => option ? option : ''}
+                    renderOption={(props, option) => (
+                      <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                        {option}
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Search your state"
+                        inputProps={{
+                          ...params.inputProps,
+                          autoComplete: 'new-password', // disable autocomplete and autofill
+                          style: { color: 'dark', height: "10px" }, // set text color to dark
+                        }}
+                        InputLabelProps={{
+                          style: { color: 'dark' },
+                        }}
+                      />
+                    )}
+                  />
+                  </Grid>
+
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    {/* <TextField
+                      label="City"
+                      value={selectedUser?.city}
+                      name="city"
+                      fullWidth
+                      onChange={handleChange}
+                    /> */}
+
+                    <CustomAutocomplete
+                      id="country-select-demo"
+                      sx={{
+                        width: "100%",
+                        '& .MuiAutocomplete-clearIndicator': {
+                          color: 'dark',
+                        },
+                      }}
+                      options={cityData || []}
+                      value={value}
+                      // disabled={otpGen}
+                      onChange={handleCityChange}
+                      autoHighlight
+                      getOptionLabel={(option) => option ? option.name : 'City'}
+                      renderOption={(props, option) => (
+                        <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                          {option.name}
+                        </Box>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Search your city"
+                          inputProps={{
+                            ...params.inputProps,
+                            autoComplete: 'new-password', // disable autocomplete and autofill
+                            style: { color: 'dark', height: "10px" }, // set text color to dark
+                          }}
+                          InputLabelProps={{
+                            style: { color: 'dark' },
+                          }}
+                        />
+                      )}
                     />
                   </Grid>
+                 
                   <Grid
                     item
                     xs={12}

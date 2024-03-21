@@ -32,6 +32,7 @@ const webSocketService = require('./services/chartService/chartService');
 const { updateUserWallet } = require('./controllers/internshipTradeController');
 const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument");
 const {notificationSender} = require("./notificationSender")
+const {SocketDataReceiver} = require("./socketDataReceiver")
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -304,6 +305,7 @@ async function singleProcess() {
     app.use('/api/v1/battletrade', require('./routes/battles/battleTradeRoute'));
     app.use('/api/v1/pageview', require("./routes/pageView/pageView"));
     app.use('/api/v1/affiliate', require("./routes/affiliateProgramme/affiliateRoute"));
+    app.use('/api/v1/influencer', require("./routes/influencerRoute/influencerRoute"));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));
@@ -424,6 +426,7 @@ async function singleProcess() {
     }
 
     notificationSender().then(()=>{});
+    SocketDataReceiver().then(()=>{});
 }
 
 

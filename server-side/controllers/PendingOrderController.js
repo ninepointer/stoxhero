@@ -246,8 +246,6 @@ exports.myTodaysPendingTrade = async (req, res, next) => {
       }
     ])
 
-    // res.status(200).json({ status: 'success', data: myTodaysTrade, count: count || 0 });
-
     res.status(200).json({ status: 'success', data: myTodaysTrade, count: count || 0, quantity: totalQuantity || [] });
   } catch (e) {
     console.log(e);
@@ -275,7 +273,7 @@ exports.cancelOrder = async (req, res, next) => {
 
     data = await client.get('stoploss-stopprofit');
     data = JSON.parse(data);
-    console.log(data)
+    // console.log(data)
     let symbolArr = data[`${updatedOrder.instrumentToken}`];
     for (let i = 0; i < symbolArr.length; i++) {
       if (symbolArr[i]?._id?.toString() === id.toString() &&
@@ -304,19 +302,19 @@ exports.cancelOrder = async (req, res, next) => {
 
         pnlData = JSON.parse(pnlData)
         for (let elem of pnlData) {
-          console.log("pnl dtata", elem, pnlData)
+          // console.log("pnl dtata", elem, pnlData)
           const buyOrSell = elem.lots > 0 ? "BUY" : "SELL";
           if (elem._id.symbol === symbolArr[i]?.symbol && elem._id.isLimit && buyOrSell === symbolArr[i]?.buyOrSell) {
 
-            console.log("in if", elem)
+            // console.log("in if", elem)
             if (Math.abs(elem.lots) > Math.abs(symbolArr[i]?.Quantity)) {
-              console.log("in if greater", elem)
+              // console.log("in if greater", elem)
               elem.margin = elem.margin - (elem.margin * Math.abs(symbolArr[i]?.Quantity) / Math.abs(elem.lots));
               elem.lots = Math.abs(elem.lots) - Math.abs(symbolArr[i]?.Quantity);
               elem.lots = buyOrSell === "SELL" ? -elem.lots : elem.lots;
               break;
             } else if (Math.abs(elem.lots) === Math.abs(symbolArr[i]?.Quantity)) {
-              console.log("in if equal", elem)
+              // console.log("in if equal", elem)
               elem.margin = 0;
               elem.lots = Math.abs(elem.lots) - Math.abs(symbolArr[i]?.Quantity);
               break;

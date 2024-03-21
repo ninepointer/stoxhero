@@ -9,6 +9,7 @@ import {Stack, Grid} from '@mui/material';
 
 const Courses = () => {
     const [courses, setCourses] = useState(null);
+    const [workshop, setWorkshop] = useState([]);
     const limitSetting = 9;
     const [skip, setSkip] = useState(0);
     const [count, setCount] = useState(0);
@@ -29,8 +30,9 @@ const Courses = () => {
         })
         Promise.all([call1])
             .then(([api1Response]) => {
-                setCourses(api1Response.data.data);
-                setCount(api1Response.data.count);
+                setCourses(api1Response?.data?.data);
+                setWorkshop(api1Response?.data?.workshop)
+                setCount(api1Response?.data?.count);
                 setTimeout((() => setIsLoading(false)), 500);
             })
             .catch((error) => {
@@ -44,7 +46,7 @@ const Courses = () => {
 
     return (
         <>
-            {courses && <CoursesList data={courses} isLoading={isLoading} />}
+            {courses && <CoursesList data={courses} workshop={workshop} isLoading={isLoading} />}
             {courses?.length > 0 &&
                 <Grid item xs={12} md={12} lg={12} mt={2} display='flex' justifyContent='center' alignContent='center' alignItems='center' style={{ maxWidth: '100%', height: 'auto' }}>
                     <Stack spacing={2}>

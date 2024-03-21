@@ -37,7 +37,7 @@ import DvrIcon from '@mui/icons-material/Dvr';
 import AvTimerIcon from '@mui/icons-material/AvTimer';
 import { SiOpslevel } from "react-icons/si";
 import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
-// import theme from "../../utils/theme/index";
+import moment from 'moment'
 
 
 
@@ -151,28 +151,66 @@ export default function Courses() {
                                                 </MDBox>
                                             </Grid>
                                             <Grid gap={2} item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center'>
-                                                <MDTypography variant='body3' color='light' style={{ textDecoration: 'line-through' }}>
-                                                    ₹{new Intl.NumberFormat(
-                                                        undefined,
-                                                        {
-                                                            minimumFractionDigits: 0,
-                                                            maximumFractionDigits: 0,
-                                                        }
-                                                    ).format(courses?.coursePrice)}/-
-                                                </MDTypography>
-                                                <MDTypography variant='body3' color='light'>
-                                                    ₹{new Intl.NumberFormat(
-                                                        undefined,
-                                                        {
-                                                            minimumFractionDigits: 0,
-                                                            maximumFractionDigits: 0,
-                                                        }
-                                                    ).format(courses?.discountedPrice)}/-
-                                                </MDTypography>
+
+                                                { courses?.discountedPrice !==0 &&
+                                                    <>
+                                                        <MDTypography variant='body3' color='light' style={{ textDecoration: 'line-through' }}>
+                                                            ₹{new Intl.NumberFormat(
+                                                                undefined,
+                                                                {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0,
+                                                                }
+                                                            ).format(courses?.coursePrice)}/-
+                                                        </MDTypography>
+                                                        <MDTypography variant='body3' color='light'>
+                                                            ₹{new Intl.NumberFormat(
+                                                                undefined,
+                                                                {
+                                                                    minimumFractionDigits: 0,
+                                                                    maximumFractionDigits: 0,
+                                                                }
+                                                            ).format(courses?.discountedPrice)}/-
+                                                        </MDTypography>
+                                                    </>
+                                                }
+
                                                 <MDTypography variant='body3' color='light' style={{ maxWidth: '50%' }}>
-                                                    <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} />
+                                                    <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} workshop={courses?.type==='Workshop' ? true: false} fromCourses={courses?.type==='Workshop' ? true: false} />
                                                 </MDTypography>
                                             </Grid>
+
+                                            <Grid container justifyContent='flex-start' mt={3}>
+                                                <Grid item xs={12} md={12} lg={12} pl={3}>
+                                                    {courses?.courseType === 'Live' && (
+                                                        <Grid container justifyContent='flex-start' alignItems='center' spacing={2}>
+                                                            <Grid >
+                                                                <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
+                                                                🕑{`Registration Start : ${moment(courses?.registrationStartTime).format('DD MMM hh:mm a')}`}
+                                                                </MDTypography>
+                                                            </Grid>
+                                                            <Grid >
+                                                                <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
+                                                                🕑{`Registration End : ${moment(courses?.registrationEndTime).format('DD MMM hh:mm a')}`}
+                                                                </MDTypography>
+                                                            </Grid>
+                                                            <Grid >
+                                                                <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
+                                                                🕑{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Start : ${moment(courses?.courseStartTime).format('DD MMM hh:mm a')}`}
+                                                                </MDTypography>
+                                                            </Grid>
+                                                            <Grid >
+                                                                <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
+                                                                🕑{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} End : ${moment(courses?.courseEndTime).format('DD MMM hh:mm a')}`}
+                                                                </MDTypography>
+                                                            </Grid>
+                                                        </Grid>
+                                                    )}
+                                                </Grid>
+                                            </Grid>
+
+
+
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
@@ -185,7 +223,7 @@ export default function Courses() {
                                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start'>
                                         <Grid container mt={5} p={3} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='flex-start' style={{ border: '1px solid lightgrey', borderRadius: 5 }}>
                                             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
-                                                <MDTypography variant='h3' fontSize={20} color='dark'>About the course</MDTypography>
+                                                <MDTypography variant='h3' fontSize={20} color='dark'>{`About the ${courses?.type === 'Workshop' ? 'workshop' : 'course'}`}</MDTypography>
                                             </Grid>
                                             <Grid item mt={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
                                                 <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} style={{ fontFamily: 'Work Sans , sans-serif' }} />
@@ -194,36 +232,42 @@ export default function Courses() {
                                     </Grid>
                                     <Grid item xs={12} md={12} lg={6} display='flex' justifyContent='center' alignContent='flex-start' alignItems='flex-start'>
                                         <Grid container spacing={1} mt={5} p={0} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start'>
-                                            <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
-                                                <MDTypography variant='h3' fontSize={20} color='dark'>Course Content</MDTypography>
-                                            </Grid>
-                                            <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+                                            {courses?.type !== 'Workshop' ?
+                                                <>
+                                                    <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
+                                                        <MDTypography variant='h3' fontSize={20} color='dark'>{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Content`}</MDTypography>
+                                                    </Grid>
+                                                    <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
 
-                                                <div style={{ width: '100%' }}>
-                                                    {courses?.courseContent?.map((courses) => (
-                                                        <Accordion>
-                                                            <AccordionSummary
-                                                                expandIcon={<ExpandMoreIcon />}
-                                                                aria-controls="panel1-content"
-                                                                id="panel1-header"
-                                                            >
-                                                                <MDBox display='flex' justifyContent='center' flexDirection='row' alignItems='center' gap={2}>
-                                                                    <MDTypography variant='body3' fontSize={20} fontWeight={600}>{courses?.order}. {courses?.topic}</MDTypography>
-                                                                    <MDTypography variant='caption'>{courses?.subtopics?.length} lecture(s)</MDTypography>
-                                                                </MDBox>
-                                                            </AccordionSummary>
-                                                            {courses?.subtopics?.map((item, index, duration) => (
-                                                                <AccordionDetails style={{ marginLeft: 25 }}>
-                                                                    <MDTypography variant='caption' fontSize={15}>{courses?.order}.{item?.order} {item?.topic}</MDTypography>
-                                                                </AccordionDetails>
+                                                        <div style={{ width: '100%' }}>
+                                                            {courses?.courseContent?.map((courses) => (
+                                                                <Accordion>
+                                                                    <AccordionSummary
+                                                                        expandIcon={<ExpandMoreIcon />}
+                                                                        aria-controls="panel1-content"
+                                                                        id="panel1-header"
+                                                                    >
+                                                                        <MDBox display='flex' justifyContent='center' flexDirection='row' alignItems='center' gap={2}>
+                                                                            <MDTypography variant='body3' fontSize={20} fontWeight={600}>{courses?.order}. {courses?.topic}</MDTypography>
+                                                                            <MDTypography variant='caption'>{courses?.subtopics?.length} lecture(s)</MDTypography>
+                                                                        </MDBox>
+                                                                    </AccordionSummary>
+                                                                    {courses?.subtopics?.map((item, index, duration) => (
+                                                                        <AccordionDetails style={{ marginLeft: 25 }}>
+                                                                            <MDTypography variant='caption' fontSize={15}>{courses?.order}.{item?.order} {item?.topic}</MDTypography>
+                                                                        </AccordionDetails>
+                                                                    ))}
+                                                                </Accordion>
                                                             ))}
-                                                        </Accordion>
-                                                    ))}
-                                                </div>
+                                                        </div>
 
-                                            </Grid>
+                                                    </Grid>
+                                                </>
+                                                :
+                                                <></>
+                                            }
                                             <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
-                                                <MDTypography variant='h3' fontSize={20} color='dark'>Course Benefits</MDTypography>
+                                                <MDTypography variant='h3' fontSize={20} color='dark'>{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Benefits`}</MDTypography>
                                             </Grid>
                                             <Grid item mt={1} xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='flex-start' alignItems='flex-start' style={{ width: '100%' }}>
 

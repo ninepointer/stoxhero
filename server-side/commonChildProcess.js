@@ -127,6 +127,8 @@ async function commonProcess() {
     "/api/v1/tutorialcategory",
     require("./routes/tutorialVideos/tutorialCategory")
   );
+  app.use('/api/v1/influencer', require("./routes/influencerRoute/influencerRoute"));
+
   app.use("/api/v1", require("./routes/instrument/instrumentAuth"));
   app.use("/api/v1", require("./routes/instrument/tradableInstrument"));
   app.use("/api/v1", require("./routes/instrument/addInstrument"));

@@ -16,6 +16,7 @@ const courseSchema = new Schema({
   ],
   // aboutInstructor: String,
   courseImage: { type: String },
+  workshopCoverImage: { type: String },
   courseLanguages: { type: String },
   courseDurationInMinutes: Number,
   courseOverview: { type: String },
@@ -97,6 +98,10 @@ const courseSchema = new Schema({
     },
   ],
   suggestChanges: [String],
+  meetLink: String,
+  metaTitle: String,
+  metaDescription: String,
+  metaKeywords: String,
   level: {
     type: String,
     enum: ["Beginner", "Intermediate", "Advanced", ""],

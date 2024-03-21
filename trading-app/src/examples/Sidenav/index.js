@@ -129,6 +129,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
             ||
           (key === "courses" &&
             getDetails?.userDetails?.role?.roleName !== "User")
+            ||
+            (key === "myinfluencerdashboard" &&
+              getDetails?.userDetails?.role?.roleName !== "Influencer")
         ) {
 
         } else {

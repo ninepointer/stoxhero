@@ -25,11 +25,12 @@ import Checkbox from '@mui/material/Checkbox';
 import Input from '@mui/material/Input';
 import { userContext } from '../../../AuthContext';
 import {useNavigate} from 'react-router-dom';
+import moment from 'moment';
 
 
 const ariaLabel = { 'aria-label': 'description' };
 
-const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, signedUp, createUser, isBlur}) => {
+const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, signedUp, createUser, isBlur, workshop}) => {
   const getDetails = useContext(userContext)
   const [open, setOpen] = React.useState(false);
   const [userWallet, setUserWallet] = useState(0);
@@ -54,6 +55,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
   const [content, setContent] = useState('')
   const [value, setValue] = useState(signedUp ? 'bank' : 'wallet');
   const [successSB, setSuccessSB] = useState(false);
+  const courseId = data._id;
   const openSuccessSB = (title, content) => {
     console.log('status success')
     setTitle(title)
@@ -68,8 +70,8 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
 
   const renderSuccessSB = (
     <MDSnackbar
-      color="success"
-      icon="check"
+      color="info"
+      icon="warning"
       title={title}
       content={content}
       open={successSB}
@@ -178,6 +180,10 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
   };
 
   async function captureIntent() {
+    if(data?.discountedPrice === 0){
+      await enrollToWorkshop();
+    }
+    
     handleClickOpen();
     const res = await fetch(`${apiUrl}courses/user/${data._id}/purchaseintent`, {
       method: "PUT",
@@ -260,6 +266,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
       console.log(e);
     }
   }
+
   const calculateDiscount = (discountType, rewardType, discount, maxDiscount = 1000) => {
     if (rewardType == 'Discount') {
       if (discountType == 'Flat') {
@@ -275,6 +282,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
       }
     }
   }
+
   const applyPromoCode = async () => {
     window.webengage.track('course_apply_couponcode_clicked', {
       user: getDetails?.userDetails?._id,
@@ -307,11 +315,40 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
     }
   }
 
-  console.log('data', data)
-
   const handleOpenNewTab = async (data) => {
+    if(workshop){
+      openSuccessSB('Information', `Workshop will start on ${moment(data?.courseStartTime)?.format('DD MMM hh:mm a')}.`);
+      return;
+    }
     const newTab = window.open(`/watchcourse?course=${data?.courseSlug}`, '_blank');
   };
+
+  async function enrollToWorkshop() {
+    const res = await fetch(`${apiUrl}courses/user/${courseId}/enroll`, {
+      method: "PATCH",
+      credentials:"include",
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Credentials": false,
+      },
+      body: JSON.stringify({
+        
+      }),
+    });
+
+    const data = await res.json();
+    if (res.status === 200) {
+      setMessege({
+        ...messege,
+        thanksMessege: data.message
+      })
+    } else {
+      setMessege({
+        ...messege,
+        error: data.message
+      })
+    }
+  }
 
   return (
 
@@ -324,7 +361,8 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
          onClick={captureIntent}
          style={{ minWidth: "100%" }}
      >
-         Buy course
+       {workshop ? 'Register' : 'Buy course'}
+         
      </MDButton>
         :
         <MDButton
@@ -334,7 +372,7 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
         style={{ minWidth: "100%" }}
         onClick={()=>{handleOpenNewTab(data)}}
         >
-          View
+          {workshop ? 'Join' : 'View'}
         </MDButton>}
 
       <Dialog
@@ -488,11 +526,11 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
                   </MDBox>
                 </DialogContentText>
                 {value == 'wallet' &&
-                  <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" mt={2}  >
-                    <MDBox onClick={() => { buySubscription() }} border="1px solid #4CAF50" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" sx={{ height: "40px", width: { xs: "85%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid #fff" } }} style={{ backgroundColor: "#4CAF50" }} >
+                  <MDBox display="flex" flexDirection="column" justifyContent="center" alignItems="center" alignContent='center' mt={2}  >
+                    <MDBox onClick={() => { buySubscription() }} border="1px solid #4CAF50" borderRadius="10px" display="flex" alignItems="center" justifyContent="space-between" alignContent='center' sx={{ height: "40px", width: { xs: "100%", md: "auto" }, "&:hover": { cursor: "pointer", border: "1px solid #fff" } }} style={{ backgroundColor: "#4CAF50" }} >
 
-                      <MDBox display="flex" justifyContent="center">
-                        <Typography variant="body2" color="#fff" style={{ marginRight: '14px', marginLeft: "8px" }} >Stoxhero Wallet</Typography>
+                      <MDBox display="flex" justifyContent="center" alignContent='center' alignItem='center'>
+                        <Typography variant="body2" color="#fff" style={{ marginRight: '14px', marginLeft: '8px' }} >StoxHero Wallet</Typography>
                         <AccountBalanceWalletIcon sx={{ marginTop: "5px", color: "#fff", marginRight: "4px" }} />
                         <Typography variant="body2" sx={{ fontSize: "16.4px", fontWeight: "550" }} color="#fff" > {`₹${Number(userWallet)?.toFixed(2)}`}</Typography>
                       </MDBox>
@@ -547,9 +585,10 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
                 } securely`}
             </MDButton>
           </DialogActions>}
-        {renderSuccessSB}
-        {renderErrorSB}
+       
       </Dialog>
+      {renderSuccessSB}
+        {renderErrorSB}
     </>
   );
 

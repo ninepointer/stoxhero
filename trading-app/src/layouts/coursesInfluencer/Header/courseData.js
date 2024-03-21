@@ -138,7 +138,7 @@ const Courses = () => {
 
                                                         </MDBox>
 
-                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000' }} >Course Basic Details</MDTypography>
+                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000' }} >{`${courses?.type==='Workshop' ? 'Workshop' : 'Course'} Basic Details`}</MDTypography>
                                                         <MDBox>
                                                             <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Name: <span style={{ fontWeight: 600 }}>{`${courses.courseName}`}</span></MDTypography>
@@ -149,8 +149,8 @@ const Courses = () => {
 
                                                             <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Type: <span style={{ fontWeight: 600 }}>{`${courses.type}`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Type: <span style={{ fontWeight: 600 }}>{`${courses?.courseType}`}</span></MDTypography>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Category: <span style={{ fontWeight: 600 }}>{`${courses?.category}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${courses?.type==='Workshop' ? 'Workshop' : 'Course'} Type`}: <span style={{ fontWeight: 600 }}>{`${courses?.courseType}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${courses?.type==='Workshop' ? 'Workshop' : 'Course'} Category`}: <span style={{ fontWeight: 600 }}>{`${courses?.category}`}</span></MDTypography>
                                                                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Level: <span style={{ fontWeight: 600 }}>{`${courses?.level}`}</span></MDTypography>
                                                             </MDBox>
 
@@ -158,17 +158,17 @@ const Courses = () => {
                                                                 <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                                     <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Starts: <span style={{ fontWeight: 600 }}>{`${moment(courses?.registrationStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
                                                                     <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Ends: <span style={{ fontWeight: 600 }}>{`${moment(courses?.registrationEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
-                                                                    <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Starts: <span style={{ fontWeight: 600 }}>{`${moment(courses?.courseStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
-                                                                    <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Ends: <span style={{ fontWeight: 600 }}>{`${moment(courses?.courseEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
+                                                                    <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${courses?.type==='Workshop' ? 'Workshop' : 'Course'} Starts`}: <span style={{ fontWeight: 600 }}>{`${moment(courses?.courseStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
+                                                                    <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${courses?.type==='Workshop' ? 'Workshop' : 'Course'} Ends`}: <span style={{ fontWeight: 600 }}>{`${moment(courses?.courseEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
                                                                 </MDBox>
                                                             }
 
                                                             <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Overview: <span style={{ fontWeight: 600 }}>{`${courses.courseOverview}`}</span></MDTypography>
+                                                                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${courses?.type==='Workshop' ? 'Workshop' : 'Course'} Overview`}: <span style={{ fontWeight: 600 }}>{`${courses.courseOverview}`}</span></MDTypography>
                                                             </MDBox>
                                                         </MDBox>
 
-                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Course Description</MDTypography>
+                                                        <MDTypography style={{ fontSize: '14px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >{`${courses?.type==='Workshop' ? 'Workshop' : 'Course'} Description`}</MDTypography>
                                                         <MDBox style={{ maxWidth: '100%', width: '100%', height: 'auto' }}>
                                                             <div dangerouslySetInnerHTML={{ __html: courses?.courseDescription }} style={{ fontFamily: 'Work Sans , sans-serif' }} />
                                                         </MDBox>
@@ -208,7 +208,7 @@ const Courses = () => {
 
                                                         </MDBox>
 
-                                                        <MDTypography style={{ fontSize: '14px', margin: '2px 0px 0px 0px', fontWeight: 800, color: '#000000' }} >Course Topics</MDTypography>
+                                                        <MDTypography style={{ fontSize: '14px', margin: '2px 0px 0px 0px', fontWeight: 800, color: '#000000' }} >{`${courses?.type==='Workshop' ? 'Workshop' : 'Course'} Topics`}</MDTypography>
                                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
                                                             {courses?.courseContent?.map((elem) => (
                                                                 <Box key={elem._id} sx={{ margin: '2px' }}>
@@ -224,7 +224,7 @@ const Courses = () => {
                                                             ))}
                                                         </Box>
 
-                                                        <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Course Benefits</MDTypography>
+                                                        <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >{`${courses?.type==='Workshop' ? 'Workshop' : 'Course'} Benefits`}</MDTypography>
                                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
                                                             {courses?.courseBenefits?.map((elem) => (
                                                                 <Box key={elem._id} sx={{ margin: '2px' }}>

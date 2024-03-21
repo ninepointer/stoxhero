@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext } from "react";
-import { useRef, useCallback } from "react";
+// import { useRef, useCallback } from "react";
 import axios from "axios";
 import MDBox from "../../../components/MDBox";
 import Grid from "@mui/material/Grid";
-import { Link } from "react-router-dom";
-import Carousel from "../data/carouselItems";
+// import { Link } from "react-router-dom";
+// import Carousel from "../data/carouselItems";
 import Performance from "../data/performance";
 import Summary from "../data/summary";
 import { userContext } from "../../../AuthContext";
@@ -14,12 +14,17 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import ContestCard from "../data/contestCard";
+// import ContestCard from "../data/contestCard";
 import MessagePopUp from "../../../MessagePopup";
 import ReactGA from "react-ga";
 import TopContestPortfolios from "../data/topContestPortfolios";
 import TestZoneChampions from "../data/testZoneChampions";
 import PracticeAndPrepare from "../data/practiceAndPrepare";
+import Workshop from '../data/workshop/workshop';
+import { useMediaQuery } from "@mui/material";
+import theme from "../../HomePage/utils/theme/index";
+import {Influencer} from '../../../variables'
+
 
 export default function Dashboard() {
   let baseUrl =
@@ -243,6 +248,8 @@ export default function Dashboard() {
     }
   };
 
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+
   return (
     <MDBox
       bgColor="light"
@@ -286,6 +293,27 @@ export default function Dashboard() {
           })}
         </Slider>
       )}
+
+      {/* {(getDetails?.userDetails?.role?.roleName !== Influencer) && */}
+        <Grid
+        container
+        spacing={0.75}
+        xs={12}
+        md={12}
+        lg={12}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="start"
+        flexDirection="row"
+      >
+        <Grid item xs={12} md={12} lg={12}>
+          <MDBox style={{ borderRadius: 7, marginTop: 10, marginBottom: isMobile ? 2 : 0 }}>
+            <Workshop />
+          </MDBox>
+        </Grid>
+      </Grid>
+      {/* } */}
+
       <Grid
         container
         spacing={0.75}
@@ -297,7 +325,7 @@ export default function Dashboard() {
         alignItems="start"
         flexDirection="row"
       >
-        <Grid item xs={12} md={12} lg={12} mt={1}>
+        <Grid item xs={12} md={12} lg={12} >
           {!isLoading ? (
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
               <TopContestPortfolios

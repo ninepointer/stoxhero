@@ -40,12 +40,22 @@
     //         url:  `redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com`,
     //     }
     // )
+    //         client7 = redis.createClient(
+    //     {
+    //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
+    //     }
+    // )
+    // client8 = redis.createClient(
+    //     {
+    //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
+    //     }
+    // )
 
     // const ioredis = require('ioredis');
 
     // const clientForIORedis = new ioredis("redis://stoxhero-redis.zvfkqy.ng.0001.aps1.cache.amazonaws.com");
 
-    // module.exports = {client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
+    // module.exports = {client7, client8, client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
 
 // }
 // else if(process.env.STAGE){
@@ -87,10 +97,20 @@
     //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
     //     }
     // )
+    //     client7 = redis.createClient(
+    //     {
+    //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
+    //     }
+    // )
+    // client8 = redis.createClient(
+    //     {
+    //         url: `redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`
+    //     }
+    // )
 
     // const ioredis = require('ioredis');
     // const clientForIORedis = new ioredis(`redis://stoxhero-staging-redis-001.zvfkqy.0001.aps1.cache.amazonaws.com`);
-    // module.exports = {client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
+    // module.exports = {client7, client8, client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
 
 // }
 // else{
@@ -110,10 +130,12 @@
     client4 = redis.createClient(6379, 'http://127.0.0.1:8081/');
     client5 = redis.createClient(6379, 'http://127.0.0.1:8081/');
     client6 = redis.createClient(6379, 'http://127.0.0.1:8081/');
+    client7 = redis.createClient(6379, 'http://127.0.0.1:8081/');
+    client8 = redis.createClient(6379, 'http://127.0.0.1:8081/');
 
     const ioredis = require('ioredis');
 
     const clientForIORedis = new ioredis();
 
-    module.exports = {client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
+    module.exports = {client7, client8, client5, client6, client4, client3, client2, client, isRedisConnected, setValue, getValue, clientForIORedis}
 

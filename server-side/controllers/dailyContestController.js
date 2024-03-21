@@ -9,6 +9,8 @@ const uuid = require("uuid");
 const UserWallet = require("../models/UserWallet/userWalletSchema");
 const emailService = require("../utils/emailService");
 const Registration = require("../models/DailyContest/contestRegistration");
+const Course = require("../models/courses/courseSchema");
+
 const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
@@ -134,7 +136,7 @@ exports.createContest = async (req, res) => {
       metaTitle,
       metaKeyword,
       metaDescription,
-      slug,
+      slug, visibleToInfluencerUser,
     } = req.body;
 
     const slugCount = await Contest.countDocuments({ slug: slug });
@@ -196,7 +198,7 @@ exports.createContest = async (req, res) => {
       image: contestImage,
       metaTitle,
       metaKeyword,
-      metaDescription,
+      metaDescription, visibleToInfluencerUser,
       slug: slugCount ? `${slug}-${slugCount + 1}` : slug,
     });
 
@@ -732,6 +734,7 @@ exports.getUserUpcomingContestss = async (req, res) => {
 
 exports.getUserUpcomingContests = async (req, res) => {
   try {
+    const referredBy = req.user.referredBy;
     const userId = req.user._id; // Assuming this is the logged-in user's ID
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -794,10 +797,43 @@ exports.getUserUpcomingContests = async (req, res) => {
       { path: "portfolio", select: "portfolioName _id portfolioValue" },
     ]);
 
+    const newContest = [];
+    for(const elem of contests){
+      if(elem?.courseInstructors?.length > 0){
+        for(const subelem of elem?.courseInstructors){
+          if(subelem?.id?.toString() === (referredBy)?.toString()){ //referredBy Id            
+            if(subelem?.fee !== undefined || subelem?.fee !== null){
+              
+              const checkCoursePurchased = await Course.aggregate([
+                {
+                  $match: {
+                    "courseInstructors.id": new ObjectId(
+                      referredBy
+                    ),
+                    "enrollments.userId": new ObjectId(userId)
+                  },
+                }
+              ])
+              if(checkCoursePurchased[0]){
+                elem.entryFee = subelem?.fee
+                newContest.push(elem);
+              } else{
+                newContest.push(elem);
+              }
+            } else{
+              newContest.push(elem);
+            }
+          }
+        }
+      } else{
+        newContest.push(elem);
+      }
+    }
+
     res.status(200).json({
       status: "success",
       message: "Upcoming TestZones fetched successfully",
-      data: contests,
+      data: newContest,
     });
   } catch (error) {
     res.status(500).json({
@@ -811,6 +847,7 @@ exports.getUserUpcomingContests = async (req, res) => {
 exports.getUserLiveContests = async (req, res) => {
   try {
     const userId = req.user._id; // Assuming this is the logged-in user's ID
+    const referredBy = req.user.referredBy;
 
     let contests = await Contest.aggregate([
       {
@@ -869,12 +906,53 @@ exports.getUserLiveContests = async (req, res) => {
       { path: "portfolio", select: "portfolioName _id portfolioValue" },
     ]);
 
-    // console.log(contest)
+    const newContest = [];
+    const influencerTestzone = [];
+    let isInfluencerReferred = await User.findOne({_id: referredBy, role: new ObjectId('65dc6817586cba2182f05561')})
+    for(const elem of contests){
+      if(elem?.courseInstructors?.length > 0){
+        for(const subelem of elem?.courseInstructors){
+          if(subelem?.id?.toString() === (referredBy)?.toString()){
+            // isInfluencerReferred = true;         
+            if(subelem?.fee !== undefined || subelem?.fee !== null){
+              
+              const checkCoursePurchased = await Course.aggregate([
+                {
+                  $match: {
+                    "courseInstructors.id": new ObjectId(
+                      referredBy
+                    ),
+                    "enrollments.userId": new ObjectId(userId)
+                  },
+                }
+              ])
+              if(checkCoursePurchased[0]){
+                elem.entryFee = subelem?.fee
+                influencerTestzone.push(elem);
+                newContest.push(elem);
+              } else{
+                influencerTestzone.push(elem);
+                newContest.push(elem);
+              }
+            } else{
+              influencerTestzone.push(elem);
+              newContest.push(elem);
+            }
+          }
+        }
+      } else{
+        newContest.push(elem);
+        if(elem?.visibleToInfluencerUser && isInfluencerReferred){
+          influencerTestzone.push(elem);
+        }
+      }
+    }
+
 
     res.status(200).json({
       status: "success",
       message: "Live TestZones fetched successfully",
-      data: contests,
+      data: isInfluencerReferred ? influencerTestzone : newContest,
     });
   } catch (error) {
     console.log(error);
@@ -885,6 +963,7 @@ exports.getUserLiveContests = async (req, res) => {
     });
   }
 };
+
 
 exports.getUserLiveContestss = async (req, res) => {
   try {
@@ -947,6 +1026,8 @@ exports.getUserLiveContestss = async (req, res) => {
 exports.getUserFeaturedContests = async (req, res) => {
   try {
     const userId = req.user._id;
+    const referredBy = req.user.referredBy;
+
     const contests = await Contest.find(
       {
         featured: true,
@@ -1004,11 +1085,45 @@ exports.getUserFeaturedContests = async (req, res) => {
       .populate("portfolio", "portfolioName _id portfolioValue")
       .sort({ contestStartTime: 1 });
 
-    const liveFeatured = contests.filter((elem) => {
+
+      const newContest = [];
+      for(const elem of contests){
+        if(elem?.courseInstructors?.length > 0){
+          for(const subelem of elem?.courseInstructors){
+            if(subelem?.id?.toString() === (referredBy)?.toString()){ //referredBy Id            
+              if(subelem?.fee !== undefined || subelem?.fee !== null){
+                
+                const checkCoursePurchased = await Course.aggregate([
+                  {
+                    $match: {
+                      "courseInstructors.id": new ObjectId(
+                        referredBy
+                      ),
+                      "enrollments.userId": new ObjectId(userId)
+                    },
+                  }
+                ])
+                if(checkCoursePurchased[0]){
+                  elem.entryFee = subelem?.fee
+                  newContest.push(elem);
+                } else{
+                  newContest.push(elem);
+                }
+              } else{
+                newContest.push(elem);
+              }
+            }
+          }
+        } else{
+          newContest.push(elem);
+        }
+      }
+
+    const liveFeatured = newContest.filter((elem) => {
       return elem.contestStartTime <= new Date();
     });
 
-    const upcomingFeatured = contests.filter((elem) => {
+    const upcomingFeatured = newContest.filter((elem) => {
       return elem.contestStartTime > new Date();
     });
     // console.log('contests', contests[0].rewards);
@@ -2193,8 +2308,36 @@ exports.participateUsers = async (req, res) => {
   try {
     const { id } = req.params; // ID of the contest
     const userId = req.user._id;
+    const referredBy = req.user.referredBy;
 
     const contest = await Contest.findOne({ _id: id });
+
+    if(contest?.courseInstructors?.length > 0){
+      for(const subelem of contest?.courseInstructors){
+        if(subelem?.id?.toString() === (referredBy)?.toString()){            
+          if(subelem?.fee !== undefined || subelem?.fee !== null){
+            
+            const checkCoursePurchased = await Course.aggregate([
+              {
+                $match: {
+                  "courseInstructors.id": new ObjectId(
+                    referredBy
+                  ),
+                  "enrollments.userId": new ObjectId(userId)
+                },
+              }
+            ])
+            if(!checkCoursePurchased[0] && subelem?.isPurchaseRequired){
+              const referredUser = await User.findById(new ObjectId(referredBy));
+              return res.status(404).json({
+                status: "error",
+                message: `You haven't enrolled in ${referredUser?.first_name} ${referredUser?.last_name}'s courses yet. Please enroll in ${referredUser?.first_name} ${referredUser?.last_name}'s courses to participate in this test zone.`,
+              });
+            } 
+          } 
+        }
+      }
+    }
 
     for (let i = 0; i < contest.participants?.length; i++) {
       if (contest.participants[i]?.userId?.toString() === userId?.toString()) {
@@ -3585,6 +3728,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
     const { contestFee, contestName, contestId, coupon, bonusRedemption } =
       req.body;
     const userId = req.user._id;
+    const referredBy = req.user.referredBy;
     const result = await exports.handleSubscriptionDeduction(
       userId,
       contestFee,
@@ -3592,6 +3736,7 @@ exports.deductSubscriptionAmount = async (req, res, next) => {
       contestId,
       coupon,
       bonusRedemption,
+      referredBy,
       req
     );
 
@@ -3611,7 +3756,7 @@ exports.handleSubscriptionDeduction = async (
   contestName,
   contestId,
   coupon,
-  bonusRedemption,
+  bonusRedemption, referredBy,
   req
 ) => {
   try {
@@ -3619,6 +3764,28 @@ exports.handleSubscriptionDeduction = async (
       affiliateProgram,
       ignoreDiscount = false;
     const contest = await Contest.findOne({ _id: new ObjectId(contestId) });
+    if(contest?.courseInstructors?.length > 0){
+      for(const subelem of contest?.courseInstructors){
+        if(subelem?.id?.toString() === (referredBy)?.toString()){            
+          if(subelem?.fee !== undefined || subelem?.fee !== null){
+            
+            const checkCoursePurchased = await Course.aggregate([
+              {
+                $match: {
+                  "courseInstructors.id": new ObjectId(
+                    referredBy
+                  ),
+                  "enrollments.userId": new ObjectId(userId)
+                },
+              }
+            ])
+            if(checkCoursePurchased[0]){
+              contest.entryFee = subelem?.fee
+            } 
+          } 
+        }
+      }
+    }
     const wallet = await UserWallet.findOne({ userId: userId });
     const user = await User.findOne({ _id: userId });
     const setting = await Setting.find({});
@@ -6174,7 +6341,7 @@ exports.getTopContestWeeklyPortfolio = async (req, res) => {
       };
 
       await client.set(`weeklytopperformer`, JSON.stringify(data));
-      await client.expire(`weeklytopperformer`, 600);
+      await client.expire(`weeklytopperformer`, 2400);
       const response = {
         status: "success",
         message: "TestZone Weekly Top Performer Data fetched successfully",
@@ -6337,7 +6504,7 @@ exports.getTopContestWeeklyPortfolioFullList = async (req, res) => {
         endOfWeek,
       };
       await client.set(`weeklytopperformerfulllist`, JSON.stringify(data));
-      await client.expire(`weeklytopperformerfulllist`, 600);
+      await client.expire(`weeklytopperformerfulllist`, 2400);
       const response = {
         status: "success",
         message: "TestZone Weekly Top Performer Data fetched successfully",
@@ -6618,7 +6785,7 @@ exports.getLastPaidContestChampions = async (req, res) => {
         date,
       };
       await client.set(`lastpaidcontestchampions`, JSON.stringify(data));
-      await client.expire(`lastpaidcontestchampions`, 600);
+      await client.expire(`lastpaidcontestchampions`, 2400);
       const response = {
         status: "success",
         message: "Last Paid TestZone Data fetched successfully",
@@ -6840,6 +7007,147 @@ exports.getEventFormat = async (req, res) => {
       _id: new ObjectId(eventId),
     }).select("eventFormat");
     res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.editInstructor = async (req, res) => {
+  try {
+    const { instructorId } = req.params;
+    for (let elem in req.body) {
+      if (req.body[elem] === "undefined" || req.body[elem] === "null") {
+        delete req.body[elem];
+      }
+
+      if (req.body[elem] === "false") {
+        req.body[elem] = false;
+      }
+
+      if (req.body[elem] === "true") {
+        req.body[elem] = true;
+      }
+    }
+    const { about, fee, isPurchaseRequired } = req.body;
+    let imageUrl;
+    if (req?.files?.["instructorImage"]) {
+      imageUrl = await getAwsS3Url(req.files["instructorImage"][0], "Image");
+    }
+    const contest = await Contest.findOneAndUpdate(
+      {
+        _id: new ObjectId(req.params.id),
+        "courseInstructors._id": instructorId, // Match instructorId in courseInstructors
+      },
+      {
+        $set: {
+          "courseInstructors.$.image": imageUrl,
+          "courseInstructors.$.about": about,
+          "courseInstructors.$.fee": fee,
+          "courseInstructors.$.isPurchaseRequired": isPurchaseRequired,
+        },
+      },
+      { new: true, select: "courseInstructors" }
+    );
+
+    if (!contest) {
+      return res.status(404).json({ message: "Contest not found" });
+    }
+    res.status(200).json({ data: contest, status: "success" });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.deleteInstructor = async (req, res) => {
+  try {
+    const { instructorId } = req.params;
+    const contest = await Contest.findOneAndUpdate(
+      {
+        _id: new ObjectId(req.params.id),
+      },
+      {
+        $pull: {
+          courseInstructors: { _id: instructorId }, // Remove instructor with matching id
+        },
+      },
+      { new: true, select: "courseInstructors" }
+    );
+    if (!contest) {
+      return res.status(404).json({ message: "Contest not found" });
+    }
+    res.status(200).json({ data: contest, status: "success" });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.getCourseInstructor = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const courses = await Contest.findOne({ _id: new ObjectId(courseId) })
+      .populate("courseInstructors.id", "first_name last_name mobile email")
+      .select("courseInstructors");
+    res.status(200).json({ status: "success", data: courses });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.addInstructor = async (req, res) => {
+  try {
+    for (let elem in req.body) {
+      if (req.body[elem] === "undefined" || req.body[elem] === "null") {
+        delete req.body[elem];
+      }
+
+      if (req.body[elem] === "false") {
+        req.body[elem] = false;
+      }
+
+      if (req.body[elem] === "true") {
+        req.body[elem] = true;
+      }
+    }
+    const { about, instructor, fee, isPurchaseRequired } = req.body;
+    let image;
+    if (req.files["instructorImage"]) {
+      image = await getAwsS3Url(req.files["instructorImage"][0]);
+    }
+
+    console.log("image", image);
+    const contest = await Contest.findByIdAndUpdate(
+      new ObjectId(req.params.id),
+      {
+        $push: {
+          courseInstructors: {
+            id: instructor,
+            image,
+            about, fee, isPurchaseRequired
+          },
+        },
+      },
+      { new: true, select: "courseInstructors" }
+    );
+    if (!contest) {
+      return res.status(404).json({ message: "Contest not found" });
+    }
+    res.status(200).json({ data: contest, status: "success" });
   } catch (error) {
     res.status(500).json({
       status: "error",

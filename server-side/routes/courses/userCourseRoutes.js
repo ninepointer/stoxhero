@@ -14,6 +14,12 @@ router.get(
 );
 
 router.get(
+  "/homeworkshop",
+  Authenticate,
+  courseController.getUserWorkshop
+);
+
+router.get(
     "/mycourses",
     Authenticate,
     courseController.myCourses
@@ -55,6 +61,12 @@ router.put(
     "/:id/purchaseintent",
     Authenticate,
     courseController.purchaseIntent
+);
+
+router.patch(
+  "/:id/enroll",
+  Authenticate,
+  courseController.enrollUser
 );
 
 router

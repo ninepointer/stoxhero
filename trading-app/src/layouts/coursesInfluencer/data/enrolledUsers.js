@@ -18,7 +18,6 @@ export default function EnrolledUsers({
     { Header: "Fee", accessor: "amount", align: "center" },
     { Header: "Commission", accessor: "commission", align: "center" },
   ];
-  console.log('course is',course);
 
   let rows = [];
 
@@ -37,26 +36,6 @@ export default function EnrolledUsers({
         {elem?.userId?.first_name} {elem?.userId?.last_name}
       </MDTypography>
     );
-    // obj.mobile = (
-    //   <MDTypography
-    //     component="a"
-    //     variant="caption"
-    //     color="text"
-    //     fontWeight="medium"
-    //   >
-    //     {elem?.userId?.mobile}
-    //   </MDTypography>
-    // );
-    // obj.email = (
-    //   <MDTypography
-    //     component="a"
-    //     variant="caption"
-    //     color="text"
-    //     fontWeight="medium"
-    //   >
-    //     {elem?.userId?.email}
-    //   </MDTypography>
-    // );
 
     obj.date = (
       <MDTypography
@@ -76,7 +55,7 @@ export default function EnrolledUsers({
           color="text"
           fontWeight="medium"
         >
-          ₹{Number(elem?.pricePaidByUser-elem?.gstAmount).toFixed(2)}
+          ₹{(Number(elem?.pricePaidByUser)- Number(elem?.gstAmount)).toFixed(2)}
         </MDTypography>
       );
     obj.commission = (
@@ -86,7 +65,7 @@ export default function EnrolledUsers({
           color="text"
           fontWeight="medium"
         >
-          ₹{(elem?.pricePaidByUser-elem?.gstAmount*((course?.commissionPercentage/100)??0)).toFixed(2)}
+          ₹{((elem?.pricePaidByUser-elem?.gstAmount)*((course?.commissionPercentage/100)??0)).toFixed(2)}
         </MDTypography>
       );
 

@@ -13,7 +13,7 @@ exports.tenxTrade = async (req, res, otherData) => {
 
       
   let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
-  console.log(req.body, otherData)
+  // console.log(req.body, otherData)
   const session = await mongoose.startSession();
 
   try {
@@ -74,7 +74,7 @@ exports.tenxTrade = async (req, res, otherData) => {
     await client.del('stoploss-stopprofit');
     await client.del(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
     await session.abortTransaction();
-    console.error('Transaction failed, documents not saved:', err);
+    // console.error('Transaction failed, documents not saved:', err);
     res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
   } finally {
     session.endSession();

@@ -40,7 +40,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
   async function publish(){
     try{
       const publish = await axios.get(`${apiUrl}courses/${courseId}/publish`, {withCredentials: true});
-      openSuccessSB('Course Published', '')
+      openSuccessSB(`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Published`, '')
       setButtonClicked(true);
     } catch(err){
       openErrorSB('Error', err.message)
@@ -50,7 +50,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
   async function unpublish(){
     try{
       const publish = await axios.get(`${apiUrl}courses/${courseId}/unpublish`, {withCredentials: true});
-      openSuccessSB('Course UnPublished', '');
+      openSuccessSB(`${course?.type==='Workshop' ? 'Workshop' : 'Course'} UnPublished`, '');
       setButtonClicked(true);
     } catch(err){
       openErrorSB('Error', err.message)
@@ -60,7 +60,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
   async function sendCreatorApproval(){
     try{
       const publish = await axios.get(`${apiUrl}courses/${courseId}/creatorapproval`, {withCredentials: true});
-      openSuccessSB('Course sent to creator', '');
+      openSuccessSB(`${course?.type==='Workshop' ? 'Workshop' : 'Course'} sent to creator`, '');
       setButtonClicked(true);
     } catch(err){
       openErrorSB('Error', err.message)
@@ -139,7 +139,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
 
             </MDBox>
 
-          <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000' }} >Course Basic Details</MDTypography>
+          <MDTypography style={{ fontSize: '14px', marginBottom: '12px', fontWeight: 800, color: '#000000' }} >{`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Basic Details`}</MDTypography>
             <MDBox>
               <MDBox sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Name: <span style={{ fontWeight: 600 }}>{`${course.courseName}`}</span></MDTypography>
@@ -149,8 +149,8 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
 
               <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Type: <span style={{ fontWeight: 600 }}>{`${course?.type}`}</span></MDTypography>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Type: <span style={{ fontWeight: 600 }}>{`${course?.courseType}`}</span></MDTypography>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Category: <span style={{ fontWeight: 600 }}>{`${course?.category}`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Type`}: <span style={{ fontWeight: 600 }}>{`${course?.courseType}`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Category`}: <span style={{ fontWeight: 600 }}>{`${course?.category}`}</span></MDTypography>
                 <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Level: <span style={{ fontWeight: 600 }}>{`${course?.level}`}</span></MDTypography>
               </MDBox>
 
@@ -158,17 +158,17 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
                 <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Starts: <span style={{ fontWeight: 600 }}>{`${moment(course?.registrationStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
                   <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Registration Ends: <span style={{ fontWeight: 600 }}>{`${moment(course?.registrationEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
-                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Starts: <span style={{ fontWeight: 600 }}>{`${moment(course?.courseStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
-                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Ends: <span style={{ fontWeight: 600 }}>{`${moment(course?.courseEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
+                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Starts`}: <span style={{ fontWeight: 600 }}>{`${moment(course?.courseStartTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
+                  <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Ends`}: <span style={{ fontWeight: 600 }}>{`${moment(course?.courseEndTime).format('DD-MM-YY hh:mm a')}`}</span></MDTypography>
                 </MDBox>
               }
 
               <MDBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >Course Overview: <span style={{ fontWeight: 600 }}>{`${course.courseOverview}`}</span></MDTypography>
+                <MDTypography style={{ fontSize: '14px', marginBottom: '12px' }} >{`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Overview`}: <span style={{ fontWeight: 600 }}>{`${course.courseOverview}`}</span></MDTypography>
               </MDBox>
             </MDBox>
           
-            <MDTypography style={{ fontSize: '14px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >Course Description</MDTypography>
+            <MDTypography style={{ fontSize: '14px', marginBottom: '2px', fontWeight: 800, color: '#000000' }} >{`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Description`}</MDTypography>
             <MDBox style={{ maxWidth: '100%', width: '100%', height: 'auto' }}>
               <div dangerouslySetInnerHTML={{ __html: course?.courseDescription }} style={{ fontFamily: 'Work Sans , sans-serif' }} />
             </MDBox>
@@ -215,7 +215,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
               
             </MDBox>
 
-            <MDTypography style={{ fontSize: '14px', margin: '2px 0px 0px 0px', fontWeight: 800, color: '#000000' }} >Course Topics</MDTypography>
+            <MDTypography style={{ fontSize: '14px', margin: '2px 0px 0px 0px', fontWeight: 800, color: '#000000' }} >{`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Topics`}</MDTypography>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
               {course?.courseContent?.map((elem) => (
                 <Box key={elem._id} sx={{ margin: '2px' }}>
@@ -231,7 +231,7 @@ const CoursePricing = ({setActiveStep, activeStep, steps, from}) => {
               ))}
             </Box>
 
-            <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >Course Benefits</MDTypography>
+            <MDTypography style={{ fontSize: '14px', margin: '2px 0px 2px 0px', fontWeight: 800, color: '#000000' }} >{`${course?.type==='Workshop' ? 'Workshop' : 'Course'} Benefits`}</MDTypography>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
               {course?.courseBenefits?.map((elem) => (
                 <Box key={elem._id} sx={{ margin: '2px' }}>
