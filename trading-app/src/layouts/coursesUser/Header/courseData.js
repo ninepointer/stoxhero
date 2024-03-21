@@ -43,7 +43,7 @@ const Courses = () => {
     const [checkPaid, setCheckPaid] = useState(false);
 
     useEffect(() => {
-        let call1 = axios.get(`${apiUrl}courses/${courseId}`, {
+        let call1 = axios.get(`${apiUrl}courses/user/${courseId}`, {
             withCredentials: true,
             headers: {
                 Accept: "application/json",
@@ -211,22 +211,22 @@ const Courses = () => {
                                                 <Grid container justifyContent='flex-start' alignItems='center' spacing={2}>
                                                     <Grid >
                                                         <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                            🕑{`Registration Start : ${moment(courses?.registrationStartTime).format('DD MMM hh:mm a')}`}
+                                                          👨‍👨‍👦 {`Max Enrollments : ${courses?.maxEnrolments}`}
                                                         </MDTypography>
                                                     </Grid>
                                                     <Grid >
                                                         <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                            🕑{`Registration End : ${moment(courses?.registrationEndTime).format('DD MMM hh:mm a')}`}
+                                                            🕑 {`Registration End : ${moment(courses?.registrationEndTime).format('DD MMM hh:mm a')}`}
                                                         </MDTypography>
                                                     </Grid>
                                                     <Grid >
                                                         <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                            🕑{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Start : ${moment(courses?.courseStartTime).format('DD MMM hh:mm a')}`}
+                                                            🕑 {`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Start : ${moment(courses?.courseStartTime).format('DD MMM hh:mm a')}`}
                                                         </MDTypography>
                                                     </Grid>
                                                     <Grid >
                                                         <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                            🕑{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} End : ${moment(courses?.courseEndTime).format('DD MMM hh:mm a')}`}
+                                                            🕑 {`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} End : ${moment(courses?.courseEndTime).format('DD MMM hh:mm a')}`}
                                                         </MDTypography>
                                                     </Grid>
                                                 </Grid>

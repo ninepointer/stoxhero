@@ -202,7 +202,7 @@ const Workshop = () => {
                           </Grid>
 
                           <Grid gap={1} item xs={12} md={12} lg={3} display='flex' justifyContent={isMobile ? 'center' : 'flex-end'} flexDirection={isMobile ? 'column' : 'row'} alignContent='center' alignItems='center' padding={isMobile ? '10px' : '0px'}>
-                            <>
+                            <MDBox display='flex' justifyContent='center' gap={1} >
                               <MDTypography variant='body3' color='dark' style={{ textDecoration: 'line-through' }}>
                                 ₹{new Intl.NumberFormat(
                                   undefined,
@@ -221,33 +221,34 @@ const Workshop = () => {
                                   }
                                 ).format(elem?.discountedPrice)}/-
                               </MDTypography>
-                            </>
-                            <MDTypography variant='body3' color='light' style={{ maxWidth: '50%' }}>
-                              <Payment
-                                data={elem}
-                                setShowPay={setShowPay}
-                                showPay={showPay}
-                                checkPaid={elem?.isPaid}
-                                workshop={true}
-                              />
-                            </MDTypography>
-                            
-                            <MDTypography variant='body3' color='light' style={{ maxWidth: '50%' }}>
-                              <MDButton
-                                variant="outlined"
-                                size="small"
-                                color="info"
-                                style={{ minWidth: "100%" }}
-                                component={Link}
-                                to={{
-                                  pathname: `/coursefulldata`,
-                                  search: `?id=${elem?._id}`,
-                                  state: { data: elem },
-                                }}
-                              >
-                                Details
-                              </MDButton>
-                            </MDTypography>
+                            </MDBox>
+                            <MDBox display='flex' justifyContent='center' gap={1}>
+                              <MDTypography variant='body3' color='light' style={{ maxWidth: '50%' }}>
+                                <Payment
+                                  data={elem}
+                                  setShowPay={setShowPay}
+                                  showPay={showPay}
+                                  checkPaid={elem?.isPaid}
+                                  workshop={true}
+                                />
+                              </MDTypography>
+                              <MDTypography variant='body3' color='light' style={{ maxWidth: '50%' }}>
+                                <MDButton
+                                  variant="outlined"
+                                  size="small"
+                                  color="info"
+                                  style={{ minWidth: "100%" }}
+                                  component={Link}
+                                  to={{
+                                    pathname: `/coursefulldata`,
+                                    search: `?id=${elem?._id}`,
+                                    state: { data: elem },
+                                  }}
+                                >
+                                  Details
+                                </MDButton>
+                              </MDTypography>
+                            </MDBox>
                           </Grid>
 
                         </Grid>

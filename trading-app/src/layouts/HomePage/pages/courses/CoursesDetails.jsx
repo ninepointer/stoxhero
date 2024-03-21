@@ -183,25 +183,25 @@ export default function Courses() {
                                             <Grid container justifyContent='flex-start' mt={3}>
                                                 <Grid item xs={12} md={12} lg={12} pl={3}>
                                                     {courses?.courseType === 'Live' && (
-                                                        <Grid container justifyContent='flex-start' alignItems='center' spacing={2}>
+                                                        <Grid container justifyContent='flex-start' alignItems={isMobile ? 'center' : 'flex-start'} flexDirection='column' spacing={2}>
                                                             <Grid >
                                                                 <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                                🕑{`Registration Start : ${moment(courses?.registrationStartTime).format('DD MMM hh:mm a')}`}
+                                                                👨‍👨‍👦 {`Max Enrollments : ${courses?.maxEnrolments}`}
                                                                 </MDTypography>
                                                             </Grid>
                                                             <Grid >
                                                                 <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                                🕑{`Registration End : ${moment(courses?.registrationEndTime).format('DD MMM hh:mm a')}`}
+                                                                🕑 {`Registration End : ${moment(courses?.registrationEndTime).format('DD MMM hh:mm a')}`}
                                                                 </MDTypography>
                                                             </Grid>
                                                             <Grid >
                                                                 <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                                🕑{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Start : ${moment(courses?.courseStartTime).format('DD MMM hh:mm a')}`}
+                                                                🕑 {`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Start : ${moment(courses?.courseStartTime).format('DD MMM hh:mm a')}`}
                                                                 </MDTypography>
                                                             </Grid>
                                                             <Grid >
                                                                 <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                                🕑{`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} End : ${moment(courses?.courseEndTime).format('DD MMM hh:mm a')}`}
+                                                                🕑 {`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} End : ${moment(courses?.courseEndTime).format('DD MMM hh:mm a')}`}
                                                                 </MDTypography>
                                                             </Grid>
                                                         </Grid>
