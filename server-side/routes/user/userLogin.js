@@ -1535,7 +1535,7 @@ router.post("/createusermobile", async (req, res, next) => {
         token: token,
       });
     if (process.env.PROD == "true") {
-      await emailService(newuser.email, subject, message);
+      // await emailService(newuser.email, subject, message);
     }
 
     if (process.env.PROD == "true") {

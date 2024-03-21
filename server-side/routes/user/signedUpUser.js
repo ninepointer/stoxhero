@@ -49,7 +49,7 @@ client8.connect()
     console.log("redis not connected", err)
   })
 
-router.get("/send", async (req, res) => {
+router.get("/checkemail", async (req, res) => {
   // whatsAppService.sendWhatsApp({destination : '7976671752', campaignName : 'direct_signup_campaign_new', userName : "vijay", source : "vijay", media : {url : mediaURL, filename : mediaFileName}, templateParams : ["newuser.first_name"], tags : '', attributes : ''});
   let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
   let message = `
@@ -1190,7 +1190,7 @@ router.patch("/verifyotp", async (req, res) => {
 
     if (process.env.PROD == "true") {
       try {
-        await emailService(populatedUser?.email, subject, message);
+        // await emailService(populatedUser?.email, subject, message);
       } catch (err) {
         console.log(err);
       }
@@ -1799,7 +1799,7 @@ router.patch("/createuserbyworkshop", async (req, res) => {
 
     if (process.env.PROD == "true") {
       try {
-        await emailService(populatedUser?.email, subject, message);
+        // await emailService(populatedUser?.email, subject, message);
       } catch (err) {
         console.log(err);
       }
@@ -2198,7 +2198,7 @@ router.patch("/createuserbycourse", async (req, res) => {
 
     if (process.env.PROD == "true") {
       try {
-        await emailService(populatedUser?.email, subject, message);
+        // await emailService(populatedUser?.email, subject, message);
       } catch (err) {
         console.log(err);
       }
