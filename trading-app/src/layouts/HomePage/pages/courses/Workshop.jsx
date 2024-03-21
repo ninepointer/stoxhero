@@ -182,7 +182,7 @@ const Workshop = () => {
                         style={{ minWidth: "75%" }}
                     >
                         <img
-                            src={courseDetails?.courseImage}
+                            src={courseDetails?.workshopCoverImage}
                             width={isMobile ? "100%" : "75%"}
                         />
                     </Grid>

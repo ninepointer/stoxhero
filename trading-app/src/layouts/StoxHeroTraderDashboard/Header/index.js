@@ -294,7 +294,7 @@ export default function Dashboard() {
         </Slider>
       )}
 
-      {(getDetails?.userDetails?.role?.roleName !== Influencer) &&
+      {/* {(getDetails?.userDetails?.role?.roleName !== Influencer) && */}
         <Grid
         container
         spacing={0.75}
@@ -311,7 +311,8 @@ export default function Dashboard() {
             <Workshop />
           </MDBox>
         </Grid>
-      </Grid>}
+      </Grid>
+      {/* } */}
 
       <Grid
         container

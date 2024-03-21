@@ -16,6 +16,7 @@ const courseSchema = new Schema({
   ],
   // aboutInstructor: String,
   courseImage: { type: String },
+  workshopCoverImage: { type: String },
   courseLanguages: { type: String },
   courseDurationInMinutes: Number,
   courseOverview: { type: String },

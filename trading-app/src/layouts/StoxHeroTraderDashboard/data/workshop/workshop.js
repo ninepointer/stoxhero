@@ -8,9 +8,9 @@ import Card from '@mui/material/Card';
 import { CardActionArea, Divider, Grid, CircularProgress } from '@mui/material';
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox/index.js";
-// import MDButton from "../../../../components/MDButton/index.js";
+import MDButton from "../../../../components/MDButton/index.js";
 import MDTypography from "../../../../components/MDTypography/index.js";
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import moment from 'moment';
 // import Pagination from '@mui/material/Pagination';
 // import Stack from '@mui/material/Stack';
@@ -118,9 +118,7 @@ const Workshop = () => {
                               }}
                             />
                           </Grid>
-                          <Grid
-                            item xs={12} md={12} lg={4} display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent={isMobile ? 'center' : 'flex-start'} flexDirection='column' alignItems={isMobile ? 'center' : 'flex-start'} gap={.5}
-                          >
+                          <Grid item xs={12} md={12} lg={3} display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent={isMobile ? 'center' : 'flex-start'} flexDirection='column' alignItems={isMobile ? 'center' : 'flex-start'} gap={.5}>
                             <Grid
                               item
                               xs={12}
@@ -171,13 +169,39 @@ const Workshop = () => {
                                 {`Workshop Start Time: ${moment(elem?.courseStartTime)?.format('DD MMM hh:mm a')}`}
                               </MDTypography>
                             </Grid>
+
+                            <Grid
+                              item
+                              xs={12}
+                              md={12}
+                              lg={12}
+                              display="flex"
+                              justifyContent={
+                                isMobile
+                                  ? "center"
+                                  : "flex-start"
+                              }
+                              alignContent="center"
+                              alignItems={
+                                isMobile
+                                  ? "center"
+                                  : "flex-start"
+                              }
+                            >
+                              <MDTypography
+                                variant="caption"
+                                fontWeight="bold"
+                              >
+                                {(elem?.maxEnrolments-elem?.userEnrolled) > 0 ? `${elem?.maxEnrolments-elem?.userEnrolled} Seats left hurry up!` : `Workshop Full`}
+                              </MDTypography>
+                            </Grid>
                           </Grid>
 
-                          <Grid item xs={12} md={12} lg={3} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
+                          <Grid item xs={12} md={12} lg={4} display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent={isMobile ? 'center' : 'flex-start'} alignItems='center'>
                             <Timer socket={socket} courseData={elem} isPaid={elem?.isPaid} />
                           </Grid>
 
-                          <Grid gap={2} item xs={12} md={12} lg={3} display='flex' justifyContent={isMobile ? 'center' : 'flex-end'} alignContent='center' alignItems='center' padding={isMobile ? '10px' : '0px'}>
+                          <Grid gap={1} item xs={12} md={12} lg={3} display='flex' justifyContent={isMobile ? 'center' : 'flex-end'} flexDirection={isMobile ? 'column' : 'row'} alignContent='center' alignItems='center' padding={isMobile ? '10px' : '0px'}>
                             <>
                               <MDTypography variant='body3' color='dark' style={{ textDecoration: 'line-through' }}>
                                 ₹{new Intl.NumberFormat(
@@ -206,6 +230,23 @@ const Workshop = () => {
                                 checkPaid={elem?.isPaid}
                                 workshop={true}
                               />
+                            </MDTypography>
+                            
+                            <MDTypography variant='body3' color='light' style={{ maxWidth: '50%' }}>
+                              <MDButton
+                                variant="outlined"
+                                size="small"
+                                color="info"
+                                style={{ minWidth: "100%" }}
+                                component={Link}
+                                to={{
+                                  pathname: `/coursefulldata`,
+                                  search: `?id=${elem?._id}`,
+                                  state: { data: elem },
+                                }}
+                              >
+                                Details
+                              </MDButton>
                             </MDTypography>
                           </Grid>
 

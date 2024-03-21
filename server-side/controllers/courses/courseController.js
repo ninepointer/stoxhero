@@ -54,6 +54,32 @@ const getAwsS3Url = async (file, type) => {
     throw new Error("Error uploading file to S3");
   }
 };
+
+const getAwsS3CoverImageUrl = async (file, type) => {
+  if (file && type === "Image") {
+    file.buffer = await sharp(file.buffer)
+      .resize({ width: 1536, height: 768 })
+      .toBuffer();
+  }
+
+  console.log(file.buffer)
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `courses/${Date.now()}-${file.originalname}`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: "public-read",
+    // or another ACL according to your requirements
+  };
+
+  try {
+    const uploadResult = await s3.upload(params).promise();
+    return uploadResult.Location;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error uploading file to S3");
+  }
+};
 const getAwsS3Key = async (file, type, key) => {
   if (file && type === "Image") {
     file.buffer = await sharp(file.buffer)
@@ -129,9 +155,12 @@ exports.createCourse = async (req, res) => {
       error: "Start time can't be greater than registration start time",
     });
   }
-  let courseImage, salesVideo;
+  let courseImage, salesVideo, coverImage;
   if (req.files["courseImage"]) {
     courseImage = await getAwsS3Url(req.files["courseImage"][0], "Image");
+
+    if(type === 'Workshop')
+    coverImage = await getAwsS3CoverImageUrl(req.files["courseImage"][0], "Image");
   }
 
   if (req.files["salesVideo"]) {
@@ -155,6 +184,7 @@ exports.createCourse = async (req, res) => {
           registrationEndTime
       }),
       maxEnrolments,
+      workshopCoverImage: coverImage,
       coursePrice,
       discountedPrice,
       courseBenefits,
@@ -1090,6 +1120,9 @@ exports.editCourse = async (req, res) => {
   if (updates.tags) updates.tags = updates.tags.split(",");
 
   if (req?.files?.["courseImage"]) {
+    if(updates?.type === 'Workshop'){
+      updates.workshopCoverImage = await getAwsS3CoverImageUrl(req.files["courseImage"][0], "Image");
+    }
     updates.courseImage = await getAwsS3Url(
       req.files["courseImage"][0],
       "Image"
