@@ -1,5 +1,8 @@
 import { Grid, Typography } from '@mui/material';
 import React, { memo, useState, useEffect } from 'react';
+import { useMediaQuery } from "@mui/material";
+import theme from "../../../HomePage/utils/theme/index";
+
 
 const Timer = ({socket, courseData, isPaid}) => {
   const [remainingTime, setRemainingTime] = useState(null);
@@ -43,21 +46,24 @@ const Timer = ({socket, courseData, isPaid}) => {
     }
   }, [serverTime]);
 
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+
+
 
     return (
         <>
             {remainingTime !== 'Timer end' &&
                 <Grid
                     container
-                    justify="center"
-                    alignItems="center"
+                    justify={isMobile ? 'center' : "flex-start"}
+                    alignItems={isMobile ? 'center' : "flex-start"}
                 >
-                    <Grid item xs={12} style={{ textAlign: 'center' }}>
+                    <Grid item xs={12} style={{ textAlign: isMobile ? 'center' : "flex-start"}}>
                         <Typography variant="body1" fontWeight={600} style={{ color: '#344767', fontSize: '15px' }}>
                             {isPaid ? 'Workshop starts in' : 'Registration ends in'}
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} style={{ textAlign: 'center' }}>
+                    <Grid item xs={12} style={{ textAlign: isMobile ? 'center' : "flex-start"}}>
                         <Typography variant="body2" fontWeight={700} style={{ color: '#344767', fontSize: '17px' }}>
                             {remainingTime}
                         </Typography>

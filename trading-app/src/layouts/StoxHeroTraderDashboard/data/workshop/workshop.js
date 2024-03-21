@@ -118,7 +118,7 @@ const Workshop = () => {
                               }}
                             />
                           </Grid>
-                          <Grid item xs={12} md={12} lg={3} display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent={isMobile ? 'center' : 'flex-start'} flexDirection='column' alignItems={isMobile ? 'center' : 'flex-start'} gap={.5}>
+                          <Grid item xs={12} md={12} lg={4} display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent={isMobile ? 'center' : 'flex-start'} flexDirection='column' alignItems={isMobile ? 'center' : 'flex-start'} gap={.5}>
                             <Grid
                               item
                               xs={12}
@@ -197,7 +197,7 @@ const Workshop = () => {
                             </Grid>
                           </Grid>
 
-                          <Grid item xs={12} md={12} lg={4} display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent={isMobile ? 'center' : 'flex-start'} alignItems='center'>
+                          <Grid item xs={12} md={12} lg={3} display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent={isMobile ? 'center' : 'flex-start'} alignItems={isMobile ? 'center' : 'flex-start'}>
                             <Timer socket={socket} courseData={elem} isPaid={elem?.isPaid} />
                           </Grid>
 
