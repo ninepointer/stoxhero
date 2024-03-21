@@ -168,7 +168,7 @@ const Workshop = () => {
                                 variant="caption"
                                 fontWeight="bold"
                               >
-                                {`Workshop Start Time: ${moment(elem?.courseStartTime)?.format('DD MMM hh:mm:ss a')}`}
+                                {`Workshop Start Time: ${moment(elem?.courseStartTime)?.format('DD MMM hh:mm a')}`}
                               </MDTypography>
                             </Grid>
                           </Grid>
