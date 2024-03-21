@@ -269,90 +269,94 @@ exports.processWithdrawal = async(req,res,next) => {
         }  
         res.status(200).json({status:'success', message:'Withdrawal Initiated'});
         if(process.env.PROD=='true'){
-            await sendMail(user?.email, 'Withdrawal Request Initiated - StoxHero', `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Withdrawal Initiated</title>
-                <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    font-size: 16px;
-                    line-height: 1.5;
-                    margin: 0;
-                    padding: 0;
-                }
-        
-                .container {
-                    max-width: 600px;
-                    margin: 0 auto;
-                    padding: 20px;
-                    border: 1px solid #ccc;
-                }
-        
-                h1 {
-                    font-size: 24px;
-                    margin-bottom: 20px;
-                }
-        
-                p {
-                    margin: 0 0 20px;
-                }
-        
-                .userid {
-                    display: inline-block;
-                    background-color: #f5f5f5;
-                    padding: 10px;
-                    font-size: 15px;
-                    font-weight: bold;
-                    border-radius: 5px;
-                    margin-right: 10px;
-                }
-        
-                .password {
-                    display: inline-block;
-                    background-color: #f5f5f5;
-                    padding: 10px;
-                    font-size: 15px;
-                    font-weight: bold;
-                    border-radius: 5px;
-                    margin-right: 10px;
-                }
-        
-                .login-button {
-                    display: inline-block;
-                    background-color: #007bff;
-                    color: #fff;
-                    padding: 10px 20px;
-                    font-size: 18px;
-                    font-weight: bold;
-                    text-decoration: none;
-                    border-radius: 5px;
-                }
-        
-                .login-button:hover {
-                    background-color: #0069d9;
-                }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                <h1>Withdrawal Initiated</h1>
-                <p>Hello ${user.first_name},</p>
-                <p>Your withdrawal request for ₹${withdrawal.amount} is initiated by StoxHero team and currently is under proceesing.</p>
-                <p>It will at most take 3-4 business days to be processed. You'll be notified about the transaction status in the upcoming emails.</p>
-                <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                <br/><br/>
-                <p>Thanks,</p>
-                <p>StoxHero Team</p>
-        
-                </div>
-            </body>
-            </html>
-        
-        ` )
+            try{
+                await sendMail(user?.email, 'Withdrawal Request Initiated - StoxHero', `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Withdrawal Initiated</title>
+                    <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin: 0;
+                        padding: 0;
+                    }
+            
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #ccc;
+                    }
+            
+                    h1 {
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+            
+                    p {
+                        margin: 0 0 20px;
+                    }
+            
+                    .userid {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+            
+                    .password {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+            
+                    .login-button {
+                        display: inline-block;
+                        background-color: #007bff;
+                        color: #fff;
+                        padding: 10px 20px;
+                        font-size: 18px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+            
+                    .login-button:hover {
+                        background-color: #0069d9;
+                    }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                    <h1>Withdrawal Initiated</h1>
+                    <p>Hello ${user.first_name},</p>
+                    <p>Your withdrawal request for ₹${withdrawal.amount} is initiated by StoxHero team and currently is under proceesing.</p>
+                    <p>It will at most take 3-4 business days to be processed. You'll be notified about the transaction status in the upcoming emails.</p>
+                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                    <br/><br/>
+                    <p>Thanks,</p>
+                    <p>StoxHero Team</p>
+            
+                    </div>
+                </body>
+                </html>
+            
+            ` )
+            }catch(e){
+                console.log(e.message);
+            }
         }
         await session.commitTransaction();
     }catch(e){
@@ -436,90 +440,94 @@ exports.rejectWithdrawal = async(req,res,next) => {
         await userWallet.save({validateBeforeSave:false, session: session});
         await withdrawal.save({validateBeforeSave:false, session:session});
         if(process.env.PROD == 'true'){
-            await sendMail(user?.email, 'Withdrawal Rejected - StoxHero ', `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Withdrawal Rejected</title>
-                <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    font-size: 16px;
-                    line-height: 1.5;
-                    margin: 0;
-                    padding: 0;
-                }
-        
-                .container {
-                    max-width: 600px;
-                    margin: 0 auto;
-                    padding: 20px;
-                    border: 1px solid #ccc;
-                }
-        
-                h1 {
-                    font-size: 24px;
-                    margin-bottom: 20px;
-                }
-        
-                p {
-                    margin: 0 0 20px;
-                }
-        
-                .userid {
-                    display: inline-block;
-                    background-color: #f5f5f5;
-                    padding: 10px;
-                    font-size: 15px;
-                    font-weight: bold;
-                    border-radius: 5px;
-                    margin-right: 10px;
-                }
-        
-                .password {
-                    display: inline-block;
-                    background-color: #f5f5f5;
-                    padding: 10px;
-                    font-size: 15px;
-                    font-weight: bold;
-                    border-radius: 5px;
-                    margin-right: 10px;
-                }
-        
-                .login-button {
-                    display: inline-block;
-                    background-color: #007bff;
-                    color: #fff;
-                    padding: 10px 20px;
-                    font-size: 18px;
-                    font-weight: bold;
-                    text-decoration: none;
-                    border-radius: 5px;
-                }
-        
-                .login-button:hover {
-                    background-color: #0069d9;
-                }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                <h1>Withdrawal Rejected</h1>
-                <p>Hello ${user.first_name},</p>
-                <p>Your withdrawal request for ₹${withdrawal.amount} is rejected by stoxhero.</p>
-                <p>Reason for rejection: <span class="userid">${req.body?.rejectionReason}</span></p>
-                <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                <br/><br/>
-                <p>Thanks,</p>
-                <p>StoxHero Team</p>
-        
-                </div>
-            </body>
-            </html>
-        
-        ` )
+            try{
+                await sendMail(user?.email, 'Withdrawal Rejected - StoxHero ', `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Withdrawal Rejected</title>
+                    <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin: 0;
+                        padding: 0;
+                    }
+            
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #ccc;
+                    }
+            
+                    h1 {
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                    }
+            
+                    p {
+                        margin: 0 0 20px;
+                    }
+            
+                    .userid {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+            
+                    .password {
+                        display: inline-block;
+                        background-color: #f5f5f5;
+                        padding: 10px;
+                        font-size: 15px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }
+            
+                    .login-button {
+                        display: inline-block;
+                        background-color: #007bff;
+                        color: #fff;
+                        padding: 10px 20px;
+                        font-size: 18px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+            
+                    .login-button:hover {
+                        background-color: #0069d9;
+                    }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                    <h1>Withdrawal Rejected</h1>
+                    <p>Hello ${user.first_name},</p>
+                    <p>Your withdrawal request for ₹${withdrawal.amount} is rejected by stoxhero.</p>
+                    <p>Reason for rejection: <span class="userid">${req.body?.rejectionReason}</span></p>
+                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                    <br/><br/>
+                    <p>Thanks,</p>
+                    <p>StoxHero Team</p>
+            
+                    </div>
+                </body>
+                </html>
+            
+            ` )
+            }catch(e){
+                console.log(e.message);
+            }
         }
         await session.commitTransaction();
         res.status(200).json({status:'success', message:'Withdrawal request rejected'});
@@ -608,94 +616,98 @@ exports.approveWithdrawal = async(req, res, next) => {
               )  
           }  
         if(process.env.PROD=='true'){
-            await sendMail(user.email, 
-                "Withdrawal Approved - StoxHero",
-                `
-                        <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <meta charset="UTF-8">
-                                <title>Withdrawal Approved</title>
-                                <style>
-                                body {
-                                    font-family: Arial, sans-serif;
-                                    font-size: 16px;
-                                    line-height: 1.5;
-                                    margin: 0;
-                                    padding: 0;
-                                }
+            try{
+                await sendMail(user.email, 
+                    "Withdrawal Approved - StoxHero",
+                    `
+                            <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <title>Withdrawal Approved</title>
+                                    <style>
+                                    body {
+                                        font-family: Arial, sans-serif;
+                                        font-size: 16px;
+                                        line-height: 1.5;
+                                        margin: 0;
+                                        padding: 0;
+                                    }
+                
+                                    .container {
+                                        max-width: 600px;
+                                        margin: 0 auto;
+                                        padding: 20px;
+                                        border: 1px solid #ccc;
+                                    }
+                
+                                    h1 {
+                                        font-size: 24px;
+                                        margin-bottom: 20px;
+                                    }
+                
+                                    p {
+                                        margin: 0 0 20px;
+                                    }
+                
+                                    .userid {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                
+                                    .password {
+                                        display: inline-block;
+                                        background-color: #f5f5f5;
+                                        padding: 10px;
+                                        font-size: 15px;
+                                        font-weight: bold;
+                                        border-radius: 5px;
+                                        margin-right: 10px;
+                                    }
+                
+                                    .login-button {
+                                        display: inline-block;
+                                        background-color: #007bff;
+                                        color: #fff;
+                                        padding: 10px 20px;
+                                        font-size: 18px;
+                                        font-weight: bold;
+                                        text-decoration: none;
+                                        border-radius: 5px;
+                                    }
+                
+                                    .login-button:hover {
+                                        background-color: #0069d9;
+                                    }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="container">
+                                    <h1>Withdrawal Approved</h1>
+                                    <p>Hello ${user.first_name},</p>
+                                    <p>Your withdrawal request for ₹${withdrawal.amount} is approved by stoxhero. It'll be reflected in your bank account soon.</p>
+                                    <p>Transaction ID for the transfer: <span class="userid">${transactionId}</span></p>
+                                    <p>Mode of payment: <span class="userid">${settlementMethod}</span></p>
+                                    <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+                                    <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+                                    <br/><br/>
+                                    <p>Thanks,</p>
+                                    <p>StoxHero Team</p>
             
-                                .container {
-                                    max-width: 600px;
-                                    margin: 0 auto;
-                                    padding: 20px;
-                                    border: 1px solid #ccc;
-                                }
-            
-                                h1 {
-                                    font-size: 24px;
-                                    margin-bottom: 20px;
-                                }
-            
-                                p {
-                                    margin: 0 0 20px;
-                                }
-            
-                                .userid {
-                                    display: inline-block;
-                                    background-color: #f5f5f5;
-                                    padding: 10px;
-                                    font-size: 15px;
-                                    font-weight: bold;
-                                    border-radius: 5px;
-                                    margin-right: 10px;
-                                }
-            
-                                .password {
-                                    display: inline-block;
-                                    background-color: #f5f5f5;
-                                    padding: 10px;
-                                    font-size: 15px;
-                                    font-weight: bold;
-                                    border-radius: 5px;
-                                    margin-right: 10px;
-                                }
-            
-                                .login-button {
-                                    display: inline-block;
-                                    background-color: #007bff;
-                                    color: #fff;
-                                    padding: 10px 20px;
-                                    font-size: 18px;
-                                    font-weight: bold;
-                                    text-decoration: none;
-                                    border-radius: 5px;
-                                }
-            
-                                .login-button:hover {
-                                    background-color: #0069d9;
-                                }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="container">
-                                <h1>Withdrawal Approved</h1>
-                                <p>Hello ${user.first_name},</p>
-                                <p>Your withdrawal request for ₹${withdrawal.amount} is approved by stoxhero. It'll be reflected in your bank account soon.</p>
-                                <p>Transaction ID for the transfer: <span class="userid">${transactionId}</span></p>
-                                <p>Mode of payment: <span class="userid">${settlementMethod}</span></p>
-                                <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                                <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                                <br/><br/>
-                                <p>Thanks,</p>
-                                <p>StoxHero Team</p>
-        
-                                </div>
-                            </body>
-                            </html>
-            
-                        ` 
-            )
+                                    </div>
+                                </body>
+                                </html>
+                
+                            ` 
+                )
+            }catch(e){
+                console.log(e.message);
+            }
         }
         await session.commitTransaction();
         res.status(200).json({status:'success', message:'Withdrawal request approved'});

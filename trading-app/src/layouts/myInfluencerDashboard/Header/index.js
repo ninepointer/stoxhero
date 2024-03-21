@@ -190,31 +190,7 @@ export default function Dashboard() {
                   <InfluencerUserData userData={userData} setUserData={setUserData} />
                 </Grid>
 
-                <Grid item xs={12} md={12} lg={12} style={{ width: '100%', minHeight: '410px' }}>
-                  <Card sx={{ minWidth: '100%', minHeight: '410px', maxWidth: '100%', maxHeight: '410px' }}>
-                    {/* <CardContent sx={{ minWidth: '100%' }}>
-                      {chartData?.length ?
-                        <EarningsChart sx={{ minWidth: '100%' }} chartData={[]} />
-                        :
-                        <MDTypography
-                          color="secondary"
-                          mt={22}
-                          mb={2}
-                          fontSize={15}
-                          fontWeight='bold'
-                          display='flex'
-                          alignItems='center'
-                          alignContent='center'
-                          justifyContent='center'
-                          textAlign='center'  // Center horizontally
-
-                        >
-                          No earnings in last 30 days Yet!
-                        </MDTypography>
-                      }
-                    </CardContent> */}
-                  </Card>
-                </Grid>
+                
 
               </Grid>
             </Grid>

@@ -316,16 +316,23 @@ exports.getCourseById = async (req, res) => {
     const courseId = req.params.id;
     const courses = await Course.findOne({ _id: new ObjectId(courseId) })
       .populate("courseInstructors.id", "first_name last_name email")
-      .populate("enrollments.userId", "first_name last_name creationProcess");
+      .populate("enrollments.userId", "first_name last_name creationProcess joining_date referredBy enrolledOn"); // Make sure to include enrolledOn in the fields to populate
 
-      const newCourse = JSON.parse(JSON.stringify(courses))
-      for(const subelem of newCourse?.courseContent){
-        for(const topics of subelem?.subtopics){
-          delete topics.videoUrl
-          delete topics.videoKey
-          delete topics.notes
-        }
+    const newCourse = JSON.parse(JSON.stringify(courses));
+
+    // Sort the enrollments array by enrolledOn in descending order
+    if (newCourse.enrollments && newCourse.enrollments.length > 0) {
+      newCourse.enrollments.sort((a, b) => new Date(b.enrolledOn) - new Date(a.enrolledOn));
+    }
+
+    for (const subelem of newCourse?.courseContent) {
+      for (const topics of subelem?.subtopics) {
+        delete topics.videoUrl;
+        delete topics.videoKey;
+        delete topics.notes;
       }
+    }
+
     res.status(200).json({ status: "success", data: newCourse });
 
   } catch (error) {
@@ -336,6 +343,7 @@ exports.getCourseById = async (req, res) => {
     });
   }
 };
+
 
 exports.courseUnpublish = async (req, res) => {
   try {
@@ -1963,8 +1971,14 @@ exports.getCourseByIdUser = async (req, res) => {
     const courseId = req.params.id;
     const courses = await Course.findOne({ _id: new ObjectId(courseId) })
       .populate("courseInstructors.id", "first_name last_name email")
-      .select("-enrollments -createdOn -createdBy -commissionPercentage");
-    res.status(200).json({ status: "success", data: courses });
+      .select("-purchaseIntent -createdOn -createdBy -commissionPercentage");
+
+      const newObj = JSON.parse(JSON.stringify(courses));
+
+      newObj.userEnrolled =  courses?.enrollments?.length;
+      delete newObj.enrollments
+
+    res.status(200).json({ status: "success", data: newObj });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -1983,13 +1997,19 @@ exports.getCourseBySlugUser = async (req, res) => {
       "enrollments.userId": new ObjectId(userId),
     })
       .populate("courseInstructors.id", "first_name last_name email")
-      .select("-enrollments -createdOn -createdBy -commissionPercentage");
+      .select("-purchaseIntent -createdOn -createdBy -commissionPercentage");
 
     if(!courses){
       const newCourse = await Course.findOne({courseSlug : slug}).select("-enrollments -createdOn -createdBy -commissionPercentage -courseContent")
       return res.status(200).json({ status: "success", message: `You haven't enrolled in this course yet. Please purchase it to get started.`, hasPurchased: false, data: newCourse });
     }
-    res.status(200).json({ status: "success", data: courses, hasPurchased: true });
+
+    const newObj = JSON.parse(JSON.stringify(courses));
+
+    newObj.userEnrolled =  courses?.enrollments?.length;
+    delete newObj.enrollments
+
+    res.status(200).json({ status: "success", data: newObj, hasPurchased: true });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -2554,7 +2574,7 @@ exports.handleDeductCourseFee = async (
             </head>
             <body>
                 <div class="container">
-                <h1>Course Fee</h1>
+                <h1>${course?.type === 'Workshop' ? 'Workshop' : 'Course'} Fee</h1>
                 <p>Hello ${user.first_name},</p>
                 <p>Congratulations on enrolling in the ${course?.type === 'Workshop' ? 'workshop' : 'course'}! Here are your transaction details.</p>
                 <p>User ID: <span class="userid">${user.employeeid}</span></p>
