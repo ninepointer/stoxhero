@@ -10,13 +10,13 @@ import affiliate from '../../../assets/images/affiliate.jpg'
 
 import { userContext } from '../../../AuthContext';
 import { apiUrl } from '../../../constants/constants';
-import { userRole, adminRole} from "../../../variables"
+import { Influencer, adminRole} from "../../../variables"
 import DayWiseCount from './daywisecount'
 import AnimationNumber from './animationNumber'
 import moment from 'moment';
 
 export default function InfluencerUserData({userData, setUserData}) {
-  let [chartData,setChartData] = useState([])
+  const [chartData,setChartData] = useState([])
   const getDetails = useContext(userContext);
   const userDetails = getDetails.userDetails
 
@@ -33,27 +33,30 @@ export default function InfluencerUserData({userData, setUserData}) {
   async function userLast60DaysData(){
     const data = await axios.get(`${apiUrl}influencer/last60daysuserdata`, {withCredentials: true});
     setChartData(data?.data?.data?.map((elem)=>{
-      return {joiningDate:moment(new Date(elem?._id)).format('DD MMM'),count:elem?.count}
+      return {date:moment(new Date(elem?._id)).format('DD MMM'),data:elem?.count}
     }));
   }
 
-  console.log("userData", userData)
+  console.log("userData", chartData)
 
 
   return (
     <Card sx={{ minWidth: '100%', minHeight: '410px', maxWidth: '100%', maxHeight: 'auto', alignContent: 'center', alignItems: 'center' }}>
+      {/* <MDTypography fontWeight='normal' fontSize={18} gutterBottom style={{ textAlign: 'left', paddingTop: 10 }}>
+        Namastey Guruji!
+      </MDTypography> */}
       <CardMedia
         component="img"
         alt="signup"
-        height={userDetails?.role?.roleName === userRole ? "80" : "150"}
-        image={userDetails?.role?.roleName === userRole ?
+        height={userDetails?.role?.roleName === Influencer ? "80" : "150"}
+        image={userDetails?.role?.roleName === Influencer ?
           (userDetails?.profilePhoto?.url || logo) :
           affiliate
         }
       />
       <CardContent style={{ mt: -1, width: '100%' }} display='flex' justifyContent='center'>
         <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-          {userDetails?.role?.roleName === userRole &&
+          {userDetails?.role?.roleName === Influencer &&
             <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
               <MDTypography variant="h6" fontSize={15} gutterBottom style={{ textAlign: 'center' }}>
                 {userDetails?.first_name + " " + userDetails?.last_name}

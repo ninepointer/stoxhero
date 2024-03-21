@@ -35,7 +35,7 @@ export default function EChartsLineChart({data}) {
       series: [
         {
           data: data?.map((e)=>e?.data),
-          type: 'line',
+          type: 'bar',
           smooth: true
         }
       ]
