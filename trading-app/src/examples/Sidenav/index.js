@@ -125,15 +125,12 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           (key === "myaffiliatedashboard" &&
             !getDetails?.userDetails?.isAffiliate) ||
           (key === "course" &&
-            getDetails?.userDetails?.role?.roleName !== "Influencer")
-            ||
+            getDetails?.userDetails?.role?.roleName !== "Influencer") ||
           (key === "courses" &&
-            getDetails?.userDetails?.role?.roleName !== "User")
-            ||
-            (key === "myinfluencerdashboard" &&
-              getDetails?.userDetails?.role?.roleName !== "Influencer")
+            getDetails?.userDetails?.role?.roleName !== "User") ||
+          (key === "myinfluencerdashboard" &&
+            getDetails?.userDetails?.role?.roleName !== "Influencer")
         ) {
-
         } else {
           returnValue = href ? (
             <Link

@@ -456,7 +456,8 @@ function ReferralHomePage() {
                       <MDTypography ml={0.5} fontSize={13}>
                         You get {activeReferralProgram?.currency}{" "}
                         {activeReferralProgram?.rewardPerReferral} for each
-                        referral in your StoxHero Wallet for upto {activeReferralProgram?.maxReferralsPayoutCap} referrals
+                        referral in your StoxHero Wallet for upto{" "}
+                        {activeReferralProgram?.maxReferralsPayoutCap} referrals
                       </MDTypography>
                     </MDBox>
                   </Grid>

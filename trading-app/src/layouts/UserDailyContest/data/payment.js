@@ -299,8 +299,10 @@ const Payment = ({
   const initiatePayment = async () => {
     try {
       setIsPaymentStart(true);
-      if(createUser) {await createUser();}
-      
+      if (createUser) {
+        await createUser();
+      }
+
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
         {
