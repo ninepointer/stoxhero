@@ -1323,7 +1323,7 @@ router.post("/createusermobile", async (req, res, next) => {
             );
           }
           // await referrerCodeMatch.save({ validateBeforeSave: false });
-          if(saveReferrals?.referrals?.length >= (referralProgramme?.maxReferralsPayoutCap??3000) ){
+          if(saveReferrals?.referrals?.length <= (referralProgramme?.maxReferralsPayoutCap??3000) ){
             const wallet = await UserWallet.findOneAndUpdate(
               { userId: saveReferrals._id },
               {

@@ -1003,7 +1003,7 @@ router.patch("/verifyotp", async (req, res) => {
             );
           }
           // await referrerCodeMatch.save({ validateBeforeSave: false });
-          if(saveReferrals?.referrals?.length >= (referralProgramme?.maxReferralsPayoutCap??3000) ){
+          if(saveReferrals?.referrals?.length <= (referralProgramme?.maxReferralsPayoutCap??3000) ){
             const wallet = await UserWallet.findOneAndUpdate(
               { userId: new ObjectId(saveReferrals._id) },
               {
@@ -1614,7 +1614,7 @@ router.patch("/createuserbyworkshop", async (req, res) => {
             );
           }
           // await referrerCodeMatch.save({ validateBeforeSave: false });
-           if(saveReferrals?.referrals?.length >= (referralProgramme?.maxReferralsPayoutCap??3000)){
+           if(saveReferrals?.referrals?.length <= (referralProgramme?.maxReferralsPayoutCap??3000)){
             const wallet = await UserWallet.findOneAndUpdate(
               { userId: new ObjectId(saveReferrals._id) },
               {
