@@ -1838,6 +1838,7 @@ exports.getUserWorkshop = async (req, res) => {
         $project: {
           courseName: 1,
           _id: -1,
+          meetLink: 1,
           courseImage: 1,
           courseSlug: 1,
           courseOverview: 1,
@@ -1925,6 +1926,10 @@ exports.getUserCourses = async (req, res) => {
           _id: -1,
           courseImage: 1,
           courseSlug: 1,
+          meetLink: 1,
+          instructorImage: {
+            $arrayElemAt: ['$courseInstructors.image', 0]
+          },
           courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -3300,6 +3305,7 @@ exports.myCourses = async (req, res) => {
           courseName: 1,
           _id: -1,
           courseSlug: 1,
+          meetLink: 1,
           courseOverview: 1,
           courseImage: 1,
           coursePrice: 1,
@@ -3329,6 +3335,9 @@ exports.myCourses = async (req, res) => {
           maxEnrolments: 1,
           averageRating: 1,
           topics: "$courseContent",
+          instructorImage: {
+            $arrayElemAt: ['$courseInstructors.image', 0]
+          },
           courseProgress: {
             $cond: {
               if: { $eq: [{ $size: { $ifNull: ["$courseContent", []] } }, 0] },

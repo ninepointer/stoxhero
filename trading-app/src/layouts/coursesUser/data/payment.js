@@ -26,6 +26,7 @@ import Input from '@mui/material/Input';
 import { userContext } from '../../../AuthContext';
 import {useNavigate} from 'react-router-dom';
 import moment from 'moment';
+import {socketContext} from '../../../socketContext'
 
 
 const ariaLabel = { 'aria-label': 'description' };
@@ -56,8 +57,14 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
   const [value, setValue] = useState(signedUp ? 'bank' : 'wallet');
   const [successSB, setSuccessSB] = useState(false);
   const courseId = data._id;
+  const [serverTime, setServerTime] = useState();
+  const socket = useContext(socketContext);
+  useEffect(()=>{
+    socket.on("serverTime", (data)=>{
+      setServerTime(data)
+    })
+  }, [])
   const openSuccessSB = (title, content) => {
-    console.log('status success')
     setTitle(title)
     setContent(content)
     setSuccessSB(true);
@@ -317,7 +324,12 @@ const Payment = ({ data, setShowPay, showPay, checkPaid, byLink, setOpenParent, 
 
   const handleOpenNewTab = async (data) => {
     if(workshop){
-      openSuccessSB('Information', `Workshop will start on ${moment(data?.courseStartTime)?.format('DD MMM hh:mm a')}.`);
+      // const time = await axios.get(`${apiUrl}serverTime`)
+      if(new Date(serverTime )>= new Date(data?.courseStartTime)){
+        window.open(`${data?.meetLink}`, '_blank');
+      } else{
+        openSuccessSB('Information', `Workshop will start on ${moment(data?.courseStartTime)?.format('DD MMM hh:mm a')}.`);
+      }
       return;
     }
     const newTab = window.open(`/watchcourse?course=${data?.courseSlug}`, '_blank');

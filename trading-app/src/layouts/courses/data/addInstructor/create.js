@@ -16,7 +16,6 @@ import User from './users';
 
 export default function Create({ createForm, setCreateForm, courseId, instructor }) {
 
-    console.log("courseId", instructor)
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [formState, setFormState] = useState({
         about: "" || instructor?.about,
@@ -51,6 +50,10 @@ export default function Create({ createForm, setCreateForm, courseId, instructor
         if (!formState?.about) {
             setTimeout(() => { setIsSubmitted(false) }, 500)
             return openErrorSB("Missing Field", "Please fill all the mandatory fields")
+        }
+
+        if(!instructorImage){
+            return openErrorSB("Missing Field", "Please upload image")   
         }
 
         const formData = new FormData();

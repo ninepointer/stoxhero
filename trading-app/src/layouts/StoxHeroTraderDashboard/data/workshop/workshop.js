@@ -191,6 +191,7 @@ const Workshop = () => {
                               <MDTypography
                                 variant="caption"
                                 fontWeight="bold"
+                                pb={1}
                               >
                                 {(elem?.maxEnrolments-elem?.userEnrolled) > 0 ? `${elem?.maxEnrolments-elem?.userEnrolled} Seats left hurry up!` : `No Seats left`}
                               </MDTypography>

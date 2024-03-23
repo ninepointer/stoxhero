@@ -51,7 +51,6 @@ function Header({ socket, data }) {
         socket.on("serverTime", (time) => {
             const serverTimeString = new Date(time).toISOString().slice(0, 19); // Extract relevant parts
             // const endTimeString = newEndTimeString
-            console.log("time is", serverTimeString, serverTimeString === endTimeString, endTimeString);
             if (serverTimeString === endTimeString) {
                 navigate(`/testzone/result`, {
                     state: { contestId: contestId}
