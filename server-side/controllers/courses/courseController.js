@@ -316,16 +316,23 @@ exports.getCourseById = async (req, res) => {
     const courseId = req.params.id;
     const courses = await Course.findOne({ _id: new ObjectId(courseId) })
       .populate("courseInstructors.id", "first_name last_name email")
-      .populate("enrollments.userId", "first_name last_name creationProcess");
+      .populate("enrollments.userId", "first_name last_name creationProcess joining_date referredBy enrolledOn"); // Make sure to include enrolledOn in the fields to populate
 
-      const newCourse = JSON.parse(JSON.stringify(courses))
-      for(const subelem of newCourse?.courseContent){
-        for(const topics of subelem?.subtopics){
-          delete topics.videoUrl
-          delete topics.videoKey
-          delete topics.notes
-        }
+    const newCourse = JSON.parse(JSON.stringify(courses));
+
+    // Sort the enrollments array by enrolledOn in descending order
+    if (newCourse.enrollments && newCourse.enrollments.length > 0) {
+      newCourse.enrollments.sort((a, b) => new Date(b.enrolledOn) - new Date(a.enrolledOn));
+    }
+
+    for (const subelem of newCourse?.courseContent) {
+      for (const topics of subelem?.subtopics) {
+        delete topics.videoUrl;
+        delete topics.videoKey;
+        delete topics.notes;
       }
+    }
+
     res.status(200).json({ status: "success", data: newCourse });
 
   } catch (error) {
@@ -336,6 +343,7 @@ exports.getCourseById = async (req, res) => {
     });
   }
 };
+
 
 exports.courseUnpublish = async (req, res) => {
   try {

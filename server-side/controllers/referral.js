@@ -60,7 +60,7 @@ exports.getReferral = async(req, res, next)=>{
 
 exports.getActiveReferral = async(req, res, next)=>{
     try{
-    const referral = await Referral.find({status : 'Active'}); 
+    const referral = await Referral.find({status : 'Active'}).select('-users'); 
     res.status(201).json({message: "Referral Retrived",data: referral});    
     }
     catch{(err)=>{res.status(401).json({message: "err referral", error:err}); }}  

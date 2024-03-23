@@ -192,7 +192,7 @@ const Workshop = () => {
                                 variant="caption"
                                 fontWeight="bold"
                               >
-                                {(elem?.maxEnrolments-elem?.userEnrolled) > 0 ? `${elem?.maxEnrolments-elem?.userEnrolled} Seats left hurry up!` : `Workshop Full`}
+                                {(elem?.maxEnrolments-elem?.userEnrolled) > 0 ? `${elem?.maxEnrolments-elem?.userEnrolled} Seats left hurry up!` : `No Seats left`}
                               </MDTypography>
                             </Grid>
                           </Grid>

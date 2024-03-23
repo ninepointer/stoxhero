@@ -240,7 +240,11 @@ function Users({ selectedUser, setSelectedUser }) {
                           alignContent="center"
                           alignItems="center"
                         >
-                          {elem?.first_name + " " + elem?.last_name + " - " + elem?.mobile}
+                          {elem?.first_name +
+                            " " +
+                            elem?.last_name +
+                            " - " +
+                            elem?.mobile}
                         </Grid>
                       </Grid>
                     )}

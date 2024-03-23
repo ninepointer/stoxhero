@@ -649,10 +649,11 @@ exports.getUsers = async (req, res) => {
           status: "Active",
         },
       ],
-    }).populate('influencerDetails.city', 'name')
-    .select(
-      "first_name last_name email mobile _id myReferralCode influencerDetails slug"
-    );
+    })
+      .populate("influencerDetails.city", "name")
+      .select(
+        "first_name last_name email mobile _id myReferralCode influencerDetails slug"
+      );
     res.status(200).json({
       status: "success",
       message: "Getting User successfully",
@@ -1387,7 +1388,23 @@ exports.addInfluencer = async (req, res) => {
       480
     );
   }
-  const { state, city, tags, about, myReferralCode, slug } = req.body;
+  const {
+    state,
+    city,
+    tags,
+    about,
+    myReferralCode,
+    slug,
+    youtubeChannelLink,
+    youtubeFollowers,
+    instagramChannelLink,
+    instagramFollowers,
+    telegramChannelLink,
+    telegramFollowers,
+    twitterChannelLink,
+    twitterFollowers,
+    shTelegramCommunityLink,
+  } = req.body;
   try {
     const user = await UserDetail.findOne({
       _id: new ObjectId(id),
@@ -1410,12 +1427,35 @@ exports.addInfluencer = async (req, res) => {
     influencerObj.state = state;
     influencerObj.city = city;
     influencerObj.about = about;
+    influencerObj.shTelegramCommunityLink = shTelegramCommunityLink;
     influencerObj.isActive = true;
     influencerObj.addedOn = new Date();
     influencerObj.tags = tags.split(",").map((item) => item.trim());
     if (bannerImageWebUrl) influencerObj.bannerImageWeb = bannerImageWebUrl;
     if (bannerImageMobileUrl)
       influencerObj.bannerImageMobile = bannerImageMobileUrl;
+    influencerObj.channelDetails = {
+      youtube: {},
+      instagram: {},
+      telegram: {},
+      twitter: {},
+    };
+    if (youtubeChannelLink)
+      influencerObj.channelDetails.youtube.channelLink = youtubeChannelLink;
+    if (instagramChannelLink)
+      influencerObj.channelDetails.instagram.channelLink = instagramChannelLink;
+    if (telegramChannelLink)
+      influencerObj.channelDetails.telegram.channelLink = telegramChannelLink;
+    if (twitterChannelLink)
+      influencerObj.channelDetails.twitter.channelLink = twitterChannelLink;
+    if (youtubeFollowers)
+      influencerObj.channelDetails.youtube.followers = youtubeFollowers;
+    if (instagramFollowers)
+      influencerObj.channelDetails.instagram.followers = instagramFollowers;
+    if (telegramFollowers)
+      influencerObj.channelDetails.telegram.followers = telegramFollowers;
+    if (twitterFollowers)
+      influencerObj.channelDetails.twitter.followers = twitterFollowers;
     // console.log("args", req.body, bannerImageWebUrl, bannerImageMobileUrl);
     user.influencerDetails = influencerObj;
 
@@ -1452,7 +1492,23 @@ exports.editInfluencer = async (req, res) => {
       480
     );
   }
-  const { state, city, tags, about, myReferralCode, slug } = req.body;
+  const {
+    state,
+    city,
+    tags,
+    about,
+    myReferralCode,
+    slug,
+    youtubeChannelLink,
+    youtubeFollowers,
+    instagramChannelLink,
+    instagramFollowers,
+    telegramChannelLink,
+    telegramFollowers,
+    twitterChannelLink,
+    twitterFollowers,
+    shTelegramCommunityLink,
+  } = req.body;
   // console.log("req body", req.body);
   try {
     const user = await UserDetail.findOne({
@@ -1478,12 +1534,39 @@ exports.editInfluencer = async (req, res) => {
     if (state) user.influencerDetails.state = state;
     if (city) user.influencerDetails.city = city;
     if (about) user.influencerDetails.about = about;
+    console.log(req.body);
+    if (shTelegramCommunityLink)
+      user.influencerDetails.shTelegramCommunityLink = shTelegramCommunityLink;
     if (tags)
       user.influencerDetails.tags = tags.split(",").map((item) => item.trim());
     if (bannerImageWebUrl)
       user.influencerDetails.bannerImageWeb = bannerImageWebUrl;
     if (bannerImageMobileUrl)
       user.influencerDetails.bannerImageMobile = bannerImageMobileUrl;
+    if (youtubeChannelLink)
+      user.influencerDetails.channelDetails.youtube.channelLink =
+        youtubeChannelLink;
+    if (instagramChannelLink)
+      user.influencerDetails.channelDetails.instagram.channelLink =
+        instagramChannelLink;
+    if (telegramChannelLink)
+      user.influencerDetails.channelDetails.telegram.channelLink =
+        telegramChannelLink;
+    if (twitterChannelLink)
+      user.influencerDetails.channelDetails.twitter.channelLink =
+        twitterChannelLink;
+    if (youtubeFollowers)
+      user.influencerDetails.channelDetails.youtube.followers =
+        youtubeFollowers;
+    if (instagramFollowers)
+      user.influencerDetails.channelDetails.instagram.followers =
+        instagramFollowers;
+    if (telegramFollowers)
+      user.influencerDetails.channelDetails.telegram.followers =
+        telegramFollowers;
+    if (twitterFollowers)
+      user.influencerDetails.channelDetails.twitter.followers =
+        twitterFollowers;
 
     await user.save({ validateBeforeSave: false });
     res.status(201).json({ status: "success", message: "Influencer created" });

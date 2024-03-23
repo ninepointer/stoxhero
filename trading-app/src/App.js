@@ -542,15 +542,12 @@ export default function App() {
           path="/competitions/:id"
           element={<FeaturedContestRegistration />}
         />
-        <Route
-          path="/workshop/:id"
-          element={<Workshop />}
-        />
+        <Route path="/workshop/:id" element={<Workshop />} />
 
-        <Route path="/courses/:slug" element={<Courses />} />
-        <Route path="/courses/:slug/details" element={<CoursesDetail />} />
+        <Route path="/influencers/:slug" element={<Courses />} />
+        <Route path="/influencers/:slug/details" element={<CoursesDetail />} />
         <Route
-          path="/courses/:slug/fill+details"
+          path="/influencers/:slug/fill+details"
           element={<FillSignupDetail />}
         />
         <Route

@@ -202,90 +202,94 @@ exports.approveKYC = async(req,res,next) => {
     //   console.log('user',user?.dob);
       await user.save({validateBeforeSave:false});
       if(process.env.PROD == 'true'){
-        sendMail(user.email, 'KYC Approved - StoxHero', `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>KYC Approved</title>
-            <style>
-            body {
-                font-family: Arial, sans-serif;
-                font-size: 16px;
-                line-height: 1.5;
-                margin: 0;
-                padding: 0;
-            }
-  
-            .container {
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-                border: 1px solid #ccc;
-            }
-  
-            h1 {
-                font-size: 24px;
-                margin-bottom: 20px;
-            }
-  
-            p {
-                margin: 0 0 20px;
-            }
-  
-            .userid {
-                display: inline-block;
-                background-color: #f5f5f5;
-                padding: 10px;
-                font-size: 15px;
-                font-weight: bold;
-                border-radius: 5px;
-                margin-right: 10px;
-            }
-  
-            .password {
-                display: inline-block;
-                background-color: #f5f5f5;
-                padding: 10px;
-                font-size: 15px;
-                font-weight: bold;
-                border-radius: 5px;
-                margin-right: 10px;
-            }
-  
-            .login-button {
-                display: inline-block;
-                background-color: #007bff;
-                color: #fff;
-                padding: 10px 20px;
-                font-size: 18px;
-                font-weight: bold;
-                text-decoration: none;
-                border-radius: 5px;
-            }
-  
-            .login-button:hover {
-                background-color: #0069d9;
-            }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-            <h1>KYC Approved</h1>
-            <p>Hello ${user.first_name},</p>
-            <p>Your KYC Approval request is approved by stoxhero.</p>
-            <p>You can now add or withdraw money from your wallet and get more in app privileges.</p>
-            <p>You can check your profile to see your KYC status.</p>
-            <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-            <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-            <br/><br/>
-            <p>Thanks,</p>
-            <p>StoxHero Team</p>
-  
-            </div>
-        </body>
-        </html>
-        `);
+        try{
+          sendMail(user.email, 'KYC Approved - StoxHero', `
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="UTF-8">
+              <title>KYC Approved</title>
+              <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  font-size: 16px;
+                  line-height: 1.5;
+                  margin: 0;
+                  padding: 0;
+              }
+    
+              .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  padding: 20px;
+                  border: 1px solid #ccc;
+              }
+    
+              h1 {
+                  font-size: 24px;
+                  margin-bottom: 20px;
+              }
+    
+              p {
+                  margin: 0 0 20px;
+              }
+    
+              .userid {
+                  display: inline-block;
+                  background-color: #f5f5f5;
+                  padding: 10px;
+                  font-size: 15px;
+                  font-weight: bold;
+                  border-radius: 5px;
+                  margin-right: 10px;
+              }
+    
+              .password {
+                  display: inline-block;
+                  background-color: #f5f5f5;
+                  padding: 10px;
+                  font-size: 15px;
+                  font-weight: bold;
+                  border-radius: 5px;
+                  margin-right: 10px;
+              }
+    
+              .login-button {
+                  display: inline-block;
+                  background-color: #007bff;
+                  color: #fff;
+                  padding: 10px 20px;
+                  font-size: 18px;
+                  font-weight: bold;
+                  text-decoration: none;
+                  border-radius: 5px;
+              }
+    
+              .login-button:hover {
+                  background-color: #0069d9;
+              }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+              <h1>KYC Approved</h1>
+              <p>Hello ${user.first_name},</p>
+              <p>Your KYC Approval request is approved by stoxhero.</p>
+              <p>You can now add or withdraw money from your wallet and get more in app privileges.</p>
+              <p>You can check your profile to see your KYC status.</p>
+              <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+              <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+              <br/><br/>
+              <p>Thanks,</p>
+              <p>StoxHero Team</p>
+    
+              </div>
+          </body>
+          </html>
+          `);
+        }catch(e){
+          console.log(e.message);
+        }
       }
       await createUserNotification({
         title:'KYC Approved',
@@ -323,90 +327,94 @@ exports.rejectKYC = async(req,res,next) => {
     user.lastModified = new Date();
     await user.save({validateBeforeSave:false});
     if(process.env.PROD == 'true'){
-      sendMail(user.email, 'KYC Rejected - StoxHero', `
-      <!DOCTYPE html>
-      <html>
-      <head>
-          <meta charset="UTF-8">
-          <title>KYC Rejected</title>
-          <style>
-          body {
-              font-family: Arial, sans-serif;
-              font-size: 16px;
-              line-height: 1.5;
-              margin: 0;
-              padding: 0;
-          }
-  
-          .container {
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-              border: 1px solid #ccc;
-          }
-  
-          h1 {
-              font-size: 24px;
-              margin-bottom: 20px;
-          }
-  
-          p {
-              margin: 0 0 20px;
-          }
-  
-          .userid {
-              display: inline-block;
-              background-color: #f5f5f5;
-              padding: 10px;
-              font-size: 15px;
-              font-weight: bold;
-              border-radius: 5px;
-              margin-right: 10px;
-          }
-  
-          .password {
-              display: inline-block;
-              background-color: #f5f5f5;
-              padding: 10px;
-              font-size: 15px;
-              font-weight: bold;
-              border-radius: 5px;
-              margin-right: 10px;
-          }
-  
-          .login-button {
-              display: inline-block;
-              background-color: #007bff;
-              color: #fff;
-              padding: 10px 20px;
-              font-size: 18px;
-              font-weight: bold;
-              text-decoration: none;
-              border-radius: 5px;
-          }
-  
-          .login-button:hover {
-              background-color: #0069d9;
-          }
-          </style>
-      </head>
-      <body>
-          <div class="container">
-          <h1>KYC Rejected</h1>
-          <p>Hello ${user.first_name},</p>
-          <p>Your KYC approval request is rejected by stoxhero. The rejection reason is ${rejectionReason}</p>
-          <p>Please double check your documents and inputs and make sure you've uploaded the correct doucments in the right formats.</p>
-          <p>If you're sure there is an error on our part, contact the admin or POC.</p>
-          <p>Or in case of discrepencies, raise a ticket or reply to this message.</p>
-          <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-          <br/><br/>
-          <p>Thanks,</p>
-          <p>StoxHero Team</p>
-  
-          </div>
-      </body>
-      </html>
-      `)
+      try{
+        sendMail(user.email, 'KYC Rejected - StoxHero', `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>KYC Rejected</title>
+            <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 16px;
+                line-height: 1.5;
+                margin: 0;
+                padding: 0;
+            }
+    
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ccc;
+            }
+    
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+    
+            p {
+                margin: 0 0 20px;
+            }
+    
+            .userid {
+                display: inline-block;
+                background-color: #f5f5f5;
+                padding: 10px;
+                font-size: 15px;
+                font-weight: bold;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+    
+            .password {
+                display: inline-block;
+                background-color: #f5f5f5;
+                padding: 10px;
+                font-size: 15px;
+                font-weight: bold;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+    
+            .login-button {
+                display: inline-block;
+                background-color: #007bff;
+                color: #fff;
+                padding: 10px 20px;
+                font-size: 18px;
+                font-weight: bold;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+    
+            .login-button:hover {
+                background-color: #0069d9;
+            }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+            <h1>KYC Rejected</h1>
+            <p>Hello ${user.first_name},</p>
+            <p>Your KYC approval request is rejected by stoxhero. The rejection reason is ${rejectionReason}</p>
+            <p>Please double check your documents and inputs and make sure you've uploaded the correct doucments in the right formats.</p>
+            <p>If you're sure there is an error on our part, contact the admin or POC.</p>
+            <p>Or in case of discrepencies, raise a ticket or reply to this message.</p>
+            <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+            <br/><br/>
+            <p>Thanks,</p>
+            <p>StoxHero Team</p>
+    
+            </div>
+        </body>
+        </html>
+        `)
+      }catch(e){
+        console.log(e.message);
+      }
     }
     await createUserNotification({
       title:'KYC Rejected',
@@ -480,6 +488,7 @@ exports.verifyOtp = async(req,res) =>{
       user.panNumber = panData?.pan_number;
       user.accountNumber =bankAccountNumber;
       user.bankName = cleanName(bankAccountData?.ifsc_details?.bank_name);
+      user.bankState = cleanName(bankAccountData?.ifsc_details?.state);
       user.nameAsPerBankAccount = bankAccountName;
       user.ifscCode = ifsc;
       await user.save({validateBeforeSave:false});

@@ -203,7 +203,7 @@ const userDetailSchema = new mongoose.Schema({
       "Contest SignUp",
       "Campaign SignUp",
       // 'Workshop SignUp',
-      'Influencer SignUp'
+      "Influencer SignUp",
     ],
   },
   employeeid: {
@@ -454,18 +454,20 @@ const userDetailSchema = new mongoose.Schema({
       ref: "intern-batch",
     },
   ],
-  course: [{
-    courseId: {
-      type: Schema.Types.ObjectId,
-      ref: "course",
+  course: [
+    {
+      courseId: {
+        type: Schema.Types.ObjectId,
+        ref: "course",
+      },
+      pricePaid: Number,
+      gst: Number,
+      coursePrice: Number,
+      discountUsed: Number,
+      enrolledOn: Date,
+      bonusRedemption: Number,
     },
-    pricePaid: Number,
-    gst: Number,
-    coursePrice: Number,
-    discountUsed: Number,
-    enrolledOn: Date,
-    bonusRedemption: Number
-  }],
+  ],
   gstAgreement: Boolean,
   lastLoggedInDevice: {
     deviceType: String,
@@ -495,34 +497,34 @@ const userDetailSchema = new mongoose.Schema({
           channelLink: String,
           followers: Number,
         },
-        youtube:{
+        youtube: {
           channelLink: String,
           followers: Number,
         },
-        telegram:{
+        telegram: {
           channelLink: String,
           followers: Number,
         },
-        twitter:{
+        twitter: {
           channelLink: String,
           followers: Number,
         },
-        discord:{
+        discord: {
           channelLink: String,
           followers: Number,
         },
-        whatsApp:{
+        whatsApp: {
           channelLink: String,
           followers: Number,
         },
-        linkedIn:{
+        linkedIn: {
           channelLink: String,
           followers: Number,
         },
-        facebook:{
+        facebook: {
           channelLink: String,
           followers: Number,
-        }
+        },
       },
       city: {
         type: Schema.Types.ObjectId,
@@ -535,6 +537,7 @@ const userDetailSchema = new mongoose.Schema({
       bannerImageMobile: String,
       isActive: Boolean,
       about: String,
+      shTelegramCommunityLink: String,
     },
     default: undefined, // This prevents the field from being created by default
   },

@@ -66,14 +66,14 @@ const TenxMarginGrid = ({ subscriptionId, setyesterdayData }) => {
         : openingBalance - (Math.abs(amount - subtractAmount) + margin)
       : openingBalance - todayMargin
   )?.toFixed(0);
-  console.log("margin", margin)
+  console.log("margin", margin);
   console.log("amount", amount);
   console.log("availableMargin", availableMargin);
   console.log("totalRunningLots", totalRunningLots);
-  console.log("todayMargin", todayMargin)
-  console.log("runningPnl", runningPnl)
-  console.log("openingBalance", openingBalance)
-  console.log("subtractAmount", subtractAmount)
+  console.log("todayMargin", todayMargin);
+  console.log("runningPnl", runningPnl);
+  console.log("openingBalance", openingBalance);
+  console.log("subtractAmount", subtractAmount);
 
   const availableMarginpnlstring =
     availableMargin >= 0

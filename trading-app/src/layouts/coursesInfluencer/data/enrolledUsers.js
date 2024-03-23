@@ -18,7 +18,9 @@ export default function EnrolledUsers({
     { Header: "Name", accessor: "name", align: "center" },
     { Header: "Enrollment Date", accessor: "date", align: "center" },
     { Header: "Fee", accessor: "amount", align: "center" },
-    { Header: "Commission", accessor: "commission", align: "center" },
+    { Header: "Infl. Commission", accessor: "commission", align: "center" },
+    { Header: "Joining Date", accessor: "joiningDate", align: "center" },
+    { Header: "Signup Type", accessor: "userType", align: "center" },
   ];
 
   let rows = [];
@@ -70,6 +72,26 @@ export default function EnrolledUsers({
           ₹{((elem?.pricePaidByUser-elem?.gstAmount)*((course?.commissionPercentage/100)??0)).toFixed(2)}
         </MDTypography>
       );
+    obj.joiningDate = (
+        <MDTypography
+          component="a"
+          variant="caption"
+          color="text"
+          fontWeight="medium"
+        >
+          {moment(elem?.userId?.joining_date).format("DD-MM-YY hh:mm:ss a")}
+        </MDTypography>
+      );
+    obj.userType = (
+        <MDTypography
+          component="a"
+          variant="caption"
+          color="text"
+          fontWeight="medium"
+        >
+          {elem?.userId?.referredBy?.toString() == course?.courseInstructors[0]?.id?._id?.toString()?'Influencer Signup':"StoxHero Signup"}
+        </MDTypography>
+      );
 
     rows.push(obj);
   });
@@ -91,7 +113,7 @@ export default function EnrolledUsers({
 
   function downloadHelper(data) {
     let csvDataFile = [[]]
-    let csvDataDailyPnl = [["NAME", "ENROLLMENT DATE", "FEE", "COMMISSION"]]
+    let csvDataDailyPnl = [["NAME", "ENROLLMENT DATE", "FEE", "INFL. COMMISSION", "JOINING DATE", "SIGNUP TYPE" ]]
     if (data) {
       // dates = Object.keys(data)
       let csvpnlData = Object.values(data)
@@ -99,9 +121,11 @@ export default function EnrolledUsers({
 
         return [
           `${elem?.userId?.first_name} ${elem?.userId?.last_name}`,
-          elem?.enrolledOn,
+          moment(elem?.enrolledOn).format("DD-MM-YY hh:mm:ss a"),
           (Number(elem?.pricePaidByUser)- Number(elem?.gstAmount)),
-          ((elem?.pricePaidByUser-elem?.gstAmount)*((course?.commissionPercentage/100)??0))
+          ((elem?.pricePaidByUser-elem?.gstAmount)*((course?.commissionPercentage/100)??0)),
+          moment(elem?.userId?.joining_date).format("DD-MM-YY hh:mm:ss a"),
+          elem?.userId?.referredBy?.toString() == course?.courseInstructors[0]?.id?._id?.toString()?'Influencer Signup':"StoxHero Signup"
         ]
       })
     }
