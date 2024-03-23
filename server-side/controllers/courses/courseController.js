@@ -1928,13 +1928,14 @@ exports.getUserCourses = async (req, res) => {
           courseSlug: 1,
           meetLink: 1,
           instructorImage: {
-            $arrayElemAt: ['$courseInstructors.image', 0]
+            $arrayElemAt: ["$courseInstructors.image", 0],
           },
           courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
           averageRating: 1,
           courseDurationInMinutes: 1,
+          courseLanguages: 1,
           registrationStartTime: 1,
           registrationEndTime: 1,
           courseStartTime: 1,
@@ -3336,7 +3337,7 @@ exports.myCourses = async (req, res) => {
           averageRating: 1,
           topics: "$courseContent",
           instructorImage: {
-            $arrayElemAt: ['$courseInstructors.image', 0]
+            $arrayElemAt: ["$courseInstructors.image", 0],
           },
           courseProgress: {
             $cond: {
