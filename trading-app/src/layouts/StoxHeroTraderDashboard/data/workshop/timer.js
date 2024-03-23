@@ -19,20 +19,6 @@ const Timer = ({socket, courseData, isPaid}) => {
     const now = new Date(serverTime);
     const timeDifference = targetDate - now;
 
-    // setTimeDifference(prevArray => {
-    //   const index = prevArray.findIndex(item => item.id === id);
-
-    //   if (index !== -1) {
-    //     // If id exists, update the value
-    //     const updatedArray = [...prevArray];
-    //     updatedArray[index].value = timeDifference;
-    //     return updatedArray;
-    //   } else {
-    //     // If id doesn't exist, push a new element
-    //     return [...prevArray, { id, value: timeDifference }];
-    //   }
-    // });
-
     if (timeDifference > 0) {
       const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
       const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

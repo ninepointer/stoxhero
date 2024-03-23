@@ -210,8 +210,8 @@ const DeactivateUser = () => {
 
     setUserState(res.data.data[0]?.influencerDetails?.state);
     setValue({
-      _id: res.data.data[0]?.influencerDetails?.city?._id,
-      name: res.data.data[0]?.influencerDetails?.city?.name,
+      _id: res.data.data[0]?.influencerDetails?.city?._id || '',
+      name: res.data.data[0]?.influencerDetails?.city?.name || '',
     });
     setInfluencerData({
       ...res.data.data[0],
@@ -468,6 +468,8 @@ const DeactivateUser = () => {
     // setUserCity(newValue?.name);
     setValue(newValue);
   };
+
+  console.log('value', value)
 
   const handleRemoveInfluencer = async (elem) => {
     try {
@@ -745,7 +747,7 @@ const DeactivateUser = () => {
                         },
                       }}
                       options={cityData || []}
-                      value={value}
+                      value={value || ''}
                       // disabled={otpGen}
                       onChange={handleCityChange}
                       autoHighlight
@@ -1394,9 +1396,12 @@ const DeactivateUser = () => {
                   display="flex"
                   justifyContent="flex-end"
                   mt={2}
+                  gap={1}
                   // style={{ maxWidth: "100%", height: "auto" }}
                 >
                   <MDButton
+                  color="error"
+                  size='small'
                     onClick={() => {
                       setSelectedUser();
                       setEdit(false);
@@ -1407,11 +1412,12 @@ const DeactivateUser = () => {
                   </MDButton>
                   <MDButton
                     color="success"
+                    size='small'
                     onClick={() => {
                       edit ? editInfluencer() : handleAddInfluencer();
                     }}
                   >
-                    {edit ? "Edit Influencer" : "Add Influencer"}
+                    {edit ? "Save Influencer" : "Add Influencer"}
                   </MDButton>
                 </Grid>
               </MDBox>
