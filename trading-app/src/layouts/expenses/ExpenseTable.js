@@ -24,7 +24,7 @@ const ExpenseTable = ({ setCreateExpense, setView, setEditData, reRender }) => {
   const [ExpenseData, setExpenseData] = useState([]);
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   async function getExpense() {
     const res = await fetch(`${baseUrl}api/v1/Expense`, {
       method: "GET",

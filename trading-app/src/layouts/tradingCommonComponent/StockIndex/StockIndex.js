@@ -15,7 +15,7 @@ function StockIndex({ socket }) {
   // console.log("rendering : stock index")
   //console.log("rendering stock index")
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [indexData, setIndexData] = useState([]);
   const [indexLiveData, setIndexLiveData] = useState([]);
   const pnl = useContext(NetPnlContext);

@@ -9,7 +9,7 @@ export default function XTSOverview({ socket }) {
   const [trackEvent, setTrackEvent] = useState({});
   const [tradeData, setTradeData] = useState({});
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     socket.on("updatePnl", (data) => {

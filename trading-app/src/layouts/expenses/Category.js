@@ -29,7 +29,7 @@ const Categories = () => {
   const [reRender, setReRender] = useState(true);
   const [categoryDetail, setCategoryDetail] = useState([]);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     axios

@@ -10,7 +10,7 @@ import { renderContext } from "../../../renderContext";
 const InternShipMargin = ({ BatchId, setyesterdayData }) => {
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [fundDetail, setFundDetail] = useState({});
   const { render } = useContext(renderContext);
 

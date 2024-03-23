@@ -17,7 +17,7 @@ export default function ChallengeParameters({
   const [open, setOpen] = useState(false);
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [challengeParameters, setChallengeParameters] = React.useState([]);
   const [parameterCount, setParameterCount] = useState(0);
   async function getChallengeParameter() {

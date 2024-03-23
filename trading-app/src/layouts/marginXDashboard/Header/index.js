@@ -21,7 +21,7 @@ export default function LabTabs({ socket }) {
   const [allMarginXUsers, setAllMarginXUsers] = useState();
   const [completedMarginX, setCompletedMarginX] = useState();
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     axios

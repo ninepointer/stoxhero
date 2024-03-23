@@ -16,7 +16,7 @@ import axios from "axios";
 
 export default function LabTabs() {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   const [isLoading, setIsLoading] = useState(false);
   // const [showPay, setShowPay] = useState(true);

@@ -11,7 +11,7 @@ import money from "../../../assets/images/money.png";
 
 const MyPortfolioCard = ({ subscriptionId }) => {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [isLoading, setIsLoading] = useState(false);
   const [tenXMarginDetails, setTenXMarginDetail] = useState([]);
   useEffect(() => {

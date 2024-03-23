@@ -17,7 +17,7 @@ import CompletedBattleList from "../Header/completedBattleList";
 export default function LabTabs({ setClicked }) {
   const [isLoading, setIsLoading] = useState(false);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let baseUrl1 =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
   const socket = useContext(socketContext);

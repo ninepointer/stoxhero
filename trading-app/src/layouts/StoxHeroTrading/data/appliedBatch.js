@@ -28,7 +28,7 @@ const AppliedBatchCard = ({ Render }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const getDetails = useContext(userContext);
 
   useEffect(() => {

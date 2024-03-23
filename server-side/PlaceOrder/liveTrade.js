@@ -302,7 +302,7 @@ exports.liveTrade = async (reqBody, res) => {
           let baseUrl =
             process.env.NODE_ENV === "production"
               ? "/"
-              : "http://localhost:5000/";
+              : "http://localhost:5001/";
 
           let originalLastPriceUser;
 
@@ -974,7 +974,7 @@ exports.liveTrade = async (reqBody, res) => {
     }
 
     let baseUrl =
-      process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+      process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
     let originalLastPriceUser;
 

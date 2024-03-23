@@ -27,7 +27,7 @@ import { Influencer } from "../../../variables";
 
 export default function Dashboard() {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let [carouselData, setCarouselData] = useState([]);
   let [topPerformerData, setTopPerformerData] = useState([]);
   let [lastPaidContests, setLastPaidContests] = useState([]);

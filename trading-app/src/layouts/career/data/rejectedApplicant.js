@@ -18,7 +18,7 @@ export default function Applicants({ career, action, setAction }) {
   const [selectedApplicant, setSelectedApplicant] = useState();
   const [selectedApplicantName, setSelectedApplicantName] = useState();
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [careerApplications, setCareerApplications] = React.useState([]);
   const [applicationCount, setApplicationCount] = useState(0);
   const handleClose = () => {

@@ -34,7 +34,7 @@ export default function LabTabs({ socket }) {
   const [mockMarginData, setMockMarginData] = useState();
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;

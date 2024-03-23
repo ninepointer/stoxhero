@@ -30,7 +30,7 @@ import AlgoBoxMain from "../AlgoBoxMain";
 
 function AlgoPositionHeader({ children }) {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
   const [algoBox, setAlgoBox] = useState([]);

@@ -18,7 +18,7 @@ import Transaction from "../Transaction";
 
 function Transactions({ render }) {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [traderPNLDetails, settraderPNLDetails] = useState([]);
 
   console.log("marginDetails transaction");

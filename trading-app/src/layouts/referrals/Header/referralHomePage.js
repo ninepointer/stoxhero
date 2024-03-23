@@ -49,7 +49,7 @@ function ReferralHomePage() {
   const [referralRanks, setReferralRanks] = useState([]);
   const [rank, setRank] = useState();
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const id = getDetails.userDetails._id;
   const referralCode = getDetails.userDetails.myReferralCode;
 

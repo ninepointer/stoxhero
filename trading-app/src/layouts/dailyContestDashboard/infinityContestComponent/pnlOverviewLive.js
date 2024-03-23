@@ -19,7 +19,7 @@ export default function PnlOverviewLive({ socket }) {
   const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] =
     useState(0);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;

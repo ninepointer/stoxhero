@@ -17,7 +17,7 @@ import PastBattles from "../data/pastBattles";
 
 export default function LabTabs() {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [clicked, setClicked] = useState("ongoing");
   const [isLoading, setIsLoading] = useState(false);
   let [showPay, setShowPay] = useState(true);

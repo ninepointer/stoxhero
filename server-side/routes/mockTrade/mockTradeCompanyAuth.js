@@ -492,7 +492,7 @@ router.post("/mocktradecompany", authoizeTrade.fundCheck, async (req, res) => {
   }
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let originalLastPriceUser;
   let originalLastPriceCompany;
   let newTimeStamp = "";

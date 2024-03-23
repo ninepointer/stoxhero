@@ -24,9 +24,9 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const College = () => {
-  // let baseUrl =  "http://localhost:5000/api/v1/college"
+  // let baseUrl =  "http://localhost:5001/api/v1/college"
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let [skip, setSkip] = useState(0);
   const limitSetting = 10;
   const [count, setCount] = useState(0);

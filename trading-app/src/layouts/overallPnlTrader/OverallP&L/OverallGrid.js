@@ -53,7 +53,7 @@ function OverallGrid({ socket, setIsGetStartedClicked, from, subscriptionId }) {
   // const [selectedTrader, setSelectedTrader] = useState("");
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [tradeData, setTradeData] = useState([]);
   const countPosition = {
     openPosition: 0,

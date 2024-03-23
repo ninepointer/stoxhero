@@ -13,7 +13,7 @@ import { userContext } from "../../../../AuthContext";
 
 function Header({ contest }) {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [serverTime, setServerTime] = useState();
   const [loading, setIsLoading] = useState(true);
   let [pnlData, setPnlData] = useState([]);

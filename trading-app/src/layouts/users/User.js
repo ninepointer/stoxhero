@@ -32,7 +32,7 @@ const User = () => {
   const { icolumns, irows } = InactiveUserData();
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   const [activeData, setActiveData] = useState([]);
   const [reRender, setReRender] = useState(true);

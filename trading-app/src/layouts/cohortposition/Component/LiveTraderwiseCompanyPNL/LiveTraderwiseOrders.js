@@ -59,7 +59,7 @@ function TraderOrders({ userId }) {
   };
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [orderData, setOrderData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
 

@@ -14,7 +14,7 @@ const ActiveBatches = ({ type }) => {
   const [applicationCount, setApplicationCount] = useState(0);
   const [activeBatches, setActiveBatches] = useState([]);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     let call1 = axios.get(`${baseUrl}api/v1/internbatch/completed`, {

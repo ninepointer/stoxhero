@@ -21,7 +21,7 @@ import axios from "axios";
 const EditCategory = ({ Render, setView, CategoryData, id }) => {
   const { columns, rows } = CreateCategoryTableData();
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   const { reRender, setReRender } = Render;
   const [editData, setEditData] = useState(CategoryData);

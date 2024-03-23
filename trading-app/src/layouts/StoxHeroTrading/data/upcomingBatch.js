@@ -29,7 +29,7 @@ const BatchCard = ({ Render }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   useEffect(() => {
     // promise.all[]
     let call1 = axios.get(`${baseUrl}api/v1/batch/active`);

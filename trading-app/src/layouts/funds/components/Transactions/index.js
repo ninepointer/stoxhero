@@ -20,7 +20,7 @@ import TransactionData from "./data/transactionData";
 
 function Transactions() {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [marginDetails, setMarginDetails] = useState([]);
   const { columns, rows } = TransactionData();
   const getDetails = useContext(userContext);

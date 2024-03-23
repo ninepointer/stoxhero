@@ -19,7 +19,7 @@ export default function TenXSubscriptions() {
   const [currentTenXSubs, setCurrentTenXSubs] = useState([]);
   let [checkPayment, setCheckPayment] = useState(true);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     axios

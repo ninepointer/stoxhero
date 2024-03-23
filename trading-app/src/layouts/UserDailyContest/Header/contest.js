@@ -21,7 +21,7 @@ import ContestLeaderboard from "../../contestScoreboard/Header";
 export default function LabTabs() {
   const [clicked, setClicked] = useState("live");
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let baseUrl1 =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
 

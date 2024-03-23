@@ -34,7 +34,7 @@ const AutoLogin = ({ data }) => {
   // };
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const getDetails = useContext(userContext);
   let uId = uniqid();
   let date = new Date();

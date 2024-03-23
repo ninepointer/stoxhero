@@ -14,7 +14,7 @@ import moment from "moment";
 const PublishedBlogs = ({ totalTenXRevenue }) => {
   console.log("Total:", totalTenXRevenue);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   return (
     <Grid

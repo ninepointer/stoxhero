@@ -15,7 +15,7 @@ const CountdownTimer = ({
 }) => {
   //console.log(targetDate,text, contestId, portfolioId, isDummy, contestName, redirect)
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [timeRemaining, setTimeRemaining] = useState(calculateTimeRemaining());
   const navigate = useNavigate();
   const flag = useRef(true);

@@ -29,7 +29,7 @@ const CategoryTable = ({
   const [CategoryData, setCategoryData] = useState([]);
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   async function getCategory() {
     const res = await fetch(`${baseUrl}api/v1/category`, {
       method: "GET",

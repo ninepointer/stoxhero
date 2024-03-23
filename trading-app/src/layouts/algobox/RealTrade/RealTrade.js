@@ -5,7 +5,7 @@ import Switch from "@mui/material/Switch";
 
 export default function RealTrade({ Render, id, tradingAlgo }) {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const { reRender, setReRender } = Render;
   const [isReal, setIsReal] = useState();
 

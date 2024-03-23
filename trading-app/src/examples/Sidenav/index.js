@@ -40,7 +40,7 @@ import { userContext } from "../../AuthContext";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,

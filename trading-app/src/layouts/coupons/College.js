@@ -21,9 +21,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import { Link } from "react-router-dom";
 
 const College = () => {
-  // let baseUrl =  "http://localhost:5000/api/v1/college"
+  // let baseUrl =  "http://localhost:5001/api/v1/college"
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   let [collegeData, setCollegeData] = useState([]);
 

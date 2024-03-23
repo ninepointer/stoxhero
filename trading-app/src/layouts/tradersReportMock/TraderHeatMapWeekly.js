@@ -19,7 +19,7 @@ function TradersHeatMapWeekly() {
   const weekNumbers = Array.from({ length: 52 }, (_, i) => i + 1);
   let date = new Date();
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let valueInDate2 = `${date.getFullYear()}-${String(
     date.getMonth() + 1
   ).padStart(2, "0")}-${String(date.getDate() - 1).padStart(2, "0")}`;

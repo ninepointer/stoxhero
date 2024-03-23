@@ -72,7 +72,7 @@ export default function TenXSubscriptions({
   const [holiday, setHoliday] = useState();
   // const getDetails = React.useContext(userContext);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   function calculateWorkingDays(startDate, endDate) {
     const start = moment(startDate);

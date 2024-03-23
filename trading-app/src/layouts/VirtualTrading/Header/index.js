@@ -21,7 +21,7 @@ function Header() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     ReactGA.pageview(window.location.pathname);

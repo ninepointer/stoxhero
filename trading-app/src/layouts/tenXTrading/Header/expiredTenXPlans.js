@@ -34,7 +34,7 @@ export default function TenXSubscriptions({ setClicked }) {
   ];
   console.log("unique", uniqueValidities);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     axios

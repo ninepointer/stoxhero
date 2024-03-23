@@ -42,7 +42,7 @@ export default function TutorialCategory() {
 
   console.log("location", location, id);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   const [formState, setFormState] = useState({
     categoryName: "",

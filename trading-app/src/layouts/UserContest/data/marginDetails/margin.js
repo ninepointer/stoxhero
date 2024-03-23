@@ -10,7 +10,7 @@ import { NetPnlContext } from "../../../../PnlContext";
 import { CircularProgress } from "@mui/material";
 
 function Margin({ portfolioId, contestId }) {
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   // const [indexData, setIndexData] = useState([]);
   // const [indexLiveData, setIndexLiveData] = useState([]);
   const pnl = useContext(NetPnlContext);
@@ -23,7 +23,7 @@ function Margin({ portfolioId, contestId }) {
   const { contestNetPnl, contestTotalRunningLots } = useContext(NetPnlContext);
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     axios

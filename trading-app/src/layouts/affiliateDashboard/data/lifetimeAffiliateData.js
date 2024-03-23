@@ -12,7 +12,7 @@ import MDTypography from "../../../components/MDTypography/index.js";
 // import moment from 'moment'
 
 const PublishedBlogs = ({ affiliateOverview, affiliateReferrals }) => {
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
 
   return (
     <Grid

@@ -15,7 +15,7 @@ export default function TenXSubscribers({
 }) {
   setSubscriptionCount(tenXSubscription?.users?.length);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [tenXSubsPurchaseIntent, setTenXSubsPurchaseIntent] = React.useState(
     []
   );

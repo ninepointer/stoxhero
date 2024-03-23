@@ -10,7 +10,7 @@ router.post("/switchToRealTrade", async (req, res) => {
   let responseMsg;
   let responseErr;
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   let {
     apiKey,
@@ -736,7 +736,7 @@ router.post("/switchToRealTrade", async (req, res) => {
     }
 
     let baseUrl =
-      process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+      process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
     let originalLastPriceUser;
 

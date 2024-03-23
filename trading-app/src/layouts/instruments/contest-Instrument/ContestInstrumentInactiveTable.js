@@ -22,7 +22,7 @@ const InstrumentInactiveTable = () => {
   const { columns, rows } = inactiveinstrumentsData();
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   const [inactiveData, setInactiveData] = useState([]);
 

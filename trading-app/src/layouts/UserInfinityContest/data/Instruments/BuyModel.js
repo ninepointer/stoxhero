@@ -50,7 +50,7 @@ const BuyModel = ({
 
   // console.log("data from props", exchange, symbol, instrumentToken, symbolName, lotSize, maxLot)
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   // const { reRender, setRender } = Render;
   const getDetails = React.useContext(userContext);

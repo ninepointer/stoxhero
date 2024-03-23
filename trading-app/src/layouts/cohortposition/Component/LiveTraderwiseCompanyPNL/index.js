@@ -59,7 +59,7 @@ function LiveTraderwiseCompantPNL(props) {
   );
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   const [allTrade, setAllTrade] = useState([]);
   const [marketData, setMarketData] = useState([]);

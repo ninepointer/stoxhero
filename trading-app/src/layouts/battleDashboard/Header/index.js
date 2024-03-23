@@ -17,7 +17,7 @@ export default function LabTabs({ socket }) {
   const [battleUsers, setBattleUsers] = useState();
   const [completedBattle, setCompletedBattle] = useState();
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     axios

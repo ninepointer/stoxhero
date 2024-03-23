@@ -55,7 +55,7 @@ export default function LabTabs() {
   const [expected, setExpected] = useState([]);
   // const[tradeType, setTradeType] = useState('virtual');
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   const checkRoute = pathname.includes(
     getDetails?.userDetails?.collegeDetails?.college?.route

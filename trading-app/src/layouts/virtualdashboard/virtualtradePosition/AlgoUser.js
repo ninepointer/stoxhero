@@ -18,7 +18,7 @@ import TraderwiseTraderPnl from "./AlgoUserComponents/TraderwiseTraderPNL";
 import { socketContext } from "../../socketContext";
 
 function AlgoUser() {
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/"
   let baseUrl1 =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
   // let socket;

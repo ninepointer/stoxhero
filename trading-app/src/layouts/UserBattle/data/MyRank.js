@@ -41,7 +41,7 @@ function MyRank({ socket, id }) {
   const [loading, setIsLoading] = useState(true);
   const [reward, setReward] = useState([]);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     axios

@@ -952,7 +952,7 @@ exports.autoTradeContest = async (req, res, next) => {
     // })
 
     let baseUrl =
-      process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+      process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
     const api1Response = await axios.get(
       `${baseUrl}api/v1/contest/${contest._id}/trades/${"leaderboard"}`
     );

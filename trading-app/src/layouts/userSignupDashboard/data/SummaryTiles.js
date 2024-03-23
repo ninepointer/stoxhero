@@ -39,7 +39,7 @@ export default function LabTabs() {
   const perPage = 10;
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   useEffect(() => {
     setIsLoading(true);

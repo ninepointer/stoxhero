@@ -59,7 +59,7 @@ export default function TenXSubsDetails() {
   const [ExpiredTenXSubs, setExpiredTenXSubs] = useState([]);
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   const [formState, setFormState] = useState({
     plan_name: "",

@@ -11,7 +11,7 @@ import { Switch } from "@mui/material";
 
 export default function RegisteredUsers({ data }) {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   let [updateSwitch, setUpdateSwitch] = React.useState(true);
   const [userContestDetail, setUserContestDetails] = useState([]);
 

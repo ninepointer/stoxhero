@@ -25,7 +25,7 @@ export default function GroupDiscussions({
   const [open, setOpen] = useState(false);
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [rankingPayoutCount, setRankingPayoutCount] = useState(0);
   async function getRankingPayout() {
     let call1 = axios.get(`${baseUrl}api/v1/battletemplates/${template?._id}`, {

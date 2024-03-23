@@ -70,7 +70,7 @@ const BuyModel = ({
 
   // console.log(runningLotsSymbol, "runningLotsSymbol")
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const { render, setRender } = useContext(renderContext);
   const getDetails = React.useContext(userContext);
   const tradeSound = getDetails.tradeSound;

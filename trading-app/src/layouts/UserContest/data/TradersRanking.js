@@ -17,7 +17,7 @@ function TradersRanking({
 }) {
   reward?.length === 0 && reward.push({ currency: "INR" });
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [rankData, setRankData] = useState([]);
   const [myRank, setMyRank] = useState({});
   const [setting, setSetting] = useState([]);

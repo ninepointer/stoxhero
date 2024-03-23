@@ -12,7 +12,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 export default function FeatureData({ updatedDocument, setUpdatedDocument }) {
   console.log("updatedDocument", updatedDocument);
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   let columns = [
     { Header: "#", accessor: "orderNo", align: "center" },

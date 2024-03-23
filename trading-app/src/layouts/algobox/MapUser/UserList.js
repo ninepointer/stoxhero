@@ -12,7 +12,7 @@ export default function UserList({
   reRender,
 }) {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   const [data, setData] = useState([]);
   const [permissionArr, setPermission] = useState([]);
   // const {setReRender, reRender} = Render;

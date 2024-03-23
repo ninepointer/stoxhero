@@ -24,7 +24,7 @@ const InstrumentEditModel = ({ Render, data, id }) => {
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   let date = new Date();
   let createdOn = `${String(date.getDate()).padStart(2, "0")}-${String(

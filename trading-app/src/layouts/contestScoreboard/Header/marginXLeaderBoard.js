@@ -12,7 +12,7 @@ import { userContext } from "../../../AuthContext";
 
 const Scoreboard = () => {
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   // const [sortedTraders, setSortedTraders] = useState([]);
   const [traders, setTraders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

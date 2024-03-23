@@ -63,7 +63,7 @@ function InstrumentDetails({
   };
 
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
 
   // const { render, setRender } = Render;
   const [isAppLive, setisAppLive] = useState("");

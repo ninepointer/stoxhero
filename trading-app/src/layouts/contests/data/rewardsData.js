@@ -21,7 +21,7 @@ export default function ContestRewards({
   const { columns, rows } = ContestRewardData();
   const [contestData, setContestData] = useState();
   let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5001/";
   React.useEffect(() => {
     axios
       .get(`${baseUrl}api/v1/contest/${id ? id : oldObjectId}`)
