@@ -289,6 +289,7 @@ export default function Courses() {
                         border: "0.25px solid #121213",
                         borderRadius: "10px", // Add border radius
                         cursor: "pointer", // Add pointer cursor
+                        border: '.5px solid grey'
                         // width: "15%"
                       }}
                       onClick={() => { window.open(instructor?.influencerDetails?.shTelegramCommunityLink, '_blank'); }}

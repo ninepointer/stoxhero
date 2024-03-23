@@ -1871,6 +1871,9 @@ exports.getUserCourses = async (req, res) => {
           courseImage: 1,
           courseSlug: 1,
           meetLink: 1,
+          instructorImage: {
+            $arrayElemAt: ['$courseInstructors.image', 0]
+          },
           courseOverview: 1,
           coursePrice: 1,
           discountedPrice: 1,
@@ -3123,6 +3126,9 @@ exports.myCourses = async (req, res) => {
           maxEnrolments: 1,
           averageRating: 1,
           topics: "$courseContent",
+          instructorImage: {
+            $arrayElemAt: ['$courseInstructors.image', 0]
+          },
           courseProgress: {
             $cond: {
               if: { $eq: [{ $size: { $ifNull: ["$courseContent", []] } }, 0] },

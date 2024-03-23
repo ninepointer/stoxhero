@@ -286,7 +286,7 @@ const DeactivateUser = () => {
     }));
     setSelectedUser((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: value || '',
     }));
   };
   const handleChannelDataChange = async (e) => {
@@ -369,6 +369,7 @@ const DeactivateUser = () => {
       console.log(e);
     }
   };
+
   const editInfluencer = async () => {
     const {
       about,
@@ -469,7 +470,6 @@ const DeactivateUser = () => {
     setValue(newValue);
   };
 
-  console.log('value', value)
 
   const handleRemoveInfluencer = async (elem) => {
     try {
@@ -597,6 +597,8 @@ const DeactivateUser = () => {
 
     rows.push(obj);
   });
+
+  console.log('selectedUser?.tags', selectedUser?.tags, influencerData)
   return (
     <>
       <MDBox pt={6} pb={3}>
@@ -640,13 +642,6 @@ const DeactivateUser = () => {
                     xl={3}
                     style={{ maxWidth: "100%", height: "auto" }}
                   >
-                    {/* <TextField
-                      label="State"
-                      value={selectedUser?.state}
-                      name="state"
-                      fullWidth
-                      onChange={handleChange}
-                    /> */}
                     <CustomAutocomplete
                       id="country-select-demo"
                       sx={{
@@ -692,7 +687,7 @@ const DeactivateUser = () => {
                         "Uttarakhand",
                         "West Bengal",
                       ]}
-                      value={userState}
+                      value={userState || ''}
                       // disabled={otpGen}
                       onChange={handleStateChange}
                       autoHighlight
@@ -730,13 +725,6 @@ const DeactivateUser = () => {
                     xl={3}
                     style={{ maxWidth: "100%", height: "auto" }}
                   >
-                    {/* <TextField
-                      label="City"
-                      value={selectedUser?.city}
-                      name="city"
-                      fullWidth
-                      onChange={handleChange}
-                    /> */}
 
                     <CustomAutocomplete
                       id="country-select-demo"
@@ -792,7 +780,7 @@ const DeactivateUser = () => {
                       placeholder="Comma separated tags eg: Investing, Trading, Stocks"
                       name="tags"
                       fullWidth
-                      value={selectedUser?.tags}
+                      value={(selectedUser?.tags !== 'undefined') ? selectedUser?.tags : ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -807,7 +795,7 @@ const DeactivateUser = () => {
                       label="Slug"
                       name="slug"
                       fullWidth
-                      value={influencerData?.slug}
+                      value={influencerData?.slug || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -833,7 +821,7 @@ const DeactivateUser = () => {
                       multiline
                       fullWidth
                       rows={6}
-                      value={selectedUser?.about}
+                      value={selectedUser?.about || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -847,7 +835,7 @@ const DeactivateUser = () => {
                     <TextField
                       label="Referral Code"
                       name="myReferralCode"
-                      value={selectedUser?.myReferralCode}
+                      value={selectedUser?.myReferralCode || ''}
                       fullWidth
                       onChange={handleChange}
                     />
@@ -862,7 +850,7 @@ const DeactivateUser = () => {
                     <TextField
                       label="Telegram Community Link"
                       name="shTelegramCommunityLink"
-                      value={selectedUser?.shTelegramCommunityLink}
+                      value={selectedUser?.shTelegramCommunityLink || ''}
                       fullWidth
                       onChange={handleChange}
                     />
@@ -888,7 +876,7 @@ const DeactivateUser = () => {
                       label="Youtube Link"
                       name="youtubeChannelLink"
                       fullWidth
-                      value={selectedUser?.youtubeChannelLink}
+                      value={selectedUser?.youtubeChannelLink || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -903,7 +891,7 @@ const DeactivateUser = () => {
                       label="Youtube Subscribers"
                       name="youtubeFollowers"
                       fullWidth
-                      value={selectedUser?.youtubeFollowers}
+                      value={selectedUser?.youtubeFollowers || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -918,7 +906,7 @@ const DeactivateUser = () => {
                       label="Instagram Link"
                       name="instagramChannelLink"
                       fullWidth
-                      value={selectedUser?.instagramChannelLink}
+                      value={selectedUser?.instagramChannelLink || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -933,7 +921,7 @@ const DeactivateUser = () => {
                       label="Instagram Followers"
                       name="instagramFollowers"
                       fullWidth
-                      value={selectedUser?.instagramFollowers}
+                      value={selectedUser?.instagramFollowers || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -948,7 +936,7 @@ const DeactivateUser = () => {
                       label="Telegram Link"
                       name="telegramChannelLink"
                       fullWidth
-                      value={selectedUser?.telegramChannelLink}
+                      value={selectedUser?.telegramChannelLink || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -963,7 +951,7 @@ const DeactivateUser = () => {
                       label="Telegram Followers"
                       name="telegramFollowers"
                       fullWidth
-                      value={selectedUser?.telegramFollowers}
+                      value={selectedUser?.telegramFollowers || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -978,7 +966,7 @@ const DeactivateUser = () => {
                       label="Twitter/X Link"
                       name="twitterChannelLink"
                       fullWidth
-                      value={selectedUser?.twitterChannelLink}
+                      value={selectedUser?.twitterChannelLink || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -993,7 +981,7 @@ const DeactivateUser = () => {
                       label="Twitter/X Followers"
                       name="twitterFollowers"
                       fullWidth
-                      value={selectedUser?.twitterFollowers}
+                      value={selectedUser?.twitterFollowers || ''}
                       onChange={handleChange}
                     />
                   </Grid>
