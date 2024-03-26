@@ -334,7 +334,7 @@ exports.getCourseById = async (req, res) => {
       .populate("courseInstructors.id", "first_name last_name email")
       .populate(
         "enrollments.userId",
-        "first_name last_name creationProcess joining_date referredBy enrolledOn"
+        "first_name last_name creationProcess joining_date referredBy enrolledOn mobile"
       ); // Make sure to include enrolledOn in the fields to populate
 
     const newCourse = JSON.parse(JSON.stringify(courses));
@@ -1876,7 +1876,7 @@ exports.getUserWorkshop = async (req, res) => {
       user?.referredBy?._id &&
       user?.referredBy?.role?.toString() === "65dc6817586cba2182f05561"
     ) {
-      pipeline[0]["$match"]["courseInstructors.id"] = new ObjectId(
+      pipeline[1]["$match"]["courseInstructors.id"] = new ObjectId(
         user?.referredBy
       );
       course = await Course.aggregate(pipeline);
@@ -2808,7 +2808,7 @@ exports.handleDeductCourseFee = async (
     if (user?.fcmTokens?.length > 0) {
       await sendMultiNotifications(
         `${course?.type === "Workshop" ? "Workshop" : "Course"} Fee Deducted`,
-        `₹${courseFee} deducted as ${
+        `₹${courseFee.toFixed(2)} deducted as ${
           course?.type === "Workshop" ? "Workshop" : "Course"
         } fee for ${course?.courseName}`,
         user?.fcmTokens?.map((item) => item.token),
@@ -3402,13 +3402,12 @@ exports.myCourses = async (req, res) => {
       status: "success",
       message: "Data Fetched successfully",
       workshop: result?.filter(
-        (elem) =>
-          elem?.type === "Workshop" &&
-          elem?.registrationStartTime &&
-          elem?.registrationStartTime <= new Date() &&
-          ((elem?.courseEndTime && elem?.courseEndTime >= new Date()) ||
-            (elem?.registrationEndTime &&
-              elem?.registrationEndTime >= new Date()))
+        (elem) => elem?.type === "Workshop"
+        // && elem?.registrationStartTime &&
+        // elem?.registrationStartTime <= new Date() &&
+        // ((elem?.courseEndTime && elem?.courseEndTime >= new Date()) ||
+        //   (elem?.registrationEndTime &&
+        //     elem?.registrationEndTime >= new Date()))
       ),
       data: newCourse,
       //  result?.filter((elem)=>elem?.type==='Course'),
