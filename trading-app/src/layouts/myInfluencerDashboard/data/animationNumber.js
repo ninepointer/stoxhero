@@ -10,7 +10,7 @@ export default function Counter({count}) {
   return (
     <div className="counter-app">
       <div className="counter-container">
-        <AnimatedCounter value={count?.toFixed(0)} color="#000000" fontSize="40px" includeCommas={true} decimalPrecision={0} incrementColor="#000000"/>
+        <AnimatedCounter value={count} color="#000000" fontSize="40px" includeCommas={true} decimalPrecision={2} incrementColor="#000000"/>
       </div>
     </div>
   );
