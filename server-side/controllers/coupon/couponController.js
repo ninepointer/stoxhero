@@ -220,7 +220,11 @@ exports.getExpiredCouponCodes = async (req, res) => {
 
 exports.verifyCouponCode = async (req, res) => {
     try {
-        const { code, product, orderValue, platform, paymentMode} = req.body;
+        let { code, product, orderValue, platform, paymentMode} = req.body;
+
+        // if(!product){
+        //     product = 
+        // }
         console.log("Coupon Data:",req.body)
         const userId = req.user._id;
         let coupon = await Coupon.findOne({ code: code, expiryDate:{$gte: new Date()}, status:'Active' });
