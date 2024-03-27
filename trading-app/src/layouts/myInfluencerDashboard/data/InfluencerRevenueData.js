@@ -183,7 +183,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseCount data={chartData} chartType={'bar'}/>
+              {/* <DayWiseCount data={chartData} chartType={'bar'}/> */}
             </Grid>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
@@ -194,7 +194,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseCount data={chartData} chartType={'bar'}/>
+              {/* <DayWiseCount data={chartData} chartType={'bar'}/> */}
             </Grid>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
@@ -205,7 +205,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseCount data={chartData} chartType={'bar'}/>
+              {/* <DayWiseCount data={chartData} chartType={'bar'}/> */}
             </Grid>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
