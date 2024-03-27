@@ -18,12 +18,12 @@ import moment from 'moment';
 
 export default function InfluencerRevenueData({normalUserRevenue, setNormalUserRevenue, influencerUserRevenue, setInfluencerUserRevenue}) {
   const [totalChartData,setTotalChartData] = useState([]);
-  // const [normalUserChartData,setNormalUserChartData] = useState([]);
-  // const [totalChartData,setTotalChartData] = useState([]);
+  const [normalUserChartData,setNormalUserChartData] = useState([]);
+  const [influencerUserChartData,setInfluencerUserChartData] = useState([]);
 
   useEffect(()=>{
     userDataFunc();
-    userLast60DaysData();
+    revenueLast60DaysData();
   }, [])
 
   async function userDataFunc(){
@@ -32,23 +32,25 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
     setInfluencerUserRevenue(data?.data?.influencerUser)
   }
 
-  async function userLast60DaysData(){
+  async function revenueLast60DaysData(){
     const data = await axios.get(`${apiUrl}influencer/last60daysrevenuedata`, {withCredentials: true});
-    setTotalChartData(data?.data?.data?.map((elem)=>{
-      return {date:moment(new Date(elem?._id)).format('DD MMM'),data:elem?.count}
+    setTotalChartData(data?.data?.data?.[0]?.total?.map((elem)=>{
+      return {date:moment(new Date(elem?._id)).format('DD MMM'),data:elem?.earnings}
+    }));
+    setNormalUserChartData(data?.data?.data?.[0]?.normalUser?.map((elem)=>{
+      return {date:moment(new Date(elem?._id)).format('DD MMM'),data:elem?.earnings}
+    }));
+    setInfluencerUserChartData(data?.data?.data?.[0]?.influencerUser?.map((elem)=>{
+      return {date:moment(new Date(elem?._id)).format('DD MMM'),data:elem?.earnings}
     }));
   }
 
-  // console.log("userData", userData)
 
 
   return (
     <Card sx={{ minWidth: '100%', minHeight: '410px', maxWidth: '100%', maxHeight: 'auto', alignContent: 'center', alignItems: 'center' }}>
-     
       <CardContent style={{ mt: -1, width: '100%' }} display='flex' justifyContent='center'>
         <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-       
-          
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <MDTypography style={{ textAlign: 'center' }}>
              <AnimationNumber count={(influencerUserRevenue?.lifetimeEarnings + normalUserRevenue?.lifetimeEarnings)}/>
@@ -183,7 +185,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              {/* <DayWiseCount data={chartData} chartType={'bar'}/> */}
+              <DayWiseCount data={totalChartData} />
             </Grid>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
@@ -194,7 +196,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              {/* <DayWiseCount data={chartData} chartType={'bar'}/> */}
+              <DayWiseCount data={influencerUserChartData} />
             </Grid>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
@@ -205,7 +207,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              {/* <DayWiseCount data={chartData} chartType={'bar'}/> */}
+              <DayWiseCount data={normalUserChartData} />
             </Grid>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>

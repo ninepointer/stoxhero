@@ -10,13 +10,15 @@ echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition]);
 
 export default function EChartsLineChart({data}) {
 
+  console.log('data', data)
+
   useEffect(() => {
     const chartDom = document.getElementById('main');
     const myChart = echarts.init(chartDom, 'transparent');
     const option = {
       xAxis: {
         type: 'category',
-        data: data?.map((e)=>moment(e?.date).format("DD MMM"))
+        data: data?.map((e)=>e?.date),
       },
       yAxis: {
         type: 'value'
