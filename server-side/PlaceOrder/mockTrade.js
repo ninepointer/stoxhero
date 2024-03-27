@@ -16,7 +16,9 @@ const {ObjectId} = require("mongodb")
 const DailyContest = require("../models/DailyContest/dailyContest")
 const MarginX = require("../models/marginX/marginX");
 const TenxSubscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
-const {equityBrokerage} = require("./equity/brokerageEquity")
+const {equityBrokerage} = require("./equity/brokerageEquity");
+const Authenticate = require('../authentication/authentication')
+
 
 exports.mockTrade = async (req, res) => {
     const setting = await Setting.find().select('toggle');
@@ -165,6 +167,7 @@ exports.mockTrade = async (req, res) => {
 
     if(dailyContest){
         await dailyContestTrade(req, res, otherData);
+        let delRedis = false;
         if (!req?.user?.activationDetails?.activationDate) {
             const contest = await DailyContest.findOne({_id: new ObjectId(req.body.contestId)})
             const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
@@ -178,17 +181,25 @@ exports.mockTrade = async (req, res) => {
                     }
                 }
             })
-            await paidDetailsUpdate.save({validateBeforeSave: false});
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+
+            delRedis = true;
         }
 
         if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
             const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
             paidDetailsUpdate.paidDetails.paidStatus = "Active";
-            paidDetailsUpdate.paidDetails.paidDate = new Date();
+            // paidDetailsUpdate.paidDetails.paidDate = new Date();
             await paidDetailsUpdate.save({validateBeforeSave:false})
+            delRedis = true;
+        }
 
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+        if(delRedis){
+            const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id), status: "Active" })
+            .select('referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails');
+
+            // await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+            await client.set(`${user._id.toString()}authenticatedUser`, JSON.stringify(user));
+            console.log(await client.get(`${user._id.toString()}authenticatedUser`));
         }
     }
     
@@ -230,6 +241,7 @@ exports.mockTrade = async (req, res) => {
     
     if(tenxTraderPath){
         await tenxTrade(req, res, otherData);
+        let delRedis = false;
         if (!req?.user?.activationDetails?.activationDate) {
             let tenx = [];
             const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) }).select('subscription');
@@ -261,19 +273,24 @@ exports.mockTrade = async (req, res) => {
                     }
                 }
             })
-
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+            delRedis = true;
         }
 
         if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
             const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
             paidDetailsUpdate.paidDetails.paidStatus = "Active";
-            paidDetailsUpdate.paidDetails.paidDate = new Date();
+            // paidDetailsUpdate.paidDetails.paidDate = new Date();
             await paidDetailsUpdate.save({validateBeforeSave:false})
-
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+            delRedis = true;
         }
 
+        if(delRedis){
+            const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id), status: "Active" })
+            .select('referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails');
+
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+            await client.set(`${user._id.toString()}authenticatedUser`, JSON.stringify(user));
+        }
     }
 
     if(internPath){
@@ -296,6 +313,7 @@ exports.mockTrade = async (req, res) => {
 
     if(marginx){
         await marginxTrade(req, res, otherData);
+        let delRedis = false;
         if (!req?.user?.activationDetails?.activationDate) {
             const marginx = await MarginX.findOne({_id: new ObjectId(req?.body?.marginxId)})
             .populate('marginXTemplate', 'entryFee')
@@ -316,19 +334,24 @@ exports.mockTrade = async (req, res) => {
                     }
                 }
             })
-
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+            delRedis = true;
         }
 
         if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
             const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
             paidDetailsUpdate.paidDetails.paidStatus = "Active";
-            paidDetailsUpdate.paidDetails.paidDate = new Date();
+            // paidDetailsUpdate.paidDetails.paidDate = new Date();
             await paidDetailsUpdate.save({validateBeforeSave:false})
-
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+            delRedis = true;
         }
 
+        if(delRedis){
+            const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id), status: "Active" })
+            .select('referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails');
+
+            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+            await client.set(`${user._id.toString()}authenticatedUser`, JSON.stringify(user));
+        }
     }
 
     if(battle){
