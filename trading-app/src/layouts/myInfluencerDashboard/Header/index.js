@@ -25,6 +25,7 @@ import InfluencerUserData from "../data/InfluencerUserData";
 import moment from "moment";
 import { socketContext } from "../../../socketContext";
 import InfluencerRevenueData from "../data/InfluencerRevenueData";
+import InfluencerUserLiveData from "../data/influencerUserLiveData";
 
 export default function Dashboard() {
   const getDetails = useContext(userContext);
@@ -37,7 +38,7 @@ export default function Dashboard() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [successSB, setSuccessSB] = useState(false);
-  const [affiliateData, setAffiliateData] = useState(null);
+  const [influencerData, setInfluencerData] = useState(null);
   // const [showDetailClicked, setShowDetailClicked] = useState(false);
   const socket = useContext(socketContext);
 
@@ -58,6 +59,12 @@ export default function Dashboard() {
         }
       }
     );
+  }, []);
+
+  useEffect(() => {
+    // socket.on("connect", ()=>{
+    socket.emit("company-ticks", true);
+    // })
   }, []);
 
   const openSuccessSB = (title, content) => {
@@ -127,7 +134,7 @@ export default function Dashboard() {
           </MDTypography>
         </Grid>
         {userDetails?.role?.roleName === adminRole && (
-          <ChooseAfiliate setAffiliateData={setAffiliateData} />
+          <ChooseAfiliate setInfluencerData={setInfluencerData} />
         )}
 
         {isLoading ? (
@@ -219,6 +226,36 @@ export default function Dashboard() {
                     influencerUserRevenue={influencerUserRevenue}
                     setInfluencerUserRevenue={setInfluencerUserRevenue}
                   />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={12}
+              lg={12}
+              mt={1}
+              display="flex"
+              justifyContent="center"
+            >
+              <Grid
+                container
+                spacing={2}
+                xs={12}
+                md={12}
+                lg={12}
+                display="flex"
+                justifyContent="center"
+                style={{ width: "100%" }}
+              >
+                <Grid
+                  item
+                  xs={12}
+                  md={12}
+                  lg={12}
+                  style={{ width: "100%", height: "auto" }}
+                >
+                  <InfluencerUserLiveData socket={socket} />
                 </Grid>
               </Grid>
             </Grid>
