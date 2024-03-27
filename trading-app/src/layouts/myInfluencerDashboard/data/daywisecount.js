@@ -9,7 +9,6 @@ import moment from 'moment'
 echarts.use([GridComponent, LineChart, CanvasRenderer, UniversalTransition]);
 
 export default function EChartsLineChart({data}) {
-
   useEffect(() => {
     const chartDom = document.getElementById('main');
     const myChart = echarts.init(chartDom, 'transparent');

@@ -63,7 +63,7 @@ function Summary({lastPaidContests, lastContestDate}) {
                         <MDButton variant='text' color='dark' size="small" onClick={()=>{navigate('/toptestzoneportfolios')}}>View All</MDButton>
                     </Grid> */}
                 </Grid>
-                    <Grid container spacing={1} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
+                    <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' alignItems='center'>
                         
                         {lastPaidContests?.map((e, index)=>{
                             return (

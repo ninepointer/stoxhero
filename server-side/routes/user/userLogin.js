@@ -1323,23 +1323,46 @@ router.post("/createusermobile", async (req, res, next) => {
             );
           }
           // await referrerCodeMatch.save({ validateBeforeSave: false });
-          const wallet = await UserWallet.findOneAndUpdate(
-            { userId: saveReferrals._id },
-            {
-              $push: {
-                transactions: {
-                  title: "Referral Credit",
-                  description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-                  amount: referralProgramme.rewardPerReferral,
-                  transactionId: uuid.v4(),
-                  transactionDate: new Date(),
-                  transactionType:
-                    referralProgramme.currency == "INR" ? "Cash" : "Bonus",
+          if(saveReferrals?.referrals?.length <= (referralProgramme?.maxReferralsPayoutCap??3000) ){
+            const wallet = await UserWallet.findOneAndUpdate(
+              { userId: saveReferrals._id },
+              {
+                $push: {
+                  transactions: {
+                    title: "Referral Credit",
+                    description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                    amount: referralProgramme.rewardPerReferral,
+                    transactionId: uuid.v4(),
+                    transactionDate: new Date(),
+                    transactionType:
+                      referralProgramme.currency == "INR" ? "Cash" : "Bonus",
+                  },
                 },
               },
-            },
-            { new: true, validateBeforeSave: false }
-          );
+              { new: true, validateBeforeSave: false }
+              );
+              await createUserNotification({
+                title: "Referral Signup Credit",
+                description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                notificationType: "Individual",
+                notificationCategory: "Informational",
+                productCategory: "SignUp",
+                user: saveReferrals?._id,
+                priority: "Medium",
+                channels: ["App", "Email"],
+                createdBy: "63ecbc570302e7cf0153370c",
+                lastModifiedBy: "63ecbc570302e7cf0153370c",
+              });
+              if (user?.fcmTokens?.length > 0) {
+                await sendMultiNotifications(
+                  "Referral Signup Credit",
+                  `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
+                  saveReferrals?.fcmTokens?.map((item) => item.token),
+                  null,
+                  { route: "wallet" }
+                );
+              }
+          }
 
           // const wallet = await UserWallet.findOne({ userId: saveReferrals._id });
           // wallet.transactions = [...wallet.transactions, {
@@ -1352,27 +1375,6 @@ router.post("/createusermobile", async (req, res, next) => {
           // }];
           // await wallet.save({ validateBeforeSave: false });
 
-          await createUserNotification({
-            title: "Referral Signup Credit",
-            description: `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-            notificationType: "Individual",
-            notificationCategory: "Informational",
-            productCategory: "SignUp",
-            user: saveReferrals?._id,
-            priority: "Medium",
-            channels: ["App", "Email"],
-            createdBy: "63ecbc570302e7cf0153370c",
-            lastModifiedBy: "63ecbc570302e7cf0153370c",
-          });
-          if (user?.fcmTokens?.length > 0) {
-            await sendMultiNotifications(
-              "Referral Signup Credit",
-              `Amount credited for referral of ${newuser.first_name} ${newuser.last_name}`,
-              saveReferrals?.fcmTokens?.map((item) => item.token),
-              null,
-              { route: "wallet" }
-            );
-          }
         }
       }
     }

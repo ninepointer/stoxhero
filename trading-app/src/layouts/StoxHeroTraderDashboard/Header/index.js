@@ -20,11 +20,10 @@ import ReactGA from "react-ga";
 import TopContestPortfolios from "../data/topContestPortfolios";
 import TestZoneChampions from "../data/testZoneChampions";
 import PracticeAndPrepare from "../data/practiceAndPrepare";
-import Workshop from '../data/workshop/workshop';
+import Workshop from "../data/workshop/workshop";
 import { useMediaQuery } from "@mui/material";
 import theme from "../../HomePage/utils/theme/index";
-import {Influencer} from '../../../variables'
-
+import { Influencer } from "../../../variables";
 
 export default function Dashboard() {
   let baseUrl =
@@ -294,8 +293,8 @@ export default function Dashboard() {
         </Slider>
       )}
 
-      {(getDetails?.userDetails?.role?.roleName !== Influencer) &&
-        <Grid
+      {/* {(getDetails?.userDetails?.role?.roleName !== Influencer) && */}
+      <Grid
         container
         spacing={0.75}
         xs={12}
@@ -307,11 +306,18 @@ export default function Dashboard() {
         flexDirection="row"
       >
         <Grid item xs={12} md={12} lg={12}>
-          <MDBox style={{ borderRadius: 7, marginTop: 10, marginBottom: isMobile ? 2 : 0 }}>
+          <MDBox
+            style={{
+              borderRadius: 7,
+              marginTop: 10,
+              marginBottom: isMobile ? 2 : 0,
+            }}
+          >
             <Workshop />
           </MDBox>
         </Grid>
-      </Grid>}
+      </Grid>
+      {/* } */}
 
       <Grid
         container
@@ -324,7 +330,7 @@ export default function Dashboard() {
         alignItems="start"
         flexDirection="row"
       >
-        <Grid item xs={12} md={12} lg={12} >
+        <Grid item xs={12} md={12} lg={12}>
           {!isLoading ? (
             <MDBox style={{ backgroundColor: "white", borderRadius: 5 }}>
               <TopContestPortfolios

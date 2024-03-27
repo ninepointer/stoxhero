@@ -167,7 +167,7 @@ const CreateCourse = (
     const data = await res.json();
 
     if (res.status === 200 || res.status == 201 || data) {
-      openSuccessSB("Course Edited", data.message);
+      openSuccessSB(`${formState?.type==='Workshop' ? 'Workshop' : 'Course'} Edited`, data.message);
       setEditing(true);
       setEditClicked(false);
       setCreatedCourse(data.data);
@@ -607,7 +607,7 @@ const CreateCourse = (
                       <DemoContainer components={["MobileDateTimePicker"]}>
                         <DemoItem>
                           <MobileDateTimePicker
-                            label="Course Start Time"
+                            label={`${formState?.type==='Workshop' ? 'Workshop' : 'Course'} Start Time`}
                             disabled={editing}
                             value={
                               formState?.courseStartTime ||
@@ -636,7 +636,7 @@ const CreateCourse = (
                       <DemoContainer components={["MobileDateTimePicker"]}>
                         <DemoItem>
                           <MobileDateTimePicker
-                            label="Course End Time"
+                            label={`${formState?.type==='Workshop' ? 'Workshop' : 'Course'} End Time`}
                             disabled={editing}
                             value={
                               formState?.courseEndTime ||

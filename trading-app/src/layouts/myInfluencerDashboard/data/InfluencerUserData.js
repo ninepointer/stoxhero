@@ -29,15 +29,13 @@ export default function InfluencerUserData({userData, setUserData}) {
     const data = await axios.get(`${apiUrl}influencer/userdata`, {withCredentials: true});
     setUserData(data?.data?.data);
   }
-
+  
   async function userLast60DaysData(){
     const data = await axios.get(`${apiUrl}influencer/last60daysuserdata`, {withCredentials: true});
     setChartData(data?.data?.data?.map((elem)=>{
       return {date:moment(new Date(elem?._id)).format('DD MMM'),data:elem?.count}
     }));
   }
-
-  console.log("userData", chartData)
 
 
   return (
@@ -109,16 +107,31 @@ export default function InfluencerUserData({userData, setUserData}) {
               </MDTypography>
             </Grid>
           </Grid>
-
+          
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-            <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseCount data={chartData}/>
+            <Grid mt={2} item xs={12} md={12} lg={12} display='flex' flexDirection={chartData?.length ? 'row' : 'column'} justifyContent='center' alignContent='center' alignItems='center'>
+              {chartData?.length ?
+                <DayWiseCount data={chartData} />
+                :
+                <>
+                  <MDTypography fontSize={80} mt={5} color="info" style={{ textAlign: 'center' }}>
+                    😑
+                  </MDTypography>
+                  <MDTypography fontSize={15} mb={5} fontWeight="bold" color="dark" style={{ textAlign: 'center' }}>
+                    No last 60 days data
+                  </MDTypography>
+                </>
+              }
             </Grid>
+
+            {chartData?.length ?
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
                 Last 60 days signups
               </MDTypography>
             </Grid>
+            :
+            <></>}
           </Grid>
         </Grid>
 

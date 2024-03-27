@@ -21,9 +21,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 // import UploadImage from "../../assets/images/uploadimage.png";
 import { Autocomplete, Box } from "@mui/material";
-import { styled } from '@mui/material';
-
-
+import { styled } from "@mui/material";
 
 const CustomAutocomplete = styled(Autocomplete)`
   .MuiAutocomplete-clearIndicator {
@@ -42,13 +40,13 @@ const DeactivateUser = () => {
   const [edit, setEdit] = useState(false);
   const [fileMobile, setFileMobile] = useState(null);
   const [cityData, setCityData] = useState([]);
-  const [userState, setUserState] = useState('');
+  const [userState, setUserState] = useState("");
   // const [userCity, setUserCity] = useState('');
 
   const [value, setValue] = useState({
-    _id: '',
-    name: ""
-  })
+    _id: "",
+    name: "",
+  });
   const [influencerData, setInfluencerData] = useState({
     tags: "",
     about: "",
@@ -63,28 +61,27 @@ const DeactivateUser = () => {
   const handleStateChange = (event, newValue) => {
     setUserState(newValue);
     setValue({
-      _id: '',
-      name: ""
-    })
+      _id: "",
+      name: "",
+    });
     setCityData([]);
     // setUserCity('');
-
-  }
+  };
 
   const getCities = async () => {
     try {
       const res = await axios.get(`${apiUrl}cities/bystate/${userState}`);
-      if (res.data.status == 'success') {
+      if (res.data.status == "success") {
         setCityData(res.data.data);
       }
     } catch (e) {
       console.log(e);
     }
-  }
+  };
 
   useEffect(() => {
     getCities();
-  }, [userState])
+  }, [userState]);
 
   const handleBannerImageWeb = (event) => {
     setFile(event.target.files[0]);
@@ -171,11 +168,11 @@ const DeactivateUser = () => {
       }
     );
     if (res.data.status == "success") setEdit(true);
-    setUserState('');
+    setUserState("");
     setValue({
-      _id: '',
-      name: ""
-    })
+      _id: "",
+      name: "",
+    });
     setSelectedUser({
       ...res.data.data[0],
       slug: res.data.data[0]?.slug,
@@ -185,13 +182,37 @@ const DeactivateUser = () => {
       city: res.data.data[0]?.influencerDetails?.city?._id,
       bannerImageMobile: res.data.data[0]?.influencerDetails?.bannerImageMobile,
       bannerImageWeb: res.data.data[0]?.influencerDetails?.bannerImageWeb,
+      shTelegramCommunityLink:
+        res.data.data[0]?.influencerDetails?.shTelegramCommunityLink,
+      youtubeChannelLink:
+        res.data.data[0]?.influencerDetails?.channelDetails?.youtube
+          ?.channelLink,
+      instagramChannelLink:
+        res.data.data[0]?.influencerDetails?.channelDetails?.instagram
+          ?.channelLink,
+      telegramChannelLink:
+        res.data.data[0]?.influencerDetails?.channelDetails?.telegram
+          ?.channelLink,
+      twitterChannelLink:
+        res.data.data[0]?.influencerDetails?.channelDetails?.twitter
+          ?.channelLink,
+      youtubeFollowers:
+        res.data.data[0]?.influencerDetails?.channelDetails?.youtube?.followers,
+      instagramFollowers:
+        res.data.data[0]?.influencerDetails?.channelDetails?.instagram
+          ?.followers,
+      telegramFollowers:
+        res.data.data[0]?.influencerDetails?.channelDetails?.telegram
+          ?.followers,
+      twitterFollowers:
+        res.data.data[0]?.influencerDetails?.channelDetails?.twitter?.followers,
     });
 
     setUserState(res.data.data[0]?.influencerDetails?.state);
     setValue({
-      _id: res.data.data[0]?.influencerDetails?.city?._id,
-      name: res.data.data[0]?.influencerDetails?.city?.name
-    })
+      _id: res.data.data[0]?.influencerDetails?.city?._id || '',
+      name: res.data.data[0]?.influencerDetails?.city?.name || '',
+    });
     setInfluencerData({
       ...res.data.data[0],
       slug: res.data.data[0]?.slug,
@@ -199,6 +220,30 @@ const DeactivateUser = () => {
       tags: res.data.data[0]?.influencerDetails?.tags.join(),
       state: res.data.data[0]?.influencerDetails?.state,
       city: res.data.data[0]?.influencerDetails?.city,
+      shTelegramCommunityLink:
+        res.data.data[0]?.influencerDetails?.shTelegramCommunityLink,
+      youtubeChannelLink:
+        res.data.data[0]?.influencerDetails?.channelDetails?.youtube
+          ?.channelLink,
+      instagramChannelLink:
+        res.data.data[0]?.influencerDetails?.channelDetails?.instagram
+          ?.channelLink,
+      telegramChannelLink:
+        res.data.data[0]?.influencerDetails?.channelDetails?.telegram
+          ?.channelLink,
+      twitterChannelLink:
+        res.data.data[0]?.influencerDetails?.channelDetails?.twitter
+          ?.channelLink,
+      youtubeFollowers:
+        res.data.data[0]?.influencerDetails?.channelDetails?.youtube?.followers,
+      instagramFollowers:
+        res.data.data[0]?.influencerDetails?.channelDetails?.instagram
+          ?.followers,
+      telegramFollowers:
+        res.data.data[0]?.influencerDetails?.channelDetails?.telegram
+          ?.followers,
+      twitterFollowers:
+        res.data.data[0]?.influencerDetails?.channelDetails?.twitter?.followers,
     });
   };
 
@@ -241,7 +286,7 @@ const DeactivateUser = () => {
     }));
     setSelectedUser((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: value || '',
     }));
   };
   const handleChannelDataChange = async (e) => {
@@ -253,7 +298,21 @@ const DeactivateUser = () => {
   };
 
   const handleAddInfluencer = async () => {
-    const { about, tags, state, city } = influencerData;
+    const {
+      about,
+      tags,
+      state,
+      city,
+      shTelegramCommunityLink,
+      youtubeChannelLink,
+      youtubeFollowers,
+      instagramChannelLink,
+      instagramFollowers,
+      telegramChannelLink,
+      telegramFollowers,
+      twitterChannelLink,
+      twitterFollowers,
+    } = influencerData;
     const formData = new FormData();
     if (!file) {
       //return error
@@ -267,11 +326,19 @@ const DeactivateUser = () => {
     }
 
     const payload = {
-     
       tags,
       about,
       myReferralCode: selectedUser?.myReferralCode,
       slug: selectedUser?.slug || influencerData?.slug,
+      shTelegramCommunityLink,
+      youtubeChannelLink,
+      youtubeFollowers,
+      instagramChannelLink,
+      instagramFollowers,
+      telegramChannelLink,
+      telegramFollowers,
+      twitterChannelLink,
+      twitterFollowers,
     };
     for (let elem in payload) {
       if (elem !== "bannerImageWeb") formData.append(`${elem}`, payload[elem]);
@@ -302,8 +369,23 @@ const DeactivateUser = () => {
       console.log(e);
     }
   };
+
   const editInfluencer = async () => {
-    const { about, tags, state, city } = influencerData;
+    const {
+      about,
+      tags,
+      state,
+      city,
+      shTelegramCommunityLink,
+      youtubeChannelLink,
+      youtubeFollowers,
+      instagramChannelLink,
+      instagramFollowers,
+      telegramChannelLink,
+      telegramFollowers,
+      twitterChannelLink,
+      twitterFollowers,
+    } = influencerData;
     const formData = new FormData();
 
     if (file) {
@@ -314,11 +396,19 @@ const DeactivateUser = () => {
     }
 
     const payload = {
-     
       tags,
       about,
       myReferralCode: selectedUser?.myReferralCode,
       slug: selectedUser?.slug || influencerData?.slug,
+      shTelegramCommunityLink,
+      youtubeChannelLink,
+      youtubeFollowers,
+      instagramChannelLink,
+      instagramFollowers,
+      telegramChannelLink,
+      telegramFollowers,
+      twitterChannelLink,
+      twitterFollowers,
     };
     for (let elem in payload) {
       if (elem !== "bannerImageWeb") formData.append(`${elem}`, payload[elem]);
@@ -379,6 +469,7 @@ const DeactivateUser = () => {
     // setUserCity(newValue?.name);
     setValue(newValue);
   };
+
 
   const handleRemoveInfluencer = async (elem) => {
     try {
@@ -506,6 +597,8 @@ const DeactivateUser = () => {
 
     rows.push(obj);
   });
+
+  console.log('selectedUser?.tags', selectedUser?.tags, influencerData)
   return (
     <>
       <MDBox pt={6} pb={3}>
@@ -542,57 +635,87 @@ const DeactivateUser = () => {
                   spacing={2}
                   // style={{ maxWidth: "100%", height: "auto" }}
                 >
-                   <Grid
+                  <Grid
                     item
                     xs={12}
                     md={12}
                     xl={3}
                     style={{ maxWidth: "100%", height: "auto" }}
                   >
-                    {/* <TextField
-                      label="State"
-                      value={selectedUser?.state}
-                      name="state"
-                      fullWidth
-                      onChange={handleChange}
-                    /> */}
                     <CustomAutocomplete
-                    id="country-select-demo"
-                    sx={{
-                      width: "100%",
-                      '& .MuiAutocomplete-clearIndicator': {
-                        color: 'dark',
-                      },
-                    }}
-                    options={['Andaman & Nicobar', 'Andhra Pradesh', 'Arunachal Pradesh', "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Delhi",
-                      "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu & Kashmir", "Jharkhand", "Karnataka", "Kerala", "Ladakh",
-                      "Lakshadeep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Pondicherry",
-                      "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"]}
-                    value={userState}
-                    // disabled={otpGen}
-                    onChange={handleStateChange}
-                    autoHighlight
-                    getOptionLabel={(option) => option ? option : ''}
-                    renderOption={(props, option) => (
-                      <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                        {option}
-                      </Box>
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        placeholder="Search your state"
-                        inputProps={{
-                          ...params.inputProps,
-                          autoComplete: 'new-password', // disable autocomplete and autofill
-                          style: { color: 'dark', height: "10px" }, // set text color to dark
-                        }}
-                        InputLabelProps={{
-                          style: { color: 'dark' },
-                        }}
-                      />
-                    )}
-                  />
+                      id="country-select-demo"
+                      sx={{
+                        width: "100%",
+                        "& .MuiAutocomplete-clearIndicator": {
+                          color: "dark",
+                        },
+                      }}
+                      options={[
+                        "Andaman & Nicobar",
+                        "Andhra Pradesh",
+                        "Arunachal Pradesh",
+                        "Assam",
+                        "Bihar",
+                        "Chandigarh",
+                        "Chhattisgarh",
+                        "Delhi",
+                        "Goa",
+                        "Gujarat",
+                        "Haryana",
+                        "Himachal Pradesh",
+                        "Jammu & Kashmir",
+                        "Jharkhand",
+                        "Karnataka",
+                        "Kerala",
+                        "Ladakh",
+                        "Lakshadeep",
+                        "Madhya Pradesh",
+                        "Maharashtra",
+                        "Manipur",
+                        "Meghalaya",
+                        "Mizoram",
+                        "Nagaland",
+                        "Odisha",
+                        "Pondicherry",
+                        "Punjab",
+                        "Rajasthan",
+                        "Sikkim",
+                        "Tamil Nadu",
+                        "Telangana",
+                        "Tripura",
+                        "Uttar Pradesh",
+                        "Uttarakhand",
+                        "West Bengal",
+                      ]}
+                      value={userState || ''}
+                      // disabled={otpGen}
+                      onChange={handleStateChange}
+                      autoHighlight
+                      getOptionLabel={(option) => (option ? option : "")}
+                      renderOption={(props, option) => (
+                        <Box
+                          component="li"
+                          sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
+                          {...props}
+                        >
+                          {option}
+                        </Box>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Search your state"
+                          inputProps={{
+                            ...params.inputProps,
+                            autoComplete: "new-password", // disable autocomplete and autofill
+                            style: { color: "dark", height: "10px" }, // set text color to dark
+                          }}
+                          InputLabelProps={{
+                            style: { color: "dark" },
+                          }}
+                        />
+                      )}
+                    />
                   </Grid>
 
                   <Grid
@@ -602,30 +725,29 @@ const DeactivateUser = () => {
                     xl={3}
                     style={{ maxWidth: "100%", height: "auto" }}
                   >
-                    {/* <TextField
-                      label="City"
-                      value={selectedUser?.city}
-                      name="city"
-                      fullWidth
-                      onChange={handleChange}
-                    /> */}
 
                     <CustomAutocomplete
                       id="country-select-demo"
                       sx={{
                         width: "100%",
-                        '& .MuiAutocomplete-clearIndicator': {
-                          color: 'dark',
+                        "& .MuiAutocomplete-clearIndicator": {
+                          color: "dark",
                         },
                       }}
                       options={cityData || []}
-                      value={value}
+                      value={value || ''}
                       // disabled={otpGen}
                       onChange={handleCityChange}
                       autoHighlight
-                      getOptionLabel={(option) => option ? option.name : 'City'}
+                      getOptionLabel={(option) =>
+                        option ? option.name : "City"
+                      }
                       renderOption={(props, option) => (
-                        <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                        <Box
+                          component="li"
+                          sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
+                          {...props}
+                        >
                           {option.name}
                         </Box>
                       )}
@@ -635,17 +757,17 @@ const DeactivateUser = () => {
                           placeholder="Search your city"
                           inputProps={{
                             ...params.inputProps,
-                            autoComplete: 'new-password', // disable autocomplete and autofill
-                            style: { color: 'dark', height: "10px" }, // set text color to dark
+                            autoComplete: "new-password", // disable autocomplete and autofill
+                            style: { color: "dark", height: "10px" }, // set text color to dark
                           }}
                           InputLabelProps={{
-                            style: { color: 'dark' },
+                            style: { color: "dark" },
                           }}
                         />
                       )}
                     />
                   </Grid>
-                 
+
                   <Grid
                     item
                     xs={12}
@@ -658,7 +780,7 @@ const DeactivateUser = () => {
                       placeholder="Comma separated tags eg: Investing, Trading, Stocks"
                       name="tags"
                       fullWidth
-                      value={selectedUser?.tags}
+                      value={(selectedUser?.tags !== 'undefined') ? selectedUser?.tags : ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -673,7 +795,7 @@ const DeactivateUser = () => {
                       label="Slug"
                       name="slug"
                       fullWidth
-                      value={influencerData?.slug}
+                      value={influencerData?.slug || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -699,7 +821,7 @@ const DeactivateUser = () => {
                       multiline
                       fullWidth
                       rows={6}
-                      value={selectedUser?.about}
+                      value={selectedUser?.about || ''}
                       onChange={handleChange}
                     />
                   </Grid>
@@ -707,18 +829,164 @@ const DeactivateUser = () => {
                     item
                     xs={12}
                     md={12}
-                    xl={6}
+                    xl={3}
                     style={{ maxWidth: "100%", height: "auto" }}
                   >
                     <TextField
                       label="Referral Code"
                       name="myReferralCode"
-                      value={selectedUser?.myReferralCode}
+                      value={selectedUser?.myReferralCode || ''}
+                      fullWidth
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={3}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Telegram Community Link"
+                      name="shTelegramCommunityLink"
+                      value={selectedUser?.shTelegramCommunityLink || ''}
                       fullWidth
                       onChange={handleChange}
                     />
                   </Grid>
                 </Grid>
+                <Grid
+                  container
+                  xs={12}
+                  md={12}
+                  xl={12}
+                  spacing={2}
+                  mt={2}
+                  // style={{ maxWidth: "100%", height: "auto" }}
+                >
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={4}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Youtube Link"
+                      name="youtubeChannelLink"
+                      fullWidth
+                      value={selectedUser?.youtubeChannelLink || ''}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={2}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Youtube Subscribers"
+                      name="youtubeFollowers"
+                      fullWidth
+                      value={selectedUser?.youtubeFollowers || ''}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={4}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Instagram Link"
+                      name="instagramChannelLink"
+                      fullWidth
+                      value={selectedUser?.instagramChannelLink || ''}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={2}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Instagram Followers"
+                      name="instagramFollowers"
+                      fullWidth
+                      value={selectedUser?.instagramFollowers || ''}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={4}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Telegram Link"
+                      name="telegramChannelLink"
+                      fullWidth
+                      value={selectedUser?.telegramChannelLink || ''}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={2}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Telegram Followers"
+                      name="telegramFollowers"
+                      fullWidth
+                      value={selectedUser?.telegramFollowers || ''}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={4}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Twitter/X Link"
+                      name="twitterChannelLink"
+                      fullWidth
+                      value={selectedUser?.twitterChannelLink || ''}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={12}
+                    xl={2}
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  >
+                    <TextField
+                      label="Twitter/X Followers"
+                      name="twitterFollowers"
+                      fullWidth
+                      value={selectedUser?.twitterFollowers || ''}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                </Grid>
+
                 <Grid item xs={12} md={6} xl={3}>
                   <MDButton
                     variant="outlined"
@@ -755,7 +1023,6 @@ const DeactivateUser = () => {
                     />
                   </MDButton>
                 </Grid>
-
                 {titlePreviewUrl ? (
                   <Grid
                     item
@@ -1117,9 +1384,12 @@ const DeactivateUser = () => {
                   display="flex"
                   justifyContent="flex-end"
                   mt={2}
+                  gap={1}
                   // style={{ maxWidth: "100%", height: "auto" }}
                 >
                   <MDButton
+                  color="error"
+                  size='small'
                     onClick={() => {
                       setSelectedUser();
                       setEdit(false);
@@ -1130,11 +1400,12 @@ const DeactivateUser = () => {
                   </MDButton>
                   <MDButton
                     color="success"
+                    size='small'
                     onClick={() => {
                       edit ? editInfluencer() : handleAddInfluencer();
                     }}
                   >
-                    {edit ? "Edit Influencer" : "Add Influencer"}
+                    {edit ? "Save Influencer" : "Add Influencer"}
                   </MDButton>
                 </Grid>
               </MDBox>

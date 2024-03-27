@@ -94,15 +94,25 @@ const withdrawalData = {
   const tenxpurchaseLastYear = Math.abs(overallRevenue["Bought TenX Trading Subscription"].revenueLastYear)
   const tenxtotalPurchase = Math.abs(overallRevenue["Bought TenX Trading Subscription"].totalRevenue);
 
-  const coursepurchaseToday = Math.abs(overallRevenue["Course Fee"].revenueToday) + Math.abs(overallRevenue["Workshop Fee"].revenueToday)
-  const coursepurchaseYesterday = Math.abs(overallRevenue["Course Fee"].revenueYesterday) + Math.abs(overallRevenue["Workshop Fee"].revenueYesterday)
-  const coursepurchaseThisWeek = Math.abs(overallRevenue["Course Fee"].revenueThisWeek) + Math.abs(overallRevenue["Workshop Fee"].revenueThisWeek)
-  const coursepurchaseLastWeek = Math.abs(overallRevenue["Course Fee"].revenueLastWeek) + Math.abs(overallRevenue["Workshop Fee"].revenueLastWeek)
-  const coursepurchaseThisMonth = Math.abs(overallRevenue["Course Fee"].revenueThisMonth) + Math.abs(overallRevenue["Workshop Fee"].revenueThisMonth)
-  const coursepurchaseLastMonth = Math.abs(overallRevenue["Course Fee"].revenueLastMonth) + Math.abs(overallRevenue["Workshop Fee"].revenueLastMonth)
-  const coursepurchaseThisYear = Math.abs(overallRevenue["Course Fee"].revenueThisYear) + Math.abs(overallRevenue["Workshop Fee"].revenueThisYear)
-  const coursepurchaseLastYear = Math.abs(overallRevenue["Course Fee"].revenueLastYear) + Math.abs(overallRevenue["Workshop Fee"].revenueLastYear)
-  const coursetotalPurchase = Math.abs(overallRevenue["Course Fee"].totalRevenue) + Math.abs(overallRevenue["Workshop Fee"].totalRevenue)
+  const coursepurchaseToday = Math.abs(overallRevenue["Course Fee"].revenueToday)
+  const coursepurchaseYesterday = Math.abs(overallRevenue["Course Fee"].revenueYesterday)
+  const coursepurchaseThisWeek = Math.abs(overallRevenue["Course Fee"].revenueThisWeek)
+  const coursepurchaseLastWeek = Math.abs(overallRevenue["Course Fee"].revenueLastWeek)
+  const coursepurchaseThisMonth = Math.abs(overallRevenue["Course Fee"].revenueThisMonth)
+  const coursepurchaseLastMonth = Math.abs(overallRevenue["Course Fee"].revenueLastMonth)
+  const coursepurchaseThisYear = Math.abs(overallRevenue["Course Fee"].revenueThisYear)
+  const coursepurchaseLastYear = Math.abs(overallRevenue["Course Fee"].revenueLastYear)
+  const coursetotalPurchase = Math.abs(overallRevenue["Course Fee"].totalRevenue)
+  
+  const workshoppurchaseToday = Math.abs(overallRevenue["Workshop Fee"].revenueToday)
+  const workshoppurchaseYesterday = Math.abs(overallRevenue["Workshop Fee"].revenueYesterday)
+  const workshoppurchaseThisWeek = Math.abs(overallRevenue["Workshop Fee"].revenueThisWeek)
+  const workshoppurchaseLastWeek = Math.abs(overallRevenue["Workshop Fee"].revenueLastWeek)
+  const workshoppurchaseThisMonth = Math.abs(overallRevenue["Workshop Fee"].revenueThisMonth)
+  const workshoppurchaseLastMonth = Math.abs(overallRevenue["Workshop Fee"].revenueLastMonth)
+  const workshoppurchaseThisYear = Math.abs(overallRevenue["Workshop Fee"].revenueThisYear)
+  const workshoppurchaseLastYear = Math.abs(overallRevenue["Workshop Fee"].revenueLastYear)
+  const workshoptotalPurchase = Math.abs(overallRevenue["Workshop Fee"].totalRevenue)
 
 
   return (
@@ -599,6 +609,105 @@ const withdrawalData = {
                         <MDBox>
                             <MDTypography fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>
                              ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(coursetotalPurchase)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color='success' fontWeight="bold" style={{textAlign:'center'}}>
+                                {/* <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(revenueThisMonth-revenueLastMonth))/(revenueLastMonth === 0 ? revenueThisMonth : revenueLastMonth)*100).toFixed(0)}%</span>&nbsp; */}
+                                {/* <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{revenueThisMonth > revenueLastMonth ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp; */}
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>and growing</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                            Workshop Fee (Today)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={workshoppurchaseToday > workshoppurchaseYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(workshoppurchaseToday)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(workshoppurchaseYesterday)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={workshoppurchaseToday > workshoppurchaseYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((workshoppurchaseToday-workshoppurchaseYesterday)/(workshoppurchaseYesterday === 0 ? workshoppurchaseToday : workshoppurchaseYesterday)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{workshoppurchaseToday > workshoppurchaseYesterday ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from yesterday</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Workshop Fee (Week)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={workshoppurchaseThisWeek > workshoppurchaseLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(workshoppurchaseThisWeek)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(workshoppurchaseLastWeek)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={workshoppurchaseThisWeek > workshoppurchaseLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(workshoppurchaseThisWeek-workshoppurchaseLastWeek))/(workshoppurchaseLastWeek)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{workshoppurchaseThisWeek > workshoppurchaseLastWeek ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last week</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Workshop Fee (Month)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={workshoppurchaseThisMonth > workshoppurchaseLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(workshoppurchaseThisMonth)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(workshoppurchaseLastMonth)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={workshoppurchaseThisMonth > workshoppurchaseLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(workshoppurchaseThisMonth-workshoppurchaseLastMonth))/(workshoppurchaseLastMonth === 0 ? workshoppurchaseThisMonth : workshoppurchaseLastMonth)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{workshoppurchaseThisMonth > workshoppurchaseLastMonth ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last month</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Workshop Fee (Year)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={workshoppurchaseThisYear > workshoppurchaseLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(workshoppurchaseThisYear)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={workshoppurchaseThisYear > workshoppurchaseLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(workshoppurchaseThisYear-workshoppurchaseLastYear))/(workshoppurchaseLastYear === 0 ? workshoppurchaseThisYear : workshoppurchaseLastYear)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{workshoppurchaseThisYear > workshoppurchaseLastYear ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last year</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Total Workshop Fee
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(workshoptotalPurchase)}
                             </MDTypography>
                             <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color='success' fontWeight="bold" style={{textAlign:'center'}}>
                                 {/* <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(revenueThisMonth-revenueLastMonth))/(revenueLastMonth === 0 ? revenueThisMonth : revenueLastMonth)*100).toFixed(0)}%</span>&nbsp; */}

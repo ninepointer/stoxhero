@@ -35,7 +35,6 @@ export default function Wallet() {
   const perPage = 10;
   const perPageWd = 3;
 
-  
   const dummyData = [];
   useEffect(() => {
     const startIndex = (currentPage - 1) * perPage;

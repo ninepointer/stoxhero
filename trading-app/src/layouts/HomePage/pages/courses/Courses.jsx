@@ -171,7 +171,7 @@ export default function Courses() {
                   src={isMobile ? (instructor?.influencerDetails?.bannerImageMobile || SMCM) : (instructor?.influencerDetails?.bannerImageWeb || SMC)}
                   style={{ maxWidth: "100%", height: "auto" }}
                 />
-                <MDButton
+                {/* <MDButton
                   size="small"
                   style={{
                     position: "absolute", // Position the button absolutely
@@ -207,7 +207,7 @@ export default function Courses() {
                     cursor: "pointer", // Add pointer cursor
                     // width: "15%"
                   }}
-                  onClick={() => { window.open("https://t.me/stpstoxhero", '_blank'); }}
+                  onClick={() => { window.open(instructor?.influencerDetails?.shTelegramCommunityLink, '_blank'); }}
                 >
                   <MDTypography
                     style={{
@@ -219,8 +219,97 @@ export default function Courses() {
                     {isMobile ? "Join" : "Join Telegram Community"}&nbsp;
                   </MDTypography>
                   <FaTelegram size={24} color="#0088cc" />
-                </MDButton>
+                </MDButton> */}
               </Grid>
+
+
+              <Grid
+                item
+                xs={12}
+                md={12}
+                lg={12}
+                display="flex"
+                justifyContent="center"
+                alignContent="center"
+                alignItems="center"
+                style={{ minWidth: "100%" }}
+              >
+                <MDBox
+                  p={5}
+                  display="flex"
+                  justifyContent="center"
+                  alignContent="center"
+                  alignItems="center"
+                  style={{ backgroundColor: "#121213", minWidth: "100%" }}
+                >
+                  <Grid
+                    container
+                    spacing={2}
+                    xs={12}
+                    md={12}
+                    lg={12}
+                    display="flex"
+                    justifyContent="center"
+                    alignContent="center"
+                    alignItems="center"
+                    gap={2}
+                    style={{ backgroundColor: "#121213", minWidth: "100%" }}
+                  >
+                    <MDButton
+                      size="small"
+                      style={{
+                        // position: "absolute", // Position the button absolutely
+                        // top: isMobile ? "80%" : "90%", // Position the button in the center vertically
+                        // left: isMobile ? "50%" : "39%", // Position the button in the center horizontally
+                        // transform: "translate(-50%, -90%)", // Adjust to center the button perfectly
+                        padding: "12px", // Add padding to the button
+                        backgroundColor: "#D5F47E", // Add background color to the button
+                        color: "black", // Set text color
+                        border: "0.25px solid #454341",
+                        borderRadius: "10px", // Add border radius
+                        cursor: "pointer", // Add pointer cursor
+                        // width: "15%"
+                      }}
+                      onClick={() => { scrollToSection('courses') }}
+                    >
+                      <MDTypography style={{ fontSize: "18px", fontWeight: 600 }}>
+                        View Courses
+                      </MDTypography>
+                    </MDButton>
+                    <MDButton
+                      size="small"
+                      style={{
+                        // position: "absolute", // Position the button absolutely
+                        // top: isMobile ? "98%" : "90%", // Position the button in the center vertically
+                        // left: isMobile ? "50%" : "56%", // Position the button in the center horizontally
+                        // transform: "translate(-50%, -90%)", // Adjust to center the button perfectly
+                        padding: "12px", // Add padding to the button
+                        backgroundColor: "#121213", // Add background color to the button
+                        color: "white", // Set text color
+                        border: "0.25px solid #121213",
+                        borderRadius: "10px", // Add border radius
+                        cursor: "pointer", // Add pointer cursor
+                        border: '.5px solid grey'
+                        // width: "15%"
+                      }}
+                      onClick={() => { window.open(instructor?.influencerDetails?.shTelegramCommunityLink, '_blank'); }}
+                    >
+                      <MDTypography
+                        style={{
+                          fontSize: "18px",
+                          fontWeight: 600,
+                          color: "white",
+                        }}
+                      >
+                        {isMobile ? "Join" : "Join Telegram Community"}&nbsp;
+                      </MDTypography>
+                      <FaTelegram size={24} color="#0088cc" />
+                    </MDButton>
+                  </Grid>
+                </MDBox>
+              </Grid>
+
+
 
               <Grid
                 item

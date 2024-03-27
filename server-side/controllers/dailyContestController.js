@@ -2382,7 +2382,7 @@ exports.participateUsers = async (req, res) => {
       if (!contest.potentialParticipants.includes(userId)) {
         // contest.potentialParticipants.push(userId);
         const contest = await Contest.findOneAndUpdate(
-          { _id: ObjectId(id) },
+          { _id: new ObjectId(id) },
           {
             $push: {
               potentialParticipants: userId,

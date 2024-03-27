@@ -4,7 +4,7 @@ import MDButton from "../../../../components/MDButton";
 import { Grid } from "@mui/material";
 import theme from "../../utils/theme/index";
 import { ThemeProvider } from "styled-components";
-import { useMediaQuery } from "@mui/material";
+import { useMediaQuery, CircularProgress } from "@mui/material";
 import FinNavbar from "../../components/Navbars/FinNavBar";
 import MDTypography from "../../../../components/MDTypography";
 import MDSnackbar from "../../../../components/MDSnackbar";
@@ -181,10 +181,14 @@ const Workshop = () => {
                         alignItems="center"
                         style={{ minWidth: "75%" }}
                     >
-                        <img
-                            src={courseDetails?.courseImage}
-                            width={isMobile ? "100%" : "75%"}
-                        />
+                        {courseDetails?.workshopCoverImage ?
+                            <img
+                                src={courseDetails?.workshopCoverImage}
+                                width={isMobile ? "100%" : "75%"}
+                            />
+                            :
+                            <CircularProgress color='light' />
+                        }
                     </Grid>
 
                     <Grid
@@ -721,14 +725,14 @@ const Workshop = () => {
                         md={12}
                         lg={12}
                         display="flex"
-                        justifyContent="flex-start"
+                        justifyContent="center"
                         // alignItems="center"
                         id='about_instructor'
                         style={{ maxWidth: isMobile ? '100%' : "85%" }}
                       >
                         <MDBox
                           display="flex"
-                          justifyContent="flex-start"
+                          justifyContent="center"
                           alignItems="stretch"
                         >
                           <Grid
@@ -739,28 +743,30 @@ const Workshop = () => {
                             lg={12}
                             display="flex"
                             justifyContent={
-                              isMobile ? "center" : "flex-start"
+                              isMobile ? "center" : "center"
                             }
                             alignContent="center"
                             alignItems="center"
                             style={{
                               maxWidth: isMobile ? "100%" : "100%",
                               height: "auto",
+                              borderRadius: 20,
+                              border: "2px solid #343434",
                             }}
                           >
 
-                            <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} flexDirection='column' alignContent='center' ml={isMobile ? 0 : 10} p={2}>
-                              <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} alignContent='center' height='auto'>
+                            <MDBox display='flex' justifyContent={isMobile ? 'center' : 'center'} flexDirection='column' alignContent='center' ml={isMobile ? 0 : 0} p={2}>
+                              <MDBox display='flex' justifyContent={isMobile ? 'center' : 'center'} alignContent='center' height='auto'>
                                 <MDTypography style={{ fontSize: "24px", fontWeight: 700, color: '#ffffff' }}>
                                   {`${courseDetails?.type==='Workshop' ? 'Workshop' : 'Course'} Created and Instructed By`}
                                 </MDTypography>
                               </MDBox>
-                              <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} alignContent='center' height='auto'>
+                              <MDBox display='flex' justifyContent={isMobile ? 'center' : 'center'} alignContent='center' height='auto'>
                                 <MDTypography style={{ fontSize: "24px", fontWeight: 700, color: '#E6F495' }}>
                                   {`${instructor?.first_name} ${instructor?.last_name}`}
                                 </MDTypography>
                               </MDBox>
-                              <MDBox display='flex' justifyContent={isMobile ? 'flex-start' : 'flex-start'} flexDirection={isMobile ? 'column' : 'row'} alignContent='center' alignItems={isMobile ? "flex-start" : "center"} gap={2} mt={1}>
+                              <MDBox display='flex' justifyContent={isMobile ? 'center' : 'center'} flexDirection={isMobile ? 'column' : 'row'} alignContent='center' alignItems={isMobile ? "flex-start" : "center"} gap={2} mt={1}>
                                 <img src={instructor?.profilePhoto?.url} style={{ borderRadius: '50%', width: '90px', height: '90px' }} />
                                 <MDBox display='flex' justifyContent='center' flexDirection='column' alignContent='center' fontColor='#ffffff'>
                                   <MDBox display='flex' alignContent='center' gap={1} sx={{ cursor: 'pointer' }} onClick={() => { openSocialMediaHandle(instructor?.influencerDetails?.channelDetails?.youtube?.channelLink) }} ><span style={{ color: '#ffffff', marginTop: '3px' }}><YouTubeIcon color='red' /></span> <span style={{ color: '#ffffff' }}>{`${formatNumber(instructor?.influencerDetails?.channelDetails?.youtube?.followers)} Subscribers`}</span></MDBox>
@@ -770,7 +776,7 @@ const Workshop = () => {
                                 </MDBox>
                               </MDBox>
 
-                              <MDBox display='flex' justifyContent='center' flexDirection='column' alignContent='center' height='auto' width={isMobile ? '100%' : '50%'} mt={1}>
+                              <MDBox display='flex' justifyContent='center' flexDirection='column' alignContent='center' height='auto' width={isMobile ? '100%' : '100%'} mt={1}>
                                 <MDTypography style={{ fontSize: "16px", fontWeight: 500, color: '#ffffff', textAlign: 'justify' }}>
                                   {instructor?.influencerDetails?.about || 'Lorum ipsum dolor sit amet, consectetur adipiscing elit. Sed aliquam ultricies eros, a consectetur turpis maximus sed. Quisque convallis, lorem vitae ultrices consequat, nibh justo fermentum dui, et sodales justo magna non elit. Nulla facilisi. Integer auctor consequat diam, id fermentum magna efficitur eu.'}
                                 </MDTypography>

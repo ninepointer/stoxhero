@@ -684,7 +684,7 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
           <Grid item xs={12} md={6} xl={3}>
             <TextField
               required
-              disabled={(!editablePD || formStateKYC.KYCStatus === "Approved")}
+              disabled={!editablePD || formStateKYC.KYCStatus === "Approved"}
               id="outlined-required"
               label="First Name(As on bank account)"
               value={formStatePD.first_name}
@@ -702,7 +702,7 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
           <Grid item xs={12} md={6} xl={3}>
             <TextField
               required
-              disabled={(!editablePD || formStateKYC.KYCStatus === "Approved")}
+              disabled={!editablePD || formStateKYC.KYCStatus === "Approved"}
               id="outlined-required"
               label="Last Name(As on bank account)"
               value={formStatePD.last_name}
