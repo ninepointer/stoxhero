@@ -177,12 +177,12 @@ exports.createCourse = async (req, res) => {
   if (req.files["salesVideo"]) {
     salesVideo = await getAwsS3Url(req.files["salesVideo"][0], "Video");
   }
-  const courseSlug = courseName.replace(/ /g, "-").toLowerCase();
+  const courseSlug = courseName?.trim()?.replace(/ /g, "-").toLowerCase();
   try {
     // Create the course with validated and destructured data
     const course = new Course({
-      courseName,
-      courseSlug,
+      courseName: courseName?.trim(),
+      courseSlug: courseSlug?.trim(),
       courseImage,
       courseLanguages,
       courseDurationInMinutes: Math.abs(Number(courseDurationInMinutes)),
@@ -1168,12 +1168,18 @@ exports.editCourse = async (req, res) => {
   }
 
   const getCourse = await Course.findById(new ObjectId(req.params.id));
-  updates.courseBenefits = getCourse.courseBenefits;
-  updates.courseInstructors = getCourse.courseInstructors;
-  updates.courseContent = getCourse.courseContent;
-  updates.purchaseIntent = getCourse.purchaseIntent;
-  updates.enrollments = getCourse.enrollments;
-  updates.faqs = getCourse.faqs;
+  for (let elem in getCourse) {
+    if (Array.isArray(getCourse[elem])) {
+      updates[elem] = getCourse[elem];
+    }
+  }
+  
+  // updates.courseBenefits = getCourse.courseBenefits;
+  // updates.courseInstructors = getCourse.courseInstructors;
+  // updates.courseContent = getCourse.courseContent;
+  // updates.purchaseIntent = getCourse.purchaseIntent;
+  // updates.enrollments = getCourse.enrollments;
+  // updates.faqs = getCourse.faqs;
 
   try {
     const course = await Course.findByIdAndUpdate(req.params.id, updates, {
