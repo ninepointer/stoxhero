@@ -1,384 +1,542 @@
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
-const singleLivePrice = require('../marketData/sigleLivePrice');
-const {client, getValue} = require('../marketData/redisClient');
+const singleLivePrice = require("../marketData/sigleLivePrice");
+const { client, getValue } = require("../marketData/redisClient");
 const singleXTSLivePrice = require("../services/xts/xtsHelper/singleXTSLivePrice");
-const {xtsAccountType, zerodhaAccountType} = require("../constant");
+const { xtsAccountType, zerodhaAccountType } = require("../constant");
 const Setting = require("../models/settings/setting");
-const {dailyContestTrade} = require("./saveDataInDB/dailycontest")
-const {virtualTrade} = require("./saveDataInDB/paperTrade")
-const {tenxTrade} = require("./saveDataInDB/tenx")
-const {internTrade} = require("./saveDataInDB/internship")
-const {stockTradeHelper} = require("./saveDataInDB/stockTradeHelper")
-const {marginxTrade} = require("./saveDataInDB/marginx")
-const {battleTrade} = require("./saveDataInDB/battle");
-const UserDetail = require("../models/User/userDetailSchema")
-const {ObjectId} = require("mongodb")
-const DailyContest = require("../models/DailyContest/dailyContest")
+const { dailyContestTrade } = require("./saveDataInDB/dailycontest");
+const { virtualTrade } = require("./saveDataInDB/paperTrade");
+const { tenxTrade } = require("./saveDataInDB/tenx");
+const { internTrade } = require("./saveDataInDB/internship");
+const { stockTradeHelper } = require("./saveDataInDB/stockTradeHelper");
+const { marginxTrade } = require("./saveDataInDB/marginx");
+const { battleTrade } = require("./saveDataInDB/battle");
+const UserDetail = require("../models/User/userDetailSchema");
+const { ObjectId } = require("mongodb");
+const DailyContest = require("../models/DailyContest/dailyContest");
 const MarginX = require("../models/marginX/marginX");
 const TenxSubscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
-const {equityBrokerage} = require("./equity/brokerageEquity");
-const Authenticate = require('../authentication/authentication')
-
+const { equityBrokerage } = require("./equity/brokerageEquity");
+const Authenticate = require("../authentication/authentication");
 
 exports.mockTrade = async (req, res) => {
-    const setting = await Setting.find().select('toggle');
-    let isRedisConnected = getValue();
-    let date = new Date();
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    todayDate = todayDate + "T23:59:59.999Z";
-    const today = new Date(todayDate);
-    const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
+  const setting = await Setting.find().select("toggle");
+  let isRedisConnected = getValue();
+  let date = new Date();
+  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(date.getDate()).padStart(2, "0")}`;
+  todayDate = todayDate + "T23:59:59.999Z";
+  const today = new Date(todayDate);
+  const secondsRemaining = Math.round(
+    (today.getTime() - date.getTime()) / 1000
+  );
 
+  let {
+    exchange,
+    symbol,
+    buyOrSell,
+    Quantity,
+    Product,
+    order_type,
+    stockTrade,
+    originalLastPriceUser,
+    trade_time,
+    validity,
+    variety,
+    instrumentToken,
+    tenxTraderPath,
+    internPath,
+    battle,
+    originalLastPriceCompany,
+    realBuyOrSell,
+    realQuantity,
+    isAlgoTrader,
+    paperTrade,
+    dailyContest,
+    marginx,
+    deviceDetails,
+  } = req.body;
 
-    let {exchange, symbol, buyOrSell, Quantity, Product, order_type, stockTrade, originalLastPriceUser, trade_time,
-        validity, variety, instrumentToken, tenxTraderPath, internPath, battle, originalLastPriceCompany,
-        realBuyOrSell, realQuantity, isAlgoTrader, paperTrade, dailyContest, marginx, deviceDetails } = req.body 
+  // console.log("req data", req.body)
+  if (
+    !exchange ||
+    !symbol ||
+    !buyOrSell ||
+    !Quantity ||
+    !Product ||
+    !order_type ||
+    !validity ||
+    !variety
+  ) {
+    return res.status(422).json({ error: "Something went wrong" });
+  }
 
-        // console.log("req data", req.body)
-    if(!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety){
-        return res.status(422).json({error : "Something went wrong"})
+  req.body.order_id = `${date.getFullYear() - 2000}${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}${Math.floor(
+    100000000 + Math.random() * 900000000
+  )}`;
+
+  if (exchange === "NFO") {
+    exchangeSegment = 2;
+  }
+
+  let accountType;
+  if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
+    accountType = xtsAccountType;
+  } else {
+    accountType = zerodhaAccountType;
+  }
+
+  let brokerageDetailBuy;
+  let brokerageDetailSell;
+  let brokerageDetailBuyUser;
+  let brokerageDetailSellUser;
+
+  if (!stockTrade) {
+    if (
+      isRedisConnected &&
+      (await client.HEXISTS("brokerage", `buy-company`))
+    ) {
+      brokerageDetailBuy = await client.HGET("brokerage", `buy-company`);
+      brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
+    } else {
+      brokerageDetailBuy = await BrokerageDetail.find({
+        transaction: "BUY",
+        accountType: accountType,
+        type: "Option",
+      });
+      await client.HSET(
+        "brokerage",
+        `buy-company`,
+        JSON.stringify(brokerageDetailBuy)
+      );
     }
 
-    req.body.order_id = `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`
-
-    if(exchange === "NFO"){
-        exchangeSegment = 2;
+    if (
+      isRedisConnected &&
+      (await client.HEXISTS("brokerage", `sell-company`))
+    ) {
+      brokerageDetailSell = await client.HGET("brokerage", `sell-company`);
+      brokerageDetailSell = JSON.parse(brokerageDetailSell);
+    } else {
+      brokerageDetailSell = await BrokerageDetail.find({
+        transaction: "SELL",
+        accountType: accountType,
+        type: "Option",
+      });
+      await client.HSET(
+        "brokerage",
+        `sell-company`,
+        JSON.stringify(brokerageDetailSell)
+      );
     }
 
-    let accountType;
-    if(setting.ltp == xtsAccountType || setting.complete == xtsAccountType){
-        accountType = xtsAccountType;
-    } else{
-        accountType = zerodhaAccountType;
+    if (isRedisConnected && (await client.HEXISTS("brokerage", `buy-user`))) {
+      brokerageDetailBuyUser = await client.HGET("brokerage", `buy-user`);
+      brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
+    } else {
+      brokerageDetailBuyUser = await BrokerageDetail.find({
+        transaction: "BUY",
+        accountType: zerodhaAccountType,
+        type: "Option",
+      });
+      await client.HSET(
+        "brokerage",
+        `buy-user`,
+        JSON.stringify(brokerageDetailBuyUser)
+      );
     }
 
+    if (isRedisConnected && (await client.HEXISTS("brokerage", `sell-user`))) {
+      brokerageDetailSellUser = await client.HGET("brokerage", `sell-user`);
+      brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
+    } else {
+      brokerageDetailSellUser = await BrokerageDetail.find({
+        transaction: "SELL",
+        accountType: zerodhaAccountType,
+        type: "Option",
+      });
+      await client.HSET(
+        "brokerage",
+        `sell-user`,
+        JSON.stringify(brokerageDetailSellUser)
+      );
+    }
+  }
 
-    let brokerageDetailBuy;
-    let brokerageDetailSell;
-    let brokerageDetailBuyUser;
-    let brokerageDetailSellUser;
+  if (buyOrSell === "SELL") {
+    req.body.Quantity = "-" + Quantity;
+  }
+  if (realBuyOrSell === "SELL") {
+    req.body.realQuantity = "-" + realQuantity;
+  }
 
-    if(!stockTrade){
-        if(isRedisConnected && await client.HEXISTS('brokerage', `buy-company`)){
-            brokerageDetailBuy = await client.HGET('brokerage', `buy-company`);
-            brokerageDetailBuy = JSON.parse(brokerageDetailBuy);
-        } else{
-            brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY", accountType: accountType, type: "Option"});
-            await client.HSET('brokerage', `buy-company`, JSON.stringify(brokerageDetailBuy));
-        }
-    
-        if(isRedisConnected && await client.HEXISTS('brokerage', `sell-company`)){
-            brokerageDetailSell = await client.HGET('brokerage', `sell-company`);
-            brokerageDetailSell = JSON.parse(brokerageDetailSell);
-        } else{
-            brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL", accountType: accountType, type: "Option"});
-            await client.HSET('brokerage', `sell-company`, JSON.stringify(brokerageDetailSell));
-        }
-    
-        if(isRedisConnected && await client.HEXISTS('brokerage', `buy-user`)){
-            brokerageDetailBuyUser = await client.HGET('brokerage', `buy-user`);
-            brokerageDetailBuyUser = JSON.parse(brokerageDetailBuyUser);
-        } else{
-            brokerageDetailBuyUser = await BrokerageDetail.find({ transaction: "BUY", accountType: zerodhaAccountType, type: "Option" });
-            await client.HSET('brokerage', `buy-user`, JSON.stringify(brokerageDetailBuyUser));
-        }
-    
-        if(isRedisConnected && await client.HEXISTS('brokerage', `sell-user`)){
-            brokerageDetailSellUser = await client.HGET('brokerage', `sell-user`);
-            brokerageDetailSellUser = JSON.parse(brokerageDetailSellUser);
-        } else{
-            brokerageDetailSellUser = await BrokerageDetail.find({ transaction: "SELL", accountType: zerodhaAccountType, type: "Option" });
-            await client.HSET('brokerage', `sell-user`, JSON.stringify(brokerageDetailSellUser));
-        }
+  if (!originalLastPriceUser) {
+    try {
+      let liveData;
+      if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
+        liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
+      } else {
+        liveData = await singleLivePrice(exchange, symbol);
+      }
+
+      newTimeStamp = liveData?.timestamp;
+      originalLastPriceUser = liveData?.last_price;
+      originalLastPriceCompany = liveData?.last_price;
+
+      if (!liveData?.last_price) {
+        return res.status(400).json({
+          status: "error",
+          message:
+            "Market orders are blocked for in the money options due to illiquidity. Try again later.",
+        });
+      }
+
+      trade_time = new Date(newTimeStamp);
+      if (trade_time < new Date()) {
+        const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
+        trade_time = trade_time.getTime() + subtractedTime;
+      }
+
+      req.body.originalLastPriceUser = originalLastPriceUser;
+      req.body.originalLastPriceCompany = originalLastPriceCompany;
+      req.body.trade_time = trade_time;
+    } catch (err) {
+      console.log(err);
+      return new Error(err);
+    }
+  }
+
+  // console.log("req", req.body)
+
+  let brokerageUser;
+  let brokerageCompany;
+
+  if (!stockTrade) {
+    if (realBuyOrSell === "BUY") {
+      brokerageCompany = buyBrokerage(
+        Math.abs(Number(realQuantity)) * originalLastPriceCompany,
+        brokerageDetailBuy[0]
+      );
+    } else if (realBuyOrSell === "SELL") {
+      brokerageCompany = sellBrokerage(
+        Math.abs(Number(realQuantity)) * originalLastPriceCompany,
+        brokerageDetailSell[0]
+      );
     }
 
-    if(buyOrSell === "SELL"){
-        req.body.Quantity = "-"+Quantity;
+    if (buyOrSell === "BUY") {
+      brokerageUser = buyBrokerage(
+        Math.abs(Number(Quantity)) * originalLastPriceUser,
+        brokerageDetailBuyUser[0]
+      );
+    } else if (buyOrSell === "SELL") {
+      brokerageUser = sellBrokerage(
+        Math.abs(Number(Quantity)) * originalLastPriceUser,
+        brokerageDetailSellUser[0]
+      );
     }
-    if(realBuyOrSell === "SELL"){
-        req.body.realQuantity = "-"+realQuantity;
-    }
+  }
 
-    if (!originalLastPriceUser) {
-        try {
-            let liveData;
-            if (setting.ltp == xtsAccountType || setting.complete == xtsAccountType) {
-                liveData = await singleXTSLivePrice(exchangeSegment, instrumentToken);
-            } else {
-                liveData = await singleLivePrice(exchange, symbol)
-            }
+  if (stockTrade) {
+    brokerageUser = await equityBrokerage(
+      Math.abs(Number(Quantity)) * originalLastPriceUser,
+      Product,
+      buyOrSell
+    );
+  }
 
-            newTimeStamp = liveData?.timestamp;
-            originalLastPriceUser = liveData?.last_price;
-            originalLastPriceCompany = liveData?.last_price;
+  let otherData = {
+    brokerageUser: brokerageUser,
+    brokerageCompany: brokerageCompany,
+    isRedisConnected: isRedisConnected,
+    secondsRemaining: secondsRemaining,
+  };
 
-            if (!liveData?.last_price) {
-                return res.status(400).json({ status: "error", message: "Market orders are blocked for in the money options due to illiquidity. Try again later." })
-            }
-
-            trade_time = new Date(newTimeStamp);
-            if (trade_time < new Date()) {
-                const subtractedTime = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
-                trade_time = trade_time.getTime() + subtractedTime;
-            }
-
-            req.body.originalLastPriceUser = originalLastPriceUser;
-            req.body.originalLastPriceCompany = originalLastPriceCompany;
-            req.body.trade_time = trade_time;
-        } catch (err) {
-            console.log(err)
-            return new Error(err);
+  if (dailyContest) {
+    await dailyContestTrade(req, res, otherData);
+    let delRedis = false;
+    if (!req?.user?.activationDetails?.activationDate) {
+      const contest = await DailyContest.findOne({
+        _id: new ObjectId(req.body.contestId),
+      });
+      const userActivationDateUpdate = await UserDetail.findOneAndUpdate(
+        { _id: new ObjectId(req?.user?._id) },
+        {
+          $set: {
+            activationDetails: {
+              activationDate: new Date(),
+              activationProduct: "6517d48d3aeb2bb27d650de5",
+              activationType: contest?.entryFee > 0 ? "Paid" : "Free",
+              activationStatus: "Active",
+              activationProductPrice: contest?.entryFee,
+            },
+          },
         }
-    }
+      );
 
-
-    // console.log("req", req.body)
-
-    let brokerageUser;
-    let brokerageCompany;
-
-    if(!stockTrade){
-        if(realBuyOrSell === "BUY"){
-            brokerageCompany = buyBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailBuy[0]);
-        } else if(realBuyOrSell === "SELL"){
-            brokerageCompany = sellBrokerage(Math.abs(Number(realQuantity)) * originalLastPriceCompany, brokerageDetailSell[0]);
-        }
-    
-        if(buyOrSell === "BUY"){
-            brokerageUser = buyBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailBuyUser[0]);
-        } else if(buyOrSell === "SELL"){
-            brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, brokerageDetailSellUser[0]);
-        }
+      delRedis = true;
     }
 
-
-    if(stockTrade){
-        brokerageUser = await equityBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser, Product, buyOrSell)
+    if (
+      req?.user?.paidDetails?.paidDate &&
+      req?.user?.paidDetails?.paidStatus === "Inactive"
+    ) {
+      const paidDetailsUpdate = await UserDetail.findOne({
+        _id: new ObjectId(req?.user?._id),
+      });
+      paidDetailsUpdate.paidDetails.paidStatus = "Active";
+      paidDetailsUpdate.paidDetails.paidDate = req?.user?.paidDetails?.paidDate;
+      await paidDetailsUpdate.save({ validateBeforeSave: false });
+      delRedis = true;
     }
 
-    let otherData={
+    if (delRedis) {
+      const user = await UserDetail.findOne({
+        _id: new ObjectId(req?.user?._id),
+        status: "Active",
+      }).select(
+        "referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails"
+      );
 
-        brokerageUser: brokerageUser,
-        brokerageCompany: brokerageCompany,
-        isRedisConnected: isRedisConnected,
-        secondsRemaining: secondsRemaining
+      // await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+      await client.set(
+        `${user._id.toString()}authenticatedUser`,
+        JSON.stringify(user)
+      );
+    }
+  }
+
+  if (paperTrade) {
+    await virtualTrade(req, res, otherData);
+    if (!req?.user?.activationDetails?.activationDate) {
+      const userActivationDateUpdate = await UserDetail.findOneAndUpdate(
+        { _id: new ObjectId(req?.user?._id) },
+        {
+          $set: {
+            activationDetails: {
+              activationDate: new Date(),
+              activationProduct: "65449ee06932ba3a403a681a",
+              activationType: "Free",
+              activationStatus: "Active",
+              activationProductPrice: 0,
+            },
+          },
+        }
+      );
+      await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+    }
+  }
+
+  if (stockTrade) {
+    await stockTradeHelper(req, res, otherData);
+    if (!req?.user?.activationDetails?.activationDate) {
+      const userActivationDateUpdate = await UserDetail.findOneAndUpdate(
+        { _id: new ObjectId(req?.user?._id) },
+        {
+          $set: {
+            activationDetails: {
+              activationDate: new Date(),
+              activationProduct: "6583c2012ef31a319cf888c9",
+              activationType: "Free",
+              activationStatus: "Active",
+              activationProductPrice: 0,
+            },
+          },
+        }
+      );
+      await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+    }
+  }
+
+  if (tenxTraderPath) {
+    await tenxTrade(req, res, otherData);
+    let delRedis = false;
+    if (!req?.user?.activationDetails?.activationDate) {
+      let tenx = [];
+      const user = await UserDetail.findOne({
+        _id: new ObjectId(req?.user?._id),
+      }).select("subscription");
+      let data;
+      for (let elem of user.subscription) {
+        if (elem.status === "Live") {
+          data = JSON.parse(JSON.stringify(elem));
+        }
+      }
+
+      if (!data?.fee) {
+        tenx = await TenxSubscription.findOne({
+          _id: new ObjectId(req?.body?.subscriptionId),
+        }).select("discounted_price");
+      }
+
+      const userActivationDateUpdate = await UserDetail.findOneAndUpdate(
+        { _id: new ObjectId(req?.user?._id) },
+        {
+          $set: {
+            activationDetails: {
+              activationDate: new Date(),
+              activationProduct: "6517d3803aeb2bb27d650de0",
+              activationType: "Paid",
+              activationStatus: "Active",
+              activationProductPrice: data?.fee || tenx?.discounted_price,
+            },
+            paidDetails: {
+              paidDate: new Date(),
+              paidProduct: "6517d3803aeb2bb27d650de0",
+              paidStatus: "Active",
+              paidProductPrice: data?.fee || tenx?.discounted_price,
+            },
+          },
+        }
+      );
+      delRedis = true;
     }
 
-
-    if(dailyContest){
-        await dailyContestTrade(req, res, otherData);
-        let delRedis = false;
-        if (!req?.user?.activationDetails?.activationDate) {
-            const contest = await DailyContest.findOne({_id: new ObjectId(req.body.contestId)})
-            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
-                $set: {
-                    activationDetails: {
-                        activationDate: new Date(),
-                        activationProduct: "6517d48d3aeb2bb27d650de5",
-                        activationType: contest?.entryFee > 0 ? "Paid" : "Free",
-                        activationStatus: "Active",
-                        activationProductPrice: contest?.entryFee
-                    }
-                }
-            })
-
-            delRedis = true;
-        }
-
-        if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
-            const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
-            paidDetailsUpdate.paidDetails.paidStatus = "Active";
-            // paidDetailsUpdate.paidDetails.paidDate = new Date();
-            await paidDetailsUpdate.save({validateBeforeSave:false})
-            delRedis = true;
-        }
-
-        if(delRedis){
-            const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id), status: "Active" })
-            .select('referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails');
-
-            // await client.del(`${req?.user?._id.toString()}authenticatedUser`);
-            await client.set(`${user._id.toString()}authenticatedUser`, JSON.stringify(user));
-            console.log(await client.get(`${user._id.toString()}authenticatedUser`));
-        }
-    }
-    
-    if(paperTrade){
-        await virtualTrade(req, res, otherData);
-        if (!req?.user?.activationDetails?.activationDate) {
-            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
-                $set: {
-                    activationDetails: {
-                        activationDate: new Date(),
-                        activationProduct: "65449ee06932ba3a403a681a",
-                        activationType: "Free",
-                        activationStatus: "Active",
-                        activationProductPrice: 0
-                    }
-                }
-            })
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
-        }
+    if (
+      req?.user?.paidDetails?.paidDate &&
+      req?.user?.paidDetails?.paidStatus === "Inactive"
+    ) {
+      const paidDetailsUpdate = await UserDetail.findOne({
+        _id: new ObjectId(req?.user?._id),
+      });
+      paidDetailsUpdate.paidDetails.paidStatus = "Active";
+      paidDetailsUpdate.paidDetails.paidDate = req?.user?.paidDetails?.paidDate;
+      await paidDetailsUpdate.save({ validateBeforeSave: false });
+      delRedis = true;
     }
 
-    if(stockTrade){
-        await stockTradeHelper(req, res, otherData);
-        if (!req?.user?.activationDetails?.activationDate) {
-            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
-                $set: {
-                    activationDetails: {
-                        activationDate: new Date(),
-                        activationProduct: "6583c2012ef31a319cf888c9",
-                        activationType: "Free",
-                        activationStatus: "Active",
-                        activationProductPrice: 0
-                    }
-                }
-            })
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
-        }
+    if (delRedis) {
+      const user = await UserDetail.findOne({
+        _id: new ObjectId(req?.user?._id),
+        status: "Active",
+      }).select(
+        "referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails"
+      );
+
+      // await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+      await client.set(
+        `${user._id.toString()}authenticatedUser`,
+        JSON.stringify(user)
+      );
     }
-    
-    if(tenxTraderPath){
-        await tenxTrade(req, res, otherData);
-        let delRedis = false;
-        if (!req?.user?.activationDetails?.activationDate) {
-            let tenx = [];
-            const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) }).select('subscription');
-            let data;
-            for(let elem of user.subscription){
-                if(elem.status === "Live"){
-                    data = JSON.parse(JSON.stringify(elem));
-                }
-            }
+  }
 
-            if(!data?.fee){
-                tenx = await TenxSubscription.findOne({_id: new ObjectId(req?.body?.subscriptionId)}).select('discounted_price');
-            }
-
-            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
-                $set: {
-                    activationDetails: {
-                        activationDate: new Date(),
-                        activationProduct: "6517d3803aeb2bb27d650de0",
-                        activationType: "Paid",
-                        activationStatus: "Active",
-                        activationProductPrice: data?.fee || tenx?.discounted_price
-                    },
-                    paidDetails: {
-                        paidDate: new Date(),
-                        paidProduct: "6517d3803aeb2bb27d650de0",
-                        paidStatus: "Active",
-                        paidProductPrice: data?.fee || tenx?.discounted_price
-                    }
-                }
-            })
-            delRedis = true;
+  if (internPath) {
+    await internTrade(req, res, otherData);
+    if (!req?.user?.activationDetails?.activationDate) {
+      const userActivationDateUpdate = await UserDetail.findOneAndUpdate(
+        { _id: new ObjectId(req?.user?._id) },
+        {
+          $set: {
+            activationDetails: {
+              activationDate: new Date(),
+              activationProduct: "6517d46e3aeb2bb27d650de3",
+              activationType: "Free",
+              activationStatus: "Active",
+              activationProductPrice: 0,
+            },
+          },
         }
+      );
+      await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+    }
+  }
 
-        if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
-            const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
-            paidDetailsUpdate.paidDetails.paidStatus = "Active";
-            // paidDetailsUpdate.paidDetails.paidDate = new Date();
-            await paidDetailsUpdate.save({validateBeforeSave:false})
-            delRedis = true;
+  if (marginx) {
+    await marginxTrade(req, res, otherData);
+    let delRedis = false;
+    if (!req?.user?.activationDetails?.activationDate) {
+      const marginx = await MarginX.findOne({
+        _id: new ObjectId(req?.body?.marginxId),
+      }).populate("marginXTemplate", "entryFee");
+      const userActivationDateUpdate = await UserDetail.findOneAndUpdate(
+        { _id: new ObjectId(req?.user?._id) },
+        {
+          $set: {
+            activationDetails: {
+              activationDate: new Date(),
+              activationProduct: "6517d40e3aeb2bb27d650de1",
+              activationType: "Paid",
+              activationStatus: "Active",
+              activationProductPrice: marginx?.marginXTemplate?.entryFee,
+            },
+            paidDetails: {
+              paidDate: new Date(),
+              paidProduct: "6517d40e3aeb2bb27d650de1",
+              paidStatus: "Active",
+              paidProductPrice: marginx?.marginXTemplate?.entryFee,
+            },
+          },
         }
-
-        if(delRedis){
-            const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id), status: "Active" })
-            .select('referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails');
-
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
-            await client.set(`${user._id.toString()}authenticatedUser`, JSON.stringify(user));
-        }
+      );
+      delRedis = true;
     }
 
-    if(internPath){
-        await internTrade(req, res, otherData);
-        if (!req?.user?.activationDetails?.activationDate) {
-            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
-                $set: {
-                    activationDetails: {
-                        activationDate: new Date(),
-                        activationProduct: "6517d46e3aeb2bb27d650de3",
-                        activationType: "Free",
-                        activationStatus: "Active",
-                        activationProductPrice: 0
-                    }
-                }
-            })
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
-        }
+    if (
+      req?.user?.paidDetails?.paidDate &&
+      req?.user?.paidDetails?.paidStatus === "Inactive"
+    ) {
+      const paidDetailsUpdate = await UserDetail.findOne({
+        _id: new ObjectId(req?.user?._id),
+      });
+      paidDetailsUpdate.paidDetails.paidStatus = "Active";
+      paidDetailsUpdate.paidDetails.paidDate = req?.user?.paidDetails?.paidDate;
+      await paidDetailsUpdate.save({ validateBeforeSave: false });
+      delRedis = true;
     }
 
-    if(marginx){
-        await marginxTrade(req, res, otherData);
-        let delRedis = false;
-        if (!req?.user?.activationDetails?.activationDate) {
-            const marginx = await MarginX.findOne({_id: new ObjectId(req?.body?.marginxId)})
-            .populate('marginXTemplate', 'entryFee')
-            const userActivationDateUpdate = await UserDetail.findOneAndUpdate({ _id: new ObjectId(req?.user?._id) }, {
-                $set: {
-                    activationDetails: {
-                        activationDate: new Date(),
-                        activationProduct: "6517d40e3aeb2bb27d650de1",
-                        activationType: "Paid",
-                        activationStatus: "Active",
-                        activationProductPrice: marginx?.marginXTemplate?.entryFee
-                    },
-                    paidDetails: {
-                        paidDate: new Date(),
-                        paidProduct: "6517d40e3aeb2bb27d650de1",
-                        paidStatus: "Active",
-                        paidProductPrice: marginx?.marginXTemplate?.entryFee
-                    }
-                }
-            })
-            delRedis = true;
-        }
+    if (delRedis) {
+      const user = await UserDetail.findOne({
+        _id: new ObjectId(req?.user?._id),
+        status: "Active",
+      }).select(
+        "referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails"
+      );
 
-        if (req?.user?.paidDetails?.paidDate && req?.user?.paidDetails?.paidStatus === "Inactive") {
-            const paidDetailsUpdate = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id) })
-            paidDetailsUpdate.paidDetails.paidStatus = "Active";
-            // paidDetailsUpdate.paidDetails.paidDate = new Date();
-            await paidDetailsUpdate.save({validateBeforeSave:false})
-            delRedis = true;
-        }
-
-        if(delRedis){
-            const user = await UserDetail.findOne({ _id: new ObjectId(req?.user?._id), status: "Active" })
-            .select('referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails');
-
-            await client.del(`${req?.user?._id.toString()}authenticatedUser`);
-            await client.set(`${user._id.toString()}authenticatedUser`, JSON.stringify(user));
-        }
+      // await client.del(`${req?.user?._id.toString()}authenticatedUser`);
+      await client.set(
+        `${user._id.toString()}authenticatedUser`,
+        JSON.stringify(user)
+      );
     }
+  }
 
-    if(battle){
-        await battleTrade(req, res, otherData)
-    }
-}
-
+  if (battle) {
+    await battleTrade(req, res, otherData);
+  }
+};
 
 function buyBrokerage(totalAmount, buyBrokerData) {
-    let brokerage = Number(buyBrokerData.brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(buyBrokerData.gst) / 100);
-    let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
-    let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
-    let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
-    return finalCharge;
+  let brokerage = Number(buyBrokerData.brokerageCharge);
+  let exchangeCharge =
+    totalAmount * (Number(buyBrokerData.exchangeCharge) / 100);
+  let sebiCharges = totalAmount * (Number(buyBrokerData.sebiCharge) / 100);
+  let gst =
+    (brokerage + exchangeCharge + sebiCharges) *
+    (Number(buyBrokerData.gst) / 100);
+  let stampDuty = totalAmount * (Number(buyBrokerData.stampDuty) / 100);
+  let sst = totalAmount * (Number(buyBrokerData.sst) / 100);
+  let finalCharge =
+    brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+  return finalCharge;
 }
 
 function sellBrokerage(totalAmount, sellBrokerData) {
-    let brokerage = Number(sellBrokerData.brokerageCharge);
-    let exchangeCharge = totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
-    let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
-    let gst = (brokerage + exchangeCharge + sebiCharges) * (Number(sellBrokerData.gst) / 100);
-    let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
-    let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
-    let finalCharge = brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
+  let brokerage = Number(sellBrokerData.brokerageCharge);
+  let exchangeCharge =
+    totalAmount * (Number(sellBrokerData.exchangeCharge) / 100);
+  let sebiCharges = totalAmount * (Number(sellBrokerData.sebiCharge) / 100);
+  let gst =
+    (brokerage + exchangeCharge + sebiCharges) *
+    (Number(sellBrokerData.gst) / 100);
+  let stampDuty = totalAmount * (Number(sellBrokerData.stampDuty) / 100);
+  let sst = totalAmount * (Number(sellBrokerData.sst) / 100);
+  let finalCharge =
+    brokerage + exchangeCharge + gst + sebiCharges + stampDuty + sst;
 
-    return finalCharge
+  return finalCharge;
 }
