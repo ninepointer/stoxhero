@@ -2096,9 +2096,14 @@ exports.getCourseBySlugUser = async (req, res) => {
       const newCourse = await Course.findOne({ courseSlug: slug }).select(
         "-enrollments -createdOn -createdBy -commissionPercentage -courseContent"
       );
+      console.log(newCourse, slug);
       return res.status(200).json({
         status: "success",
-        message: `You haven't enrolled in this course yet. Please purchase it to get started.`,
+        message: `${
+          newCourse?.type === "Workshop"
+            ? `You haven't enrolled in this workshop.`
+            : `You haven't enrolled in this course yet. Please purchase it to get started.`
+        }`,
         hasPurchased: false,
         data: newCourse,
       });
@@ -3306,7 +3311,40 @@ exports.purchaseIntent = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Intent Saved successfully",
-      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.recordedVideoWatchIntent = async (req, res) => {
+  try {
+    const { id } = req.params; // ID of the contest
+    const userId = req.user._id;
+
+    const result = await Course.findByIdAndUpdate(
+      id,
+      {
+        $push: {
+          recordedVideoWatchIntent: { userId: userId, date: new Date() },
+        },
+      },
+      { new: true } // This option ensures the updated document is returned
+    );
+
+    if (!result) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Something went wrong." });
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Intent Saved successfully",
     });
   } catch (error) {
     res.status(500).json({
@@ -3466,16 +3504,8 @@ exports.myCourses = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Data Fetched successfully",
-      workshop: result?.filter(
-        (elem) => elem?.type === "Workshop"
-        // && elem?.registrationStartTime &&
-        // elem?.registrationStartTime <= new Date() &&
-        // ((elem?.courseEndTime && elem?.courseEndTime >= new Date()) ||
-        //   (elem?.registrationEndTime &&
-        //     elem?.registrationEndTime >= new Date()))
-      ),
+      workshop: result?.filter((elem) => elem?.type === "Workshop"),
       data: newCourse,
-      //  result?.filter((elem)=>elem?.type==='Course'),
       count: count,
     });
   } catch (error) {

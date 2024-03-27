@@ -4,26 +4,13 @@ const Authenticate = require("../../authentication/authentication");
 const courseController = require("../../controllers/courses/courseController");
 const router = express.Router();
 
-
 router.get("/", Authenticate, courseController.getCourseBySlugUser);
 
-router.get(
-    "/courses",
-    Authenticate,
-    courseController.getUserCourses
-);
+router.get("/courses", Authenticate, courseController.getUserCourses);
 
-router.get(
-  "/homeworkshop",
-  Authenticate,
-  courseController.getUserWorkshop
-);
+router.get("/homeworkshop", Authenticate, courseController.getUserWorkshop);
 
-router.get(
-    "/mycourses",
-    Authenticate,
-    courseController.myCourses
-);
+router.get("/mycourses", Authenticate, courseController.myCourses);
 
 router.get(
   "/byslug",
@@ -45,29 +32,27 @@ router.get(
   courseController.getCourseBySlug
 );
 
-router.get(
-    "/:id/checkpaid",
-    Authenticate,
-    courseController.checkPaidCourses
-);
+router.get("/:id/checkpaid", Authenticate, courseController.checkPaidCourses);
 
 router.get(
-    "/:slug/slug",
-    // Authenticate,
-    courseController.getCourseBySlug
+  "/:slug/slug",
+  // Authenticate,
+  courseController.getCourseBySlug
 );
 
 router.put(
-    "/:id/purchaseintent",
-    Authenticate,
-    courseController.purchaseIntent
+  "/:id/purchaseintent",
+  Authenticate,
+  courseController.purchaseIntent
 );
 
-router.patch(
-  "/:id/enroll",
+router.put(
+  "/:id/recordedvideointent",
   Authenticate,
-  courseController.enrollUser
+  courseController.recordedVideoWatchIntent
 );
+
+router.patch("/:id/enroll", Authenticate, courseController.enrollUser);
 
 router
   .route("/rating/:id")

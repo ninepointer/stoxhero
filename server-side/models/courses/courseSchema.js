@@ -71,7 +71,7 @@ const courseSchema = new Schema({
           topic: String,
           videoUrl: String,
           videoKey: String,
-          notes: [String]
+          notes: [String],
         },
       ],
     },
@@ -80,6 +80,12 @@ const courseSchema = new Schema({
   commissionPercentage: { type: Number },
   tags: [String],
   purchaseIntent: [
+    {
+      userId: { type: Schema.Types.ObjectId, ref: "user-personal-detail" },
+      date: { type: Date },
+    },
+  ],
+  recordedVideoWatchIntent: [
     {
       userId: { type: Schema.Types.ObjectId, ref: "user-personal-detail" },
       date: { type: Date },

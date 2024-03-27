@@ -3,10 +3,11 @@ const {client, getValue} = require('../marketData/redisClient');
 const Instrument = require("../models/Instruments/instrumentSchema");
 
 exports.removeInstrumentFromWatchlist = async () => {
+  try{
     const date = new Date();
     date.setHours(0, 0, 0, 0);
   
-    console.log("removeInstrumentFromWatchlist")
+    console.log("removeInstrumentFromWatchlist", date, { contractDate: { $lt: date }, status: "Active" })
     const instrument = await Instrument.find(
       { contractDate: { $lt: date }, status: "Active" },
     ).select('_id');
@@ -33,18 +34,21 @@ exports.removeInstrumentFromWatchlist = async () => {
         }
       }
   
+      console.log(`${userWatchlist[i]._id.toString()}: instrument`);
       await client.del(`${userWatchlist[i]._id.toString()}: instrument`);
       const updateUserWatchlist = await User.findOneAndUpdate({_id: (userId)}, {
         $set: {
           watchlistInstruments: watchlistInstruments
         }
       })
-      // await userWatchlist[i].save({validateBeforeSave: false});
-      // console.log("check", updateUserWatchlist)
     }
   
     await Instrument.updateMany(
-      { contractDate: { $lte: expiryDate }, status: "Active" },
+      { contractDate: { $lte: date }, status: "Active" },
       { $set: { status: "Inactive" } }
     )
+
+  } catch(err){
+    console.log(err)
+  }
 }

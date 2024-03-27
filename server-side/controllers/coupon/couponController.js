@@ -279,7 +279,11 @@ exports.getExpiredCouponCodes = async (req, res) => {
 
 exports.verifyCouponCode = async (req, res) => {
   try {
-    const { code, product, orderValue, platform, paymentMode } = req.body;
+    let { code, product, orderValue, platform, paymentMode } = req.body;
+    
+    if(!product){
+        product = '65f053dc1e78925c8675ed81'
+    }
     console.log("Coupon Data:", req.body);
     const userId = req.user._id;
     let coupon = await Coupon.findOne({

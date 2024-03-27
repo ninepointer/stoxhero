@@ -409,10 +409,19 @@ const Payment = ({
           )}.`
         );
       } else if (new Date(serverTime) >= new Date(data?.courseEndTime)) {
-        openSuccessSB(
-          "Information",
-          `The Workshop has ended. The recorded content will be made available soon.`
+        await axios.put(
+          `${apiUrl}courses/user/${data._id}/recordedvideointent`,
+          {},
+          { withCredentials: true }
         );
+        if (data?.lectures) {
+          window.open(`/watchcourse?course=${data?.courseSlug}`, "_blank");
+        } else {
+          openSuccessSB(
+            "Information",
+            `The Workshop has ended. The recorded content will be made available soon.`
+          );
+        }
       } else {
         window.open(`${data?.meetLink}`, "_blank");
       }
