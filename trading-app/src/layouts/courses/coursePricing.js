@@ -1,8 +1,5 @@
 import * as React from "react";
-import {
-  useState,
-  useEffect,
-} from "react";
+import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import MDBox from "../../components/MDBox";
@@ -12,9 +9,9 @@ import { CircularProgress } from "@mui/material";
 import MDSnackbar from "../../components/MDSnackbar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiUrl } from "../../constants/constants";
-import EnrolledUser from '../coursesInfluencer/data/enrolledUsers';
+import EnrolledUser from "../coursesInfluencer/data/enrolledUsers";
 
-const CoursePricing = ({setActiveStep, activeStep, steps}) => {
+const CoursePricing = ({ setActiveStep, activeStep, steps }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
@@ -27,43 +24,51 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
   const [courses, setCourses] = useState([]);
 
   // Get the value of the "mobile" parameter
-  const courseId = urlParams.get('id');
-  const paramsActiveSteps = urlParams.get('activestep');
+  const courseId = urlParams.get("id");
+  const paramsActiveSteps = urlParams.get("activestep");
 
-  useEffect(()=>{
-    if(courseId){
+  useEffect(() => {
+    if (courseId) {
       fetchCourseData();
     }
-  }, [paramsActiveSteps, courseId])
+  }, [paramsActiveSteps, courseId]);
 
-  async function fetchCourseData(){
-    try{
-      const data = await axios.get(`${apiUrl}courses/${courseId}`, {withCredentials: true});
+  async function fetchCourseData() {
+    try {
+      const data = await axios.get(`${apiUrl}courses/${courseId}`, {
+        withCredentials: true,
+      });
       setCourses(data.data.data);
       setFormState({
         coursePrice: data?.data?.data?.coursePrice,
         discountedPrice: data?.data?.data?.discountedPrice,
         commissionPercentage: data?.data?.data?.commissionPercentage,
       });
-      if(data?.data?.data?.coursePrice || data?.data?.data?.discountedPrice || data?.data?.data?.commissionPercentage){
+      if (
+        data?.data?.data?.coursePrice ||
+        data?.data?.data?.discountedPrice ||
+        data?.data?.data?.commissionPercentage
+      ) {
         setCheckFilled(true);
         setEditing(true);
-      } 
-    } catch(err){
-
-    }
+      }
+    } catch (err) {}
   }
 
   async function onSubmit() {
-
-    if(checkFilled){
-      setActiveStep(activeStep + 1)
-      return navigate(`/coursedetails?id=${courseId}&activestep=${activeStep + 1}`)
+    if (checkFilled) {
+      setActiveStep(activeStep + 1);
+      return navigate(
+        `/coursedetails?id=${courseId}&activestep=${activeStep + 1}`
+      );
     }
 
     const { coursePrice, discountedPrice, commissionPercentage } = formState;
-    if(discountedPrice > coursePrice){
-      return openErrorSB("Error", 'Discounted price should not be greater then course price!');
+    if (discountedPrice > coursePrice) {
+      return openErrorSB(
+        "Error",
+        "Discounted price should not be greater then course price!"
+      );
     }
     const res = await fetch(`${apiUrl}courses/${courseId}`, {
       method: "PATCH",
@@ -73,29 +78,32 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
         "Access-Control-Allow-Credentials": true,
       },
       body: JSON.stringify({
-        coursePrice, discountedPrice, commissionPercentage
-      })
+        coursePrice,
+        discountedPrice,
+        commissionPercentage,
+      }),
     });
 
     const data = await res.json();
 
     if (res.status === 200 || data) {
       openSuccessSB("Pricing Stored", data.message);
-      setActiveStep(activeStep + 1)
-      navigate(`/coursedetails?id=${courseId}&activestep=${activeStep + 1}`)
-
+      setActiveStep(activeStep + 1);
+      navigate(`/coursedetails?id=${courseId}&activestep=${activeStep + 1}`);
     } else {
-
     }
   }
 
   async function onEdit() {
-    const {commissionPercentage, discountedPrice, coursePrice} = formState;
+    const { commissionPercentage, discountedPrice, coursePrice } = formState;
 
-    if(Number(discountedPrice) > Number(coursePrice)){
-      return openErrorSB("Error", 'Discounted price should not be greater then course price!');
+    if (Number(discountedPrice) > Number(coursePrice)) {
+      return openErrorSB(
+        "Error",
+        "Discounted price should not be greater then course price!"
+      );
     }
-    
+
     const res = await fetch(`${apiUrl}courses/${courseId}`, {
       method: "PATCH",
       credentials: "include",
@@ -104,20 +112,18 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
         "Access-Control-Allow-Credentials": true,
       },
       body: JSON.stringify({
-        commissionPercentage, discountedPrice, coursePrice
+        commissionPercentage,
+        discountedPrice,
+        coursePrice,
       }),
     });
 
     const data = await res.json();
     const updatedData = data?.data;
     if (updatedData || res.status === 200) {
-      openSuccessSB(
-        "Pricing Edited",
-        ""
-      );
+      openSuccessSB("Pricing Edited", "");
       setEditClicked(false);
       setEditing(true);
-    
     } else {
       openErrorSB("Error", data.message);
     }
@@ -168,11 +174,11 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
     />
   );
 
-  async function editAndSave(){
-    if(editing){
+  async function editAndSave() {
+    if (editing) {
       setEditing(false);
       setEditClicked(true);
-    } else{
+    } else {
       onEdit();
     }
   }
@@ -301,84 +307,89 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
               />
             </Grid>
 
+            <Grid
+              container
+              direction="row"
+              justifyContent="flex-end"
+              alignItems="center"
+              spacing={2}
+              mt={2}
+            >
+              {activeStep !== 0 && activeStep !== steps.length - 1 && (
+                <Grid item>
+                  <MDButton
+                    variant="contained"
+                    color="dark"
+                    size="small"
+                    onClick={() => {
+                      setActiveStep(activeStep - 1);
+                      navigate(
+                        `/coursedetails?id=${courseId}&activestep=${
+                          activeStep - 1
+                        }`
+                      );
+                    }}
+                  >
+                    Previous
+                  </MDButton>
+                </Grid>
+              )}
 
-
-              <Grid
-                container
-                direction="row"
-                justifyContent="flex-end"
-                alignItems="center"
-                spacing={2}
-                mt={2}
-              >
-                {activeStep !== 0 && activeStep !== steps.length - 1 && (
+              {activeStep !== steps.length - 1 && (
+                <>
                   <Grid item>
                     <MDButton
                       variant="contained"
-                      color="dark"
+                      color="warning"
                       size="small"
-                      onClick={() => { setActiveStep(activeStep - 1); navigate(`/coursedetails?id=${courseId}&activestep=${activeStep - 1}`) }}
+                      onClick={onEdit}
                     >
-                      Previous
+                      Save as Draft
                     </MDButton>
                   </Grid>
-                )}
 
-                {activeStep !== steps.length - 1 && (
-                  <>
-                    <Grid item>
-                      <MDButton
-                        variant="contained"
-                        color="warning"
-                        size="small"
-                        onClick={onEdit}
-                      >
-                        Save as Draft
-                      </MDButton>
-                    </Grid>
+                  <Grid item>
+                    <MDButton
+                      variant="contained"
+                      color="success"
+                      size="small"
+                      disabled={Object.keys(formState).length === 0}
+                      onClick={editAndSave}
+                    >
+                      {editing ? "Edit" : "Edit & Save"}
+                    </MDButton>
+                  </Grid>
 
-                    <Grid item>
-                      <MDButton
-                        variant="contained"
-                        color="success"
-                        size="small"
-                        disabled={Object.keys(formState).length === 0}
-                        onClick={editAndSave}
-                      >
-                        {editing ? 'Edit' : 'Edit & Save'}
-                      </MDButton>
-                    </Grid>
-
-                    <Grid item>
-                      <MDButton
-                        variant="contained"
-                        color="success"
-                        disabled={editClicked}
-                        size="small"
-                        onClick={() => {
-                          onSubmit();
-                        }}
-                      >
-                        Save & Continue
-                      </MDButton>
-                    </Grid>
-                  </>
-                )}
-              </Grid>
-                    <Grid container
-            
-            xs={12}
-            md={12}
-            lg={12}
-            mt={4}
-            display="flex"
-            justifyContent="center"
-            alignItems="center">
-                    {(courses?.status === 'Published') &&
-                                            <EnrolledUser course={courses} />
-                                        }
-                    </Grid>
-
+                  <Grid item>
+                    <MDButton
+                      variant="contained"
+                      color="success"
+                      disabled={editClicked}
+                      size="small"
+                      onClick={() => {
+                        onSubmit();
+                      }}
+                    >
+                      Save & Continue
+                    </MDButton>
+                  </Grid>
+                </>
+              )}
+            </Grid>
+            <Grid
+              container
+              xs={12}
+              md={12}
+              lg={12}
+              mt={4}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              {courses?.status === "Published" && (
+                <EnrolledUser course={courses} isAdmin={true} />
+              )}
+            </Grid>
           </Grid>
           {renderSuccessSB}
           {renderErrorSB}
@@ -386,5 +397,5 @@ const CoursePricing = ({setActiveStep, activeStep, steps}) => {
       )}
     </>
   );
-}
+};
 export default CoursePricing;
