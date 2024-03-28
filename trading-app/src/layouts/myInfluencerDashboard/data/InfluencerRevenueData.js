@@ -184,35 +184,173 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
           </Grid>
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-            <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseRevenueChart data={totalChartData} />
-            </Grid>
-            <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
-                Last 60 days total earnings
-              </MDTypography>
+            <Grid mt={2} item xs={12} md={12} lg={12} display='flex'
+              justifyContent='center'
+              flexDirection={totalChartData?.length ? "column" : "column"}
+              alignContent='center'
+              alignItems='center'
+            >
+
+              {totalChartData?.length ? (
+                <>
+                <DayWiseRevenueChart type={'total'} data={totalChartData} />
+                <Grid
+                  display="flex"
+                  justifyContent="center"
+                  alignContent="center"
+                  alignItems="center"
+                >
+                  <MDTypography
+                    fontSize={15}
+                    fontWeight="bold"
+                    color="info"
+                    gutterBottom
+                    style={{
+                      textAlign: "center",
+                      padding: "2.5px 5px 2.5px 5px",
+                      borderRadius: "3px",
+                    }}
+                  >
+                    Last 60 days total earnings
+                  </MDTypography>
+                </Grid>
+                </>
+                
+              ) : (
+                <>
+                  <MDTypography
+                    fontSize={80}
+                    mt={5}
+                    color="info"
+                    style={{ textAlign: "center" }}
+                  >
+                    😑
+                  </MDTypography>
+                  <MDTypography
+                    fontSize={15}
+                    mb={5}
+                    fontWeight="bold"
+                    color="dark"
+                    style={{ textAlign: "center" }}
+                  >
+                    No last 60 days total earnings
+                  </MDTypography>
+                </>
+              )}
             </Grid>
           </Grid>
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-            <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseRevenueChart data={influencerUserChartData} />
-            </Grid>
-            <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
-                Last 60 days your users earnings
-              </MDTypography>
+            <Grid item xs={12} md={12} lg={12} display='flex'
+              justifyContent='center'
+              flexDirection={influencerUserChartData?.length ? "column" : "column"}
+              alignContent='center'
+              alignItems='center'
+            >
+
+              {influencerUserChartData?.length ? (
+                <>
+                  <DayWiseRevenueChart type={'influencer'} data={influencerUserChartData} />
+                  <Grid
+                    display="flex"
+                    justifyContent="center"
+                    alignContent="center"
+                    alignItems="center"
+                  >
+                    <MDTypography
+                      fontSize={15}
+                      fontWeight="bold"
+                      color="info"
+                      gutterBottom
+                      style={{
+                        textAlign: "center",
+                        padding: "2.5px 5px 2.5px 5px",
+                        borderRadius: "3px",
+                      }}
+                    >
+                      Last 60 days users earnings
+                    </MDTypography>
+                  </Grid>
+                </>
+              ) : (
+                <>
+                  <MDTypography
+                    fontSize={80}
+                    mt={5}
+                    color="info"
+                    style={{ textAlign: "center" }}
+                  >
+                    😑
+                  </MDTypography>
+                  <MDTypography
+                    fontSize={15}
+                    mb={5}
+                    fontWeight="bold"
+                    color="dark"
+                    style={{ textAlign: "center" }}
+                  >
+                    No last 60 days users earnings
+                  </MDTypography>
+                </>
+              )}
+       
             </Grid>
           </Grid>
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
-            <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseRevenueChart data={normalUserChartData} />
-            </Grid>
-            <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
-                Last 60 days stoxhero users earnings
-              </MDTypography>
+            <Grid item xs={12} md={12} lg={12} display='flex'
+              justifyContent='center'
+              flexDirection={normalUserChartData?.length ? "column" : "column"}
+              alignContent='center'
+              alignItems='center'
+            >
+
+              {normalUserChartData?.length ? (
+                <>
+                  <DayWiseRevenueChart type={'normal'} data={normalUserChartData} />
+                  <Grid
+                    display="flex"
+                    justifyContent="center"
+                    alignContent="center"
+                    alignItems="center"
+                  >
+                    <MDTypography
+                      fontSize={15}
+                      fontWeight="bold"
+                      color="info"
+                      gutterBottom
+                      style={{
+                        textAlign: "center",
+                        padding: "2.5px 5px 2.5px 5px",
+                        borderRadius: "3px",
+                      }}
+                    >
+                      Last 60 days stoxhero users earnings
+                    </MDTypography>
+                  </Grid>
+                </>
+              ) : (
+                <>
+                  <MDTypography
+                    fontSize={80}
+                    mt={5}
+                    color="info"
+                    style={{ textAlign: "center" }}
+                  >
+                    😑
+                  </MDTypography>
+                  <MDTypography
+                    fontSize={15}
+                    mb={5}
+                    fontWeight="bold"
+                    color="dark"
+                    style={{ textAlign: "center" }}
+                  >
+                    No last 60 days stoxhero users earnings
+                  </MDTypography>
+                </>
+              )}
+
             </Grid>
           </Grid>
         </Grid>
