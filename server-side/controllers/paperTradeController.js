@@ -593,7 +593,6 @@ exports.influencerTraderWiseMockTrader = async (req, res, next) => {
   if (!influencerId) {
     influencerId = "65c314351716c34c69ff6b41";
   }
-  console.log("infl id", influencerId);
   let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
     2,
     "0"
@@ -601,7 +600,7 @@ exports.influencerTraderWiseMockTrader = async (req, res, next) => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
   const referredUserIds = await fetchReferredUsersByInfluencer(influencerId);
-  console.log(referredUserIds.length);
+  // console.log(referredUserIds.length);
   const referredUserObjectIds = referredUserIds.map((id) =>
     mongoose.Types.ObjectId(id)
   );
