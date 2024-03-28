@@ -63,7 +63,7 @@ export default function InfluencerUserData({userData, setUserData}) {
           
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <MDTypography style={{ textAlign: 'center' }}>
-             <AnimationNumber count={userData?.lifetimeCount}/>
+             <AnimationNumber count={userData?.lifetimeCount} user={true}/>
             </MDTypography>
           </Grid>
 

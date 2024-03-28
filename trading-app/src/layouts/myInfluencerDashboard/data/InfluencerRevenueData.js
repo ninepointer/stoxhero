@@ -12,7 +12,7 @@ import MDBox from '../../../components/MDBox';
 import { userContext } from '../../../AuthContext';
 import { apiUrl } from '../../../constants/constants';
 // import { Influencer, adminRole} from "../../../variables"
-import DayWiseCount from './daywiseRevenueChart'
+import DayWiseRevenueChart from './daywiseRevenueChart'
 import AnimationNumber from './animationNumber'
 import moment from 'moment';
 
@@ -185,7 +185,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseCount data={totalChartData} />
+              <DayWiseRevenueChart data={totalChartData} />
             </Grid>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
@@ -196,7 +196,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseCount data={influencerUserChartData} />
+              <DayWiseRevenueChart data={influencerUserChartData} />
             </Grid>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
@@ -207,7 +207,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid container xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
-              <DayWiseCount data={normalUserChartData} />
+              <DayWiseRevenueChart data={normalUserChartData} />
             </Grid>
             <Grid mt={2} item xs={12} md={12} lg={12} display='flex' justifyContent='center' alignContent='center' alignItems='center'>
               <MDTypography fontSize={15} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px' }}>
