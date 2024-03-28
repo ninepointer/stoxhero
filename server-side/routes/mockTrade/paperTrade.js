@@ -32,6 +32,6 @@ router.route("/my/historyorders").get(Authenticate, myHistoryTrade);
 router.route("/margin").get(Authenticate, marginDetail);
 router.route("/openlots").get(findOpenLots);
 router.route("/traderWisePnl").get(Authenticate, treaderWiseMockTrader);
-router.route("/influencer/traderwisepnl/").get(influencerTraderWiseMockTrader);
+router.route("/influencer/traderwisepnl/").get(Authenticate, influencerTraderWiseMockTrader);
 
 module.exports = router;

@@ -548,7 +548,7 @@ async function fetchReferredUsersByInfluencer(influencerId) {
     // Cache miss, query the database
     console.log("cache miss");
     const users = await User.find({ referredBy: influencerId }, "_id");
-    console.log("users ref", users?.length);
+    // console.log("users ref", users?.length);
     referredUserIds = users.map((user) => user._id.toString());
     // Update the cache
     await client.set(
@@ -559,7 +559,7 @@ async function fetchReferredUsersByInfluencer(influencerId) {
     );
   } else {
     referredUserIds = JSON.parse(referredUserIds);
-    console.log(referredUserIds.length);
+    // console.log(referredUserIds.length);
   }
   return referredUserIds;
 }
@@ -590,9 +590,9 @@ async function fetchOrCacheUserDetail(userId) {
 exports.influencerTraderWiseMockTrader = async (req, res, next) => {
   let date = new Date();
   let influencerId = req?.user?._id;
-  if (!influencerId) {
-    influencerId = "65c314351716c34c69ff6b41";
-  }
+  // if (!influencerId) {
+  //   influencerId = "65c314351716c34c69ff6b41";
+  // }
   let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
     2,
     "0"
@@ -600,10 +600,12 @@ exports.influencerTraderWiseMockTrader = async (req, res, next) => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
   const referredUserIds = await fetchReferredUsersByInfluencer(influencerId);
-  // console.log(referredUserIds.length);
+  // console.log("length", referredUserIds.length);
   const referredUserObjectIds = referredUserIds.map((id) =>
     mongoose.Types.ObjectId(id)
   );
+
+  // console.log(referredUserObjectIds, influencerId, req?.user?._id)
 
   const pipeline = [
     {
@@ -651,7 +653,7 @@ exports.influencerTraderWiseMockTrader = async (req, res, next) => {
       trade._id = { ...trade._id, ...userDetails };
     }
   }
-  console.log(trades.length);
+  // console.log(trades.length);
   res.status(201).json({ message: "data received", data: trades });
 };
 
