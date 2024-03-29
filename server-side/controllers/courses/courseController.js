@@ -2356,6 +2356,7 @@ exports.handleDeductCourseFee = async (
   const session = await mongoose.startSession();
 
   try {
+    // const isRedisConnected = getValue();
     session.startTransaction();
     let affiliate, affiliateProgram;
     const course = await Course.findOne({ _id: new ObjectId(courseId) });
@@ -2924,71 +2925,71 @@ exports.handleDeductCourseFee = async (
     }
 
     //save data in redis and send via socket
-    if (isRedisConnected && await client.HEXISTS('influencer', `revenue`)) {
-      let influencerRevenue = await client.HGET('influencer', `revenue`);
-      influencerRevenue = JSON.parse(influencerRevenue);
+    // if (isRedisConnected && await client.HEXISTS('influencer', `revenue`)) {
+    //   let influencerRevenue = await client.HGET('influencer', `revenue`);
+    //   influencerRevenue = JSON.parse(influencerRevenue);
 
-      const normalUser = influencerRevenue.normalUser;
-      const influencerUser = influencerRevenue.influencerUser;
-      if(user?.referredBy?.role === '65dc6817586cba2182f05561'){
-        influencerUser.todayCount = (influencerUser.todayCount || 0) + 1 ,
-        influencerUser.thisWeekCount = (influencerUser.thisWeekCount || 0) + 1 ,
-        influencerUser.thisMonthCount = (influencerUser.thisMonthCount || 0) + 1 ,
-        influencerUser.lifetimeCount = (influencerUser.lifetimeCount || 0) + 1 ,
-        influencerUser.todayEarning = (influencerUser.todayEarning || 0) + finalAmount ,
-        influencerUser.thisWeekEarning = (influencerUser.thisWeekEarning || 0) + finalAmount ,
-        influencerUser.thisMonthEarning = (influencerUser.thisMonthEarning || 0) + finalAmount ,
-        influencerUser.lifetimeEarnings = (influencerUser.lifetimeEarnings || 0) + finalAmount 
-      } else{
-        normalUser.todayCount = (normalUser.todayCount || 0) + 1 ,
-        normalUser.thisWeekCount = (normalUser.thisWeekCount || 0) + 1 ,
-        normalUser.thisMonthCount = (normalUser.thisMonthCount || 0) + 1 ,
-        normalUser.lifetimeCount = (normalUser.lifetimeCount || 0) + 1 ,
-        normalUser.todayEarning = (normalUser.todayEarning || 0) + finalAmount ,
-        normalUser.thisWeekEarning = (normalUser.thisWeekEarning || 0) + finalAmount ,
-        normalUser.thisMonthEarning = (normalUser.thisMonthEarning || 0) + finalAmount ,
-        normalUser.lifetimeEarnings = (normalUser.lifetimeEarnings || 0) + finalAmount 
-      }
+    //   const normalUser = influencerRevenue.normalUser;
+    //   const influencerUser = influencerRevenue.influencerUser;
+    //   if(user?.referredBy?.role === '65dc6817586cba2182f05561'){
+    //     influencerUser.todayCount = (influencerUser.todayCount || 0) + 1 ,
+    //     influencerUser.thisWeekCount = (influencerUser.thisWeekCount || 0) + 1 ,
+    //     influencerUser.thisMonthCount = (influencerUser.thisMonthCount || 0) + 1 ,
+    //     influencerUser.lifetimeCount = (influencerUser.lifetimeCount || 0) + 1 ,
+    //     influencerUser.todayEarning = (influencerUser.todayEarning || 0) + finalAmount ,
+    //     influencerUser.thisWeekEarning = (influencerUser.thisWeekEarning || 0) + finalAmount ,
+    //     influencerUser.thisMonthEarning = (influencerUser.thisMonthEarning || 0) + finalAmount ,
+    //     influencerUser.lifetimeEarnings = (influencerUser.lifetimeEarnings || 0) + finalAmount 
+    //   } else{
+    //     normalUser.todayCount = (normalUser.todayCount || 0) + 1 ,
+    //     normalUser.thisWeekCount = (normalUser.thisWeekCount || 0) + 1 ,
+    //     normalUser.thisMonthCount = (normalUser.thisMonthCount || 0) + 1 ,
+    //     normalUser.lifetimeCount = (normalUser.lifetimeCount || 0) + 1 ,
+    //     normalUser.todayEarning = (normalUser.todayEarning || 0) + finalAmount ,
+    //     normalUser.thisWeekEarning = (normalUser.thisWeekEarning || 0) + finalAmount ,
+    //     normalUser.thisMonthEarning = (normalUser.thisMonthEarning || 0) + finalAmount ,
+    //     normalUser.lifetimeEarnings = (normalUser.lifetimeEarnings || 0) + finalAmount 
+    //   }
 
-      await client8.PUBLISH("data-receive", JSON.stringify({
-        status: "success",
-        id: referredBy?.toString(),
-        influencerRevenue: true,
-        data: {normalUser, influencerUser}
-      }))
+    //   await client8.PUBLISH("data-receive", JSON.stringify({
+    //     status: "success",
+    //     id: referredBy?.toString(),
+    //     influencerRevenue: true,
+    //     data: {normalUser, influencerUser}
+    //   }))
 
-    } else {
-      let influencerRevenue = await getInfluencerUsers(referredBy);
-      const normalUser = influencerRevenue.normalUser;
-      const influencerUser = influencerRevenue.influencerUser;
-      if(user?.referredBy?.role === '65dc6817586cba2182f05561'){
-        influencerUser.todayCount = (influencerUser.todayCount || 0) + 1 ,
-        influencerUser.thisWeekCount = (influencerUser.thisWeekCount || 0) + 1 ,
-        influencerUser.thisMonthCount = (influencerUser.thisMonthCount || 0) + 1 ,
-        influencerUser.lifetimeCount = (influencerUser.lifetimeCount || 0) + 1 ,
-        influencerUser.todayEarning = (influencerUser.todayEarning || 0) + finalAmount ,
-        influencerUser.thisWeekEarning = (influencerUser.thisWeekEarning || 0) + finalAmount ,
-        influencerUser.thisMonthEarning = (influencerUser.thisMonthEarning || 0) + finalAmount ,
-        influencerUser.lifetimeEarnings = (influencerUser.lifetimeEarnings || 0) + finalAmount 
-      } else{
-        normalUser.todayCount = (normalUser.todayCount || 0) + 1 ,
-        normalUser.thisWeekCount = (normalUser.thisWeekCount || 0) + 1 ,
-        normalUser.thisMonthCount = (normalUser.thisMonthCount || 0) + 1 ,
-        normalUser.lifetimeCount = (normalUser.lifetimeCount || 0) + 1 ,
-        normalUser.todayEarning = (normalUser.todayEarning || 0) + finalAmount ,
-        normalUser.thisWeekEarning = (normalUser.thisWeekEarning || 0) + finalAmount ,
-        normalUser.thisMonthEarning = (normalUser.thisMonthEarning || 0) + finalAmount ,
-        normalUser.lifetimeEarnings = (normalUser.lifetimeEarnings || 0) + finalAmount 
-      }
-      await client8.PUBLISH("data-receive", JSON.stringify({
-        status: "success",
-        id: referredBy?.toString(),
-        influencerRevenue: true,
-        data: {normalUser, influencerUser}
-      }))
+    // } else {
+    //   let influencerRevenue = await getInfluencerUsers(referredBy);
+    //   const normalUser = influencerRevenue.normalUser;
+    //   const influencerUser = influencerRevenue.influencerUser;
+    //   if(user?.referredBy?.role === '65dc6817586cba2182f05561'){
+    //     influencerUser.todayCount = (influencerUser.todayCount || 0) + 1 ,
+    //     influencerUser.thisWeekCount = (influencerUser.thisWeekCount || 0) + 1 ,
+    //     influencerUser.thisMonthCount = (influencerUser.thisMonthCount || 0) + 1 ,
+    //     influencerUser.lifetimeCount = (influencerUser.lifetimeCount || 0) + 1 ,
+    //     influencerUser.todayEarning = (influencerUser.todayEarning || 0) + finalAmount ,
+    //     influencerUser.thisWeekEarning = (influencerUser.thisWeekEarning || 0) + finalAmount ,
+    //     influencerUser.thisMonthEarning = (influencerUser.thisMonthEarning || 0) + finalAmount ,
+    //     influencerUser.lifetimeEarnings = (influencerUser.lifetimeEarnings || 0) + finalAmount 
+    //   } else{
+    //     normalUser.todayCount = (normalUser.todayCount || 0) + 1 ,
+    //     normalUser.thisWeekCount = (normalUser.thisWeekCount || 0) + 1 ,
+    //     normalUser.thisMonthCount = (normalUser.thisMonthCount || 0) + 1 ,
+    //     normalUser.lifetimeCount = (normalUser.lifetimeCount || 0) + 1 ,
+    //     normalUser.todayEarning = (normalUser.todayEarning || 0) + finalAmount ,
+    //     normalUser.thisWeekEarning = (normalUser.thisWeekEarning || 0) + finalAmount ,
+    //     normalUser.thisMonthEarning = (normalUser.thisMonthEarning || 0) + finalAmount ,
+    //     normalUser.lifetimeEarnings = (normalUser.lifetimeEarnings || 0) + finalAmount 
+    //   }
+    //   await client8.PUBLISH("data-receive", JSON.stringify({
+    //     status: "success",
+    //     id: referredBy?.toString(),
+    //     influencerRevenue: true,
+    //     data: {normalUser, influencerUser}
+    //   }))
 
-      await client.HSET('influencer', `user`, JSON.stringify(obj));
-    }
+    //   await client.HSET('influencer', `user`, JSON.stringify(obj));
+    // }
 
     const userUpdate = await User.findOneAndUpdate({ _id: new ObjectId(userId) }, {
       $push: {
