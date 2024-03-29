@@ -4,8 +4,8 @@ import {
   useMemo,
   useContext,
   useRef,
-  Fragment,
   Suspense,
+  lazy
 } from "react";
 import axios from "axios";
 import ReactGA from "react-ga";
@@ -15,10 +15,11 @@ import {
   Navigate,
   useLocation,
   useNavigate,
-  Redirect,
 } from "react-router-dom";
+import { apiUrl } from "./constants/constants";
 
 // @mui material components
+import { CircularProgress } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -29,7 +30,6 @@ import MDBox from "./components/MDBox";
 
 // Material Dashboard 2 React example components
 import Sidenav from "./examples/Sidenav";
-import NewSidenav from "./examples/NewSideNav/Sidebar";
 import Configurator from "./examples/Configurator";
 
 // Material Dashboard 2 React themes
@@ -63,61 +63,89 @@ import {
   setLayout,
 } from "./context";
 
-// Images
-import brandWhite from "./assets/images/logo-ct.png";
-import Logo from "./assets/images/logos/fullLogo.png";
-import brandDark from "./assets/images/logo-ct-dark.png";
-import SignIn from "./layouts/authentication/sign-in";
-import NewMain from "./NewMain";
-import { userContext } from "./AuthContext";
-import Cookies from "js-cookie";
-import homeRoutes from "./homeRoute";
-import SignUp from "./layouts/authentication/sign-up";
-import Careers from "./layouts/HomePage/pages/Career";
-import Workshops from "./layouts/HomePage/pages/Workshop";
-import JobDescription from "./layouts/HomePage/pages/JobDescription";
-import JobApply from "./layouts/HomePage/pages/EICCareerForm";
-import ContestRegistration from "./layouts/HomePage/pages/ContestRegistration";
-import FeaturedContestRegistration from "./layouts/HomePage/pages/FeaturedContestRegistration";
-import Home from "../src/layouts/HomePage/pages/Home";
-import About from "../src/layouts/HomePage/pages/About";
-import Courses from "./layouts/HomePage/pages/courses/Courses";
-import CoursesDetail from "./layouts/HomePage/pages/courses/CoursesDetails";
-import AboutFinowledge from "../src/layouts/HomePage/pages/AboutFinowledge";
-import FillSignupDetail from "./layouts/HomePage/pages/courses/signupDetail";
-import ResetPin from "./layouts/authentication/reset-password/cover/resetPin";
-import ResetPassword from "./layouts/authentication/reset-password/cover";
-import CampaignDetails from "./layouts/campaign/campaignDetails";
-import { adminRole } from "./variables";
-import { userRole } from "./variables";
-import { Affiliate, schoolRole, Influencer } from "./variables";
-import Contact from "./layouts/HomePage/pages/Contact";
-import Privacy from "./layouts/HomePage/pages/Privacy";
-import Terms from "./layouts/HomePage/pages/Tnc";
-import Contests from "../src/layouts/UserDailyContest/Header/contests";
 import ProtectedRoute from "./ProtectedRoute";
 import { socketContext } from "./socketContext";
 import { Howl } from "howler";
 import sound from "./assets/sound/tradeSound.mp3";
+import { adminRole } from "./variables";
+import { userRole } from "./variables";
+import { Affiliate, schoolRole, Influencer } from "./variables";
+
+// Images
+import brandWhite from "./assets/images/logo-ct.png";
+import Logo from "./assets/images/logos/fullLogo.png";
+import brandDark from "./assets/images/logo-ct-dark.png";
+import { userContext } from "./AuthContext";
+import Cookies from "js-cookie";
+import homeRoutes from "./homeRoute";
+
+// import SignUp from "./layouts/authentication/sign-up";
+// import Careers from "./layouts/HomePage/pages/Career";
+// import Workshops from "./layouts/HomePage/pages/Workshop";
+// import JobDescription from "./layouts/HomePage/pages/JobDescription";
+// import JobApply from "./layouts/HomePage/pages/EICCareerForm";
+// import ContestRegistration from "./layouts/HomePage/pages/ContestRegistration";
+// import FeaturedContestRegistration from "./layouts/HomePage/pages/FeaturedContestRegistration";
+// import About from "./layouts/HomePage/pages/About";
+// import Courses from "./layouts/HomePage/pages/courses/Courses";
+// import CoursesDetail from "./layouts/HomePage/pages/courses/CoursesDetails";
+// import AboutFinowledge from "./layouts/HomePage/pages/AboutFinowledge";
+// import FillSignupDetail from "./layouts/HomePage/pages/courses/signupDetail";
+// import ResetPin from "./layouts/authentication/reset-password/cover/resetPin";
+// import ResetPassword from "./layouts/authentication/reset-password/cover";
+// import Contact from "./layouts/HomePage/pages/Contact";
+// import Privacy from "./layouts/HomePage/pages/Privacy";
+// import Terms from "./layouts/HomePage/pages/Tnc";
 import MessagePopUp from "./MessagePopup";
-import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
-import SchoolLogin from "./layouts/authentication/sign-in/schoolLogin";
-import Finowledge from "./layouts/authentication/sign-up/finowledge";
-import TradingGuru from "./layouts/authentication/sign-up/tradingguru";
-import Register from "./layouts/authentication/sign-up/register";
-import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo";
-import Lobby from "./layouts/schoolLobby/lobby";
-import BlogCard from "./layouts/HomePage/pages/BlogCards";
-import BlogData from "./layouts/HomePage/pages/BlogData";
-import Calculator from "./layouts/HomePage/pages/Calculator";
-import CollegeSignUp from "./layouts/authentication/sign-up/collegeSignupLogin";
-// import SchoolDetailsProtectedRoute from "./schoolProtected";
-import ContactFinowledge from "./layouts/HomePage/pages/ContactFinowledge";
-import FinowledgeComingSoon from "./layouts/HomePage/pages/finowledgeComingSoon";
-import { apiUrl } from "./constants/constants";
-import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index";
-import Workshop from "./layouts/HomePage/pages/courses/Workshop";
-import { CircularProgress } from "@mui/material";
+// import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
+// import SchoolLogin from "./layouts/authentication/sign-in/schoolLogin";
+// import TradingGuru from "./layouts/authentication/sign-up/tradingguru";
+// import Register from "./layouts/authentication/sign-up/register";
+// import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo";
+// import Lobby from "./layouts/schoolLobby/lobby";
+// import BlogCard from "./layouts/HomePage/pages/BlogCards";
+// import BlogData from "./layouts/HomePage/pages/BlogData";
+// import Calculator from "./layouts/HomePage/pages/Calculator";
+// import CollegeSignUp from "./layouts/authentication/sign-up/collegeSignupLogin";
+// import ContactFinowledge from "./layouts/HomePage/pages/ContactFinowledge";
+// import FinowledgeComingSoon from "./layouts/HomePage/pages/finowledgeComingSoon";
+// import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index";
+// import Workshop from "./layouts/HomePage/pages/courses/Workshop";
+
+
+const SignUp = lazy(() => import("./layouts/authentication/sign-up"));
+const Careers = lazy(() => import("./layouts/HomePage/pages/Career"));
+const Workshops = lazy(() => import("./layouts/HomePage/pages/Workshop"));
+const JobDescription = lazy(() => import("./layouts/HomePage/pages/JobDescription"));
+const JobApply = lazy(() => import("./layouts/HomePage/pages/EICCareerForm"));
+const ContestRegistration = lazy(() => import("./layouts/HomePage/pages/ContestRegistration"));
+const FeaturedContestRegistration = lazy(() => import("./layouts/HomePage/pages/FeaturedContestRegistration"));
+const About = lazy(() => import("./layouts/HomePage/pages/About"));
+const Courses = lazy(() => import("./layouts/HomePage/pages/courses/Courses"));
+const CoursesDetail = lazy(() => import("./layouts/HomePage/pages/courses/CoursesDetails"));
+const AboutFinowledge = lazy(() => import("./layouts/HomePage/pages/AboutFinowledge"));
+const FillSignupDetail = lazy(() => import("./layouts/HomePage/pages/courses/signupDetail"));
+const ResetPin = lazy(() => import("./layouts/authentication/reset-password/cover/resetPin"));
+const ResetPassword = lazy(() => import("./layouts/authentication/reset-password/cover"));
+const Contact = lazy(() => import("./layouts/HomePage/pages/Contact"));
+const Privacy = lazy(() => import("./layouts/HomePage/pages/Privacy"));
+const Terms = lazy(() => import("./layouts/HomePage/pages/Tnc"));
+// const MessagePopUp = lazy(() => import("./MessagePopup"));
+const AdminLogin = lazy(() => import("./layouts/authentication/sign-in/adminLogin"));
+const SchoolLogin = lazy(() => import("./layouts/authentication/sign-in/schoolLogin"));
+const TradingGuru = lazy(() => import("./layouts/authentication/sign-up/tradingguru"));
+const Register = lazy(() => import("./layouts/authentication/sign-up/register"));
+const RegisterInfo = lazy(() => import("./layouts/authentication/sign-up/registerationinfo"));
+const Lobby = lazy(() => import("./layouts/schoolLobby/lobby"));
+const BlogCard = lazy(() => import("./layouts/HomePage/pages/BlogCards"));
+const BlogData = lazy(() => import("./layouts/HomePage/pages/BlogData"));
+const Calculator = lazy(() => import("./layouts/HomePage/pages/Calculator"));
+const CollegeSignUp = lazy(() => import("./layouts/authentication/sign-up/collegeSignupLogin"));
+const ContactFinowledge = lazy(() => import("./layouts/HomePage/pages/ContactFinowledge"));
+const FinowledgeComingSoon = lazy(() => import("./layouts/HomePage/pages/finowledgeComingSoon"));
+const MyQuiz = lazy(() => import("./layouts/schoolLobby/quizApp/docs/index"));
+const Workshop = lazy(() => import("./layouts/HomePage/pages/courses/Workshop"));
+
 
 const TRACKING_ID = "UA-264098426-2";
 ReactGA.initialize(TRACKING_ID);
