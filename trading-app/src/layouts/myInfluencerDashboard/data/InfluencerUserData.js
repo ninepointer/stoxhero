@@ -1,6 +1,9 @@
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Card from "@mui/material/Card";
+import { useMediaQuery } from "@mui/material";
+import theme from "../../HomePage/utils/theme/index";
+
 // import CardContent from '@mui/material/CardContent';
 // import CardMedia from '@mui/material/CardMedia';
 import {
@@ -54,6 +57,8 @@ export default function InfluencerUserData({ userData, setUserData }) {
       })
     );
   }
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   return (
     <Card
@@ -317,7 +322,7 @@ export default function InfluencerUserData({ userData, setUserData }) {
             justifyContent="center"
           >
             <Grid
-              mt={2}
+              // mt={2}
               item
               xs={12}
               md={12}
@@ -330,7 +335,7 @@ export default function InfluencerUserData({ userData, setUserData }) {
             >
               {chartData?.length ? (
                 <>
-                  <DayWiseCount data={chartData} />
+                  <DayWiseCount data={chartData} isMobile={isMobile} />
                   <Grid
                     display="flex"
                     justifyContent="center"
@@ -376,6 +381,7 @@ export default function InfluencerUserData({ userData, setUserData }) {
               )}
             </Grid>
           </Grid>
+
         </Grid>
       </CardContent>
     </Card>

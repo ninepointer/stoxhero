@@ -59,7 +59,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
 
           <Grid item xs={12} md={12} lg={12} display='flex' justifyContent='center'>
             <MDTypography fontSize={10} fontWeight="bold" color="text.secondary" gutterBottom style={{ textAlign: 'center', padding: '2.5px 5px 2.5px 5px', borderRadius: '3px', backgroundColor: 'lightgrey' }}>
-              Earning
+              Earning (₹)
             </MDTypography>
           </Grid>
 
@@ -71,7 +71,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                 </MDTypography>
                 <MDTypography fontSize={18} fontWeig
                 ht="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '0px 5px 2.5px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((influencerUserRevenue?.todayEarning + normalUserRevenue?.todayEarning) || 0))}
+                  ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((influencerUserRevenue?.todayEarning + normalUserRevenue?.todayEarning) || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -80,7 +80,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                 Your Users Earning :
                 </MDTypography>
                 <MDTypography fontSize={15} fontWeight="bold" color="#316494" style={{ textAlign: 'center', padding: '0px 5px 0px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(influencerUserRevenue?.todayEarning || 0))}
+                ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(influencerUserRevenue?.todayEarning || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -89,7 +89,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                 StoxHero Users Earning :
                 </MDTypography>
                 <MDTypography fontSize={15} fontWeight="bold" color="#316494" style={{ textAlign: 'center', padding: '0px 5px 0px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(normalUserRevenue?.todayEarning || 0))}
+                ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(normalUserRevenue?.todayEarning || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -100,7 +100,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                   This Week's Earning
                 </MDTypography>
                 <MDTypography fontSize={18} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '0px 5px 2.5px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((influencerUserRevenue?.thisWeekEarning + normalUserRevenue?.thisWeekEarning) || 0))}
+                ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((influencerUserRevenue?.thisWeekEarning + normalUserRevenue?.thisWeekEarning) || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -109,7 +109,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                 Your Users Earning :
                 </MDTypography>
                 <MDTypography fontSize={15} fontWeight="bold" color="#316494" style={{ textAlign: 'center', padding: '0px 5px 0px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(influencerUserRevenue?.thisWeekEarning || 0))}
+                ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(influencerUserRevenue?.thisWeekEarning || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -118,7 +118,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                 StoxHero Users Earning :
                 </MDTypography>
                 <MDTypography fontSize={15} fontWeight="bold" color="#316494" style={{ textAlign: 'center', padding: '0px 5px 0px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(normalUserRevenue?.thisWeekEarning || 0))}
+                ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(normalUserRevenue?.thisWeekEarning || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -129,7 +129,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                   This Month's Earning
                 </MDTypography>
                 <MDTypography fontSize={18} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '0px 5px 2.5px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((influencerUserRevenue?.thisMonthEarning + normalUserRevenue?.thisMonthEarning) || 0))}
+                  ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((influencerUserRevenue?.thisMonthEarning + normalUserRevenue?.thisMonthEarning) || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -138,7 +138,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                 Your Users Earning :
                 </MDTypography>
                 <MDTypography fontSize={15} fontWeight="bold" color="#316494" style={{ textAlign: 'center', padding: '0px 5px 0px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(influencerUserRevenue?.thisMonthEarning || 0))}
+                  ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(influencerUserRevenue?.thisMonthEarning || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -147,7 +147,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                 StoxHero Users Earning :
                 </MDTypography>
                 <MDTypography fontSize={15} fontWeight="bold" color="#316494" style={{ textAlign: 'center', padding: '0px 5px 0px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(normalUserRevenue?.thisMonthEarning || 0))}
+                  ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(normalUserRevenue?.thisMonthEarning || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -158,7 +158,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                   Lifetime Earnings
                 </MDTypography>
                 <MDTypography fontSize={18} fontWeight="bold" color="info" gutterBottom style={{ textAlign: 'center', padding: '0px 5px 2.5px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((influencerUserRevenue?.lifetimeEarnings + normalUserRevenue?.lifetimeEarnings) || 0))}
+                  ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((influencerUserRevenue?.lifetimeEarnings + normalUserRevenue?.lifetimeEarnings) || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -167,7 +167,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                 Your Users Earning :
                 </MDTypography>
                 <MDTypography fontSize={15} fontWeight="bold" color="#316494" style={{ textAlign: 'center', padding: '0px 5px 0px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(influencerUserRevenue?.lifetimeEarnings || 0))}
+                  ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(influencerUserRevenue?.lifetimeEarnings || 0))}
                 </MDTypography>
               </MDBox>
 
@@ -176,7 +176,7 @@ export default function InfluencerRevenueData({normalUserRevenue, setNormalUserR
                 StoxHero Users Earning :
                 </MDTypography>
                 <MDTypography fontSize={15} fontWeight="bold" color="#316494" style={{ textAlign: 'center', padding: '0px 5px 0px 5px', borderRadius: '3px' }}>
-                  {(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(normalUserRevenue?.lifetimeEarnings || 0))}
+                  ₹{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(normalUserRevenue?.lifetimeEarnings || 0))}
                 </MDTypography>
               </MDBox>
 

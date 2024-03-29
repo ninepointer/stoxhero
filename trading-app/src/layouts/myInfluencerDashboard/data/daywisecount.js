@@ -7,7 +7,7 @@ import { CanvasRenderer } from "echarts/renderers";
 // Importing necessary ECharts components
 echarts.use([GridComponent, LineChart, CanvasRenderer]);
 
-export default function EChartsLineChart({ data }) {
+export default function EChartsLineChart({ data, isMobile }) {
   useEffect(() => {
     // Initialize ECharts instance
     const chartDom = document.getElementById("main_user");
@@ -40,5 +40,5 @@ export default function EChartsLineChart({ data }) {
     };
   }, [data]); // Re-run the effect if 'data' prop changes
 
-  return <div id="main_user" style={{ width: "100%", height: "300px" }} />;
+  return <div id="main_user" style={{ width: isMobile ? '100%' : "1200px", height: "350px" }} />;
 }
