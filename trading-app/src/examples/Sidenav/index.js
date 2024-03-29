@@ -64,7 +64,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     textColor = "inherit";
   }
 
-  console.log("routes", routes);
 
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 

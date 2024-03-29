@@ -5,6 +5,7 @@ import {
   useContext,
   useRef,
   Fragment,
+  Suspense,
 } from "react";
 import axios from "axios";
 import ReactGA from "react-ga";
@@ -116,6 +117,7 @@ import FinowledgeComingSoon from "./layouts/HomePage/pages/finowledgeComingSoon"
 import { apiUrl } from "./constants/constants";
 import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index";
 import Workshop from "./layouts/HomePage/pages/courses/Workshop";
+import { CircularProgress } from "@mui/material";
 
 const TRACKING_ID = "UA-264098426-2";
 ReactGA.initialize(TRACKING_ID);
@@ -255,25 +257,29 @@ export default function App() {
       if (route.route) {
         if (route.route !== "/") {
           return (
-            <Route
-              exact
-              path={route.route}
-              element={
-                // <SchoolDetailsProtectedRoute>
-                <ProtectedRoute>{route.component}</ProtectedRoute>
-                // </SchoolDetailsProtectedRoute>
-              }
-              key={route.key}
-            />
+            // <Suspense fallback={<CircularProgress color='info' />} >
+              <Route
+                exact
+                path={route.route}
+                element={
+                  // <SchoolDetailsProtectedRoute>
+                  <ProtectedRoute>{route.component}</ProtectedRoute>
+                  // </SchoolDetailsProtectedRoute>
+                }
+                key={route.key}
+              />
+            // </Suspense>
           );
         } else {
           return (
+            // <Suspense fallback={<CircularProgress color='info' />} >
             <Route
               exact
               path={route.route}
               element={route.component}
               key={route.key}
             />
+            // </Suspense>
           );
         }
       }
@@ -415,6 +421,7 @@ export default function App() {
       )}
       {layout === "infinitydashboard" && <Configurator />}
       {/* {layout === "analytics" && <Configurator />} */}
+      <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
       <Routes>
         {detailUser.role?.roleName === adminRole ||
         getDetails?.userDetails?.role?.roleName === adminRole
@@ -556,8 +563,11 @@ export default function App() {
         />
 
         <Route path="*" element={<NotFound />} />
+        
       </Routes>
+      </Suspense>
       <MessagePopUp socket={socket} userId={detailUser?._id} />
     </ThemeProvider>
   );
 }
+
