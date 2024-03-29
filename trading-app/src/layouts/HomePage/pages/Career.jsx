@@ -20,7 +20,7 @@ import { userContext } from "../../../AuthContext";
 import { Helmet } from 'react-helmet';
 // import CareerJD from './careerJD';
 
-const App = (props) => {
+const Careers = (props) => {
   const getDetails = useContext(userContext);
   const [campaignCode,setCampaignCode] = useState();
   const [isLoading,setIsLoading] = useState(false);
@@ -96,4 +96,4 @@ const App = (props) => {
   )
 }
 
-export default App
+export default Careers
