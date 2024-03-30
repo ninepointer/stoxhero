@@ -236,7 +236,7 @@ export default function Dashboard() {
           <MDTypography fontSize={15} ml={1.5} fontWeight='bold'>My Affiliate Dashboard</MDTypography>
         </Grid>
         {userDetails?.role?.roleName === adminRole &&
-          <Suspense fallback={<CircularProgress color='info' />}>
+          <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
             <ChooseAfiliate setAffiliateData={setAffiliateData} />
           </Suspense>
         }
@@ -255,7 +255,7 @@ export default function Dashboard() {
               <Grid container spacing={2} xs={12} md={12} lg={12} display='flex' justifyContent='center' style={{ width: '100%' }}>
 
                 <Grid item xs={12} md={12} lg={4} style={{ width: '100%', minHeight: '410px' }}>
-                  <Suspense fallback={<CircularProgress color='info' />}>
+                  <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
                     <AfiliateBasicSummary setReferralData={setReferralData} affiliateData={affiliateData} />
                   </Suspense>
                 </Grid>
@@ -324,7 +324,7 @@ export default function Dashboard() {
                   <Card sx={{ minWidth: '100%', minHeight: '410px', maxWidth: '100%', maxHeight: '410px' }}>
                     <CardContent sx={{ minWidth: '100%' }}>
                       {chartData.length ?
-                        <Suspense fallback={<CircularProgress color='info' />}>
+                        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
                           <RecentReferralGrid style={{ width: '100%', minHeight: '410px' }} chartData={chartData} />
                         </Suspense>
                       :
@@ -647,13 +647,13 @@ export default function Dashboard() {
             </Grid>
 
             <Grid item xs={12} md={12} lg={12} sx={{ minWidth: 120 }}>
-              <Suspense fallback={<CircularProgress color='info' />}>
+              <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
                 <RaferralGrid showDetailClicked={showDetailClicked} start={startDate} end={endDate} affiliateData={affiliateData} />
               </Suspense>
             </Grid>
 
             <Grid item xs={12} md={12} lg={12} sx={{ minWidth: 120 }}>
-              <Suspense fallback={<CircularProgress color='info' />}>
+              <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
                 <ReferredProduct showDetailClicked={showDetailClicked} start={startDate} end={endDate} affiliateData={affiliateData} />
               </Suspense>
             </Grid>

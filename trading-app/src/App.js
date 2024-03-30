@@ -19,7 +19,7 @@ import {
 import { apiUrl } from "./constants/constants";
 
 // @mui material components
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, LinearProgress } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -285,7 +285,6 @@ export default function App() {
       if (route.route) {
         if (route.route !== "/") {
           return (
-            // <Suspense fallback={<CircularProgress color='info' />} >
               <Route
                 exact
                 path={route.route}
@@ -296,18 +295,15 @@ export default function App() {
                 }
                 key={route.key}
               />
-            // </Suspense>
           );
         } else {
           return (
-            // <Suspense fallback={<CircularProgress color='info' />} >
             <Route
               exact
               path={route.route}
               element={route.component}
               key={route.key}
             />
-            // </Suspense>
           );
         }
       }
@@ -449,7 +445,7 @@ export default function App() {
       )}
       {layout === "infinitydashboard" && <Configurator />}
       {/* {layout === "analytics" && <Configurator />} */}
-      <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
+      <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', marginLeft: '50px' }}><CircularProgress color='info' /></div>}>
       <Routes>
         {detailUser.role?.roleName === adminRole ||
         getDetails?.userDetails?.role?.roleName === adminRole

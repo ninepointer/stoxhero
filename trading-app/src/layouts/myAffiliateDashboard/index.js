@@ -21,15 +21,15 @@ function Tables() {
   return (
     <>
       <DashboardLayout>
-        <Suspense fallback={<CircularProgress color='info' />}>
+        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
           <DashboardNavbar />
         </Suspense>
 
-        <Suspense fallback={<CircularProgress color='info' />}>
+        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
           <Header />
         </Suspense>
 
-        <Suspense fallback={<CircularProgress color='info' />}>
+        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress color='info' /></div>}>
           <Footer />
         </Suspense>
       </DashboardLayout>
