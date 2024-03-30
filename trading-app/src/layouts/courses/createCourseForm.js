@@ -68,8 +68,8 @@ function Index() {
   const [activeStep, setActiveStep] = useState(Number(urlParams.get('activestep')));
 
   const steps = [
-    { title: "Course Info & FAQs" },
-    { title: "Upload Course Materials" },
+    { title: "Basic Details" },
+    { title: "Content, Instructor, Benefits & FAQs" },
     { title: "Pricing" },
     { title: "Preview & Publish" },
   ];
