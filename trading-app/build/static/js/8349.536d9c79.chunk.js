@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunknptrading=self.webpackChunknptrading||[]).push([[8349],{68349:function(n,e,t){t.r(e);var a=t(72791),s=t(48377),u=t(95192),i=t(93064),c=t(16129),f=t(15023),r=t(80184);e.default=function(){return(0,a.useEffect)((function(){c.ZP.pageview(window.location.pathname)}),[]),(0,r.jsx)(r.Fragment,{children:(0,r.jsxs)(s.Z,{children:[(0,r.jsx)(u.default,{}),(0,r.jsx)(f.Z,{}),(0,r.jsx)(i.default,{})]})})}}}]);
+//# sourceMappingURL=8349.536d9c79.chunk.js.map
