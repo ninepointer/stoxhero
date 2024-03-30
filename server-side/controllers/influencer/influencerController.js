@@ -294,9 +294,6 @@ exports.getLast60daysInfluencerUserData = async(req,res) => {
     const startDate = moment().subtract(60, 'days').startOf('day');
     const userId = req.user._id;
   
-    // if(req?.user?.role === "65dc6817586cba2182f05561"){
-    //   userId = req.query.influencerId;
-    // }
     const data = await User.aggregate([
       {
         $match: {
@@ -333,7 +330,6 @@ exports.getLast60daysInfluencerUserData = async(req,res) => {
 const influencerRevenue = async(influencerId) => {
   try {
 
-    // Get today's date
     const today = moment();
     const todayStartDate = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
     const firstDayOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
@@ -342,8 +338,8 @@ const influencerRevenue = async(influencerId) => {
     const revenueData = await Course.aggregate([
       {
         $match: {
-          "courseInstructors.id": ObjectId(
-            "63788f3991fc4bf629de6df0"
+          "courseInstructors.id": new ObjectId(
+            influencerId
           ),
         },
       },
@@ -371,19 +367,86 @@ const influencerRevenue = async(influencerId) => {
             {
               $match: {
                 "user.referredBy": {
-                  $ne: ObjectId(
-                    "63788f3991fc4bf629de6df0"
+                  $ne: new ObjectId(
+                    influencerId
                   ),
                 },
               },
             },
             {
               $group: {
-                _id: {},
-                totalOrder: {
-                  $sum: 1,
+                _id: null,
+                todayCount: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(todayStartDate)] }, 1, 0] // Count documents created today
+                  }
                 },
-                totalEarnings: {
+                thisWeekCount: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfWeek)] }, 1, 0] // Count documents created this week
+                  }
+                },
+                thisMonthCount: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfMonth)] }, 1, 0] // Count documents created this week
+                  }
+                },
+                lifetimeCount: { $sum: 1 },
+                todayEarning: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(todayStartDate)] }, {$multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ]}, 0] // Earning documents created today
+                  }
+                },
+                thisWeekEarning: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfWeek)] }, {$multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ]}, 0] // Earning documents created this week
+                  }
+                },
+                thisMonthEarning: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfMonth)] }, {$multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ]}, 0] // Count documents created this week
+                  }
+                },
+                lifetimeEarnings: {
                   $sum: {
                     $multiply: [
                       {
@@ -407,18 +470,85 @@ const influencerRevenue = async(influencerId) => {
           influencerUser: [
             {
               $match: {
-                "user.referredBy": ObjectId(
-                  "63788f3991fc4bf629de6df0"
+                "user.referredBy": new ObjectId(
+                  influencerId
                 ),
               },
             },
             {
               $group: {
-                _id: {},
-                totalOrder: {
-                  $sum: 1,
+                _id: null,
+                todayCount: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(todayStartDate)] }, 1, 0] // Count documents created today
+                  }
                 },
-                totalEarnings: {
+                thisWeekCount: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfWeek)] }, 1, 0] // Count documents created this week
+                  }
+                },
+                thisMonthCount: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfMonth)] }, 1, 0] // Count documents created this week
+                  }
+                },
+                lifetimeCount: { $sum: 1 },
+                todayEarning: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(todayStartDate)] }, {$multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ]}, 0] // Earning documents created today
+                  }
+                },
+                thisWeekEarning: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfWeek)] }, {$multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ]}, 0] // Earning documents created this week
+                  }
+                },
+                thisMonthEarning: {
+                  $sum: {
+                    $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfMonth)] }, {$multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ]}, 0] // Count documents created this week
+                  }
+                },
+                lifetimeEarnings: {
                   $sum: {
                     $multiply: [
                       {
@@ -441,62 +571,199 @@ const influencerRevenue = async(influencerId) => {
           ],
         },
       },
-      {
-        $group: {
-          _id: {},
-          todayCount: {
-            $sum: {
-              $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(todayStartDate)] }, 1, 0] // Count documents created today
-            }
-          },
-          thisWeekCount: {
-            $sum: {
-              $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfWeek)] }, 1, 0] // Count documents created this week
-            }
-          },
-          thisMonthCount: {
-            $sum: {
-              $cond: [{ $gte: ["$enrollments.enrolledOn", new Date(firstDayOfMonth)] }, 1, 0] // Count documents created this week
-            }
-          },
-          lifetimeCount: { $sum: 1 },
-          totalOrder: {
-            $sum: 1,
-          },
-          totalEarnings: {
-            $sum: {
-              $multiply: [
-                {
-                  $subtract: [
-                    "$enrollments.pricePaidByUser",
-                    "$enrollments.gstAmount",
-                  ],
-                },
-                {
-                  $divide: [
-                    "$commissionPercentage",
-                    100,
-                  ],
-                },
-              ],
-            },
-          },
-        },
-      },
     ]);
 
-    // Access the counts
-    const obj = {};
-    const countResult = users[0];
-    obj.todayCount = countResult.todayCount;
-    obj.thisWeekCount = countResult.thisWeekCount;
-    obj.thisMonthCount = countResult.thisMonthCount;
-    obj.lifetimeCount = countResult.lifetimeCount;
-
-    return obj;
+    return revenueData;
 
   } catch (err) {
     console.log(err);
   }
 }
 
+exports.getInfluencerRevenueApi = async (req, res) => {
+  try{
+    const influencerId = req.user._id;
+    const data = await influencerRevenue(influencerId);
+
+    const normalUser = data?.[0]?.normalUser?.[0];
+    const influencerUser = data?.[0]?.influencerUser?.[0];
+  
+    res.status(200).json({status:'success', normalUser: normalUser, influencerUser: influencerUser});
+  } catch(err){
+    res.status(500).json({status:'error', error: err.message});
+  }
+}
+
+exports.getInfluencerRevenueData = async (influencerId) => {
+  const data = await influencerRevenue(influencerId);
+
+  const normalUser = data?.[0]?.normalUser?.[0];
+  const influencerUser = data?.[0]?.influencerUser?.[0];
+
+  return {normalUser: normalUser, influencerUser: influencerUser};
+}
+
+exports.getLast60daysInfluencerRevenueData = async(req,res) => {
+  try{
+    const startDate = moment().subtract(60, 'days').startOf('day');
+    const influencerId = req.user._id;
+
+    const revenueData = await Course.aggregate([
+      {
+        $match: {
+          "courseInstructors.id": new ObjectId(
+            influencerId
+          ),
+        },
+      },
+      {
+        $unwind: {
+          path: "$enrollments",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "enrollments.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+        },
+      },
+      {
+        $facet: {
+          total: [
+            {
+              $match: {
+                'enrollments.enrolledOn': {$gte: new Date(startDate)}
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$enrollments.enrolledOn",
+                  },
+                },
+                earnings: {
+                  $sum: {
+                    $multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            {
+              $sort: {
+                _id: 1
+              }
+            }
+          ],
+          influencerUser: [
+            {
+              $match: {
+                'enrollments.enrolledOn': {$gte: new Date(startDate)},
+                'user.referredBy': new ObjectId(influencerId)
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$enrollments.enrolledOn",
+                  },
+                },
+                earnings: {
+                  $sum: {
+                    $multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            {
+              $sort: {
+                _id: 1
+              }
+            }
+          ],
+          normalUser: [
+            {
+              $match: {
+                'enrollments.enrolledOn': {$gte: new Date(startDate)},
+                'user.referredBy': {$ne: new ObjectId(influencerId)}
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$enrollments.enrolledOn",
+                  },
+                },
+                earnings: {
+                  $sum: {
+                    $multiply: [
+                      {
+                        $subtract: [
+                          "$enrollments.pricePaidByUser",
+                          "$enrollments.gstAmount",
+                        ],
+                      },
+                      {
+                        $divide: [
+                          "$commissionPercentage",
+                          100,
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            {
+              $sort: {
+                _id: 1
+              }
+            }
+          ],
+        },
+      },
+    ]);
+    res.status(200).json({status:'success', data: revenueData});
+  
+  } catch(err){
+    res.status(500).json({status:'error', error: err.message});
+  }
+}

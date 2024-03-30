@@ -229,7 +229,7 @@ export default function TableView({liveUser, expiredUser, whichTab, dateWiseData
                     <>
                     <Grid container mt={1} p={1} style={{ border: '1px solid white', borderRadius: 5 }}>
                       <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                        <MDTypography color="light" fontSize={12}>{elem?.name.length <= 25 ? properCase(elem?.name) : properCase(elem?.name.slice(0,25)+"...")}</MDTypography>
+                        <MDTypography color="light" fontSize={12}>{elem?.name?.length <= 25 ? properCase(elem?.name) : properCase(elem?.name?.slice(0,25)+"...")}</MDTypography>
                       </Grid>
 
                       <Grid item xs={12} md={2} lg={1.2} display="flex" justifyContent="center" alignContent="center" alignItems="center">

@@ -21,6 +21,10 @@ router.route('/last30daysdata').get(Authenticate, controller.getLast30daysInflue
 router.route('/userdata').get(Authenticate, controller.getInfluencerUsersApi);
 router.route('/last60daysuserdata').get(Authenticate, controller.getLast60daysInfluencerUserData);
 
+
+router.route('/revenuedata').get(Authenticate, controller.getInfluencerRevenueApi);
+router.route('/last60daysrevenuedata').get(Authenticate, controller.getLast60daysInfluencerRevenueData);
+
 // router.route('/affiliatetype').get(Authenticate, controller.getAffiliateType);
 // router.route('/programbytype').get(Authenticate, controller.getAffiliateProgrammeByType);
 // router.route('/affiliatebyprograme').get(Authenticate, controller.getAffiliateByProgramme);

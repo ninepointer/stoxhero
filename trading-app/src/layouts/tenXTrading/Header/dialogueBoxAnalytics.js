@@ -114,19 +114,19 @@ export default function MaxWidthDialog({ subscription, isActive }) {
 
                 <Grid container mt={1} p={1} style={{ border: '1px solid #344767', borderRadius: 5 }}>
                   <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color={(subscription.gpnl) >= 0 ? "success" : "error"} fontSize={10} fontWeight="bold">{(subscription.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.gpnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-subscription.gpnl))}</MDTypography>
+                    <MDTypography color={(subscription.gpnl) >= 0 ? "success" : "error"} fontSize={10} fontWeight="bold">{(subscription.gpnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.gpnl || 0)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-subscription.gpnl || 0))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color={(subscription.npnl) >= 0 ? "success" : "error"} fontSize={10} fontWeight="bold">{(subscription.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.npnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-subscription.npnl))}</MDTypography>
+                    <MDTypography color={(subscription.npnl) >= 0 ? "success" : "error"} fontSize={10} fontWeight="bold">{(subscription.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.npnl || 0)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-subscription.npnl || 0))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="dark" fontSize={10} fontWeight="bold">{"₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.brokerage))}</MDTypography>
+                    <MDTypography color="dark" fontSize={10} fontWeight="bold">{"₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.brokerage || 0))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="dark" fontSize={10} fontWeight="bold">{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.tradingDays))}</MDTypography>
+                    <MDTypography color="dark" fontSize={10} fontWeight="bold">{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.tradingDays || 0))}</MDTypography>
                   </Grid>
                   <Grid item xs={12} md={2} lg={2.4} display="flex" justifyContent="center" alignContent="center" alignItems="center">
-                    <MDTypography color="dark" fontSize={10} fontWeight="bold">{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.trades))}</MDTypography>
+                    <MDTypography color="dark" fontSize={10} fontWeight="bold">{(new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(subscription.trades || 0))}</MDTypography>
                   </Grid>
                 </Grid>
               </>

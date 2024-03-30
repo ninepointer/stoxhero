@@ -281,9 +281,9 @@ exports.verifyCouponCode = async (req, res) => {
   try {
     let { code, product, orderValue, platform, paymentMode } = req.body;
     
-    if(!product){
-        product = '65f053dc1e78925c8675ed81'
-    }
+    // if(!product){
+    //     product = '65f053dc1e78925c8675ed81'
+    // }
     console.log("Coupon Data:", req.body);
     const userId = req.user._id;
     let coupon = await Coupon.findOne({

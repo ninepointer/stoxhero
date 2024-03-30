@@ -520,7 +520,7 @@ exports.getUserCompletedMarginXs = async (req, res) => {
       },
       {
         $sort: {
-          startTime: 1,
+          startTime: -1,
         },
       },
     ]);

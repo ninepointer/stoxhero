@@ -161,7 +161,7 @@ export default function LabTabs() {
             minHeight="4em"
             placeholder="Select subscription"
             variant="outlined"
-            sx={{  width: "200px" }}
+            sx={{  width: "300px" }}
             onChange={(e) => { setselectedSubscription(subscriptions.filter((item) => item.plan_name == e.target.value)[0]) }}
             InputLabelProps={{
               style: { color: '#ffffff' },
@@ -169,7 +169,7 @@ export default function LabTabs() {
             SelectProps={{
               MenuProps: {
                 PaperProps: {
-                  style: { width: '200px' }, // Replace '200px' with your desired width
+                  style: { width: '300px' }, // Replace '200px' with your desired width
                 },
               },
             }}
