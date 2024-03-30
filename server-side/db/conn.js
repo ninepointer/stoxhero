@@ -10,13 +10,14 @@ const stagingDB = process.env.STAGINGDB;
 const infinityDB = process.env.INFINITYDB;
 
 // mongoose.connect(devDB, {
-// mongoose.connect(DB, {
-  mongoose.connect(stagingDB, {
-  // mongoose.connect(infinityDB, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  // useFindAndModify: false
-})
+mongoose
+  .connect(DB, {
+    // mongoose.connect(stagingDB, {
+    // mongoose.connect(infinityDB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    // useFindAndModify: false
+  })
   .then(() => {
     console.log("connection secure");
   })

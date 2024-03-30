@@ -320,7 +320,7 @@ const CreateCourse = (
                     disabled={editing}
                     id="outlined-required"
                     // label='Course Name *'
-                    placeholder="Course Name: e.g Introduction to Stock Market"
+                    label="Course Name: e.g Introduction to Stock Market"
                     value={formState?.courseName}
                     fullWidth
                     onChange={(e) => {
@@ -337,7 +337,7 @@ const CreateCourse = (
                     disabled={editing}
                     id="outlined-required"
                     // label='Course Overview *'
-                    placeholder="Course Overview: e.g This course will cover basic of stock market"
+                    label="Course Overview: e.g This course will cover basic of stock market"
                     value={formState?.courseOverview}
                     fullWidth
                     onChange={(e) => {
@@ -354,7 +354,7 @@ const CreateCourse = (
                     disabled={editing}
                     id="outlined-required"
                     // label='Course Name *'
-                    placeholder="Course Language: e.g Introduction to Stock Market"
+                    label="Course Language: e.g Introduction to Stock Market"
                     value={formState?.courseLanguages}
                     fullWidth
                     onChange={(e) => {
@@ -371,7 +371,7 @@ const CreateCourse = (
                     disabled={editing}
                     id="outlined-required"
                     // label='Course Name *'
-                    placeholder="Tags: e.g Live Simulation, Live Trading"
+                    label="Tags: e.g Live Simulation, Live Trading"
                     value={formState?.tags}
                     fullWidth
                     onChange={(e) => {
@@ -393,7 +393,6 @@ const CreateCourse = (
                       id="demo-simple-select-autowidth"
                       disabled={editing}
                       value={formState?.category}
-                      placeholder="Course Name: e.g Introduction to Stock Market"
                       onChange={(e) => {
                         setFormState((prevState) => ({
                           ...prevState,
@@ -509,7 +508,7 @@ const CreateCourse = (
                     disabled={editing}
                     id="outlined-required"
                     type="number"
-                    placeholder="Duration in minutes"
+                    label="Duration in minutes"
                     value={
                       formState?.courseDurationInMinutes===0 ? '' : formState?.courseDurationInMinutes
                     }
@@ -740,7 +739,7 @@ const CreateCourse = (
                       disabled={editing}
                       id="outlined-required"
                       type="text"
-                      placeholder="Meet Link"
+                      label="Meet Link"
                       value={
                         formState?.meetLink
                       }
@@ -759,7 +758,7 @@ const CreateCourse = (
                       disabled={editing}
                       id="outlined-required"
                       type="text"
-                      placeholder="Meta Title"
+                      label="Meta Title"
                       value={
                         formState?.metaTitle
                       }
@@ -778,7 +777,7 @@ const CreateCourse = (
                       disabled={editing}
                       id="outlined-required"
                       type="text"
-                      placeholder="Meta Description"
+                      label="Meta Description"
                       value={
                         formState?.metaDescription
                       }
@@ -797,7 +796,7 @@ const CreateCourse = (
                       disabled={editing}
                       id="outlined-required"
                       type="text"
-                      placeholder="Meta Keywords"
+                      label="Meta Keywords"
                       value={
                         formState?.metaKeywords
                       }

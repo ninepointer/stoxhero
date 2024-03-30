@@ -57,30 +57,7 @@ export default function LabTabs() {
             <Tab label="Search Courses" value="6" />
           </TabList>
         </MDBox>
-          {/* <TabPanel value="1">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MDBox style={{minWidth:'100%'}}>
-          <Ongoing/>
-          </MDBox>
-          }
-          </TabPanel>
-          <TabPanel value="2">
-          {isLoading ? 
-          
-          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
-            <CircularProgress color="info" />
-          </MDBox>
-          : 
-          <MDBox style={{minWidth:'100%'}}>
-          <Upcoming/>
-          </MDBox>
-          }
-          </TabPanel> */}
+
           <TabPanel value="1">
           {isLoading ? 
           
