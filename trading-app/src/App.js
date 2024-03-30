@@ -97,7 +97,7 @@ import homeRoutes from "./homeRoute";
 // import Privacy from "./layouts/HomePage/pages/Privacy";
 // import Terms from "./layouts/HomePage/pages/Tnc";
 
-// import MessagePopUp from "./MessagePopup";
+import MessagePopUp from "./MessagePopup";
 
 // import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
 // import SchoolLogin from "./layouts/authentication/sign-in/schoolLogin";
@@ -133,7 +133,7 @@ const Contact = lazy(() => import("./layouts/HomePage/pages/Contact"));
 const Privacy = lazy(() => import("./layouts/HomePage/pages/Privacy"));
 const Terms = lazy(() => import("./layouts/HomePage/pages/Tnc"));
 
-const MessagePopUp = lazy(() => import("./MessagePopup"));
+// const MessagePopUp = lazy(() => import("./MessagePopup"));
 
 const AdminLogin = lazy(() => import("./layouts/authentication/sign-in/adminLogin"));
 const SchoolLogin = lazy(() => import("./layouts/authentication/sign-in/schoolLogin"));
