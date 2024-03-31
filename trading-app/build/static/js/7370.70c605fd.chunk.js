@@ -1,2 +1,0 @@
-(self.webpackChunknptrading=self.webpackChunknptrading||[]).push([[7370],{83720:function(){},97370:function(n,e,t){"use strict";t.r(e);var s=t(48377),u=t(95192),r=t(93064),a=t(83720),c=t.n(a),f=t(80184);e.default=function(){return(0,f.jsx)(f.Fragment,{children:(0,f.jsxs)(s.Z,{children:[(0,f.jsx)(u.default,{}),(0,f.jsx)(c(),{}),(0,f.jsx)(r.default,{})]})})}}}]);
-//# sourceMappingURL=7370.70c605fd.chunk.js.map
