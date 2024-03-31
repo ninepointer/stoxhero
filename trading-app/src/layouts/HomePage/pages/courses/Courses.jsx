@@ -1047,7 +1047,7 @@ export default function Courses() {
                                                 // style={{ minWidth: "100%" }}
                                                 component={Link}
                                                 to={{
-                                                  pathname: `/courses/${slug}/details`,
+                                                  pathname: `/influencers/${slug}/details`,
                                                   search: `?course=${elem?.courseSlug}`,
                                                   state: { data: elem },
                                                 }}
@@ -1608,7 +1608,7 @@ export default function Courses() {
                                                 // style={{ minWidth: "100%" }}
                                                 component={Link}
                                                 to={{
-                                                  pathname: `/courses/${slug}/details`,
+                                                  pathname: `/influencers/${slug}/details`,
                                                   search: `?course=${elem?.courseSlug}`,
                                                   state: { data: elem },
                                                 }}
