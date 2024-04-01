@@ -46,9 +46,9 @@ function Index() {
   const location = useLocation();
   const id = location?.state?.data;
   // console.log("Carousel:",id)
-  let [photo, setPhoto] = useState(
-    id ? id?.carouselImage : DefaultCarouselImage
-  );
+  // let [photo, setPhoto] = useState(
+  //   id ? id?.carouselImage : DefaultCarouselImage
+  // );
   const [imageFile, setImageFile] = useState(
     id ? id?.carouselImage : DefaultCarouselImage
   );
@@ -73,11 +73,11 @@ function Index() {
       dayjs(new Date()).set("hour", 0).set("minute", 0).set("second", 0),
     carouselImage: "" || id?.carouselImage,
     status: "" || id?.status,
-    clickable: "" || id?.clickable,
+    clickable: '' || id?.clickable,
     linkToCarousel: "" || id?.linkToCarousel,
     window: "" || id?.window,
     carouselPosition: "" || id?.carouselPosition,
-    visibility: "" || id?.visibility,
+    visibility: id?.visibility || "All",
   });
 
   useEffect(() => {
@@ -122,11 +122,7 @@ function Index() {
     try {
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
-        // console.log("data to be appended")
-        formData.append("blogContent", data[key]);
-        // formData.append('blogContent', JSON.stringify(childFormState.blogContent));
-        // console.log("data appended",formData)
-        // console.log("formState",formState)
+        formData.append(key, data[key]);
       });
 
       if (
@@ -135,7 +131,6 @@ function Index() {
         !formState.carouselStartDate ||
         !formState.carouselEndDate ||
         !formState.status ||
-        !formState.clickable ||
         !formState.visibility ||
         !formState.carouselImage ||
         !formState.linkToCarousel ||
@@ -179,7 +174,7 @@ function Index() {
 
   async function onEdit(e, data) {
     e.preventDefault();
-    console.log("Form Data: ", formState);
+
     setSaving(true);
 
     try {

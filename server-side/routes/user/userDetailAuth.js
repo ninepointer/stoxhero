@@ -678,9 +678,10 @@ router.get(
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   (req, res) => {
-    UserDetail.find()
+    UserDetail.find({status: 'Active'})
       .populate("role", "roleName") // Populate the "role" field
       .sort({ joining_date: -1 })
+      .select('role joining_date first_name last_name email mobile')
       .exec((err, data) => {
         if (err) {
           return res.status(500).send(err);

@@ -29,7 +29,7 @@ import UserEditModel from "./UserEditModel";
 const User = () => {
   const { columns, rows } = UserData();
   // const { icolumns, irows } = InactiveUserData();
-  const { icolumns, irows } = InactiveUserData();
+  // const { icolumns, irows } = InactiveUserData();
 
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
@@ -42,11 +42,8 @@ const User = () => {
       .get(`${baseUrl}api/v1/readuserdetails`, { withCredentials: true })
       .then((res) => {
         let data = res.data;
-        let active = data.filter((elem) => {
-          return elem.status === "Active";
-        });
-        setActiveData(active);
-        console.log(active);
+
+        setActiveData(res.data);
       })
       .catch((err) => {
         //window.alert("Server Down");
@@ -68,28 +65,10 @@ const User = () => {
     return [d.getUTCFullYear(), weekNo];
   }
 
-  console.log(activeData);
 
   activeData.map((elem) => {
     let activeusers = {};
-    const dojWeekNumber = getWeekNumber(new Date(elem.joining_date))[1];
-    const statuscolor = elem.status == "Active" ? "success" : "error";
 
-    // activeusers.edit = (
-    //     <MDButton variant="Contained" color="info" fontWeight="medium">
-    //       <UserEditModel data={activeData} id={elem._id} Render={{setReRender, reRender}}/>
-    //     </MDButton>
-    //   );
-    activeusers.employeeid = (
-      <MDTypography
-        component="a"
-        variant="caption"
-        color="text"
-        fontWeight="medium"
-      >
-        {elem.employeeid}
-      </MDTypography>
-    );
     activeusers.name = (
       <MDTypography
         component="a"
@@ -100,21 +79,7 @@ const User = () => {
         {elem.first_name} {elem.last_name}
       </MDTypography>
     );
-    // activeusers.cohort = (
-    //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-    //     {elem.cohort}
-    //   </MDTypography>
-    // );
-    activeusers.designation = (
-      <MDTypography
-        component="a"
-        variant="caption"
-        color="text"
-        fontWeight="medium"
-      >
-        {elem.designation}
-      </MDTypography>
-    );
+
     activeusers.email = (
       <MDTypography
         component="a"
@@ -135,26 +100,17 @@ const User = () => {
         {elem.mobile}
       </MDTypography>
     );
-    activeusers.gender = (
-      <MDTypography
-        component="a"
-        variant="caption"
-        color="text"
-        fontWeight="medium"
-      >
-        {elem.gender}
-      </MDTypography>
-    );
-    // activeusers.tradingexp = (
-    //   <MDTypography component="a" variant="caption" color={statuscolor} fontWeight="medium">
-    //     {elem.trading_exp}
+    // activeusers.gender = (
+    //   <MDTypography
+    //     component="a"
+    //     variant="caption"
+    //     color="text"
+    //     fontWeight="medium"
+    //   >
+    //     {elem.gender}
     //   </MDTypography>
     // );
-    // activeusers.location = (
-    //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-    //     {elem.location}
-    //   </MDTypography>
-    // );
+
     activeusers.doj = (
       <MDTypography
         component="a"
@@ -189,31 +145,7 @@ const User = () => {
         {elem.role.roleName}
       </MDTypography>
     );
-    activeusers.fund = (
-      <MDTypography
-        component="a"
-        variant="caption"
-        color="text"
-        fontWeight="medium"
-      >
-        {elem.fund}
-      </MDTypography>
-    );
-    //   activeusers.userPass = (
-    //     <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-    //       {elem.password}
-    //     </MDTypography>
-    //   );
-    activeusers.status = (
-      <MDTypography
-        component="a"
-        variant="caption"
-        color="text"
-        fontWeight="medium"
-      >
-        {elem.status}
-      </MDTypography>
-    );
+
 
     rows.push(activeusers);
   });

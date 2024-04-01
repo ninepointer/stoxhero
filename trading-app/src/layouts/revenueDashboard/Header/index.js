@@ -39,6 +39,8 @@ export default function Dashboard() {
   const [overallMonthlyRevenue, setOverallMonthlyRevenue] = useState([]);
   const [downloadingTestZoneData, setDownloadingTestZoneRevenueData] =
     useState(false);
+    const [downloadingTenxData, setDownloadingTenxRevenueData] =
+    useState(false);
   const [downloadingMarginXData, setDownloadingMarginXRevenueData] =
     useState(false);
   const [creationProcess, setCreationProcess] = useState([]);
@@ -123,6 +125,30 @@ export default function Dashboard() {
     });
   };
 
+  const downloadTenxRevenueData = () => {
+    setDownloadingTenxRevenueData(true);
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`${baseUrl}api/v1/revenue/downloadtenxrevenuedata`, {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true,
+          },
+        })
+        .then((res) => {
+          resolve(res.data.data); // Resolve the promise with the data
+          setDownloadingTenxRevenueData(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          reject(err); // Reject the promise with the error'
+          setDownloadingTenxRevenueData(false);
+        });
+    });
+  };
+
   const downloadMarginXRevenueData = () => {
     setDownloadingMarginXRevenueData(true);
     return new Promise((resolve, reject) => {
@@ -148,7 +174,7 @@ export default function Dashboard() {
   };
 
   const handleDownload = async (nameVariable) => {
-    console.log("Name:", nameVariable);
+
     try {
       // Wait for downloadContestData() to complete and return data
       let data = [];
@@ -159,6 +185,10 @@ export default function Dashboard() {
       }
       if (nameVariable === "MarginX Revenue Data") {
         data = await downloadMarginXRevenueData();
+        csvData = downloadHelper(data);
+      }
+      if (nameVariable === "Tenx revenue data") {
+        data = await downloadTenxRevenueData();
         csvData = downloadHelper(data);
       }
       // Create the CSV content
@@ -796,18 +826,43 @@ export default function Dashboard() {
                         TenX Revenue Data
                       </MDTypography>
                     </Grid>
-                    <Grid
+
+                    {!downloadingTenxData ? (
+                      <Grid
                       item
                       xs={12}
                       md={12}
                       lg={4}
                       display="flex"
                       justifyContent="flex-end"
+                      onClick={()=>{ handleDownload(`Tenx revenue data`);}}
                     >
                       <MDButton variant="text" color="success">
                         Download Data
                       </MDButton>
                     </Grid>
+                    ) : (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDTypography
+                          mr={5}
+                          fontSize={15}
+                          color="warning"
+                          fontWeight="bold"
+                        >
+                          Downloading
+                        </MDTypography>
+                      </Grid>
+                    )}
+                   
                   </Grid>
                 </Card>
               </Grid>

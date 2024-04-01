@@ -6,6 +6,10 @@ const Payment = new mongoose.Schema({
         type: String,
         // required: true,
     },
+    utr: {
+        type: String,
+        // required: true,
+    },
     paymentTime: {
         type: Date,
         required: true,

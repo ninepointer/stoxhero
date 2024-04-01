@@ -9,7 +9,7 @@ export default function AllActiveUsers() {
       // { Header: "Last Name", accessor: "lname", align: "center"},
       { Header: "Email", accessor: "email", align: "center"},
       { Header: "Mobile No.", accessor: "mobile", align: "center"},
-      { Header: "Status", accessor: "status", align: "center"},
+      // { Header: "Status", accessor: "status", align: "center"},
     ],
 
     rows: [],

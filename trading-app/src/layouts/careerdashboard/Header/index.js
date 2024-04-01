@@ -366,7 +366,7 @@ export default function LabTabs({ socket }) {
     return csvDataFile;
   }
 
-  tradeData.map((subelem, index) => {
+  tradeData?.map((subelem, index) => {
     let obj = {};
     totalRunningLots += Number(subelem.lots);
     totalTransactionCost += Number(subelem.brokerage);
@@ -749,18 +749,18 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="left"
                       >
-                        {tradeDataYesterday[0]
-                          ? tradeDataYesterday[0]?.amount >= 0
+                        {tradeDataYesterday?.[0]
+                          ? tradeDataYesterday?.[0]?.amount >= 0
                             ? "+₹" +
                               new Intl.NumberFormat(undefined, {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
-                              }).format(tradeDataYesterday[0]?.amount)
+                              }).format(tradeDataYesterday?.[0]?.amount)
                             : "-₹" +
                               new Intl.NumberFormat(undefined, {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
-                              }).format(-tradeDataYesterday[0]?.amount)
+                              }).format(-tradeDataYesterday?.[0]?.amount)
                           : "₹" + 0}
                       </MDTypography>
                     </Grid>
@@ -780,12 +780,12 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="center"
                       >
-                        {tradeDataYesterday[0]
+                        {tradeDataYesterday?.[0]
                           ? "₹" +
                             new Intl.NumberFormat(undefined, {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
-                            }).format(tradeDataYesterday[0]?.brokerage)
+                            }).format(tradeDataYesterday?.[0]?.brokerage)
                           : "₹" + 0}
                       </MDTypography>
                     </Grid>
@@ -805,25 +805,25 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="right"
                       >
-                        {tradeDataYesterday[0]
-                          ? tradeDataYesterday[0]?.amount -
-                              tradeDataYesterday[0]?.brokerage >=
+                        {tradeDataYesterday?.[0]
+                          ? tradeDataYesterday?.[0]?.amount -
+                              tradeDataYesterday?.[0]?.brokerage >=
                             0
                             ? "+₹" +
                               new Intl.NumberFormat(undefined, {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
                               }).format(
-                                tradeDataYesterday[0]?.amount -
-                                  tradeDataYesterday[0]?.brokerage
+                                tradeDataYesterday?.[0]?.amount -
+                                  tradeDataYesterday?.[0]?.brokerage
                               )
                             : "-₹" +
                               new Intl.NumberFormat(undefined, {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
                               }).format(
-                                tradeDataYesterday[0]?.brokerage -
-                                  tradeDataYesterday[0]?.amount
+                                tradeDataYesterday?.[0]?.brokerage -
+                                  tradeDataYesterday?.[0]?.amount
                               )
                           : "₹" + 0}
                       </MDTypography>
@@ -846,11 +846,11 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="left"
                       >
-                        {tradeDataYesterday[0]
+                        {tradeDataYesterday?.[0]
                           ? new Intl.NumberFormat(undefined, {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
-                            }).format(tradeDataYesterday[0]?.totallots)
+                            }).format(tradeDataYesterday?.[0]?.totallots)
                           : 0}
                       </MDTypography>
                     </Grid>
@@ -870,7 +870,7 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="center"
                       >
-                        {tradeDataYesterday[0]?.lots}
+                        {tradeDataYesterday?.[0]?.lots}
                       </MDTypography>
                     </Grid>
                     <Grid item lg={4}>
@@ -889,12 +889,12 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="right"
                       >
-                        {tradeDataYesterday[0]
+                        {tradeDataYesterday?.[0]
                           ? "₹" +
                             new Intl.NumberFormat(undefined, {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
-                            }).format(tradeDataYesterday[0]?.turnover)
+                            }).format(tradeDataYesterday?.[0]?.turnover)
                           : "₹" + 0}
                       </MDTypography>
                     </Grid>
@@ -916,8 +916,8 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="left"
                       >
-                        {tradeDataYesterday[0]
-                          ? tradeDataYesterday[0]?.trades
+                        {tradeDataYesterday?.[0]
+                          ? tradeDataYesterday?.[0]?.trades
                           : 0}
                       </MDTypography>
                     </Grid>

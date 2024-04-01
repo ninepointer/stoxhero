@@ -30,16 +30,15 @@ const whatsAppService = require("../utils/whatsAppService")
 exports.createPayment = async (req, res, next) => {
     // console.log(req.body)
     const { paymentTime, transactionId, amount, paymentBy, currency,
-        paymentFor, paymentMode, paymentStatus } = req.body;
+        paymentFor, paymentMode, paymentStatus, utr } = req.body;
 
-    // const orderId = `SHSID${amount}${transactionId}`;
     const user = await User.findOne({ _id: new ObjectId(paymentBy) });
     const session = await mongoose.startSession();
     try {
         if (await Payment.findOne({ transactionId: transactionId })) return res.status(400).json({ info: 'This payment is already exists.' });
         session.startTransaction();
         const payment = await Payment.create([{
-            paymentTime, transactionId, amount, paymentBy, currency,
+            paymentTime, transactionId, amount, paymentBy, currency, utr,
             paymentFor, paymentMode, paymentStatus, createdBy: req.user._id, lastModifiedBy: req.user._id
         }], { session: session });
 
@@ -200,7 +199,7 @@ exports.getSuccessfulPayment = async (req, res, next) => {
 
     const count = await Payment.countDocuments({ $match: { paymentStatus: 'succeeded' } });
     const payment = await Payment.find({ paymentStatus: 'succeeded' })
-        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse')
+        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse utr')
         .populate('paymentBy', 'first_name last_name email mobile')
         .sort({ _id: -1 })
         .skip(skip)
@@ -216,7 +215,7 @@ exports.getInitiatedPayment = async (req, res, next) => {
 
     const count = await Payment.countDocuments({ $match: { paymentStatus: 'initiated' } });
     const payment = await Payment.find({ paymentStatus: 'initiated' })
-        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse')
+        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse utr')
         .populate('paymentBy', 'first_name last_name email mobile')
         .sort({ _id: -1 })
         .skip(skip)
@@ -232,7 +231,7 @@ exports.getFailedPayment = async (req, res, next) => {
 
     const count = await Payment.countDocuments({ $match: { paymentStatus: 'failed' } });
     const payment = await Payment.find({ paymentStatus: 'failed' })
-        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse')
+        .select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn gatewayResponse utr')
         .populate('paymentBy', 'first_name last_name email mobile')
         .sort({ _id: -1 })
         .skip(skip)
@@ -247,7 +246,7 @@ exports.getPayment = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 10
 
     const count = await Payment.countDocuments();
-    const payment = await Payment.find().select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn')
+    const payment = await Payment.find().select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency createdOn utr')
         .populate('paymentBy', 'first_name last_name email mobile')
         .sort({ _id: -1 })
         .skip(skip)
@@ -261,7 +260,7 @@ exports.getUserPayment = async (req, res, next) => {
 
     const id = req.params.id
     try {
-        const userPayment = await Payment.findOne({ userId: id }).select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency')
+        const userPayment = await Payment.findOne({ userId: id }).select('_id paymentTime transactionId amount paymentBy paymentMode paymentStatus currency utr')
         res.status(201).json({ message: "userPayment Retrived", data: userPayment });
     }
     catch { (err) => { res.status(401).json({ message: "err userPayment", error: err }); } }
@@ -285,7 +284,7 @@ exports.getUsers = async (req, res) => {
                     status: 'Active',
                 },
             ]
-        })
+        }).select('_id first_name last_name mobile email')
         res.status(200).json({
             status: "success",
             message: "Getting User successfully",

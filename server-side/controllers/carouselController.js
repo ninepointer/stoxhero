@@ -17,14 +17,11 @@ const fileFilter = (req, file, cb) => {
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION
-    // accessKeyId: "AKIASR77BQMICZATCLPV",
-    // secretAccessKey: "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",
-  
+    region: process.env.AWS_REGION  
   });
   
 const upload = multer({ storage, fileFilter }).single("carouselImage");
-// console.log("Upload:",upload)
+console.log("Upload:",upload)
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -53,84 +50,95 @@ exports.resizePhoto = (req, res, next) => {
     });
 }; 
 
-exports.uploadToS3 = async(req, res, next) => {
-    if (!req.file) {
-      // no file uploaded, skip to next middleware
+exports.uploadToS3 = async (req, res, next) => {
+  console.log('uploadToS3', req.file)
+  if (!req.file) {
+    // no file uploaded, skip to next middleware
+    next();
+    return;
+  }
+
+  // create S3 upload parameters
+  let carouselName;
+  if (req.body.carouselName) {
+    carouselName = req.body.carouselName;
+  } else {
+    let carousel = await Carousel.findById(req.params.id);
+    carouselName = `${carousel?.carouselName}`;
+  }
+  const key = `carousels/${carouselName}/photos/${(Date.now()) + req.file.originalname}`;
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: key,
+    Body: req.file.buffer,
+    ContentType: req.file.mimetype,
+    ACL: 'public-read',
+  };
+
+  // upload image to S3 bucket
+
+  s3.upload((params)).promise()
+    .then((s3Data) => {
+      // console.log('file uploaded');
+      // console.log(s3Data.Location);
+      (req).uploadUrl = s3Data.Location;
       next();
-      return;
-    }
-  
-    // create S3 upload parameters
-    let carouselName;
-    if(req.body.carouselName){
-        carouselName = req.body.carouselName;
-    }else{
-        let carousel = await Carousel.findById(req.params.id);
-        carouselName = `${carousel?.carouselName}` ;
-    }
-    const key = `carousels/${carouselName}/photos/${(Date.now()) + req.file.originalname}`;
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: key,
-      Body: req.file.buffer,
-      ContentType: req.file.mimetype,
-      ACL: 'public-read',
-    };
-  
-    // upload image to S3 bucket
-    
-    s3.upload((params)).promise()
-      .then((s3Data) => {
-        // console.log('file uploaded');
-        // console.log(s3Data.Location);
-        (req).uploadUrl = s3Data.Location;
-        next();
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).send({ message: "Error uploading to S3" });
-      });
-  };
-
-
-  const filterObj = (obj, ...allowedFields) => {
-    const newObj = {};
-    Object.keys(obj).forEach((el) => {
-      if (
-        allowedFields.includes(el) &&
-        obj[el] !== null &&
-        obj[el] !== undefined &&
-        obj[el] !== ''
-      ) {
-        newObj[el] = obj[el];
-      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ message: "Error uploading to S3" });
     });
-    return newObj;
-  };
-  
+};
 
-exports.createCarousel =async (req, res, next) => {
-    // console.log(req.body)
-    const{carouselName, description, clickable, visibility, window, carouselPosition, linkToCarousel, carouselStartDate, carouselEndDate, status} = req.body;
-    const carouselImage = (req).uploadUrl;
-
-    // console.log(req.body);
-    //Check for required fields 
-    if(!(carouselName))return res.status(400).json({status: 'error', message: 'Enter all mandatory fields.'})
-    try{
-      //Check if user exists
-      // if(await carousel.findOne({isDeleted: false, email})) return res.json({})('User with this email already exists. Please login with existing email.', 401));
-      const carousel = await Carousel.create({carouselName: carouselName.trim(), description, clickable, window, visibility, carouselPosition, linkToCarousel, carouselStartDate, carouselEndDate, status,
-         createdBy: (req).user._id, carouselImage});
-  
-      if(!carousel) return res.status(400).json({status: 'error', message: 'Couldn\'t create carousel'});
-  
-      res.status(201).json({status: "success", data:carousel, message: "Carousel Created Successfully"});
-    }catch(e){
-      console.log(e);
-      res.status(500).json({status:'error', message: 'Something went wrong.'});
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((el) => {
+    if (
+      allowedFields.includes(el) &&
+      obj[el] !== null &&
+      obj[el] !== undefined &&
+      obj[el] !== ''
+    ) {
+      newObj[el] = obj[el];
     }
-    
+  });
+  return newObj;
+};
+
+exports.createCarousel = async (req, res, next) => {
+  for (let elem in req.body) {
+    if (req.body[elem] === "undefined" || req.body[elem] === "null") {
+      req.body[elem] = null;
+    }
+
+    if (req.body[elem] === "false") {
+      req.body[elem] = false;
+    }
+
+    if (req.body[elem] === "true") {
+      req.body[elem] = true;
+    }
+  }
+  const { carouselName, description, clickable, visibility, window, carouselPosition, linkToCarousel, carouselStartDate, carouselEndDate, status } = req.body;
+  const carouselImage = (req).uploadUrl;
+
+  if (!(carouselName)) return res.status(400).json({ status: 'error', message: 'Enter all mandatory fields.' })
+  try {
+    //Check if user exists
+    // if(await carousel.findOne({isDeleted: false, email})) return res.json({})('User with this email already exists. Please login with existing email.', 401));
+    const carousel = await Carousel.create({
+      carouselName: carouselName.trim(), description, clickable, window, visibility, carouselPosition, linkToCarousel, carouselStartDate, carouselEndDate, status,
+      createdBy: (req).user._id, carouselImage
+    });
+
+    if (!carousel) return res.status(400).json({ status: 'error', message: 'Couldn\'t create carousel' });
+
+    res.status(201).json({ status: "success", data: carousel, message: "Carousel Created Successfully" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ status: 'error', message: 'Something went wrong.' });
+  }
+
 };
 
 exports.getCarousels = async (req, res, next)=>{

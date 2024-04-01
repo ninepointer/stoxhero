@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
 const {getBonusRevenueSplit, getReferralRevenueData, getAutoSignUpRevenueData, getCareerRevenueData, 
-    getAffiliateRevenueData, getUsersBetweenDate, 
+    getAffiliateRevenueData, getUsersBetweenDate, downloadTenxRevenueData,
     getSignupChannelBetweenDate, getRevenueBetweenDate, getTestZoneRevenue, 
     getOverallRevenue, downloadTestZoneRevenueData, downloadMarginXRevenueData, 
     getRetentionPercentageForMonth, getPaidRetentionPercentageForMonth, getCampaignRevenueData} = require('../../controllers/revenueController/revenuDashboardController');
@@ -14,6 +14,7 @@ router.route('/gettestzonerevenue').get(Authenticate, restrictTo('Admin', 'Super
 router.route('/overallrevenue').get(getOverallRevenue);
 router.route('/getretention').get(getRetentionPercentageForMonth);
 router.route('/getpaidretention').get(getPaidRetentionPercentageForMonth);
+router.route('/downloadtenxrevenuedata').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), downloadTenxRevenueData);
 router.route('/downloadtestzonerevenuedata').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), downloadTestZoneRevenueData);
 router.route('/downloadmarginxrevenuedata').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), downloadMarginXRevenueData);
 router.route('/betweendates').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getRevenueBetweenDate);

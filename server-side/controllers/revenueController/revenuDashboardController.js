@@ -2347,6 +2347,142 @@ exports.downloadTestZoneRevenueData = async (req, res) => {
   }
 };
 
+exports.downloadTenxRevenueData = async (req, res) => {
+
+  try {
+
+    const tenxRevenueDataPipeline = [
+      {
+        $match: {
+          discounted_price: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $unwind: "$users",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "users.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $lookup: {
+          from: "user-portfolios",
+          localField: "portfolio",
+          foreignField: "_id",
+          as: "portfolio-details",
+        },
+      },
+      {
+        $unwind: "$portfolio-details",
+      },
+      {
+        $addFields: {
+          purchaseDate: {
+            $add: [
+              '$users.subscribedOn',
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          joiningDate: {
+            $add: [
+              "$user.joining_date",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          first_name: "$user.first_name",
+          last_name: "$user.last_name",
+          mobile: "$user.mobile",
+          email: "$user.email",
+          tenx: "$plan_name",
+
+          tenxPortfolio:
+            "$portfolio-details.portfolioValue",
+          purchaseDate: "$purchaseDate",
+          joiningDate: "$joiningDate",
+          campaignCode: {
+            $ifNull: ["$user.campaignCode", ""],
+          },
+          referrerCode: {
+            $ifNull: ["$user.referrerCode", ""],
+          },
+          myReferralCode: {
+            $ifNull: ["$user.myReferralCode", ""],
+          },
+          tenxStatus: {
+            $ifNull: ["$status", ""],
+          },
+          actualPrice: {
+            $ifNull: ["$actualPrice", "$actual_price"],
+          },
+          creationProcess: {
+            $ifNull: ["$user.creationProcess", ""],
+          },
+          buyingPrice: {
+            $ifNull: [
+              "$users.fee",
+              "$discounted_price",
+            ],
+          },
+          bonusRedemption: {
+            $ifNull: ["$bonusRedemption", 0],
+          },
+          tdsAmount: {
+            $ifNull: ["$tdsAmount", 0],
+          },
+          payout: {
+            $ifNull: ["$user.payout", 0],
+          },
+          npnl: {
+            $ifNull: ["$user.npnl", 0],
+          },
+          gpnl: {
+            $ifNull: ["$user.gpnl", 0],
+          },
+          trades: {
+            $ifNull: ["$user.trades", 0],
+          },
+        },
+      },
+      {
+        $sort: {
+          purchaseDate: -1
+        }
+      }
+    ]
+
+    const tenxRevenueData = await TenX.aggregate(tenxRevenueDataPipeline);
+
+    const response = {
+      status: "success",
+      message: "Monthly Active Users on Platform fetched successfully",
+      data: tenxRevenueData,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 exports.downloadMarginXRevenueData = async (req, res) => {
 
   try {

@@ -19,18 +19,7 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-// import Person3Icon from '@mui/icons-material/Person3';
-// import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import dayjs from "dayjs";
-
-// Images
-// import masterCardLogo from "../../../../assets/images/logos/mastercard.png";
-// import visaLogo from "../../../../assets/images/logos/visa.png";
-
-// // Material Dashboard 2 React context
-// import { useMaterialUIController } from "../../../../context";
-// import { userContext } from "../../../../AuthContext";
-// import uniqid from "uniqid"
 import User from "./user";
 import {
   LocalizationProvider,
@@ -52,9 +41,6 @@ const MenuProps = {
 };
 
 function AddFunds({ setRender, render }) {
-  // const [controller] = useMaterialUIController();
-  // const { darkMode } = controller;
-  // const [traders, setTraders] = useState([]);
   const [formState, setFormState] = useState({
     paymentTime: dayjs(new Date())
       .set("hour", 0)
@@ -73,8 +59,9 @@ function AddFunds({ setRender, render }) {
       currency,
       paymentMode,
       paymentStatus,
+      utr
     } = formState;
-    console.log(formState, paymentBy._id);
+
     if (
       !formState.paymentTime ||
       !formState.transactionId ||
@@ -82,6 +69,7 @@ function AddFunds({ setRender, render }) {
       !paymentBy._id ||
       !formState.currency ||
       !formState.paymentMode ||
+      !formState.utr ||
       !formState.paymentStatus
     ) {
       return openErrorSB(
@@ -104,7 +92,7 @@ function AddFunds({ setRender, render }) {
         paymentBy: paymentBy._id,
         currency,
         paymentMode,
-        paymentStatus,
+        paymentStatus,utr
       }),
     });
 
@@ -336,6 +324,31 @@ function AddFunds({ setRender, render }) {
                   <MenuItem value="failed">Failed</MenuItem>
                 </Select>
               </FormControl>
+            </Grid>
+          </Grid>
+
+          <Grid
+            item
+            xs={12}
+            md={4}
+            lg={12}
+            display="flex"
+            justifyContent={"space-between"}
+          >
+            <Grid item xs={12} md={6} xl={3} mb={1} mt={1} lg={4}>
+              <TextField
+                id="outlined-required"
+                label="UTR *"
+                name="utr"
+                fullWidth
+                type="text"
+                onChange={(e) => {
+                  setFormState((prevState) => ({
+                    ...prevState,
+                    utr: e.target.value,
+                  }));
+                }}
+              />
             </Grid>
           </Grid>
 

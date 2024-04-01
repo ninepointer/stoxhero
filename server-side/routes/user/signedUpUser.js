@@ -596,6 +596,7 @@ router.patch("/verifyotp", async (req, res) => {
     }
 
     user.status = "OTP Verified";
+    user.email = email;
     user.last_modifiedOn = new Date();
     await user.save({ validateBeforeSave: false });
     if (referrerCodeMatch) {
@@ -1290,6 +1291,7 @@ router.patch("/createuserbyworkshop", async (req, res) => {
   user.collegeName = college;
   user.first_name = first_name;
   user.last_name = last_name;
+  user.email = email;
   user.status = "OTP Verified";
   user.last_modifiedOn = new Date();
   await user.save({ validateBeforeSave: false });
@@ -1866,6 +1868,7 @@ router.patch("/createuserbycourse", async (req, res) => {
   }
 
   user.status = "OTP Verified";
+  user.email = email;
   user.last_modifiedOn = new Date();
   await user.save({ validateBeforeSave: false });
 
@@ -2357,8 +2360,9 @@ router.get(
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   (req, res) => {
-    SignedUpUser.find()
+    SignedUpUser.find({status: 'OTP Verified'})
       .sort({ createdOn: -1 })
+      .select('first_name last_name email mobile')
       .exec((err, data) => {
         if (err) {
           return res.status(500).send(err);

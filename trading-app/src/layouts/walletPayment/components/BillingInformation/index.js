@@ -197,8 +197,8 @@ function BillingInformation({ render }) {
         totalCredit=""
         mobile={elem?.paymentBy?.mobile}
         paymentStatus={elem?.paymentStatus}
-        paymentMode={elem?.gatewayResponse?.data?.paymentInstrument?.type}
-        utr={elem?.gatewayResponse?.data?.paymentInstrument?.utr}
+        paymentMode={elem?.gatewayResponse?.data?.paymentInstrument?.type || elem?.paymentMode}
+        utr={elem?.gatewayResponse?.data?.paymentInstrument?.utr || elem?.utr}
       />
     );
     rows.push(obj);
@@ -405,6 +405,7 @@ function BillingInformation({ render }) {
                         {!isLoading && count !== 0 && (
                           <MDBox
                             mt={1}
+                            p={1}
                             display="flex"
                             justifyContent="space-between"
                             alignItems="center"
@@ -412,7 +413,7 @@ function BillingInformation({ render }) {
                           >
                             <MDButton
                               variant="outlined"
-                              color="light"
+                              color="dark"
                               disabled={
                                 (skip + limitSetting) / limitSetting === 1
                                   ? true
@@ -434,7 +435,7 @@ function BillingInformation({ render }) {
                             </MDTypography>
                             <MDButton
                               variant="outlined"
-                              color="light"
+                              color="dark"
                               disabled={
                                 Math.ceil(count / limitSetting) ===
                                 (skip + limitSetting) / limitSetting
@@ -467,6 +468,7 @@ function BillingInformation({ render }) {
                       {!isLoading && count !== 0 && (
                         <MDBox
                           mt={1}
+                          p={1}
                           display="flex"
                           justifyContent="space-between"
                           alignItems="center"
@@ -474,7 +476,7 @@ function BillingInformation({ render }) {
                         >
                           <MDButton
                             variant="outlined"
-                            color="light"
+                            color="dark"
                             disabled={
                               (skip + limitSetting) / limitSetting === 1
                                 ? true
@@ -496,7 +498,7 @@ function BillingInformation({ render }) {
                           </MDTypography>
                           <MDButton
                             variant="outlined"
-                            color="light"
+                            color="dark"
                             disabled={
                               Math.ceil(count / limitSetting) ===
                               (skip + limitSetting) / limitSetting
@@ -528,6 +530,7 @@ function BillingInformation({ render }) {
                       {!isLoading && count !== 0 && (
                         <MDBox
                           mt={1}
+                          p={1}
                           display="flex"
                           justifyContent="space-between"
                           alignItems="center"
@@ -535,7 +538,7 @@ function BillingInformation({ render }) {
                         >
                           <MDButton
                             variant="outlined"
-                            color="light"
+                            color="dark"
                             disabled={
                               (skip + limitSetting) / limitSetting === 1
                                 ? true
@@ -557,7 +560,7 @@ function BillingInformation({ render }) {
                           </MDTypography>
                           <MDButton
                             variant="outlined"
-                            color="light"
+                            color="dark"
                             disabled={
                               Math.ceil(count / limitSetting) ===
                               (skip + limitSetting) / limitSetting

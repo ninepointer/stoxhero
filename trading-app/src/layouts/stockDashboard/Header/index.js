@@ -137,7 +137,7 @@ export default function LabTabs({ socket }) {
       });
   }, [trackEvent]);
 
-  tradeData.map((subelem, index) => {
+  tradeData?.map((subelem, index) => {
     let liveDetail = marketData.filter((elem) => {
       return (
         elem !== undefined &&
@@ -513,33 +513,33 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="left"
                       >
-                        {tradeDataYesterday[0]
-                          ? tradeDataYesterday[0]?.amountMIS >= 0
+                        {tradeDataYesterday?.[0]
+                          ? tradeDataYesterday?.[0]?.amountMIS >= 0
                             ? "+₹" +
                               new Intl.NumberFormat(undefined, {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
-                              }).format(tradeDataYesterday[0]?.amountMIS)
+                              }).format(tradeDataYesterday?.[0]?.amountMIS)
                             : "-₹" +
                               new Intl.NumberFormat(undefined, {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
-                              }).format(-tradeDataYesterday[0]?.amountMIS)
+                              }).format(-tradeDataYesterday?.[0]?.amountMIS)
                           : "₹" + 0}
                         /
                         <span>
-                          {tradeDataYesterday[0]
-                            ? tradeDataYesterday[0]?.amountCNC >= 0
+                          {tradeDataYesterday?.[0]
+                            ? tradeDataYesterday?.[0]?.amountCNC >= 0
                               ? "+₹" +
                                 new Intl.NumberFormat(undefined, {
                                   minimumFractionDigits: 0,
                                   maximumFractionDigits: 0,
-                                }).format(tradeDataYesterday[0]?.amountCNC)
+                                }).format(tradeDataYesterday?.[0]?.amountCNC)
                               : "-₹" +
                                 new Intl.NumberFormat(undefined, {
                                   minimumFractionDigits: 0,
                                   maximumFractionDigits: 0,
-                                }).format(-tradeDataYesterday[0]?.amountCNC)
+                                }).format(-tradeDataYesterday?.[0]?.amountCNC)
                             : "₹" + 0}
                         </span>
                       </MDTypography>
@@ -560,22 +560,22 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="center"
                       >
-                        {tradeDataYesterday[0]
+                        {tradeDataYesterday?.[0]
                           ? "₹" +
                             new Intl.NumberFormat(undefined, {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
-                            }).format(tradeDataYesterday[0]?.brokerageMIS)
+                            }).format(tradeDataYesterday?.[0]?.brokerageMIS)
                           : "₹" + 0}
                         /
                         <span>
                           {" "}
-                          {tradeDataYesterday[0]
+                          {tradeDataYesterday?.[0]
                             ? "₹" +
                               new Intl.NumberFormat(undefined, {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
-                              }).format(tradeDataYesterday[0]?.brokerageCNC)
+                              }).format(tradeDataYesterday?.[0]?.brokerageCNC)
                             : "₹" + 0}
                         </span>
                       </MDTypography>
@@ -596,49 +596,49 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="right"
                       >
-                        {tradeDataYesterday[0]
-                          ? tradeDataYesterday[0]?.amountMIS -
-                              tradeDataYesterday[0]?.brokerageMIS >=
+                        {tradeDataYesterday?.[0]
+                          ? tradeDataYesterday?.[0]?.amountMIS -
+                              tradeDataYesterday?.[0]?.brokerageMIS >=
                             0
                             ? "+₹" +
                               new Intl.NumberFormat(undefined, {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
                               }).format(
-                                tradeDataYesterday[0]?.amountMIS -
-                                  tradeDataYesterday[0]?.brokerageMIS
+                                tradeDataYesterday?.[0]?.amountMIS -
+                                  tradeDataYesterday?.[0]?.brokerageMIS
                               )
                             : "-₹" +
                               new Intl.NumberFormat(undefined, {
                                 minimumFractionDigits: 0,
                                 maximumFractionDigits: 0,
                               }).format(
-                                tradeDataYesterday[0]?.brokerageMIS -
-                                  tradeDataYesterday[0]?.amountMIS
+                                tradeDataYesterday?.[0]?.brokerageMIS -
+                                  tradeDataYesterday?.[0]?.amountMIS
                               )
                           : "₹" + 0}
                         /
                         <span>
                           {" "}
-                          {tradeDataYesterday[0]
-                            ? tradeDataYesterday[0]?.amountCNC -
-                                tradeDataYesterday[0]?.brokerageCNC >=
+                          {tradeDataYesterday?.[0]
+                            ? tradeDataYesterday?.[0]?.amountCNC -
+                                tradeDataYesterday?.[0]?.brokerageCNC >=
                               0
                               ? "+₹" +
                                 new Intl.NumberFormat(undefined, {
                                   minimumFractionDigits: 0,
                                   maximumFractionDigits: 0,
                                 }).format(
-                                  tradeDataYesterday[0]?.amountCNC -
-                                    tradeDataYesterday[0]?.brokerageCNC
+                                  tradeDataYesterday?.[0]?.amountCNC -
+                                    tradeDataYesterday?.[0]?.brokerageCNC
                                 )
                               : "-₹" +
                                 new Intl.NumberFormat(undefined, {
                                   minimumFractionDigits: 0,
                                   maximumFractionDigits: 0,
                                 }).format(
-                                  tradeDataYesterday[0]?.brokerageCNC -
-                                    tradeDataYesterday[0]?.amountCNC
+                                  tradeDataYesterday?.[0]?.brokerageCNC -
+                                    tradeDataYesterday?.[0]?.amountCNC
                                 )
                             : "₹" + 0}
                         </span>
@@ -662,11 +662,11 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="left"
                       >
-                        {tradeDataYesterday[0]
+                        {tradeDataYesterday?.[0]
                           ? new Intl.NumberFormat(undefined, {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
-                            }).format(tradeDataYesterday[0]?.totallots)
+                            }).format(tradeDataYesterday?.[0]?.totallots)
                           : 0}
                       </MDTypography>
                     </Grid>
@@ -706,12 +706,12 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="right"
                       >
-                        {tradeDataYesterday[0]
+                        {tradeDataYesterday?.[0]
                           ? "₹" +
                             new Intl.NumberFormat(undefined, {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
-                            }).format(tradeDataYesterday[0]?.turnover)
+                            }).format(tradeDataYesterday?.[0]?.turnover)
                           : "₹" + 0}
                       </MDTypography>
                     </Grid>
@@ -733,8 +733,8 @@ export default function LabTabs({ socket }) {
                         display="flex"
                         justifyContent="left"
                       >
-                        {tradeDataYesterday[0]
-                          ? tradeDataYesterday[0]?.trades
+                        {tradeDataYesterday?.[0]
+                          ? tradeDataYesterday?.[0]?.trades
                           : 0}
                       </MDTypography>
                     </Grid>

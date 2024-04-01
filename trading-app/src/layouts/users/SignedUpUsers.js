@@ -1,8 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
-// import { FcApprove } from 'react-icons/fc';
-
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -10,21 +8,8 @@ import Card from "@mui/material/Card";
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
 import MDTypography from "../../components/MDTypography";
-import MDButton from "../../components/MDBox";
-
-// Material Dashboard 2 React example components
-// import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-// import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-// import Footer from "../../examples/Footer";
 import DataTable from "../../examples/Tables/DataTable";
-// import EditSharpIcon from '@mui/icons-material/EditSharp';
-
-// Data
-// import authorsTableData from "./data/authorsTableData";
-// import projectsTableData from "./data/projectsTableData";
 import SignedUpUserData from "./data/SignedUpUserData";
-// import InactiveUserData from './data/InactiveUserData';
-import SignedUpUserEditModel from "./SignedUpUserEditModel";
 
 const SignedUpUser = () => {
   const { columns, rows } = SignedUpUserData();
@@ -46,16 +31,11 @@ const SignedUpUser = () => {
       });
   }, [reRender]);
 
-  console.log(signedUpUserData);
 
   signedUpUserData.map((elem) => {
     let signedupusers = {};
 
-    // signedupusers.edit = (
-    //   <MDButton variant="Contained" color="info" fontWeight="medium">
-    //     <SignedUpUserEditModel data={signedupusers} id={elem._id} Render={{setReRender, reRender}}/>
-    //   </MDButton>
-    // );
+
     signedupusers.name = (
       <MDTypography
         component="a"
@@ -66,11 +46,7 @@ const SignedUpUser = () => {
         {elem.first_name} {elem.last_name}
       </MDTypography>
     );
-    // signedupusers.lname = (
-    //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-    //     {elem.last_name}
-    //   </MDTypography>
-    // );
+
     signedupusers.email = (
       <MDTypography
         component="a"
@@ -91,41 +67,17 @@ const SignedUpUser = () => {
         {elem.mobile}
       </MDTypography>
     );
-    // signedupusers.wmobile = (
-    //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-    //     {elem.watsApp_number}
+
+    // signedupusers.status = (
+    //   <MDTypography
+    //     component="a"
+    //     variant="caption"
+    //     color="text"
+    //     fontWeight="medium"
+    //   >
+    //     {elem.status}
     //   </MDTypography>
     // );
-    // signedupusers.gender = (
-    //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-    //     {elem.gender}
-    //   </MDTypography>
-    // );
-    // signedupusers.tradingexp = (
-    //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-    //     {elem.trading_exp} Months
-    //   </MDTypography>
-    // );
-    // signedupusers.city = (
-    //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-    //     {elem.city}
-    //   </MDTypography>
-    // );
-    // signedupusers.dob = (
-    //   <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-    //     {elem.dob}
-    //   </MDTypography>
-    // );
-    signedupusers.status = (
-      <MDTypography
-        component="a"
-        variant="caption"
-        color="text"
-        fontWeight="medium"
-      >
-        {elem.status}
-      </MDTypography>
-    );
 
     rows.push(signedupusers);
   });

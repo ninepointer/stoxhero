@@ -129,7 +129,7 @@ export default function Dashboard() {
 
     return truncatedName;
   }
-
+  
   const downloadTestZoneRevenueData = () => {
     setDownloadingTestZoneRevenueData(true);
     return new Promise((resolve, reject) => {
@@ -153,6 +153,8 @@ export default function Dashboard() {
         });
     });
   };
+
+
 
   const downloadMarginXRevenueData = () => {
     setDownloadingMarginXRevenueData(true);
@@ -221,11 +223,11 @@ export default function Dashboard() {
         "Campaign Code",
         "Referrer Code",
         "Referral Code",
-        "TestZone",
-        "TestZone Date",
-        "TestZone Portfolio",
+        "Name",
+        "Start Date",
+        "Portfolio",
         "Purchase Date",
-        "TestZone Status",
+        "Status",
         "Actual Price",
         "Buying Price",
         "Bonus Used",

@@ -54,7 +54,7 @@ export default function LabTabs() {
             <Tab label="Pending Approval" value="3" />
             <Tab label="Awaiting Approval" value="4" />
             <Tab label="Unpublished" value="5" />
-            <Tab label="Search Courses" value="6" />
+            {/* <Tab label="Search Courses" value="6" /> */}
           </TabList>
         </MDBox>
 
@@ -124,7 +124,7 @@ export default function LabTabs() {
           }
           </TabPanel>
 
-          <TabPanel value="6">
+          {/* <TabPanel value="6">
           {isLoading ? 
           
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
@@ -136,7 +136,7 @@ export default function LabTabs() {
           </MDBox>
    
           }
-          </TabPanel>
+          </TabPanel> */}
       </TabContext>
     </MDBox>
   );
