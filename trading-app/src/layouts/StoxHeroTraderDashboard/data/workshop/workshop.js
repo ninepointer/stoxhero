@@ -105,7 +105,7 @@ const Workshop = () => {
                               src={elem?.courseImage}
                               style={{
                                 minWidth: "50%",
-                                height: "50%",
+                                height: "60%",
                                 borderBottomLeftRadius: isMobile
                                   ? 0
                                   : 10,
@@ -118,7 +118,7 @@ const Workshop = () => {
                               }}
                             />
                           </Grid>
-                          <Grid item xs={12} md={12} lg={4} display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent={isMobile ? 'center' : 'flex-start'} flexDirection='column' alignItems={isMobile ? 'center' : 'flex-start'} gap={.5}>
+                          <Grid item xs={12} md={12} lg={4} display='flex' justifyContent={isMobile ? 'center' : 'flex-start'} alignContent={isMobile ? 'center' : 'flex-start'} flexDirection='column' alignItems={isMobile ? 'center' : 'flex-start'} gap={.5} >
                             <Grid
                               item
                               xs={12}
@@ -131,15 +131,18 @@ const Workshop = () => {
                                   : "flex-start"
                               }
                               alignContent="center"
+                              style={{paddingTop: '3px'}}
                               alignItems={
                                 isMobile
                                   ? "center"
                                   : "flex-start"
                               }
+                              
                             >
                               <MDTypography
                                 variant="body1"
                                 fontWeight="bold"
+                                sx={{fontSize: '1.15rem', lineHeight: '1.2 !important'}}
                               >
                                 {elem?.courseName}
                               </MDTypography>
