@@ -9,6 +9,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Tooltip } from "@mui/material";
 import Icon from "@mui/material/Icon";
+import { settingContext } from "../../../../settingContext";
+
 import { userContext } from "../../../../AuthContext";
 import MDAvatar from "../../../../components/MDAvatar";
 import MDSnackbar from "../../../../components/MDSnackbar";
@@ -34,6 +36,8 @@ import { Divider, Typography, CircularProgress } from "@mui/material";
 import { apiUrl } from "../../../../constants/constants";
 
 function MyProfile({ profilePhoto, setProfilePhoto }) {
+  const setting = useContext(settingContext)
+
   const [editablePD, setEditablePD] = useState(false);
   const [editableBD, setEditableBD] = useState(false);
   const [editableKYC, setEditableKYC] = useState(false);
@@ -189,13 +193,16 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
     }
   };
 
-  async function formSubmit(data, section) {
+  async function formSubmit(data, section, isKycUpdate) {
     // console.log("Form Data: ",data)
     try {
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
         if (key != "KYCStatus") formData.append(key, data[key]);
       });
+
+      formData.append('isKycUpdate', isKycUpdate);
+
       if (section === "KYC Details") {
         // console.log("KYC FormData: ",data)
         if (
@@ -236,7 +243,7 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
         body: formData,
       });
       let response = await res.json();
-      // console.log('response', response);
+      console.log('response', response);
       if (response.status === "success") {
         // getDetails.setUserDetail(response.data);
         // console.log("Response: ",response.data,data);
@@ -254,6 +261,13 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
           dob: response.data?.dob ?? "",
         }));
         openSuccessSB(section, `Your ${section} updated successfully`);
+      }
+
+      if(response.status === 'error'){
+        return openErrorSB(
+          "KYC Details",
+          response.message
+        );
       }
     } catch (e) {
       // console.log(e);
@@ -1320,6 +1334,9 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
           <MDTypography style={{ fontSize: 18 }}>
             Select your method of KYC Verification
           </MDTypography>
+          <MDTypography style={{ fontSize: 12 }}>
+            {`Note :- To proceed with KYC, your wallet balance needs to be greater than ₹${setting?.[0]?.minWalletBalance || 0}.`}
+          </MDTypography>
           <FormControl component="fieldset">
             <RadioGroup
               row
@@ -1421,50 +1438,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
               {/* KYC Details Header End */}
             </MDBox>
 
-            {/* {!editableKYC ? 
-            <Tooltip title="Edit KYC Details" placement="top">
-            <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-              <Typography
-                variant="caption"
-                fontWeight="bold"
-                sx={{ marginRight: 1 }}
-              >
-                Click on pencil icon to update KYC details
-              </Typography>
-              <Icon
-                fontSize="small"
-                onClick={() => {
-                  if(formStateKYC.KYCStatus != 'Approved'){
-                    setEditableKYC(true);
-                  }
-                }}
-              >
-                edit
-              </Icon>
-            </Box>
-            </Tooltip>
-            :
-            <Tooltip title="Save KYC Details" placement="top">
-              <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-                <Typography
-                  variant="caption"
-                  fontWeight="bold"
-                  sx={{ marginRight: 1 }}
-                >
-                  Click on tick icon to save KYC details
-                </Typography>
-                <Icon
-                  fontSize="small"
-                  onClick={() => {
-                    setEditableKYC(false);
-                    formSubmit(formStateKYC,"KYC Details");
-                  }}
-                >
-                  done
-                </Icon>
-              </Box>
-            </Tooltip>
-            } */}
           </MDBox>
 
           {/* <Divider orientation="horizontal" sx={{ ml: 1, mr: 1, color:'rgba(0, 0, 0, 0.87)' }} /> */}
@@ -1550,38 +1523,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
                 }}
               />
             </Grid>
-
-            {/* <Grid item xs={12} md={6} xl={3}>
-              <TextField
-                disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
-                id="outlined-required"
-                label="Driving License Number"
-                value={formStateKYC?.drivingLicenseNumber}
-                fullWidth
-                onChange={(e) => {setFormStateKYC(prevState => ({
-                  ...prevState,
-                  drivingLicenseNumber: e.target.value
-                }))}}
-              />
-          </Grid> */}
-
-            {/* <Grid item xs={12} md={6} xl={3} mt={-1}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={['DatePicker']}>
-                <DatePicker
-                  label="Date of Birth"
-                  // disabled={!editableKYC}
-                  value={KYCVerification.dob ? dayjs(KYCVerification.dob) : ''}
-                  // onChange={(e) => {setFormStatePD({dob: dayjs(e)})}}
-                  onChange={(e) => {setKYCVerification(prevState => ({
-                    ...prevState,
-                    dob: dayjs(e)
-                  }))}}
-                  sx={{ width: '100%' }}
-                />
-              </DemoContainer>
-            </LocalizationProvider>
-          </Grid> */}
 
             <Grid
               xl={12}
@@ -1768,7 +1709,7 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
                     fontSize="small"
                     onClick={() => {
                       setEditableKYC(false);
-                      formSubmit(formStateKYC, "KYC Details");
+                      formSubmit(formStateKYC, "KYC Details", true);
                     }}
                   >
                     done
@@ -1815,34 +1756,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
                 }}
               />
             </Grid>
-
-            {/* <Grid item xs={12} md={6} xl={3}>
-          <TextField
-            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
-            id="outlined-required"
-            label="Passport Number"
-            value={formStateKYC?.passportNumber}
-            fullWidth
-            onChange={(e) => {setFormStateKYC(prevState => ({
-              ...prevState,
-              passportNumber: e.target.value
-            }))}}
-          />
-      </Grid> */}
-
-            {/* <Grid item xs={12} md={6} xl={3}>
-          <TextField
-            disabled={!editableKYC || formStateKYC.KYCStatus == 'Approved'}
-            id="outlined-required"
-            label="Driving License Number"
-            value={formStateKYC?.drivingLicenseNumber}
-            fullWidth
-            onChange={(e) => {setFormStateKYC(prevState => ({
-              ...prevState,
-              drivingLicenseNumber: e.target.value
-            }))}}
-          />
-      </Grid> */}
 
             <Grid item xs={12} md={6} xl={4} mt={-1}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>

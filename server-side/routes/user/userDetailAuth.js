@@ -3,6 +3,7 @@ const otpGenerator = require("otp-generator");
 const emailService = require("../../utils/emailService");
 const router = express.Router();
 require("../../db/conn");
+const Settings = require('../../models/settings/setting');
 const UserDetail = require("../../models/User/userDetailSchema");
 const authController = require("../../controllers/authController");
 const multer = require("multer");
@@ -845,6 +846,22 @@ router.patch(
   uploadToS3,
   async (req, res, next) => {
     try {
+      console.log(req.body.isKycUpdate)
+      if(req.body.isKycUpdate === 'true'){
+        const setting = await Settings.findOne();
+        const wallet = await Wallet.findOne({userId: new ObjectId(req?.user?._id)});
+        let walletBalance = 0;
+        for(let elem of wallet?.transactions){
+          if(elem?.transactionType === 'Cash'){
+            walletBalance += elem?.amount;
+          }
+        }
+
+        if(walletBalance < setting?.minWalletBalance){
+          return res.status(400).json({ status: 'error', message: `To proceed with KYC, your wallet balance needs to be greater than ₹${setting?.minWalletBalance || 0}.`});
+        }
+      }
+
       const user = await UserDetail.findById(req.user._id);
 
       if (!user)
@@ -1025,12 +1042,6 @@ router.patch(
         }
       }
       filteredBody.lastModified = new Date();
-
-      // if((req).profilePhotoUrl) filteredBody.profilePhoto = (req).profilePhotoUrl;
-      // if((req).aadhaarCardFrontImageUrl) filteredBody.aadhaarCardFrontImage = (req).aadhaarCardFrontImageUrl;
-      // if((req).aadhaarCardBackImageUrl) filteredBody.aadhaarCardBackImage = (req).aadhaarCardBackImageUrl;
-      // if((req).panCardFrontImageUrl) filteredBody.panCardFrontImage = (req).panCardFrontImageUrl;
-      // if((req).passportPhotoUrl) filteredBody.passportPhoto = (req).passportPhotoUrl;
 
       if (req.profilePhotoUrl) {
         if (!filteredBody.profilePhoto) {

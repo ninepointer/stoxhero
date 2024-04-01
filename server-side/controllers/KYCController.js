@@ -3,12 +3,12 @@ const sendMail = require('../utils/emailService');
 const {generateAadhaarOtp, verifyAadhaarOtp, verifyPan, verifyBankAccount} = require('../utils/kycService');
 const {sendMultiNotifications} = require('../utils/fcmService');
 const Settings = require('../models/settings/setting');
-
+const Wallet = require('../models/UserWallet/userWalletSchema');
 const multer = require('multer');
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
 const {createUserNotification} = require('../controllers/notification/notificationController');
-
+const {ObjectId} = require('mongodb')
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
 console.log("File upload started");
@@ -444,6 +444,18 @@ exports.generateOtp = async(req,res) => {
   const {aadhaarNumber} = req.body;
   console.log('aadhaar otp req');
   try{
+    const setting = await Settings.findOne();
+    const wallet = await Wallet.findOne({userId: new ObjectId(req?.user?._id)});
+    let walletBalance = 0;
+    for(let elem of wallet?.transactions){
+      if(elem?.transactionType === 'Cash'){
+        walletBalance += elem?.amount;
+      }
+    }
+
+    if(walletBalance < setting?.minWalletBalance){
+      return res.status(400).json({ status: 'error', message: `To proceed with KYC, your wallet balance needs to be greater than ₹${setting?.minWalletBalance || 0}.`});
+    }
     const aadhaarNumberDoc = await User.findOne({aadhaar_number:aadhaarNumber, KYCStatus:"Approved"}).select('_id');
     if(aadhaarNumberDoc._id.toString() == req?.user?._id.toString()){
       res.status(400).json({ status: 'error', message: 'Aadhaar Number already approved with another account'});

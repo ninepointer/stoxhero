@@ -1547,6 +1547,9 @@ exports.getPublished = async (req, res) => {
           courseImage: 1,
           courseOverview: 1,
           coursePrice: 1,
+          instructorImage: {
+            $arrayElemAt: ["$courseInstructors.image", 0],
+          },
           discountedPrice: 1,
           registrationStartTime: 1,
           registrationEndTime: 1,
