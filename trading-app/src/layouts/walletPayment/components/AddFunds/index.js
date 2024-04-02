@@ -166,28 +166,28 @@ function AddFunds({ setRender, render }) {
         </MDTypography>
       </MDBox>
       <MDBox p={2}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4} lg={12}>
-            <User setPaymentBy={setPaymentBy} />
+        <Grid container spacing={1}>
+          <Grid item xs={12} md={12} lg={12} sx={{paddingLeft: 0}}>
+            <User paymentBy={paymentBy} setPaymentBy={setPaymentBy} />
           </Grid>
 
           <Grid
-            item
+            container
+            spacing={1}
             xs={12}
-            md={4}
+            md={12}
             lg={12}
             display="flex"
-            justifyContent={"space-between"}
+            justifyContent={"flex-start"}
+            style={{marginLeft: 0}}
           >
-            <Grid item xs={12} md={6} xl={3} mb={1} mt={1} lg={4}>
+            <Grid item xs={12} xl={4} lg={4}>
               <TextField
-                // disabled={((isSubmitted || !contest) && (!editing || saving))}
                 id="outlined-required"
                 label="Transaction Id *"
                 name="transactionId"
                 fullWidth
                 type="text"
-                // defaultValue={editing ? formState?.transactionId : contest?.transactionId}
                 onChange={(e) => {
                   setFormState((prevState) => ({
                     ...prevState,
@@ -197,7 +197,7 @@ function AddFunds({ setRender, render }) {
               />
             </Grid>
 
-            <Grid item xs={12} md={6} xl={3} mb={1} lg={4}>
+            <Grid item xs={12} xl={4} lg={4} mt={-1}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={["MobileDateTimePicker"]}>
                   <DemoItem>
@@ -220,7 +220,7 @@ function AddFunds({ setRender, render }) {
               </LocalizationProvider>
             </Grid>
 
-            <Grid item xs={12} md={6} xl={3} mb={1} mt={1} lg={4}>
+            <Grid item xs={12} xl={4} lg={4}>
               <TextField
                 // disabled={((isSubmitted || contest) && (!editing || saving))}
                 id="outlined-required"
@@ -237,17 +237,8 @@ function AddFunds({ setRender, render }) {
                 }}
               />
             </Grid>
-          </Grid>
 
-          <Grid
-            item
-            xs={12}
-            md={4}
-            lg={12}
-            display="flex"
-            justifyContent={"space-between"}
-          >
-            <Grid item xs={12} md={3} xl={3} lg={4}>
+            <Grid item xs={12} xl={4} lg={4}>
               <FormControl sx={{ minHeight: 10, minWidth: 200, width: "100%" }}>
                 <InputLabel id="demo-multiple-name-label">Currency</InputLabel>
                 <Select
@@ -272,7 +263,7 @@ function AddFunds({ setRender, render }) {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={3} xl={3} lg={4}>
+            <Grid item xs={12} xl={4} lg={4}>
               <FormControl sx={{ minHeight: 10, minWidth: 200, width: "100%" }}>
                 <InputLabel id="demo-multiple-name-label">
                   Payment Mode
@@ -299,7 +290,7 @@ function AddFunds({ setRender, render }) {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={3} xl={3} lg={4}>
+            <Grid item xs={12} xl={4} lg={4}>
               <FormControl sx={{ minHeight: 10, minWidth: 200, width: "100%" }}>
                 <InputLabel id="demo-multiple-name-label">
                   Payment Status
@@ -325,9 +316,36 @@ function AddFunds({ setRender, render }) {
                 </Select>
               </FormControl>
             </Grid>
+
+            <Grid item xs={12} xl={4} lg={4}>
+              <TextField
+                id="outlined-required"
+                label="UTR *"
+                name="utr"
+                fullWidth
+                type="text"
+                onChange={(e) => {
+                  setFormState((prevState) => ({
+                    ...prevState,
+                    utr: e.target.value,
+                  }));
+                }}
+              />
+            </Grid>
           </Grid>
 
-          <Grid
+          {/* <Grid
+            item
+            xs={12}
+            md={4}
+            lg={12}
+            display="flex"
+            justifyContent={"space-between"}
+          >
+           
+          </Grid> */}
+
+          {/* <Grid
             item
             xs={12}
             md={4}
@@ -350,7 +368,7 @@ function AddFunds({ setRender, render }) {
                 }}
               />
             </Grid>
-          </Grid>
+          </Grid> */}
 
           <Grid
             item

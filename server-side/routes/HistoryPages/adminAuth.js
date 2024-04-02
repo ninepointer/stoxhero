@@ -2776,6 +2776,37 @@ router.get("/updateproduct", async (req, res) => {
   }
 });
 
+router.get("/addtenxsubscription", async (req, res) => {
+  const subsId = '';
+  const userId = '';
+  const subs = await TenxSubscription.findOneAndUpdate({_id: new ObjectId(subsId)}, {
+    $push: {
+      users: {
+        userId: userId,
+        subscribedOn: new Date(),
+        status:'Live',
+        fee: 450,
+        bonusRedemption:50,
+        actualPrice:500,
+      }
+    }
+  });
+  const user = await UserDetail.find({_id: new ObjectId(userId)}, {
+    $push: {
+      subscription: {
+        subscriptionId: subsId,
+        subscribedOn: new Date(),
+        status:'Live',
+        fee: 450,
+        bonusRedemption:50,
+        actualPrice:500,
+      }
+    }
+  });
+
+  res.send("ok");
+});
+
 router.get("/tenxSubsRemovePayout", async (req, res) => {
   const subs = await TenxSubscription.find();
   const user = await UserDetail.find();

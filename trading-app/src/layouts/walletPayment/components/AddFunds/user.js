@@ -1,145 +1,271 @@
 import React from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import {  useState, useRef, useReducer } from "react";
+// @mui material components
+// import { Chart } from "chart.js/auto";
+// Chart.register(...registerables);
+import Grid from "@mui/material/Grid";
+// import Input from "@mui/material/Input";
+
+// Material Dashboard 2 React components
+
+// import MDButton from "../";
+// import MDButton from "../../../components/MDButton";
+// import MDSnackbar from "../../../components/MDSnackbar";
+// import { userContext } from "../../../AuthContext";
+// import { Tooltip } from '@mui/material';
+
+// Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
 import TextField from "@mui/material/TextField";
-import { Autocomplete, Box, Grid } from "@mui/material";
-import { styled } from "@mui/material";
+// import { createTheme } from '@mui/material/styles';
+import { RxCross2 } from "react-icons/rx";
+import { AiOutlineSearch } from "react-icons/ai";
+// import SearchModel from "./searchModel";
+// import { userContext } from "../../AuthContext";
+// import BuyModel from "../BuyModel";
+// import SellModel from "../SellModel";
+// import { marketDataContext } from "../../../MarketDataContext";
+// // import uniqid from "uniqid"
+// import { renderContext } from "../../../renderContext";
+// // import { paperTrader, infinityTrader, tenxTrader, internshipTrader } from "../../../variables";
+// import { userContext } from "../../../AuthContext";
 
-const CustomAutocomplete = styled(Autocomplete)`
-  .MuiAutocomplete-clearIndicator {
-    color: white;
+const initialState = {
+  userData: [],
+  successSB: false,
+  text: "",
+  timeoutId: null,
+  addOrRemoveCheck: null,
+  userInstrumentData: [],
+  instrumentName: "",
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "setEmptyUserData":
+      return { ...state, userData: action.payload };
+    case "setUser":
+      return { ...state, userData: action.payload };
+    case "openSuccess":
+      return { ...state, successSB: action.payload };
+    case "closeSuccess":
+      return { ...state, successSB: action.payload };
+    case "setText":
+      return { ...state, text: action.payload };
+    case "setEmptyText":
+      return { ...state, text: action.payload };
+    case "setValueInText":
+      return { ...state, text: action.payload };
+    case "setAddOrRemoveCheckFalse":
+      return { ...state, addOrRemoveCheck: action.payload };
+    case "setAddOrRemoveCheckTrue":
+      return { ...state, addOrRemoveCheck: action.payload };
+    case "setUserInstrumentData":
+      return { ...state, userInstrumentData: action.payload };
+    case "setInstrumentName":
+      return { ...state, instrumentName: action.payload };
+
+    default:
+      throw new Error(`Unhandled action type: ${action.type}`);
   }
-`;
-function Users({ setPaymentBy }) {
+}
+
+function Users({ paymentBy, setPaymentBy }) {
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
+  let textRef = useRef(null);
+  const [timeoutId, setTimeoutId] = useState(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const [trader, setTrader] = useState([]);
-  const [value, setValue] = useState({});
+  function sendSearchReq(e) {
+    // let newData += data
+    // clear previous timeout if there is one
+    const value = e?.target?.value ? e.target.value : e;
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
 
-  useEffect(() => {
-    let abortController;
+    setTimeoutId(
+      setTimeout(() => {
+        sendRequest(value);
+      }, 800)
+    );
+  }
 
-    (async () => {
-      abortController = new AbortController();
-      let signal = abortController.signal;
+  function handleClear() {
+    // setText('');
+    dispatch({ type: "setEmptyText", payload: "" });
+    dispatch({ type: "setEmptyUserData", payload: [] });
+    if (!state?.text) {
+      // setSelectedUser({
+      //   id: "",
+      //   name: "",
+      //   mobile: "",
+      // });
+      setPaymentBy({})
+    }
+  }
 
-      // the signal is passed into the request(s) we want to abort using this controller
-      const { data } = await axios.get(`${baseUrl}api/v1/normalusers`, {
+  function sendRequest(data) {
+    if (data == "") {
+      dispatch({ type: "setEmptyUserData", payload: [] });
+      return;
+    }
+
+    axios
+      .get(`${baseUrl}api/v1/user/searchuser?search=${data}`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
           "Access-Control-Allow-Credentials": true,
         },
-        signal: signal,
+      })
+      .then((res) => {
+        dispatch({ type: "setUser", payload: res?.data?.data });
+      })
+      .catch((err) => {
+        //console.log(err);
       });
-      setTrader(data.data);
-      setValue(data?.data[0]);
-    })();
+  }
 
-    return () => abortController.abort();
-  }, []);
+  function handleUserClick(elem) {
+    setPaymentBy(elem);
+    handleClear();
+  }
 
-  const handleTraderOptionChange = (event, newValue) => {
-    console.log("Trader Selection:", newValue);
-    setValue(newValue);
-    setPaymentBy(newValue);
-  };
+  console.log('state.userData', state.userData, paymentBy)
 
   return (
-    <MDBox sx={{ backgroundColor: "white", display: "flex", borderRadius: 2 }}>
+    <MDBox
+      sx={{ display: "flex", borderRadius: 2, marginBottom: 2, marginTop: 1.5 }}
+    >
       <MDBox
         display="flex"
         flexDirection="column"
         justifyContent="space-between"
         sx={{ width: "100%" }}
       >
-        <MDBox sx={{ display: "flex", alignItems: "center" }}>
-          <CustomAutocomplete
-            id="country-select-demo"
-            sx={{
-              width: "100%",
-              "& .MuiAutocomplete-clearIndicator": {
-                color: "dark",
-              },
-            }}
-            options={trader}
-            value={value}
-            onChange={handleTraderOptionChange}
-            autoHighlight
-            getOptionLabel={(option) =>
-              option.first_name + " " + option.last_name + " - " + option.mobile
-            }
-            renderOption={(props, option) => (
-              <Box
-                component="li"
-                sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
-                {...props}
+        <TextField
+          id="outlined-basic"
+          // label="Click here to search any symbol and add them in your watchlist to start trading"
+          variant="outlined"
+          type="text"
+          placeholder="Search user"
+          value={
+            paymentBy?._id
+              ? `${paymentBy.first_name} ${paymentBy.last_name}` + "-" + paymentBy?.mobile
+              : state.text
+          }
+          inputRef={textRef}
+          InputProps={{
+            onFocus: () => textRef.current.select(),
+            endAdornment: (
+              <MDBox
+                variant="text"
+                color={"light"}
+                sx={{ cursor: "pointer" }}
+                onClick={handleClear}
               >
-                {/* <img
-                  loading="lazy"
-                  width="20"
-                  src={option.profilePhoto?.url || Logo}
-                  srcSet={option.profilePhoto?.url || Logo}
-                  alt=""
-                /> */}
-                {option.first_name +
-                  " " +
-                  option.last_name +
-                  " - " +
-                  option.mobile}
-              </Box>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Choose a Trader"
-                inputProps={{
-                  ...params.inputProps,
-                  autoComplete: "new-password", // disable autocomplete and autofill
-                  style: { color: "dark", height: "10px" }, // set text color to dark
-                }}
-                InputLabelProps={{
-                  style: { color: "dark" },
-                }}
-              />
-            )}
-          />
-        </MDBox>
-
-        {Object.keys(value ? value : {}).length !== 0 && (
-          <Grid
-            container
-            lg={12}
-            paddingRight={2}
-            key={value?._id}
-            sx={{
-              fontSize: 13,
-              alignItems: "center",
-              flexDirection: "row",
-              justifyContent: "space-around",
-              color: "#000000",
+                {(state.text || paymentBy?._id) && (
+                  <RxCross2 color="#000000" />
+                )}
+              </MDBox>
+            ),
+            startAdornment: <>{<AiOutlineSearch />}</>,
+          }}
+          sx={{
+            margin: 0,
+            background: "white",
+            padding: 0,
+            borderRadius: 2,
+            width: "100%",
+            "& label": { color: "#49a3f1", fontSize: 20, padding: 0.4 },
+          }}
+          onChange={(e) => {
+            dispatch({ type: "setText", payload: e.target.value });
+            sendSearchReq(e);
+          }} //e.target.value.toUpperCase()
+        />
+        {state?.userData.length > 0 && state.text != "" && (
+          <MDBox
+            height="240px"
+            style={{
+              zIndex: "5",
+              backgroundColor: "#ffffff",
+              overflow: "scroll",
             }}
           >
-            <Grid xs={5} lg={3}>
-              {value?.first_name + " " + value?.last_name}
-            </Grid>
-            <Grid xs={5} lg={3}>
-              {value?.email}
-            </Grid>
-            <Grid xs={5} lg={3}>
-              {value?.mobile}
-            </Grid>
-            <Grid xs={5} lg={3}>
-              {value?.employeeid}
-            </Grid>
-          </Grid>
+            {state.userData?.length > 0 &&
+              state.userData.map((elem, index) => {
+                return (
+                  <>
+                    {state.text && (
+                      <Grid
+                        container
+                        lg={12}
+                        key={elem._id}
+                        mt={1}
+                        sx={{
+                          fontSize: 13,
+                          display: "flex",
+                          // gap: "2px",
+                          alignItems: "center",
+                          alignContent: "center",
+                          // // flexDirection: "row",
+                          justifyContent: "center",
+                          border: "0.25px solid white",
+                          // borderRadius: 2,
+                          // backgroundColor: 'white',
+                          // color: "lightgray",
+                          marginLeft: "2px",
+                          paddingLeft: "1px",
+                          "&:hover": {
+                            color: "#1e2e4a",
+                            backgroundColor: "lightgray",
+                            cursor: "pointer",
+                            fontWeight: 600,
+                          },
+                        }}
+                        onClick={() => handleUserClick(elem)}
+                      >
+                        <Grid
+                          xs={3}
+                          lg={6}
+                          display="flex"
+                          justifyContent="center"
+                          alignContent="center"
+                          alignItems="center"
+                        >
+                          {elem?.first_name + " " + elem?.last_name}
+                        </Grid>
+                        <Grid
+                          xs={3}
+                          lg={6}
+                          display="flex"
+                          justifyContent="center"
+                          alignContent="center"
+                          alignItems="center"
+                        >
+                          {elem.mobile}
+                        </Grid>
+                        {/* <Grid xs={3} lg={3} display="flex" justifyContent="center" alignContent="center" alignItems="center">{elem.email}</Grid> */}
+                        {/* <Grid xs={3} lg={3} >
+
+                        <SearchModel reRender={reRender} setReRender={setReRender} elem={elem} />
+                        
+                      </Grid> */}
+                      </Grid>
+                    )}
+                  </>
+                );
+              })}
+          </MDBox>
         )}
       </MDBox>
     </MDBox>
   );
 }
-
+// onClick={() => { addUser(elem, "Add") }}
 export default Users;
