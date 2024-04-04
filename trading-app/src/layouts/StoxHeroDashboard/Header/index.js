@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import MDBox from "../../../components/MDBox";
 import Grid from "@mui/material/Grid";
-import { userContext } from "../../../AuthContext";
+// import { userContext } from "../../../AuthContext";
 import MDTypography from "../../../components/MDTypography";
 import { CircularProgress, LinearProgress, Paper } from "@mui/material";
 
@@ -10,188 +10,174 @@ import { CircularProgress, LinearProgress, Paper } from "@mui/material";
 import DAU from "../data/DAUs";
 import MAU from "../data/MAUs";
 import WAU from "../data/WAUs";
-import DAUMAU from "../data/DAUMAU";
-import WAUMAU from "../data/WAUMAU";
+// import DAUMAU from "../data/DAUMAU";
+// import WAUMAU from "../data/WAUMAU";
 import DAUPlatform from "../data/DAUPlatform";
 import MAUPlatform from "../data/MAUPlatform";
 import WAUPlatform from "../data/WAUPlatform";
 import SignUpData from "../data/SignupData";
 import RevenuePayout from "../data/RevenuePayout";
-import DailyKPI from "../data/DailyKPI";
+import {apiUrl} from '../../../constants/constants.js'
+// import DailyKPI from "../data/DailyKPI";
 
 export default function Dashboard() {
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  let [dailyActiveUsersPlatform, setDailyActiveUsersPlatform] = useState([]);
-  let [monthlyActiveUsersPlatform, setMonthlyActiveUsersPlatform] = useState(
-    []
-  );
-  let [weeklyActiveUsersPlatform, setWeeklyActiveUsersPlatform] = useState([]);
-  let [dailyActiveUsers, setDailyActiveUsers] = useState([]);
-  let [monthlyActiveUsers, setMonthlyActiveUsers] = useState([]);
-  let [weeklyActiveUsers, setWeeklyActiveUsers] = useState([]);
-  let [rollingActiveUsers, setRollingActiveUsers] = useState([]);
-  let [overallRevenue, setOverallRevenue] = useState([]);
-  let [overallTradeInformation, setOverallTradeInformation] = useState([]);
+  const [dailyActiveUsersPlatform, setDailyActiveUsersPlatform] = useState([]);
+  const [monthlyActiveUsersPlatform, setMonthlyActiveUsersPlatform] = useState([]);
+  const [weeklyActiveUsersPlatform, setWeeklyActiveUsersPlatform] = useState([]);
+  const [dailyActiveUsers, setDailyActiveUsers] = useState([]);
+  const [monthlyActiveUsers, setMonthlyActiveUsers] = useState([]);
+  const [weeklyActiveUsers, setWeeklyActiveUsers] = useState([]);
+  const [rollingActiveUsers, setRollingActiveUsers] = useState([]);
+  const [overallRevenue, setOverallRevenue] = useState([]);
+  const [overallTradeInformation, setOverallTradeInformation] = useState([]);
 
-  let [signupData, setSignupData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const getDetails = useContext(userContext);
-  const userId = getDetails.userDetails._id;
+  const [signupData, setSignupData] = useState([]);
+  const [loading, setLoading] = useState({
+    dailyActiveUsersPlatform: false,
+    monthlyActiveUsersPlatform: false,
+    weeklyActiveUsersPlatform: false,
+    dailyActiveUsers: false,
+    monthlyActiveUsers: false,
+    weeklyActiveUsers: false,
+    overallRevenue: false,
+    user: false
+  })
+
+  async function dailyActiveUsersFunc(){
+    setLoading(prev => ({ ...prev, dailyActiveUsers: true }));
+
+    try{
+      const data = await axios.get(
+        `${apiUrl}stoxherouserdashboard/dailyactiveusers`,
+        { withCredentials: true }
+      );
+      setDailyActiveUsers(data?.data?.data);
+      setLoading(prev => ({ ...prev, dailyActiveUsers: false }));
+    } catch(err){
+      setLoading(prev => ({ ...prev, dailyActiveUsers: false }));
+    }
+  }
+
+  async function MonthlyActiveUsersFunc(){
+    setLoading(prev => ({ ...prev, monthlyActiveUsers: true }));
+
+    try{
+      const data = await axios.get(
+        `${apiUrl}stoxherouserdashboard/monthlyactiveusers`,
+        { withCredentials: true }
+      );
+      setMonthlyActiveUsers(data?.data?.data);
+      setLoading(prev => ({ ...prev, monthlyActiveUsers: false }));
+    } catch(err){
+      setLoading(prev => ({ ...prev, monthlyActiveUsers: false }));
+    }
+  }
+
+  async function WeeklyActiveUsersFunc(){
+    setLoading(prev => ({ ...prev, weeklyActiveUsers: true }));
+
+    try{
+      const data = await axios.get(
+        `${apiUrl}stoxherouserdashboard/weeklyactiveusers`,
+        { withCredentials: true }
+      );
+      setWeeklyActiveUsers(data?.data?.data);
+      setLoading(prev => ({ ...prev, weeklyActiveUsers: false }));
+    } catch(err){
+      setLoading(prev => ({ ...prev, weeklyActiveUsers: false }));
+    }
+  }
+
+  async function dailyActiveUsersPlateformFunc(){
+    setLoading(prev => ({ ...prev, dailyActiveUsersPlatform: true }));
+
+    try{
+      const data = await axios.get(
+        `${apiUrl}stoxherouserdashboard/dailyactiveusersonplatform`,
+        { withCredentials: true }
+      );
+      setDailyActiveUsersPlatform(data?.data?.data);
+      setLoading(prev => ({ ...prev, dailyActiveUsersPlatform: false }));
+    } catch(err){
+      setLoading(prev => ({ ...prev, dailyActiveUsersPlatform: false }));
+    }
+  }
+
+  async function montlyActiveUsersPlateformFunc(){
+    setLoading(prev => ({ ...prev, monthlyActiveUsersPlatform: true }));
+
+    try{
+      const data = await axios.get(
+        `${apiUrl}stoxherouserdashboard/monthlyactiveusersonplatform`,
+        { withCredentials: true }
+      );
+      setMonthlyActiveUsersPlatform(data?.data?.data);
+      setLoading(prev => ({ ...prev, monthlyActiveUsersPlatform: false }));
+    } catch(err){
+      setLoading(prev => ({ ...prev, monthlyActiveUsersPlatform: false }));
+    }
+  }
+
+  async function weeklyActiveUsersPlateformFunc(){
+    setLoading(prev => ({ ...prev, weeklyActiveUsersPlatform: true }));
+
+    try{
+      const data = await axios.get(
+        `${apiUrl}stoxherouserdashboard/weeklyactiveusersonplatform`,
+        { withCredentials: true }
+      );
+      setWeeklyActiveUsersPlatform(data?.data?.data);
+      setLoading(prev => ({ ...prev, weeklyActiveUsersPlatform: false }));
+    } catch(err){
+      setLoading(prev => ({ ...prev, weeklyActiveUsersPlatform: false }));
+    }
+  }
+
+  async function overallRevenueFunc(){
+    setLoading(prev => ({ ...prev, overallRevenue: true }));
+
+    try{
+      const data = await axios.get(
+        `${apiUrl}stoxherouserdashboard/overallrevenue`,
+        { withCredentials: true }
+      );
+      setOverallRevenue(data?.data?.data);
+      setLoading(prev => ({ ...prev, overallRevenue: false }));
+    } catch(err){
+      setLoading(prev => ({ ...prev, overallRevenue: false }));
+    }
+  }
+
+  async function userAndTradeData() {
+    setLoading(prev => ({ ...prev, user: true }));
+    try{
+      const signupData = await axios.get(`${apiUrl}signup/users`, {withCredentials: true});
+      const tradeData = await axios.get(`${apiUrl}stoxherouserdashboard/overalltradeinformation`, {withCredentials: true});
+      const activeUserData = await axios.get(`${apiUrl}stoxherouserdashboard/rollingactiveusersonplatform`, {withCredentials: true});
+
+      setRollingActiveUsers(activeUserData?.data?.data);
+      setOverallTradeInformation(tradeData?.data?.data);
+      setSignupData(signupData?.data?.data);
+
+      setLoading(prev => ({ ...prev, user: false }));
+    } catch(err){
+      setLoading(prev => ({ ...prev, user: false }));
+    }
+  }
 
   useEffect(() => {
-    setIsLoading(true);
-    let call1 = axios.get(
-      `${baseUrl}api/v1/stoxherouserdashboard/dailyactiveusers`,
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      }
-    );
-    let call2 = axios.get(
-      `${baseUrl}api/v1/stoxherouserdashboard/monthlyactiveusers`,
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      }
-    );
-    let call3 = axios.get(
-      `${baseUrl}api/v1/stoxherouserdashboard/weeklyactiveusers`,
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      }
-    );
-    let call4 = axios.get(
-      `${baseUrl}api/v1/stoxherouserdashboard/dailyactiveusersonplatform`,
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      }
-    );
-    let call5 = axios.get(
-      `${baseUrl}api/v1/stoxherouserdashboard/monthlyactiveusersonplatform`,
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      }
-    );
-    let call6 = axios.get(
-      `${baseUrl}api/v1/stoxherouserdashboard/weeklyactiveusersonplatform`,
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      }
-    );
-    let call7 = axios.get(`${baseUrl}api/v1/signup/users`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true,
-      },
-    });
-    let call8 = axios.get(
-      `${baseUrl}api/v1/stoxherouserdashboard/rollingactiveusersonplatform`,
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      }
-    );
-    let call9 = axios.get(
-      `${baseUrl}api/v1/stoxherouserdashboard/overalltradeinformation`,
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      }
-    );
-    let call10 = axios.get(
-      `${baseUrl}api/v1/stoxherouserdashboard/overallrevenue`,
-      {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      }
-    );
-    Promise.all([
-      call1,
-      call2,
-      call3,
-      call4,
-      call5,
-      call6,
-      call7,
-      call8,
-      call9,
-      call10,
-    ])
-      .then(
-        ([
-          api1Response,
-          api1Response1,
-          api1Response2,
-          api1Response3,
-          api1Response4,
-          api1Response5,
-          api1Response6,
-          api1Response7,
-          api1Response8,
-          api1Response9,
-        ]) => {
-          setDailyActiveUsers(api1Response.data.data);
-          setMonthlyActiveUsers(api1Response1.data.data);
-          setWeeklyActiveUsers(api1Response2.data.data);
-          setDailyActiveUsersPlatform(api1Response3.data.data);
-          setMonthlyActiveUsersPlatform(api1Response4.data.data);
-          setWeeklyActiveUsersPlatform(api1Response5.data.data);
-          setRollingActiveUsers(api1Response7.data.data);
-          setOverallTradeInformation(api1Response8.data.data);
-          setOverallRevenue(api1Response9.data.data);
-          setSignupData(api1Response6.data.data);
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 500);
-        }
-      )
-      .catch((error) => {
-        // Handle errors here
-        console.error(error);
-      });
+    const fetchData = async () => {
+      await overallRevenueFunc();
+      await userAndTradeData();
+      dailyActiveUsersFunc();
+      dailyActiveUsersPlateformFunc();
+      weeklyActiveUsersPlateformFunc();
+      montlyActiveUsersPlateformFunc();
+      MonthlyActiveUsersFunc();
+      WeeklyActiveUsersFunc();
+    };
+  
+    fetchData();
   }, []);
 
   return (
@@ -203,24 +189,6 @@ export default function Dashboard() {
       borderRadius={10}
       minHeight="auto"
     >
-      {/* <Grid container component={Paper} p={.5} mb={1} lg={12} display='flex' justifyContent='center' alignItems='center'>
-            <Grid item xs={12} md={12} lg={12}>
-                {isLoading ?
-                <MDBox display='flex' justifyContent='center' alignItems='center' flexDirection='column' minHeight={400}>
-                  <MDBox display='flex' justifyContent='center' alignItems='center'>
-                    <CircularProgress color='info'/>
-                  </MDBox>
-                  <MDBox display='flex' justifyContent='center' alignItems='center'>
-                    <MDTypography fontSize={15}>Loading Daily KPI Data...</MDTypography>
-                  </MDBox>
-                </MDBox>
-                :
-                <MDBox>
-                  <DailyKPI/>
-                </MDBox>
-                }
-            </Grid>
-          </Grid> */}
 
       <Grid
         container
@@ -233,7 +201,7 @@ export default function Dashboard() {
         alignItems="center"
       >
         <Grid item xs={12} md={12} lg={12}>
-          {isLoading ? (
+          {loading.user ? (
             <MDBox
               display="flex"
               justifyContent="center"
@@ -275,7 +243,7 @@ export default function Dashboard() {
         alignItems="center"
       >
         <Grid item xs={12} md={12} lg={12}>
-          {isLoading ? (
+          {loading.overallRevenue ? (
             <MDBox
               display="flex"
               justifyContent="center"
@@ -315,7 +283,7 @@ export default function Dashboard() {
         alignItems="center"
       >
         <Grid item xs={12} md={12} lg={12}>
-          {isLoading ? (
+          {loading?.dailyActiveUsersPlatform ? (
             <MDBox
               display="flex"
               justifyContent="center"
@@ -351,7 +319,7 @@ export default function Dashboard() {
         alignItems="center"
       >
         <Grid item xs={12} md={12} lg={12}>
-          {isLoading ? (
+          {loading?.weeklyActiveUsersPlatform ? (
             <MDBox
               display="flex"
               justifyContent="center"
@@ -389,7 +357,7 @@ export default function Dashboard() {
         alignItems="center"
       >
         <Grid item xs={12} md={12} lg={12}>
-          {isLoading ? (
+          {loading?.monthlyActiveUsersPlatform ? (
             <MDBox
               display="flex"
               justifyContent="center"
@@ -427,7 +395,7 @@ export default function Dashboard() {
         alignItems="center"
       >
         <Grid item xs={12} md={12} lg={12}>
-          {isLoading ? (
+          {loading?.dailyActiveUsers ? (
             <MDBox
               display="flex"
               justifyContent="center"
@@ -463,7 +431,7 @@ export default function Dashboard() {
         alignItems="center"
       >
         <Grid item xs={12} md={12} lg={12}>
-          {isLoading ? (
+          {loading?.weeklyActiveUsers ? (
             <MDBox
               display="flex"
               justifyContent="center"
@@ -499,7 +467,7 @@ export default function Dashboard() {
         alignItems="center"
       >
         <Grid item xs={12} md={12} lg={12}>
-          {isLoading ? (
+          {loading?.monthlyActiveUsers ? (
             <MDBox
               display="flex"
               justifyContent="center"
@@ -519,23 +487,6 @@ export default function Dashboard() {
           ) : (
             <MAU monthlyActiveUsers={monthlyActiveUsers} />
           )}
-        </Grid>
-      </Grid>
-
-      <Grid
-        container
-        spacing={1}
-        mt={1}
-        xs={12}
-        md={12}
-        lg={12}
-        style={{ height: "100%" }}
-      >
-        <Grid item xs={12} md={6} lg={12} style={{ height: "100%" }}>
-          {/* <Summary style={{ height: '100%' }}/> */}
-        </Grid>
-        <Grid item xs={12} md={6} lg={12} style={{ height: "100%" }}>
-          {/* <Performance tradingData={tradingData}/> */}
         </Grid>
       </Grid>
     </MDBox>

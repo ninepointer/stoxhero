@@ -2079,10 +2079,10 @@ exports.getOverallRevenue = async(req,res,next) => {
     }
   });
   const getMonthYearFromFormattedDate = (formattedDate) => {
-    const parts = formattedDate.split('-'); // Assuming formattedDate is like "Nov-23"
+    const parts = formattedDate?.split('-'); // Assuming formattedDate is like "Nov-23"
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const month = monthNames.indexOf(parts[0]) + 1;
-    const year = parseInt(parts[1], 10) + 2000; // Adjust this based on your actual data format
+    const month = monthNames?.indexOf(parts?.[0]) + 1;
+    const year = parseInt(parts?.[1], 10) + 2000; // Adjust this based on your actual data format
     return { month, year };
   };
   
@@ -2100,9 +2100,9 @@ exports.getOverallRevenue = async(req,res,next) => {
   let monthlyAggregates = {};
   [totalTestZoneMonthRevenue, totalTenXMonthRevenue, totalMarginXMonthRevenue, totalBattleMonthRevenue].forEach(response => {
     response.forEach(monthData => {
-      if(isWithinLastSixMonths(monthData.formattedDate, currentMonth, currentYear)){
+      if(isWithinLastSixMonths(monthData?.formattedDate, currentMonth, currentYear)){
 
-        const monthKey = monthData.formattedDate;
+        const monthKey = monthData?.formattedDate;
         
         if (!monthlyAggregates[monthKey]) {
           monthlyAggregates[monthKey] = {
@@ -2113,9 +2113,9 @@ exports.getOverallRevenue = async(req,res,next) => {
           };
         }
     
-        monthlyAggregates[monthKey].totalRevenue += monthData.totalRevenue;
-        monthlyAggregates[monthKey].totalGMV += monthData.totalGMV;
-        monthlyAggregates[monthKey].totalOrder += monthData.totalOrder;
+        monthlyAggregates[monthKey].totalRevenue += monthData?.totalRevenue;
+        monthlyAggregates[monthKey].totalGMV += monthData?.totalGMV;
+        monthlyAggregates[monthKey].totalOrder += monthData?.totalOrder;
         monthData.uniqueUsers.forEach(user => monthlyAggregates[monthKey].uniqueUsers.add(user.toString()));
       }
     });

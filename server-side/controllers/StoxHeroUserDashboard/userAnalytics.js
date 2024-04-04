@@ -15,61 +15,190 @@ const Battle = require('../../models/battle/battle')
 const Contest = require('../../models/DailyContest/dailyContest')
 const MarginX = require('../../models/marginX/marginX')
 const TenX = require('../../models/TenXSubscription/TenXSubscriptionSchema')
+const {client, getValue} = require('../../marketData/redisClient');
+const moment = require('moment');
 
+const dailyActiveUsersHelper = async(battleTraders, marginXTraders, stockTraders, virtualTraders, tenXTraders, contestTraders, internshipTraders) => {
+  const dateWiseDAUs = {};
 
+  virtualTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const date = _id.date;
+    if (date !== "1970-01-01") {
+      if (!dateWiseDAUs[date]) {
+        dateWiseDAUs[date] = {
+          date,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      dateWiseDAUs[date].virtualTrading = traders;
+      dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+    }
+  });
 
-// Controller for getting all contests
-// exports.getDailyActiveUsers = async (req, res) => {
-//     try {
-//         const pipeline = [
-//             {
-//               $group: {
-//                 _id: {
-//                   date: {
-//                     $substr: ["$trade_time", 0, 10],
-//                   },
-//                   trader: "$trader",
-//                 },
-//               },
-//             },
-//             {
-//               $group: {
-//                 _id: "$_id.date",
-//                 traders: { $sum: 1 },
-//               },
-//             },
-//             {
-//               $sort: {
-//                 "_id": -1,
-//               },
-//             },
-//           ]
-          
+  stockTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const date = _id.date;
+    if (date !== "1970-01-01") {
+      if (!dateWiseDAUs[date]) {
+        dateWiseDAUs[date] = {
+          date,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      dateWiseDAUs[date].stockTrading = traders || 0;
+      dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+    }
+  });
 
-//         const virtualTraders = await PaperTrading.aggregate(pipeline);
-//         const tenXTraders = await TenXTrading.aggregate(pipeline);
-//         const contestTraders = await ContestTrading.aggregate(pipeline);
+  tenXTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const date = _id.date;
+    if (date !== "1970-01-01") {
+      if (!dateWiseDAUs[date]) {
+        dateWiseDAUs[date] = {
+          date,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      dateWiseDAUs[date].tenXTrading = traders;
+      dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+    }
+  });
 
-//         res.status(200).json({
-//             status:"success",
-//             message: "Contest Scoreboard fetched successfully",
-//             data: [{virtualTraders, tenXTraders, contestTraders}]
-//         });
-//     } catch (error) {
-//         res.status(500).json({
-//             status:"error",
-//             message: "Something went wrong",
-//             error: error.message
-//         });
-//     }
-// };
+  contestTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const date = _id.date;
+    if (date !== "1970-01-01") {
+      if (!dateWiseDAUs[date]) {
+        dateWiseDAUs[date] = {
+          date,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      dateWiseDAUs[date].contest = traders;
+      dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+    }
+  });
 
-// Controller for getting all contests
-// Controller for getting all contests
-// Controller for getting all contests
+  internshipTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const date = _id.date;
+    if (date !== "1970-01-01") {
+      if (!dateWiseDAUs[date]) {
+        dateWiseDAUs[date] = {
+          date,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      dateWiseDAUs[date].internshipTrading = traders;
+      dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+
+  marginXTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const date = _id.date;
+    if (date !== "1970-01-01") {
+      if (!dateWiseDAUs[date]) {
+        dateWiseDAUs[date] = {
+          date,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      dateWiseDAUs[date].marginXTrading = traders;
+      dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+
+  battleTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const date = _id.date;
+    if (date !== "1970-01-01") {
+      if (!dateWiseDAUs[date]) {
+        dateWiseDAUs[date] = {
+          date,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      dateWiseDAUs[date].battleTrading = traders;
+      dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+
+  // Calculate the date-wise total DAUs and unique users
+  Object.keys(dateWiseDAUs).forEach(date => {
+    const {stockTrading, virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = dateWiseDAUs[date];
+    dateWiseDAUs[date].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading + battleTrading;
+    dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)].length;
+  });
+
+  return Object.values(dateWiseDAUs).splice(Object.values(dateWiseDAUs).length <= 90 ? 0 : Object.values(dateWiseDAUs).length - 90,Object.values(dateWiseDAUs).length)
+}
+
 exports.getDailyActiveUsers = async (req, res) => {
   try {
+    const isRedisConnected = getValue();
+    const startOfToday = new Date(new Date().setHours(0,0,0,0)); // Get start of today
+    startOfToday.setUTCHours(-5, -29, -59, -999);
+
     const pipeline = [
+      {
+        $match: {
+          trade_time: {
+            $lt: new Date(startOfToday)
+          }
+        }
+      },
       {
         $group: {
           _id: {
@@ -94,180 +223,73 @@ exports.getDailyActiveUsers = async (req, res) => {
       },
     ];
 
-    const stockTraders = await StockTrading.aggregate(pipeline);
-    const virtualTraders = await PaperTrading.aggregate(pipeline);
-    const tenXTraders = await TenXTrading.aggregate(pipeline);
-    const contestTraders = await ContestTrading.aggregate(pipeline);
-    const internshipTraders = await InternshipTrading.aggregate(pipeline);
-    const marginXTraders = await MarginXTrading.aggregate(pipeline);
-    const battleTraders = await BattleTrading.aggregate(pipeline);
+    const pipelineToday = [
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(startOfToday)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { date: "$_id.date" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} },
+        },
+      },
+      {
+        $sort: {
+          "_id.date": 1,
+        },
+      },
+    ];
+
+    let newData;
+    if (isRedisConnected && await client.exists('dau-product-chart')) {
+      newData = JSON.parse(await client.get('dau-product-chart'));
+    }else{
+      const stockTraders = await StockTrading.aggregate(pipeline);
+      const virtualTraders = await PaperTrading.aggregate(pipeline);
+      const tenXTraders = await TenXTrading.aggregate(pipeline);
+      const contestTraders = await ContestTrading.aggregate(pipeline);
+      const internshipTraders = await InternshipTrading.aggregate(pipeline);
+      const marginXTraders = await MarginXTrading.aggregate(pipeline);
+      const battleTraders = await BattleTrading.aggregate(pipeline);
+    
+      newData = await dailyActiveUsersHelper(battleTraders, marginXTraders, stockTraders, virtualTraders, tenXTraders, contestTraders, internshipTraders);
+
+
+      await client.set(`dau-product-chart`, JSON.stringify(newData));
+    }
+
+    const stockTradersToday = await StockTrading.aggregate(pipelineToday);
+    const virtualTradersToday = await PaperTrading.aggregate(pipelineToday);
+    const tenXTradersToday = await TenXTrading.aggregate(pipelineToday);
+    const contestTradersToday = await ContestTrading.aggregate(pipelineToday);
+    const internshipTradersToday = await InternshipTrading.aggregate(pipelineToday);
+    const marginXTradersToday = await MarginXTrading.aggregate(pipelineToday);
+    const battleTradersToday = await BattleTrading.aggregate(pipelineToday);
+
+    const today = await dailyActiveUsersHelper(battleTradersToday, marginXTradersToday, stockTradersToday, virtualTradersToday, tenXTradersToday, contestTradersToday, internshipTradersToday);
 
     // Create a date-wise mapping of DAUs for different products
-    const dateWiseDAUs = {};
 
-    virtualTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const date = _id.date;
-      if (date !== "1970-01-01") {
-        if (!dateWiseDAUs[date]) {
-          dateWiseDAUs[date] = {
-            date,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        dateWiseDAUs[date].virtualTrading = traders;
-        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
-      }
-    });
-
-    stockTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const date = _id.date;
-      if (date !== "1970-01-01") {
-        if (!dateWiseDAUs[date]) {
-          dateWiseDAUs[date] = {
-            date,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        dateWiseDAUs[date].stockTrading = traders || 0;
-        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
-      }
-    });
-
-    tenXTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const date = _id.date;
-      if (date !== "1970-01-01") {
-        if (!dateWiseDAUs[date]) {
-          dateWiseDAUs[date] = {
-            date,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        dateWiseDAUs[date].tenXTrading = traders;
-        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
-      }
-    });
-
-    contestTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const date = _id.date;
-      if (date !== "1970-01-01") {
-        if (!dateWiseDAUs[date]) {
-          dateWiseDAUs[date] = {
-            date,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        dateWiseDAUs[date].contest = traders;
-        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
-      }
-    });
-
-    internshipTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const date = _id.date;
-      if (date !== "1970-01-01") {
-        if (!dateWiseDAUs[date]) {
-          dateWiseDAUs[date] = {
-            date,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        dateWiseDAUs[date].internshipTrading = traders;
-        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
-      }
-    });
-    marginXTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const date = _id.date;
-      if (date !== "1970-01-01") {
-        if (!dateWiseDAUs[date]) {
-          dateWiseDAUs[date] = {
-            date,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        dateWiseDAUs[date].marginXTrading = traders;
-        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
-      }
-    });
-    battleTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const date = _id.date;
-      if (date !== "1970-01-01") {
-        if (!dateWiseDAUs[date]) {
-          dateWiseDAUs[date] = {
-            date,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        dateWiseDAUs[date].battleTrading = traders;
-        dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
-      }
-    });
-
-    // Calculate the date-wise total DAUs and unique users
-    Object.keys(dateWiseDAUs).forEach(date => {
-      const {stockTrading, virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = dateWiseDAUs[date];
-      dateWiseDAUs[date].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading + battleTrading;
-      dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
-    });
 
     const response = {
       status: "success",
       message: "TestZone Scoreboard fetched successfully",
-      data: Object.values(dateWiseDAUs).splice(Object.values(dateWiseDAUs).length <= 90 ? 0 : Object.values(dateWiseDAUs).length - 90,Object.values(dateWiseDAUs).length),
+      data: newData.concat(today),
     };
 
     res.status(200).json(response);
@@ -280,9 +302,185 @@ exports.getDailyActiveUsers = async (req, res) => {
   }
 };
 
+const monthActiveUsersHelper = async(battleTraders, marginXTraders, stockTraders, virtualTraders, tenXTraders, contestTraders, internshipTraders) => {
+  const monthWiseMAUs = {};
+
+  virtualTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const month = _id.month;
+    if (month !== "1970-01") {
+      if (!monthWiseMAUs[month]) {
+        monthWiseMAUs[month] = {
+          month,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      monthWiseMAUs[month].virtualTrading = traders;
+      monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+
+  stockTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const month = _id.month;
+    if (month !== "1970-01") {
+      if (!monthWiseMAUs[month]) {
+        monthWiseMAUs[month] = {
+          month,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      monthWiseMAUs[month].stockTrading = traders || 0;
+      monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+
+  tenXTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const month = _id.month;
+    if (month !== "1970-01") {
+      if (!monthWiseMAUs[month]) {
+        monthWiseMAUs[month] = {
+          month,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      monthWiseMAUs[month].tenXTrading = traders;
+      monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+
+  contestTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const month = _id.month;
+    if (month !== "1970-01") {
+      if (!monthWiseMAUs[month]) {
+        monthWiseMAUs[month] = {
+          month,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      monthWiseMAUs[month].contest = traders;
+      monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+
+  internshipTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const month = _id.month;
+    if (month !== "1970-01") {
+      if (!monthWiseMAUs[month]) {
+        monthWiseMAUs[month] = {
+          month,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      monthWiseMAUs[month].internshipTrading = traders;
+      monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+  marginXTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const month = _id.month;
+    if (month !== "1970-01") {
+      if (!monthWiseMAUs[month]) {
+        monthWiseMAUs[month] = {
+          month,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      monthWiseMAUs[month].marginxTrading = traders;
+      monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+  battleTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const month = _id.month;
+    if (month !== "1970-01") {
+      if (!monthWiseMAUs[month]) {
+        monthWiseMAUs[month] = {
+          month,
+          virtualTrading: 0,
+          tenXTrading: 0,
+          contest: 0,
+          internshipTrading: 0,
+          marginXTrading:0,
+          battleTrading:0,
+          total: 0,
+          uniqueUsers: [],
+        };
+      }
+      monthWiseMAUs[month].battleTrading = traders;
+      monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
+    }
+  });
+
+  // Calculate the month-wise total MAUs and unique users
+  Object.keys(monthWiseMAUs).forEach(month => {
+    const { stockTrading, virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = monthWiseMAUs[month];
+    monthWiseMAUs[month].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading + battleTrading;
+    monthWiseMAUs[month].uniqueUsers = [...new Set(uniqueUsers)]?.length;
+  });
+
+  return Object.values(monthWiseMAUs).splice(Object.values(monthWiseMAUs).length <= 12 ? 0 : Object.values(monthWiseMAUs).length - 12,Object.values(monthWiseMAUs).length)
+}
+
 exports.getMonthlyActiveUsers = async (req, res) => {
   try {
+    const isRedisConnected = getValue();
+    const today = moment();
+    const startOfMonth =  today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+
     const pipeline = [
+      {
+        $match: {
+          trade_time: {
+            $lt: new Date(startOfMonth)
+          }
+        }
+      },
       {
         $group: {
           _id: {
@@ -305,180 +503,68 @@ exports.getMonthlyActiveUsers = async (req, res) => {
       },
     ];
 
-    const stockTraders = await StockTrading.aggregate(pipeline);
-    const virtualTraders = await PaperTrading.aggregate(pipeline);
-    const tenXTraders = await TenXTrading.aggregate(pipeline);
-    const contestTraders = await ContestTrading.aggregate(pipeline);
-    const internshipTraders = await InternshipTrading.aggregate(pipeline);
-    const marginXTraders = await MarginXTrading.aggregate(pipeline);
-    const battleTraders = await BattleTrading.aggregate(pipeline);
-
-    // Create a month-wise mapping of MAUs for different products
-    const monthWiseMAUs = {};
-
-    virtualTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const month = _id.month;
-      if (month !== "1970-01") {
-        if (!monthWiseMAUs[month]) {
-          monthWiseMAUs[month] = {
-            month,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
+    const pipelineToday = [
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(startOfMonth)
+          }
         }
-        monthWiseMAUs[month].virtualTrading = traders;
-        monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
-      }
-    });
+      },
+      {
+        $group: {
+          _id: {
+            month: { $substr: ["$trade_time", 0, 7] },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { month: "$_id.month" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} },
+        },
+      },
+      {
+        $sort: {
+          "_id.month": 1,
+        },
+      },
+    ];
 
-    stockTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const month = _id.month;
-      if (month !== "1970-01") {
-        if (!monthWiseMAUs[month]) {
-          monthWiseMAUs[month] = {
-            month,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        monthWiseMAUs[month].stockTrading = traders || 0;
-        monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
-      }
-    });
+    let newData;
+    if (isRedisConnected && await client.exists('mau-product-chart')) {
+      newData = JSON.parse(await client.get('mau-product-chart'));
+    }else{
+      const stockTraders = await StockTrading.aggregate(pipeline);
+      const virtualTraders = await PaperTrading.aggregate(pipeline);
+      const tenXTraders = await TenXTrading.aggregate(pipeline);
+      const contestTraders = await ContestTrading.aggregate(pipeline);
+      const internshipTraders = await InternshipTrading.aggregate(pipeline);
+      const marginXTraders = await MarginXTrading.aggregate(pipeline);
+      const battleTraders = await BattleTrading.aggregate(pipeline);
+    
+      newData = await monthActiveUsersHelper(battleTraders, marginXTraders, stockTraders, virtualTraders, tenXTraders, contestTraders, internshipTraders);
 
-    tenXTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const month = _id.month;
-      if (month !== "1970-01") {
-        if (!monthWiseMAUs[month]) {
-          monthWiseMAUs[month] = {
-            month,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        monthWiseMAUs[month].tenXTrading = traders;
-        monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
-      }
-    });
 
-    contestTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const month = _id.month;
-      if (month !== "1970-01") {
-        if (!monthWiseMAUs[month]) {
-          monthWiseMAUs[month] = {
-            month,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        monthWiseMAUs[month].contest = traders;
-        monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
-      }
-    });
+      await client.set(`mau-product-chart`, JSON.stringify(newData));
+    }
 
-    internshipTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const month = _id.month;
-      if (month !== "1970-01") {
-        if (!monthWiseMAUs[month]) {
-          monthWiseMAUs[month] = {
-            month,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        monthWiseMAUs[month].internshipTrading = traders;
-        monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
-      }
-    });
-    marginXTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const month = _id.month;
-      if (month !== "1970-01") {
-        if (!monthWiseMAUs[month]) {
-          monthWiseMAUs[month] = {
-            month,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        monthWiseMAUs[month].marginxTrading = traders;
-        monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
-      }
-    });
-    battleTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const month = _id.month;
-      if (month !== "1970-01") {
-        if (!monthWiseMAUs[month]) {
-          monthWiseMAUs[month] = {
-            month,
-            virtualTrading: 0,
-            tenXTrading: 0,
-            contest: 0,
-            internshipTrading: 0,
-            marginXTrading:0,
-            battleTrading:0,
-            total: 0,
-            uniqueUsers: [],
-          };
-        }
-        monthWiseMAUs[month].battleTrading = traders;
-        monthWiseMAUs[month].uniqueUsers.push(...uniqueUsers);
-      }
-    });
+    const stockTradersToday = await StockTrading.aggregate(pipelineToday);
+    const virtualTradersToday = await PaperTrading.aggregate(pipelineToday);
+    const tenXTradersToday = await TenXTrading.aggregate(pipelineToday);
+    const contestTradersToday = await ContestTrading.aggregate(pipelineToday);
+    const internshipTradersToday = await InternshipTrading.aggregate(pipelineToday);
+    const marginXTradersToday = await MarginXTrading.aggregate(pipelineToday);
+    const battleTradersToday = await BattleTrading.aggregate(pipelineToday);
 
-    // Calculate the month-wise total MAUs and unique users
-    Object.keys(monthWiseMAUs).forEach(month => {
-      const { stockTrading, virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = monthWiseMAUs[month];
-      monthWiseMAUs[month].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading + battleTrading;
-      monthWiseMAUs[month].uniqueUsers = [...new Set(uniqueUsers)];
-    });
+    const todayData = await monthActiveUsersHelper(battleTradersToday, marginXTradersToday, stockTradersToday, virtualTradersToday, tenXTradersToday, contestTradersToday, internshipTradersToday);
 
     const response = {
       status: "success",
       message: "Monthly Active Users fetched successfully",
-      data: Object.values(monthWiseMAUs).splice(Object.values(monthWiseMAUs).length <= 12 ? 0 : Object.values(monthWiseMAUs).length - 12,Object.values(monthWiseMAUs).length),
+      data: newData.concat(todayData)
     };
 
     res.status(200).json(response);
@@ -491,10 +577,173 @@ exports.getMonthlyActiveUsers = async (req, res) => {
   }
 };
 
+const weekActiveUsersHelper = async(battleTraders, marginXTraders, stockTraders, virtualTraders, tenXTraders, contestTraders, internshipTraders) => {
+  const weekWiseWAUs = {};
+
+  virtualTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const week = `${_id.year}-${_id.week}`;
+    if (!weekWiseWAUs[week]) {
+      weekWiseWAUs[week] = {
+        week,
+        virtualTrading: 0,
+        tenXTrading: 0,
+        contest: 0,
+        internshipTrading: 0,
+        marginXTrading:0,
+        battleTrading:0,
+        total: 0,
+        uniqueUsers: [],
+      };
+    }
+    weekWiseWAUs[week].virtualTrading = traders;
+    weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
+  });
+
+  stockTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const week = `${_id.year}-${_id.week}`;
+    if (!weekWiseWAUs[week]) {
+      weekWiseWAUs[week] = {
+        week,
+        virtualTrading: 0,
+        tenXTrading: 0,
+        contest: 0,
+        internshipTrading: 0,
+        marginXTrading:0,
+        battleTrading:0,
+        total: 0,
+        uniqueUsers: [],
+      };
+    }
+    weekWiseWAUs[week].stockTrading = traders || 0;
+    weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
+  });
+
+  tenXTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const week = `${_id.year}-${_id.week}`;
+    if (!weekWiseWAUs[week]) {
+      weekWiseWAUs[week] = {
+        week,
+        virtualTrading: 0,
+        tenXTrading: 0,
+        contest: 0,
+        internshipTrading: 0,
+        marginXTrading:0,
+        battleTrading:0,
+        total: 0,
+        uniqueUsers: [],
+      };
+    }
+    weekWiseWAUs[week].tenXTrading = traders;
+    weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
+  });
+
+  contestTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const week = `${_id.year}-${_id.week}`;
+    if (!weekWiseWAUs[week]) {
+      weekWiseWAUs[week] = {
+        week,
+        virtualTrading: 0,
+        tenXTrading: 0,
+        contest: 0,
+        internshipTrading: 0,
+        marginXTrading:0,
+        battleTrading:0,
+        total: 0,
+        uniqueUsers: [],
+      };
+    }
+    weekWiseWAUs[week].contest = traders;
+    weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
+  });
+
+  internshipTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const week = `${_id.year}-${_id.week}`;
+    if (!weekWiseWAUs[week]) {
+      weekWiseWAUs[week] = {
+        week,
+        virtualTrading: 0,
+        tenXTrading: 0,
+        contest: 0,
+        internshipTrading: 0,
+        marginXTrading:0,
+        battleTrading:0,
+        total: 0,
+        uniqueUsers: [],
+      };
+    }
+    weekWiseWAUs[week].internshipTrading = traders;
+    weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
+  });
+
+  marginXTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const week = `${_id.year}-${_id.week}`;
+    if (!weekWiseWAUs[week]) {
+      weekWiseWAUs[week] = {
+        week,
+        virtualTrading: 0,
+        tenXTrading: 0,
+        contest: 0,
+        internshipTrading: 0,
+        marginXTrading:0,
+        battleTrading:0,
+        total: 0,
+        uniqueUsers: [],
+      };
+    }
+    weekWiseWAUs[week].marginXTrading = traders;
+    weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
+  });
+
+  battleTraders.forEach(entry => {
+    const { _id, traders, uniqueUsers } = entry;
+    const week = `${_id.year}-${_id.week}`;
+    if (!weekWiseWAUs[week]) {
+      weekWiseWAUs[week] = {
+        week,
+        virtualTrading: 0,
+        tenXTrading: 0,
+        contest: 0,
+        internshipTrading: 0,
+        marginXTrading:0,
+        battleTrading:0,
+        total: 0,
+        uniqueUsers: [],
+      };
+    }
+    weekWiseWAUs[week].battleTrading = traders;
+    weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
+  });
+
+  // Calculate the week-wise total WAUs and unique users
+  Object.keys(weekWiseWAUs).forEach(week => {
+    const { stockTrading, virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = weekWiseWAUs[week];
+    weekWiseWAUs[week].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading + battleTrading;
+    weekWiseWAUs[week].uniqueUsers = [...new Set(uniqueUsers)]?.length;
+  });
+
+  return Object.values(weekWiseWAUs).splice(Object.values(weekWiseWAUs).length <= 52 ? 0 : Object.values(weekWiseWAUs).length - 52,Object.values(weekWiseWAUs).length);
+}
 // Controller for getting weekly active users
 exports.getWeeklyActiveUsers = async (req, res) => {
   try {
+    const isRedisConnected = getValue();
+    const today = moment();
+    const startOfWeek =  today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
+
     const pipeline = [
+      {
+        $match: {
+          trade_time: {
+            $lt: new Date(startOfWeek)
+          }
+        }
+      },
       {
         $group: {
           _id: {
@@ -524,168 +773,75 @@ exports.getWeeklyActiveUsers = async (req, res) => {
       },
     ];
 
-    const stockTraders = await StockTrading.aggregate(pipeline);
-    const virtualTraders = await PaperTrading.aggregate(pipeline);
-    const tenXTraders = await TenXTrading.aggregate(pipeline);
-    const contestTraders = await ContestTrading.aggregate(pipeline);
-    const internshipTraders = await InternshipTrading.aggregate(pipeline);
-    const marginXTraders = await MarginXTrading.aggregate(pipeline);
-    const battleTraders = await BattleTrading.aggregate(pipeline);
+    const pipelineToday = [
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(startOfWeek)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            week: { $week: "$trade_time" },
+            year: { $year: "$trade_time" },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { week: "$_id.week", year: "$_id.year" },
+          traders: { $sum: 1 },
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} },
+        },
+      },
+      {
+        $match: {
+          "_id.year": { $ne: 1970 }
+        }
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.week": 1,
+        },
+      },
+    ];
 
-    // Create a week-wise mapping of WAUs for different products
-    const weekWiseWAUs = {};
+    let newData;
+    if (isRedisConnected && await client.exists('wau-product-chart')) {
+      newData = JSON.parse(await client.get('wau-product-chart'));
+    }else{
+      const stockTraders = await StockTrading.aggregate(pipeline);
+      const virtualTraders = await PaperTrading.aggregate(pipeline);
+      const tenXTraders = await TenXTrading.aggregate(pipeline);
+      const contestTraders = await ContestTrading.aggregate(pipeline);
+      const internshipTraders = await InternshipTrading.aggregate(pipeline);
+      const marginXTraders = await MarginXTrading.aggregate(pipeline);
+      const battleTraders = await BattleTrading.aggregate(pipeline);
+    
+      newData = await weekActiveUsersHelper(battleTraders, marginXTraders, stockTraders, virtualTraders, tenXTraders, contestTraders, internshipTraders);
 
-    virtualTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const week = `${_id.year}-${_id.week}`;
-      if (!weekWiseWAUs[week]) {
-        weekWiseWAUs[week] = {
-          week,
-          virtualTrading: 0,
-          tenXTrading: 0,
-          contest: 0,
-          internshipTrading: 0,
-          marginXTrading:0,
-          battleTrading:0,
-          total: 0,
-          uniqueUsers: [],
-        };
-      }
-      weekWiseWAUs[week].virtualTrading = traders;
-      weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
-    });
 
-    stockTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const week = `${_id.year}-${_id.week}`;
-      if (!weekWiseWAUs[week]) {
-        weekWiseWAUs[week] = {
-          week,
-          virtualTrading: 0,
-          tenXTrading: 0,
-          contest: 0,
-          internshipTrading: 0,
-          marginXTrading:0,
-          battleTrading:0,
-          total: 0,
-          uniqueUsers: [],
-        };
-      }
-      weekWiseWAUs[week].stockTrading = traders || 0;
-      weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
-    });
+      await client.set(`wau-product-chart`, JSON.stringify(newData));
+    }
 
-    tenXTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const week = `${_id.year}-${_id.week}`;
-      if (!weekWiseWAUs[week]) {
-        weekWiseWAUs[week] = {
-          week,
-          virtualTrading: 0,
-          tenXTrading: 0,
-          contest: 0,
-          internshipTrading: 0,
-          marginXTrading:0,
-          battleTrading:0,
-          total: 0,
-          uniqueUsers: [],
-        };
-      }
-      weekWiseWAUs[week].tenXTrading = traders;
-      weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
-    });
+    const stockTradersToday = await StockTrading.aggregate(pipelineToday);
+    const virtualTradersToday = await PaperTrading.aggregate(pipelineToday);
+    const tenXTradersToday = await TenXTrading.aggregate(pipelineToday);
+    const contestTradersToday = await ContestTrading.aggregate(pipelineToday);
+    const internshipTradersToday = await InternshipTrading.aggregate(pipelineToday);
+    const marginXTradersToday = await MarginXTrading.aggregate(pipelineToday);
+    const battleTradersToday = await BattleTrading.aggregate(pipelineToday);
 
-    contestTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const week = `${_id.year}-${_id.week}`;
-      if (!weekWiseWAUs[week]) {
-        weekWiseWAUs[week] = {
-          week,
-          virtualTrading: 0,
-          tenXTrading: 0,
-          contest: 0,
-          internshipTrading: 0,
-          marginXTrading:0,
-          battleTrading:0,
-          total: 0,
-          uniqueUsers: [],
-        };
-      }
-      weekWiseWAUs[week].contest = traders;
-      weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
-    });
-
-    internshipTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const week = `${_id.year}-${_id.week}`;
-      if (!weekWiseWAUs[week]) {
-        weekWiseWAUs[week] = {
-          week,
-          virtualTrading: 0,
-          tenXTrading: 0,
-          contest: 0,
-          internshipTrading: 0,
-          marginXTrading:0,
-          battleTrading:0,
-          total: 0,
-          uniqueUsers: [],
-        };
-      }
-      weekWiseWAUs[week].internshipTrading = traders;
-      weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
-    });
-
-    marginXTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const week = `${_id.year}-${_id.week}`;
-      if (!weekWiseWAUs[week]) {
-        weekWiseWAUs[week] = {
-          week,
-          virtualTrading: 0,
-          tenXTrading: 0,
-          contest: 0,
-          internshipTrading: 0,
-          marginXTrading:0,
-          battleTrading:0,
-          total: 0,
-          uniqueUsers: [],
-        };
-      }
-      weekWiseWAUs[week].marginXTrading = traders;
-      weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
-    });
-
-    battleTraders.forEach(entry => {
-      const { _id, traders, uniqueUsers } = entry;
-      const week = `${_id.year}-${_id.week}`;
-      if (!weekWiseWAUs[week]) {
-        weekWiseWAUs[week] = {
-          week,
-          virtualTrading: 0,
-          tenXTrading: 0,
-          contest: 0,
-          internshipTrading: 0,
-          marginXTrading:0,
-          battleTrading:0,
-          total: 0,
-          uniqueUsers: [],
-        };
-      }
-      weekWiseWAUs[week].battleTrading = traders;
-      weekWiseWAUs[week].uniqueUsers.push(...uniqueUsers);
-    });
-
-    // Calculate the week-wise total WAUs and unique users
-    Object.keys(weekWiseWAUs).forEach(week => {
-      const { stockTrading, virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, battleTrading, uniqueUsers } = weekWiseWAUs[week];
-      weekWiseWAUs[week].total = virtualTrading + tenXTrading + contest + internshipTrading + marginXTrading + battleTrading;
-      weekWiseWAUs[week].uniqueUsers = [...new Set(uniqueUsers)];
-    });
+    const todayData = await weekActiveUsersHelper(battleTradersToday, marginXTradersToday, stockTradersToday, virtualTradersToday, tenXTradersToday, contestTradersToday, internshipTradersToday);
 
     const response = {
       status: "success",
       message: "Weekly Active Users fetched successfully",
-      data: Object.values(weekWiseWAUs).splice(Object.values(weekWiseWAUs).length <= 52 ? 0 : Object.values(weekWiseWAUs).length - 52,Object.values(weekWiseWAUs).length),
+      data: newData.concat(todayData)
     };
 
     res.status(200).json(response);
@@ -700,7 +856,18 @@ exports.getWeeklyActiveUsers = async (req, res) => {
 
 exports.getDailyActiveUsersOnPlatform = async (req, res) => {
   try {
+    const isRedisConnected = getValue();
+    const startOfToday = new Date(new Date().setHours(0,0,0,0)); // Get start of today
+    startOfToday.setUTCHours(-5, -29, -59, -999);
+
     const pipeline = [
+      {
+        $match: {
+          trade_time: {
+            $lt: new Date(startOfToday)
+          }
+        }
+      },
       {
         $project: {
           trade_time: 1,
@@ -744,40 +911,125 @@ exports.getDailyActiveUsersOnPlatform = async (req, res) => {
       },
     ];
 
-    const stockTraders = await StockTrading.aggregate(pipeline);
-    const tenXTraders = await TenXTrading.aggregate(pipeline);
-    const virtualTraders = await PaperTrading.aggregate(pipeline);
-    const contestTraders = await ContestTrading.aggregate(pipeline);
-    const internshipTraders = await InternshipTrading.aggregate(pipeline);
-    const marginXTraders = await MarginXTrading.aggregate(pipeline);
-    const battleTraders = await BattleTrading.aggregate(pipeline);
+    const pipelineToday = [
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(startOfToday)
+          }
+        }
+      },
+      {
+        $project: {
+          trade_time: 1,
+          trader: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            date: "$_id.date",
+          },
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} },
+        },
+      },
+      {
+        $match: {
+          "_id.date": { $ne: "1970-01-01" }, // Exclude year 1970
+        },
+      },
+      {
+        $project: {
+          _id:0,
+          date: "$_id.date",
+          uniqueUsers: 1,
+        },
+      },
+      {
+        $sort: {
+          "date": 1,
+        },
+      },
+    ];
 
+    let newData;
+    if (isRedisConnected && await client.exists('dau-chart')) {
+      newData = JSON.parse(await client.get('dau-chart'));
+    }else{
+      const stockTraders = await StockTrading.aggregate(pipeline);
+      const virtualTraders = await PaperTrading.aggregate(pipeline);
+      const tenXTraders = await TenXTrading.aggregate(pipeline);
+      const contestTraders = await ContestTrading.aggregate(pipeline);
+      const internshipTraders = await InternshipTrading.aggregate(pipeline);
+      const marginXTraders = await MarginXTrading.aggregate(pipeline);
+      const battleTraders = await BattleTrading.aggregate(pipeline);
+    
+      let allTraders = [...stockTraders, ...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
 
-    let allTraders = [...stockTraders, ...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+      let dateToTradersMap = new Map();
+  
+      allTraders.forEach(({date, uniqueUsers}) => {
+          if(dateToTradersMap.has(date)) {
+              let existingTradersSet = dateToTradersMap.get(date);
+              uniqueUsers.forEach(trader => existingTradersSet.add(trader));
+          } else {
+              dateToTradersMap.set(date, new Set(uniqueUsers));
+          }
+      });
+  
+      let result = Array.from(dateToTradersMap, ([date, traders]) => ({date, uniqueUsersCount: traders.size}));
+  
+      result.sort((a, b) => (a.date > b.date ? 1 : b.date > a.date ? -1 : 0));
+  
+      newData = result.splice(result.length <= 90 ? 0 : result.length-90,result.length)
 
-    let dateToTradersMap = new Map();
+      await client.set(`dau-chart`, JSON.stringify(newData));
+    }
 
-    allTraders.forEach(({date, uniqueUsers}) => {
-        if(dateToTradersMap.has(date)) {
-            let existingTradersSet = dateToTradersMap.get(date);
+    const stockTradersToday = await StockTrading.aggregate(pipelineToday);
+    const virtualTradersToday = await PaperTrading.aggregate(pipelineToday);
+    const tenXTradersToday = await TenXTrading.aggregate(pipelineToday);
+    const contestTradersToday = await ContestTrading.aggregate(pipelineToday);
+    const internshipTradersToday = await InternshipTrading.aggregate(pipelineToday);
+    const marginXTradersToday = await MarginXTrading.aggregate(pipelineToday);
+    const battleTradersToday = await BattleTrading.aggregate(pipelineToday);
+
+    let allTradersToday = [...stockTradersToday, ...tenXTradersToday, ...virtualTradersToday, ...contestTradersToday, ...internshipTradersToday, ...marginXTradersToday, ...battleTradersToday];
+
+    let dateToTradersMapToday = new Map();
+
+    allTradersToday.forEach(({date, uniqueUsers}) => {
+        if(dateToTradersMapToday.has(date)) {
+            let existingTradersSet = dateToTradersMapToday.get(date);
             uniqueUsers.forEach(trader => existingTradersSet.add(trader));
         } else {
-            dateToTradersMap.set(date, new Set(uniqueUsers));
+            dateToTradersMapToday.set(date, new Set(uniqueUsers));
         }
     });
 
-    let result = Array.from(dateToTradersMap, ([date, traders]) => ({date, uniqueUsers: Array.from(traders), uniqueUsersCount: traders.size}));
+    let resultToday = Array.from(dateToTradersMapToday, ([date, traders]) => ({date, uniqueUsersCount: traders.size}));
 
-    result.sort((a, b) => (a.date > b.date ? 1 : b.date > a.date ? -1 : 0));
+    resultToday.sort((a, b) => (a.date > b.date ? 1 : b.date > a.date ? -1 : 0));
 
     const response = {
       status: "success",
       message: "Daily Active Users on platform fetched successfully",
-      data: result.splice(result.length <= 90 ? 0 : result.length-90,result.length),
+      data: newData.concat(resultToday),
     };
 
     res.status(200).json(response);
   } catch (error) {
+    console.log(error)
     res.status(500).json({
       status: "error",
       message: "Something went wrong",
@@ -788,7 +1040,65 @@ exports.getDailyActiveUsersOnPlatform = async (req, res) => {
 
 exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
   try {
+    const isRedisConnected = getValue();
+    const today = moment();
+    const startOfMonth =  today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+
     const pipeline = [
+      {
+        $match: {
+          trade_time: {
+            $lt: new Date(startOfMonth)
+          }
+        }
+      },
+      {
+        $project: {
+          trade_time: 1,
+          trader: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $substr: ["$trade_time", 0, 7] },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.month",
+          uniqueUsers: { $addToSet: {$toString : "$_id.trader"} }, // Calculate the total number of unique active users
+        },
+      },
+      {
+        $match: {
+          "_id": { $ne: "1970-01" }, // Exclude year 1970
+        },
+      },
+      {
+        $project: {
+          _id:0,
+          month: "$_id",
+          uniqueUsers: 1,
+        },
+      },
+      {
+        $sort: {
+          "month": 1,
+        },
+      },
+    ];
+
+    const pipelineToday = [
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(startOfMonth)
+          }
+        }
+      },
       {
         $project: {
           trade_time: 1,
@@ -828,19 +1138,53 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
       },
     ];
     
-    const stockTraders = await StockTrading.aggregate(pipeline);
-    const tenXTraders = await TenXTrading.aggregate(pipeline);
-    const virtualTraders = await PaperTrading.aggregate(pipeline);
-    const contestTraders = await ContestTrading.aggregate(pipeline);
-    const internshipTraders = await InternshipTrading.aggregate(pipeline);
-    const marginXTraders = await MarginXTrading.aggregate(pipeline);
-    const battleTraders = await BattleTrading.aggregate(pipeline);
+    let newData;
+    if (isRedisConnected && await client.exists('dau-month-chart')) {
+      newData = JSON.parse(await client.get('dau-month-chart'));
+    }else{
+      const stockTraders = await StockTrading.aggregate(pipeline);
+      const virtualTraders = await PaperTrading.aggregate(pipeline);
+      const tenXTraders = await TenXTrading.aggregate(pipeline);
+      const contestTraders = await ContestTrading.aggregate(pipeline);
+      const internshipTraders = await InternshipTrading.aggregate(pipeline);
+      const marginXTraders = await MarginXTrading.aggregate(pipeline);
+      const battleTraders = await BattleTrading.aggregate(pipeline);
     
-    let allTraders = [...stockTraders, ...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+      let allTraders = [...stockTraders, ...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+
+      let monthToTradersMap = new Map();
+
+      allTraders.forEach(({month, uniqueUsers}) => {
+        if(monthToTradersMap.has(month)) {
+            let existingTradersSet = monthToTradersMap.get(month);
+            uniqueUsers.forEach(trader => existingTradersSet.add(trader));
+        } else {
+            monthToTradersMap.set(month, new Set(uniqueUsers));
+        }
+      });
+  
+      let result = Array.from(monthToTradersMap, ([month, traders]) => ({month, uniqueUsersCount: traders.size}));
+  
+      result.sort((a, b) => (a.month > b.month ? 1 : b.month > a.month ? -1 : 0));
+      
+      newData = result.splice(result.length <= 52 ? 0 : result.length-52,result.length)
+
+      await client.set(`dau-month-chart`, JSON.stringify(newData));
+    }
+
+    const stockTradersToday = await StockTrading.aggregate(pipelineToday);
+    const virtualTradersToday = await PaperTrading.aggregate(pipelineToday);
+    const tenXTradersToday = await TenXTrading.aggregate(pipelineToday);
+    const contestTradersToday = await ContestTrading.aggregate(pipelineToday);
+    const internshipTradersToday = await InternshipTrading.aggregate(pipelineToday);
+    const marginXTradersToday = await MarginXTrading.aggregate(pipelineToday);
+    const battleTradersToday = await BattleTrading.aggregate(pipelineToday);
+
+    let allTradersToday = [...stockTradersToday, ...tenXTradersToday, ...virtualTradersToday, ...contestTradersToday, ...internshipTradersToday, ...marginXTradersToday, ...battleTradersToday];
 
     let monthToTradersMap = new Map();
 
-    allTraders.forEach(({month, uniqueUsers}) => {
+    allTradersToday.forEach(({month, uniqueUsers}) => {
         if(monthToTradersMap.has(month)) {
             let existingTradersSet = monthToTradersMap.get(month);
             uniqueUsers.forEach(trader => existingTradersSet.add(trader));
@@ -848,7 +1192,7 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
             monthToTradersMap.set(month, new Set(uniqueUsers));
         }
     });
-//uniqueUsers: Array.from(traders)
+
     let result = Array.from(monthToTradersMap, ([month, traders]) => ({month, uniqueUsersCount: traders.size}));
 
     result.sort((a, b) => (a.month > b.month ? 1 : b.month > a.month ? -1 : 0));
@@ -856,7 +1200,7 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
     const response = {
       status: "success",
       message: "Monthly Active Users on Platform fetched successfully",
-      data: result.splice(result.length <= 12 ? 0 : result.length-12,result.length),
+      data: newData.concat(result)
     };
     
 
@@ -873,7 +1217,17 @@ exports.getMonthlyActiveUsersOnPlatform = async (req, res) => {
 
 exports.getWeeklyActiveUsersOnPlatform = async (req, res) => {
   try {
+    const isRedisConnected = getValue();
+    const today = moment();
+    const startOfWeek =  today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
     const pipeline = [
+      {
+        $match: {
+          trade_time: {
+            $lt: new Date(startOfWeek)
+          }
+        }
+      },
       {
         $project: {
           trade_time: 1,
@@ -914,20 +1268,103 @@ exports.getWeeklyActiveUsersOnPlatform = async (req, res) => {
         },
       },
     ];
+
+    const pipelineToday = [
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(startOfWeek)
+          }
+        }
+      },
+      {
+        $project: {
+          trade_time: 1,
+          trader: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            week: { 
+              $dateToString: { format: "%G-%V", date: "$trade_time" }
+            },
+            trader: "$trader",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.week",
+          uniqueUsers: { $addToSet: { $toString : "$_id.trader" } }, // Calculate the total number of unique active users
+        },
+      },
+      {
+        $match: {
+          "_id": { $ne: "1970-01" }, // Exclude year 1970
+        },
+      },
+      {
+        $project: {
+          _id:0,
+          week: "$_id",
+          uniqueUsers: 1,
+        },
+      },
+      {
+        $sort: {
+          "week": 1,
+        },
+      },
+    ];
+
+    let newData;
+    if (isRedisConnected && await client.exists('dau-week-chart')) {
+      newData = JSON.parse(await client.get('dau-week-chart'));
+    }else{
+      const stockTraders = await StockTrading.aggregate(pipeline);
+      const virtualTraders = await PaperTrading.aggregate(pipeline);
+      const tenXTraders = await TenXTrading.aggregate(pipeline);
+      const contestTraders = await ContestTrading.aggregate(pipeline);
+      const internshipTraders = await InternshipTrading.aggregate(pipeline);
+      const marginXTraders = await MarginXTrading.aggregate(pipeline);
+      const battleTraders = await BattleTrading.aggregate(pipeline);
     
-    const tenXTraders = await TenXTrading.aggregate(pipeline);
-    const stockTraders = await StockTrading.aggregate(pipeline);
-    const virtualTraders = await PaperTrading.aggregate(pipeline);
-    const contestTraders = await ContestTrading.aggregate(pipeline);
-    const internshipTraders = await InternshipTrading.aggregate(pipeline);
-    const marginXTraders = await MarginXTrading.aggregate(pipeline);
-    const battleTraders = await BattleTrading.aggregate(pipeline);
+      let allTraders = [...stockTraders, ...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+
+      let weekToTradersMap = new Map();
+
+      allTraders.forEach(({week, uniqueUsers}) => {
+          if(weekToTradersMap.has(week)) {
+              let existingTradersSet = weekToTradersMap.get(week);
+              uniqueUsers.forEach(trader => existingTradersSet.add(trader));
+          } else {
+              weekToTradersMap.set(week, new Set(uniqueUsers));
+          }
+      });
+  
+      let result = Array.from(weekToTradersMap, ([week, traders]) => ({week, uniqueUsersCount: traders.size}));
+  
+      result.sort((a, b) => (a.week > b.week ? 1 : b.week > a.week ? -1 : 0));
     
-    let allTraders = [...stockTraders, ...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+      newData = result.splice(result.length <= 52 ? 0 : result.length-52,result.length)
+
+      await client.set(`dau-week-chart`, JSON.stringify(newData));
+    }
+
+    const stockTradersToday = await StockTrading.aggregate(pipelineToday);
+    const virtualTradersToday = await PaperTrading.aggregate(pipelineToday);
+    const tenXTradersToday = await TenXTrading.aggregate(pipelineToday);
+    const contestTradersToday = await ContestTrading.aggregate(pipelineToday);
+    const internshipTradersToday = await InternshipTrading.aggregate(pipelineToday);
+    const marginXTradersToday = await MarginXTrading.aggregate(pipelineToday);
+    const battleTradersToday = await BattleTrading.aggregate(pipelineToday);
+
+    let allTradersToday = [...stockTradersToday, ...tenXTradersToday, ...virtualTradersToday, ...contestTradersToday, ...internshipTradersToday, ...marginXTradersToday, ...battleTradersToday];
 
     let weekToTradersMap = new Map();
 
-    allTraders.forEach(({week, uniqueUsers}) => {
+    allTradersToday.forEach(({week, uniqueUsers}) => {
         if(weekToTradersMap.has(week)) {
             let existingTradersSet = weekToTradersMap.get(week);
             uniqueUsers.forEach(trader => existingTradersSet.add(trader));
@@ -936,14 +1373,14 @@ exports.getWeeklyActiveUsersOnPlatform = async (req, res) => {
         }
     });
 
-    let result = Array.from(weekToTradersMap, ([week, traders]) => ({week, uniqueUsers: Array.from(traders), uniqueUsersCount: traders.size}));
+    let result = Array.from(weekToTradersMap, ([week, traders]) => ({week, uniqueUsersCount: traders.size}));
 
     result.sort((a, b) => (a.week > b.week ? 1 : b.week > a.week ? -1 : 0));
     
     const response = {
       status: "success",
       message: "Weekly Active Users on Platform fetched successfully",
-      data: result.splice(result.length <= 52 ? 0 : result.length-52,result.length),
+      data: newData.concat(result)
     };
     
     res.status(200).json(response);
@@ -956,8 +1393,143 @@ exports.getWeeklyActiveUsersOnPlatform = async (req, res) => {
   }
 };
 
+// exports.getRollingActiveUsersOnPlatform = async (req, res) => {
+//   try {
+//     const yesterday = new Date(new Date());
+//     yesterday.setDate(yesterday.getDate()-1);
+//     const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate()-30)); // Get date 30 days ago
+//     thirtyDaysAgo.setUTCHours(-5, -29, -59, -999);
+//     const startOfToday = new Date(new Date().setHours(0,0,0,0)); // Get start of today
+//     startOfToday.setUTCHours(-5, -29, -59, -999);
+//     const startOfYesterday = new Date(new Date().setDate(new Date().getDate()-1)); // Get start of yesterday
+//     startOfYesterday.setUTCHours(-5, -29, -59, -999);
+//     const endOfYesterday = new Date(startOfToday - 1); // Get end of yesterday
+//     // endOfYesterday.setUTCHours(-5, -29, -59, -999);
+//     // console.log("Days:",thirtyDaysAgo,startOfToday,startOfYesterday,endOfYesterday)
+//     const sevenDaysAgo = new Date(new Date().setDate(new Date().getDate()-7));
+//     sevenDaysAgo.setUTCHours(-5, -29, -59, -999);
+//     const sevenDaysAgoBasedOnYesterday = new Date(yesterday.setDate(yesterday.getDate()-7));
+//     sevenDaysAgoBasedOnYesterday.setUTCHours(-5, -29, -59, -999);
+//     const thirtyDaysAgoBasedOnYesterday = new Date(yesterday.setDate(yesterday.getDate()-30));
+//     thirtyDaysAgoBasedOnYesterday.setUTCHours(-5, -29, -59, -999);
+
+//     console.log(sevenDaysAgoBasedOnYesterday, thirtyDaysAgoBasedOnYesterday)
+//     const pipeline = [
+//       {
+//         $match: {
+//           "trade_time": { $gte: thirtyDaysAgo } // Include only documents from the last 30 days
+//         }
+//       },
+//       {
+//         $addFields: {
+//           isActiveToday: { $gte: ["$trade_time", startOfToday] }, // Check if trader is active today
+//           wasActiveYesterday: { $and: [{ $gte: ["$trade_time", startOfYesterday] }, { $lt: ["$trade_time", startOfToday] }] }, // Check if trader was active yesterday
+//           isActivePast7DaysBasedOnToday: { $gte: ["$trade_time", sevenDaysAgo] },
+//           isActivePast30DaysBasedOnToday: { $gte: ["$trade_time", thirtyDaysAgo] },
+//           isActivePast7DaysBasedOnYesterday:  { $and: [{ $gte: ["$trade_time", sevenDaysAgoBasedOnYesterday] }, { $lt: ["$trade_time", startOfToday] }] },
+//           // { $gte: ["$trade_time", sevenDaysAgoBasedOnYesterday] },
+//           isActivePast30DaysBasedOnYesterday: { $gte: ["$trade_time", thirtyDaysAgoBasedOnYesterday] }
+//         }
+//       },
+//       {
+//         $group: {
+//           _id: "$trader", // Group by trader
+//           lastActiveDate: { $max: "$trade_time" }, // Get the last active date for each trader
+//           isActiveToday: { $max: "$isActiveToday" }, // Check if trader is active today
+//           wasActiveYesterday: { $max: "$wasActiveYesterday" }, // Check if trader was active yesterday
+//           isActivePast7DaysBasedOnToday: { $max: "$isActivePast7DaysBasedOnToday" },
+//           isActivePast30DaysBasedOnToday: { $max: "$isActivePast30DaysBasedOnToday" },
+//           isActivePast7DaysBasedOnYesterday: { $max: "$isActivePast7DaysBasedOnYesterday" },
+//           isActivePast30DaysBasedOnYesterday: { $max: "$isActivePast30DaysBasedOnYesterday" }
+//         }
+//       },
+//       {
+//         $group: {
+//           _id: null,
+//           uniqueUsers: { $addToSet: "$_id" }, // Get the unique active traders
+//           uniqueUsersToday: { $addToSet: { $cond: [ "$isActiveToday", "$_id", "$$REMOVE" ] } }, // Get the unique active traders today
+//           uniqueUsersYesterday: { $addToSet: { $cond: [ "$wasActiveYesterday", "$_id", "$$REMOVE" ] } }, // Get the unique active traders yesterday
+//           uniqueUsersPast7DaysBasedOnToday: { $addToSet: { $cond: [ "$isActivePast7DaysBasedOnToday", "$_id", "$$REMOVE" ] } },
+//           uniqueUsersPast30DaysBasedOnToday: { $addToSet: { $cond: [ "$isActivePast30DaysBasedOnToday", "$_id", "$$REMOVE" ] } },
+//           uniqueUsersPast7DaysBasedOnYesterday: { $addToSet: { $cond: [ "$isActivePast7DaysBasedOnYesterday", "$_id", "$$REMOVE" ] } },
+//           uniqueUsersPast30DaysBasedOnYesterday: { $addToSet: { $cond: [ "$isActivePast30DaysBasedOnYesterday", "$_id", "$$REMOVE" ] } }
+//         }
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           uniqueUsers: 1,
+//           uniqueUsersToday: 1,
+//           uniqueUsersYesterday: 1,
+//           uniqueUsersPast7DaysBasedOnToday: 1,
+//           uniqueUsersPast30DaysBasedOnToday: 1,
+//           uniqueUsersPast7DaysBasedOnYesterday: 1,
+//           uniqueUsersPast30DaysBasedOnYesterday: 1
+//         }
+//       }
+//     ];
+    
+//     const stockTraders = await StockTrading.aggregate(pipeline);
+//     const tenXTraders = await TenXTrading.aggregate(pipeline);
+//     const virtualTraders = await PaperTrading.aggregate(pipeline);
+//     const contestTraders = await ContestTrading.aggregate(pipeline);
+//     const internshipTraders = await InternshipTrading.aggregate(pipeline);
+//     const marginXTraders = await MarginXTrading.aggregate(pipeline);
+//     const battleTraders = await BattleTrading.aggregate(pipeline);
+    
+//     let allTraders = [...stockTraders, ...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+
+    
+//     let uniqueUsersSet = new Set();
+//     let uniqueUsersTodaySet = new Set();
+//     let uniqueUsersYesterdaySet = new Set();
+//     let uniqueUsersPast7DaysBasedOnTodaySet = new Set();
+//     let uniqueUsersPast30DaysBasedOnTodaySet = new Set();
+//     let uniqueUsersPast7DaysBasedOnYesterdaySet = new Set();
+//     let uniqueUsersPast30DaysBasedOnYesterdaySet = new Set();
+
+//     allTraders.forEach(({uniqueUsers, uniqueUsersToday, uniqueUsersYesterday,uniqueUsersPast7DaysBasedOnToday, uniqueUsersPast30DaysBasedOnToday, uniqueUsersPast7DaysBasedOnYesterday, uniqueUsersPast30DaysBasedOnYesterday}) => {
+
+//       uniqueUsers.forEach(trader => uniqueUsersSet.add(trader?.toString()));
+//       uniqueUsersToday.forEach(trader => uniqueUsersTodaySet.add(trader?.toString()));
+//       uniqueUsersYesterday.forEach(trader => uniqueUsersYesterdaySet.add(trader?.toString()));
+//       uniqueUsersPast7DaysBasedOnToday.forEach(trader => uniqueUsersPast7DaysBasedOnTodaySet.add(trader?.toString()));
+//       uniqueUsersPast30DaysBasedOnToday.forEach(trader => uniqueUsersPast30DaysBasedOnTodaySet.add(trader?.toString()));
+//       uniqueUsersPast7DaysBasedOnYesterday.forEach(trader => uniqueUsersPast7DaysBasedOnYesterdaySet.add(trader?.toString()));
+//       uniqueUsersPast30DaysBasedOnYesterday.forEach(trader => uniqueUsersPast30DaysBasedOnYesterdaySet.add(trader?.toString()));
+//     });
+
+//     const response = {
+//       status: "success",
+//       message: "Rolling 30-day Active Users, Today's Active Users and Yesterday's Active Users on Platform fetched successfully",
+//       data: {
+//         // uniqueUsersLast30Days: Array.from(uniqueUsersSet),
+//         // uniqueUsersCountLast30Days: uniqueUsersSet.size,
+//         // uniqueUsersToday: Array.from(uniqueUsersTodaySet),
+//         uniqueUsersCountToday: uniqueUsersTodaySet.size,
+//         // uniqueUsersYesterday: Array.from(uniqueUsersYesterdaySet),
+//         uniqueUsersCountYesterday: uniqueUsersYesterdaySet.size,
+//         uniqueUsersPast7DaysBasedOnToday: uniqueUsersPast7DaysBasedOnTodaySet.size,
+//         uniqueUsersPast30DaysBasedOnToday: uniqueUsersPast30DaysBasedOnTodaySet.size,
+//         uniqueUsersPast7DaysBasedOnYesterday: uniqueUsersPast7DaysBasedOnYesterdaySet.size,
+//         uniqueUsersPast30DaysBasedOnYesterday: uniqueUsersPast30DaysBasedOnYesterdaySet.size,
+
+//       },
+//     };
+
+//     res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({
+//       status: "error",
+//       message: "Something went wrong",
+//       error: error.message,
+//     });
+//   }
+// };
+
 exports.getRollingActiveUsersOnPlatform = async (req, res) => {
   try {
+    const isRedisConnected = getValue();
     const yesterday = new Date(new Date());
     yesterday.setDate(yesterday.getDate()-1);
     const thirtyDaysAgo = new Date(new Date().setDate(new Date().getDate()-30)); // Get date 30 days ago
@@ -971,79 +1543,154 @@ exports.getRollingActiveUsersOnPlatform = async (req, res) => {
     // console.log("Days:",thirtyDaysAgo,startOfToday,startOfYesterday,endOfYesterday)
     const sevenDaysAgo = new Date(new Date().setDate(new Date().getDate()-7));
     sevenDaysAgo.setUTCHours(-5, -29, -59, -999);
-    const sevenDaysAgoBasedOnYesterday = new Date(yesterday.setDate(yesterday.getDate()-7));
+    
+    const sevenDaysAgoBasedOnYesterday = new Date(yesterday) 
+    sevenDaysAgoBasedOnYesterday.setDate(sevenDaysAgoBasedOnYesterday.getDate()-7);
     sevenDaysAgoBasedOnYesterday.setUTCHours(-5, -29, -59, -999);
-    const thirtyDaysAgoBasedOnYesterday = new Date(yesterday.setDate(yesterday.getDate()-30));
+
+    const thirtyDaysAgoBasedOnYesterday = new Date(yesterday);
+    thirtyDaysAgoBasedOnYesterday.setDate(thirtyDaysAgoBasedOnYesterday.getDate()-30);
     thirtyDaysAgoBasedOnYesterday.setUTCHours(-5, -29, -59, -999);
 
+    const DaysAgoBasedOnYesterday_6 = new Date(yesterday);
+    DaysAgoBasedOnYesterday_6.setDate(DaysAgoBasedOnYesterday_6.getDate()-6);
+    DaysAgoBasedOnYesterday_6.setUTCHours(-5, -29, -59, -999);
 
+    const DaysAgoBasedOnYesterday_29 = new Date(yesterday);
+    DaysAgoBasedOnYesterday_29.setDate(DaysAgoBasedOnYesterday_29.getDate()-29);
+    DaysAgoBasedOnYesterday_29.setUTCHours(-5, -29, -59, -999);
+
+    console.log(sevenDaysAgoBasedOnYesterday)
     const pipeline = [
       {
         $match: {
-          "trade_time": { $gte: thirtyDaysAgo }, // Include only documents from the last 30 days
-        },
+          "trade_time": { $gte: thirtyDaysAgo, $lt: startOfToday } // Include only documents from the last 30 days
+        }
+      },
+      {
+        $addFields: {
+          // isActiveToday: { $gte: ["$trade_time", startOfToday] }, // Check if trader is active today
+          wasActiveYesterday: { $and: [{ $gte: ["$trade_time", startOfYesterday] }, { $lt: ["$trade_time", startOfToday] }] }, // Check if trader was active yesterday
+          // isActivePast7DaysBasedOnToday: { $gte: ["$trade_time", sevenDaysAgo] },
+          // isActivePast30DaysBasedOnToday: { $gte: ["$trade_time", thirtyDaysAgo] },
+          isActivePast7DaysBasedOnYesterday: { $gte: ["$trade_time", sevenDaysAgoBasedOnYesterday] },
+          isActivePast30DaysBasedOnYesterday: { $gte: ["$trade_time", thirtyDaysAgoBasedOnYesterday] },
+          isActivePast6DaysBasedOnYesterday: { $gte: ["$trade_time", DaysAgoBasedOnYesterday_6] },
+          isActivePast29DaysBasedOnYesterday: { $gte: ["$trade_time", DaysAgoBasedOnYesterday_29] }
+
+        }
+      },
+      {
+        $group: {
+          _id: "$trader", // Group by trader
+          lastActiveDate: { $max: "$trade_time" }, // Get the last active date for each trader
+          // isActiveToday: { $max: "$isActiveToday" }, // Check if trader is active today
+          wasActiveYesterday: { $max: "$wasActiveYesterday" }, // Check if trader was active yesterday
+          // isActivePast7DaysBasedOnToday: { $max: "$isActivePast7DaysBasedOnToday" },
+          // isActivePast30DaysBasedOnToday: { $max: "$isActivePast30DaysBasedOnToday" },
+          isActivePast7DaysBasedOnYesterday: { $max: "$isActivePast7DaysBasedOnYesterday" },
+          isActivePast30DaysBasedOnYesterday: { $max: "$isActivePast30DaysBasedOnYesterday" },
+
+          isActivePast6DaysBasedOnYesterday: { $max: "$isActivePast6DaysBasedOnYesterday" },
+          isActivePast29DaysBasedOnYesterday: { $max: "$isActivePast29DaysBasedOnYesterday" }
+
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          uniqueUsers: { $addToSet: "$_id" }, // Get the unique active traders
+          // uniqueUsersToday: { $addToSet: { $cond: [ "$isActiveToday", "$_id", "$$REMOVE" ] } }, // Get the unique active traders today
+          uniqueUsersYesterday: { $addToSet: { $cond: [ "$wasActiveYesterday", "$_id", "$$REMOVE" ] } }, // Get the unique active traders yesterday
+          // uniqueUsersPast7DaysBasedOnToday: { $addToSet: { $cond: [ "$isActivePast7DaysBasedOnToday", "$_id", "$$REMOVE" ] } },
+          // uniqueUsersPast30DaysBasedOnToday: { $addToSet: { $cond: [ "$isActivePast30DaysBasedOnToday", "$_id", "$$REMOVE" ] } },
+          uniqueUsersPast7DaysBasedOnYesterday: { $addToSet: { $cond: [ "$isActivePast7DaysBasedOnYesterday", "$_id", "$$REMOVE" ] } },
+          uniqueUsersPast30DaysBasedOnYesterday: { $addToSet: { $cond: [ "$isActivePast30DaysBasedOnYesterday", "$_id", "$$REMOVE" ] } },
+
+          uniqueUsersPast6DaysBasedOnYesterday: { $addToSet: { $cond: [ "$isActivePast6DaysBasedOnYesterday", "$_id", "$$REMOVE" ] } },
+          uniqueUsersPast29DaysBasedOnYesterday: { $addToSet: { $cond: [ "$isActivePast29DaysBasedOnYesterday", "$_id", "$$REMOVE" ] } }
+        }
       },
       {
         $project: {
-          trader: 1,
-          trade_time: 1,
+          _id: 0,
+          uniqueUsers: 1,
+          // uniqueUsersToday: 1,
+          uniqueUsersYesterday: 1,
+          // uniqueUsersPast7DaysBasedOnToday: 1,
+          // uniqueUsersPast30DaysBasedOnToday: 1,
+          uniqueUsersPast7DaysBasedOnYesterday: 1,
+          uniqueUsersPast30DaysBasedOnYesterday: 1,
+
+          uniqueUsersPast6DaysBasedOnYesterday: 1,
+          uniqueUsersPast29DaysBasedOnYesterday: 1
+        }
+      }
+    ];
+
+    const pipelineToday = [
+      {
+        $match: {
+          "trade_time": { $gte: startOfToday } // Include only documents from the last 30 days
+        }
+      },
+      {
+        $addFields: {
           isActiveToday: { $gte: ["$trade_time", startOfToday] }, // Check if trader is active today
-          wasActiveYesterday: { $and: [{ $gte: ["$trade_time", startOfYesterday] }, { $lte: ["$trade_time", endOfYesterday] }] }, // Check if trader was active yesterday
-          isActivePast7DaysBasedOnToday: { $gte: ["$trade_time", sevenDaysAgo] },
-          isActivePast30DaysBasedOnToday: { $gte: ["$trade_time", thirtyDaysAgo] },
-          isActivePast7DaysBasedOnYesterday: { $gte: ["$trade_time", sevenDaysAgoBasedOnYesterday] },
-          isActivePast30DaysBasedOnYesterday: { $gte: ["$trade_time", thirtyDaysAgoBasedOnYesterday] },
-        },
+        }
       },
       {
         $group: {
           _id: "$trader", // Group by trader
           lastActiveDate: { $max: "$trade_time" }, // Get the last active date for each trader
           isActiveToday: { $max: "$isActiveToday" }, // Check if trader is active today
-          wasActiveYesterday: { $max: "$wasActiveYesterday" }, // Check if trader was active yesterday
-          isActivePast7DaysBasedOnToday: { $max: "$isActivePast7DaysBasedOnToday" },
-          isActivePast30DaysBasedOnToday: { $max: "$isActivePast30DaysBasedOnToday" },
-          isActivePast7DaysBasedOnYesterday: { $max: "$isActivePast7DaysBasedOnYesterday" },
-          isActivePast30DaysBasedOnYesterday: { $max: "$isActivePast30DaysBasedOnYesterday" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          trader: "$_id",
-          lastActiveDate: 1,
-          isActiveToday: 1,
-          wasActiveYesterday: 1,
-          isActivePast7DaysBasedOnToday: 1,
-          isActivePast30DaysBasedOnToday: 1,
-          isActivePast7DaysBasedOnYesterday: 1,
-          isActivePast30DaysBasedOnYesterday: 1,
-        },
+        }
       },
       {
         $group: {
           _id: null,
-          uniqueUsers: { $addToSet: {$toString : "$trader"} }, // Get the unique active traders
-          uniqueUsersToday: { $addToSet: { $cond: [ "$isActiveToday", {$toString : "$trader"}, "$$REMOVE" ] } }, // Get the unique active traders today
-          uniqueUsersYesterday: { $addToSet: { $cond: [ "$wasActiveYesterday", {$toString : "$trader"}, "$$REMOVE" ] } }, // Get the unique active traders yesterday
-          uniqueUsersPast7DaysBasedOnToday: { $addToSet: { $cond: [ "$isActivePast7DaysBasedOnToday", {$toString : "$trader"}, "$$REMOVE" ] } },
-          uniqueUsersPast30DaysBasedOnToday: { $addToSet: { $cond: [ "$isActivePast30DaysBasedOnToday", {$toString : "$trader"}, "$$REMOVE" ] } },
-          uniqueUsersPast7DaysBasedOnYesterday: { $addToSet: { $cond: [ "$isActivePast7DaysBasedOnYesterday", {$toString : "$trader"}, "$$REMOVE" ] } },
-          uniqueUsersPast30DaysBasedOnYesterday: { $addToSet: { $cond: [ "$isActivePast30DaysBasedOnYesterday", {$toString : "$trader"}, "$$REMOVE" ] } },
-        },
+          // uniqueUsers: { $addToSet: "$_id" }, // Get the unique active traders
+          uniqueUsersToday: { $addToSet: { $cond: [ "$isActiveToday", "$_id", "$$REMOVE" ] } }, // Get the unique active traders today
+        }
       },
+      {
+        $project: {
+          _id: 0,
+          // uniqueUsers: 1,
+          uniqueUsersToday: 1,
+        }
+      }
     ];
-    
-    const stockTraders = await StockTrading.aggregate(pipeline);
-    const tenXTraders = await TenXTrading.aggregate(pipeline);
-    const virtualTraders = await PaperTrading.aggregate(pipeline);
-    const contestTraders = await ContestTrading.aggregate(pipeline);
-    const internshipTraders = await InternshipTrading.aggregate(pipeline);
-    const marginXTraders = await MarginXTrading.aggregate(pipeline);
-    const battleTraders = await BattleTrading.aggregate(pipeline);
-    
-    let allTraders = [...stockTraders, ...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
 
+    let allTraders;
+    if (isRedisConnected && await client.exists('rollingUser-information')) {
+      allTraders = JSON.parse(await client.get('rollingUser-information'));
+    }else{
+      const stockTraders = await StockTrading.aggregate(pipeline);
+      const tenXTraders = await TenXTrading.aggregate(pipeline);
+      const virtualTraders = await PaperTrading.aggregate(pipeline);
+      const contestTraders = await ContestTrading.aggregate(pipeline);
+      const internshipTraders = await InternshipTrading.aggregate(pipeline);
+      const marginXTraders = await MarginXTrading.aggregate(pipeline);
+      const battleTraders = await BattleTrading.aggregate(pipeline);
+      
+      allTraders = [...stockTraders, ...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+  
+
+      await client.set(`rollingUser-information`, JSON.stringify(allTraders));
+    }
+    
+    const stockTradersToday = await StockTrading.aggregate(pipelineToday);
+    const tenXTradersToday = await TenXTrading.aggregate(pipelineToday);
+    const virtualTradersToday = await PaperTrading.aggregate(pipelineToday);
+    const contestTradersToday = await ContestTrading.aggregate(pipelineToday);
+    const internshipTradersToday = await InternshipTrading.aggregate(pipelineToday);
+    const marginXTradersToday = await MarginXTrading.aggregate(pipelineToday);
+    const battleTradersToday = await BattleTrading.aggregate(pipelineToday);
+    
+    let allTradersToday = [...stockTradersToday, ...tenXTradersToday, ...virtualTradersToday, ...contestTradersToday, ...internshipTradersToday, ...marginXTradersToday, ...battleTradersToday];
+
+    // console.log(allTraders, allTradersToday)
     let uniqueUsersSet = new Set();
     let uniqueUsersTodaySet = new Set();
     let uniqueUsersYesterdaySet = new Set();
@@ -1052,36 +1699,51 @@ exports.getRollingActiveUsersOnPlatform = async (req, res) => {
     let uniqueUsersPast7DaysBasedOnYesterdaySet = new Set();
     let uniqueUsersPast30DaysBasedOnYesterdaySet = new Set();
 
-    allTraders.forEach(({uniqueUsers, uniqueUsersToday, uniqueUsersYesterday,uniqueUsersPast7DaysBasedOnToday, uniqueUsersPast30DaysBasedOnToday, uniqueUsersPast7DaysBasedOnYesterday, uniqueUsersPast30DaysBasedOnYesterday}) => {
-      uniqueUsers.forEach(trader => uniqueUsersSet.add(trader));
-      uniqueUsersToday.forEach(trader => uniqueUsersTodaySet.add(trader));
-      uniqueUsersYesterday.forEach(trader => uniqueUsersYesterdaySet.add(trader));
-      uniqueUsersPast7DaysBasedOnToday.forEach(trader => uniqueUsersPast7DaysBasedOnTodaySet.add(trader));
-      uniqueUsersPast30DaysBasedOnToday.forEach(trader => uniqueUsersPast30DaysBasedOnTodaySet.add(trader));
-      uniqueUsersPast7DaysBasedOnYesterday.forEach(trader => uniqueUsersPast7DaysBasedOnYesterdaySet.add(trader));
-      uniqueUsersPast30DaysBasedOnYesterday.forEach(trader => uniqueUsersPast30DaysBasedOnYesterdaySet.add(trader));
+    let uniqueUsersPast6DaysBasedOnYesterdaySet = new Set();
+    let uniqueUsersPast29DaysBasedOnYesterdaySet = new Set();
+
+    allTraders.forEach(({uniqueUsers, uniqueUsersYesterday, uniqueUsersPast7DaysBasedOnYesterday, uniqueUsersPast30DaysBasedOnYesterday, uniqueUsersPast6DaysBasedOnYesterday, uniqueUsersPast29DaysBasedOnYesterday}, index) => {
+
+      
+      const uniqueUsersToday = allTradersToday?.[index]?.uniqueUsersToday || []; 
+      const combinedUniqueUsers = uniqueUsersToday ? uniqueUsers.concat(uniqueUsersToday) : uniqueUsers;
+      const uniqueUsersPast7DaysBasedOnToday = uniqueUsersToday ? uniqueUsersPast6DaysBasedOnYesterday.concat(uniqueUsersToday) : uniqueUsersPast6DaysBasedOnYesterday;
+      const uniqueUsersPast30DaysBasedOnToday = uniqueUsersToday ? uniqueUsersPast29DaysBasedOnYesterday.concat(uniqueUsersToday) : uniqueUsersPast29DaysBasedOnYesterday;
+      combinedUniqueUsers.forEach(trader => uniqueUsersSet.add(trader));
+
+      // console.log(uniqueUsersPast7DaysBasedOnToday)
+      // uniqueUsers.forEach(trader => uniqueUsersSet.add(trader));
+      uniqueUsersToday.forEach(trader => uniqueUsersTodaySet.add(trader?.toString()));
+      uniqueUsersYesterday.forEach(trader => uniqueUsersYesterdaySet.add(trader?.toString()));
+      uniqueUsersPast7DaysBasedOnToday.forEach(trader => uniqueUsersPast7DaysBasedOnTodaySet.add(trader?.toString()));
+      uniqueUsersPast30DaysBasedOnToday.forEach(trader => uniqueUsersPast30DaysBasedOnTodaySet.add(trader?.toString()));
+      uniqueUsersPast7DaysBasedOnYesterday.forEach(trader => uniqueUsersPast7DaysBasedOnYesterdaySet.add(trader?.toString()));
+      uniqueUsersPast30DaysBasedOnYesterday.forEach(trader => uniqueUsersPast30DaysBasedOnYesterdaySet.add(trader?.toString()));
+
+      // uniqueUsersPast6DaysBasedOnYesterday.forEach(trader => uniqueUsersPast6DaysBasedOnYesterdaySet.add(trader));
+      // uniqueUsersPast29DaysBasedOnYesterday.forEach(trader => uniqueUsersPast29DaysBasedOnYesterdaySet.add(trader));
     });
 
     const response = {
       status: "success",
       message: "Rolling 30-day Active Users, Today's Active Users and Yesterday's Active Users on Platform fetched successfully",
       data: {
-        // uniqueUsersLast30Days: Array.from(uniqueUsersSet),
-        // uniqueUsersCountLast30Days: uniqueUsersSet.size,
-        // uniqueUsersToday: Array.from(uniqueUsersTodaySet),
         uniqueUsersCountToday: uniqueUsersTodaySet.size,
-        // uniqueUsersYesterday: Array.from(uniqueUsersYesterdaySet),
         uniqueUsersCountYesterday: uniqueUsersYesterdaySet.size,
         uniqueUsersPast7DaysBasedOnToday: uniqueUsersPast7DaysBasedOnTodaySet.size,
         uniqueUsersPast30DaysBasedOnToday: uniqueUsersPast30DaysBasedOnTodaySet.size,
         uniqueUsersPast7DaysBasedOnYesterday: uniqueUsersPast7DaysBasedOnYesterdaySet.size,
         uniqueUsersPast30DaysBasedOnYesterday: uniqueUsersPast30DaysBasedOnYesterdaySet.size,
 
+        // uniqueUsersPast6DaysBasedOnYesterday: uniqueUsersPast6DaysBasedOnYesterdaySet.size,
+        // uniqueUsersPast29DaysBasedOnYesterday: uniqueUsersPast29DaysBasedOnYesterdaySet.size,
+
       },
     };
 
     res.status(200).json(response);
   } catch (error) {
+    console.log(error)
     res.status(500).json({
       status: "error",
       message: "Something went wrong",
@@ -1168,6 +1830,7 @@ exports.getDateWiseTradeInformation = async (req, res) => {
 
 exports.getOverallTradeInformation = async (req, res) => {
   try {
+    const isRedisConnected = getValue();
     // Get start of today, yesterday, this week, last week, this month, last month, this year, last year
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1187,8 +1850,6 @@ exports.getOverallTradeInformation = async (req, res) => {
     const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
     startOfLastYear.setUTCHours(-5,-29,-59,-999);
 
-    // console.log("Year Dates:",startOfThisYear,startOfLastYear)
-
     const pipeline = [
       {
         $match:{
@@ -1200,8 +1861,6 @@ exports.getOverallTradeInformation = async (req, res) => {
           _id: null,
           totalTrades: { $sum: { $cond: [{ $gte: ["$trade_time", new Date("2022-06-01")] }, 1, 0] } },
           totalTurnover: { $sum: { $cond: [{ $gte: ["$trade_time", new Date("2022-06-01")] }, { $abs: "$amount" }, 0] } },
-          tradesToday: { $sum: { $cond: [{ $gte: ["$trade_time", startOfToday] }, 1, 0] } },
-          turnoverToday: { $sum: { $cond: [{ $gte: ["$trade_time", startOfToday] }, { $abs: "$amount" }, 0] } },
           tradesYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$trade_time", startOfYesterday] }, { $lt: ["$trade_time", startOfToday] }] }, 1, 0] } },
           turnoverYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$trade_time", startOfYesterday] }, { $lt: ["$trade_time", startOfToday] }] }, { $abs: "$amount" }, 0] } },
           tradesThisWeek: { $sum: { $cond: [{ $gte: ["$trade_time", startOfThisWeek] }, 1, 0] } },
@@ -1225,27 +1884,86 @@ exports.getOverallTradeInformation = async (req, res) => {
       },
     ];
 
-    const virtualTraders = await PaperTrading.aggregate(pipeline);
-    const stockTraders = await StockTrading.aggregate(pipeline);
-    const tenXTraders = await TenXTrading.aggregate(pipeline);
-    const contestTraders = await ContestTrading.aggregate(pipeline);
-    const internshipTraders = await InternshipTrading.aggregate(pipeline);
-    const marginXTraders = await MarginXTrading.aggregate(pipeline);
-    const battleTraders = await BattleTrading.aggregate(pipeline);
+    const pipelineToday = [
+      {
+        $match:{
+          status : 'COMPLETE',
+          trade_time: {
+            $gte: new Date(startOfToday)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          tradesToday: { $sum: 1 },
+          turnoverToday: { $sum: { $abs: "$amount" } },
+        },
+      },
+      {
+        $project: {
+          _id: 0
+        },
+      },
+    ];
 
-    let allTrades = [...stockTraders, ...virtualTraders, ...tenXTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+    let tradeInformation;
+    if (isRedisConnected && await client.exists('trade-information')) {
+      tradeInformation = JSON.parse(await client.get('trade-information'));
+    }else{
+      const virtualTraders = await PaperTrading.aggregate(pipeline);
+      const stockTraders = await StockTrading.aggregate(pipeline);
+      const tenXTraders = await TenXTrading.aggregate(pipeline);
+      const contestTraders = await ContestTrading.aggregate(pipeline);
+      const internshipTraders = await InternshipTrading.aggregate(pipeline);
+      const marginXTraders = await MarginXTrading.aggregate(pipeline);
+      const battleTraders = await BattleTrading.aggregate(pipeline);
+  
+      let allTrades = [...stockTraders, ...virtualTraders, ...tenXTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
+  
+      tradeInformation = allTrades.reduce((acc, curr) => {
+        Object.keys(curr).forEach(key => {
+          acc[key] = (acc[key] || 0) + curr[key];
+        });
+        return acc;
+      }, {});
 
-    let tradeInformation = allTrades.reduce((acc, curr) => {
+      await client.set(`trade-information`, JSON.stringify(tradeInformation));
+    }
+
+    const virtualTradersToday = await PaperTrading.aggregate(pipelineToday);
+    const stockTradersToday = await StockTrading.aggregate(pipelineToday);
+    const tenXTradersToday = await TenXTrading.aggregate(pipelineToday);
+    const contestTradersToday = await ContestTrading.aggregate(pipelineToday);
+    const internshipTradersToday = await InternshipTrading.aggregate(pipelineToday);
+    const marginXTradersToday = await MarginXTrading.aggregate(pipelineToday);
+    const battleTradersToday = await BattleTrading.aggregate(pipelineToday);
+
+    let allTradesToday = [...stockTradersToday, ...virtualTradersToday, ...tenXTradersToday, ...contestTradersToday, ...internshipTradersToday, ...marginXTradersToday, ...battleTradersToday];
+
+    let tradeInformationToday = allTradesToday.reduce((acc, curr) => {
       Object.keys(curr).forEach(key => {
         acc[key] = (acc[key] || 0) + curr[key];
       });
       return acc;
     }, {});
 
+    const newObj = {};
+    for(const elem in tradeInformation){
+      newObj[elem] = tradeInformation[elem]
+    }
+
+    // console.log(tradeSum, turnoverSum)
+    newObj.tradesToday = tradeInformationToday.tradesToday;
+    newObj.turnoverToday = tradeInformationToday.turnoverToday;
+
+    newObj.totalTrades = tradeInformationToday?.tradesToday + newObj?.totalTrades;
+    newObj.totalTurnover = tradeInformationToday?.turnoverToday + newObj?.totalTurnover;
+
     const response = {
       status: "success",
       message: "Overall trade information fetched successfully",
-      data: tradeInformation,
+      data: newObj,
     };
 
     res.status(200).json(response);
@@ -1257,92 +1975,6 @@ exports.getOverallTradeInformation = async (req, res) => {
     });
   }
 };
-
-// exports.getOverallRevenue = async (req, res) => {
-//   try {
-//     // Get start of today, yesterday, this week, last week, this month, last month, this year, last year
-//     const now = new Date();
-//     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-//     startOfToday.setUTCHours(0, 0, 0, 0);
-//     const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-//     startOfYesterday.setUTCHours(0, 0, 0, 0);
-//     const startOfThisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-//     startOfThisWeek.setUTCHours(0, 0, 0, 0);
-//     const startOfLastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() - 7);
-//     startOfLastWeek.setUTCHours(0, 0, 0, 0);
-//     const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-//     startOfThisMonth.setUTCHours(0, 0, 0, 0);
-//     const startOfLastMonth = now.getMonth() === 0 ? new Date(now.getFullYear() - 1, 11, 1) : new Date(now.getFullYear(), now.getMonth() - 1, 1);
-//     startOfLastMonth.setUTCHours(0, 0, 0, 0);
-//     const startOfThisYear = new Date(now.getFullYear(), 0, 1);
-//     startOfThisYear.setUTCHours(23, 59, 59, 999);
-//     const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
-//     startOfLastYear.setUTCHours(0, 0, 0, 0);
-
-//     const pipeline = [
-//       {
-//         $unwind: "$transactions",
-//       },
-//       {
-//         $match: {
-//           "transactions.title": "Amount Credit",
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: null,
-//           totalRevenue: {
-//             $sum: "$transactions.amount",
-//           },
-//           revenueToday: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfToday] }, "$transactions.amount", 0] } },
-//           revenueYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfYesterday] }, { $lt: ["$transactions.transactionDate", startOfToday] }] }, "$transactions.amount", 0] } },
-//           revenueThisWeek: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfThisWeek] }, "$transactions.amount", 0] } },
-//           revenueLastWeek: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfLastWeek] }, { $lt: ["$transactions.transactionDate", startOfThisWeek] }] }, "$transactions.amount", 0] } },
-//           revenueThisMonth: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfThisMonth] }, "$transactions.amount", 0] } },
-//           revenueLastMonth: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfLastMonth] }, { $lt: ["$transactions.transactionDate", startOfThisMonth] }] }, "$transactions.amount", 0] } },
-//           revenueThisYear: { $sum: { $cond: [{ $gte: ["$transactions.transactionDate", startOfThisYear] }, "$transactions.amount", 0] } },
-//           revenueLastYear: { $sum: { $cond: [{ $and: [{ $gte: ["$transactions.transactionDate", startOfLastYear] }, { $lt: ["$transactions.transactionDate", startOfThisYear] }] }, "$transactions.amount", 0] } }
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           title: "$_id.title",
-//           totalRevenue: 1,
-//           revenueToday: 1,
-//           revenueYesterday: 1,
-//           revenueThisWeek: 1,
-//           revenueLastWeek: 1,
-//           revenueThisMonth: 1,
-//           revenueLastMonth: 1,
-//           revenueThisYear: 1,
-//           revenueLastYear: 1
-//         },
-//       },
-//     ]
-//     ;
-
-//     const revenueDetails = await Wallet.aggregate(pipeline);
-    
-//     console.log("Revenue Details:", revenueDetails)
-
-//     const response = {
-//       status: "success",
-//       message: "Overall Revenue information fetched successfully",
-//       data: revenueDetails,
-//     };
-
-//     res.status(200).json(response);
-//   } catch (error) {
-//     res.status(500).json({
-//       status: "error",
-//       message: "Something went wrong",
-//       error: error.message,
-//     });
-//   }
-// };
-
-// Import necessary modules and dependencies
 
 exports.getOverallRevenue = async (req, res) => {
   try {
@@ -1365,11 +1997,65 @@ exports.getOverallRevenue = async (req, res) => {
     const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
     startOfLastYear.setUTCHours(-5, -29, -59, -999);
 
-    // console.log("Date TToday & Yesterday:",startOfToday,startOfYesterday)
 
     const pipeline = [
       {
         $unwind: "$transactions",
+      },
+      {
+        $match: {
+          $or: [
+            {
+              "transactions.title": "TestZone Fee",
+            },
+            {
+              "transactions.title": "Battle Fee",
+            },
+            {
+              "transactions.title": "MarginX Fee",
+            },
+            {
+              "transactions.title":
+                "Bought TenX Trading Subscription",
+            },
+            {
+              "transactions.title":
+                "Course Fee",
+            },
+            {
+              "transactions.title":
+                "Workshop Fee",
+            },
+            {
+              "transactions.title":
+                "Amount Credit",
+            },
+            {
+              "transactions.title":
+                "TestZone Credit",
+            },
+            {
+              "transactions.title":
+                "Marginx Credit",
+            },
+            {
+              "transactions.title":
+                "Battle Credit",
+            },
+            {
+              "transactions.title":
+                "TenX Trading Payout",
+            },
+            {
+              "transactions.title":
+                "Internship Payout",
+            },
+            {
+              "transactions.title":
+                "Referral Credit",
+            },
+          ],
+        }
       },
       {
         $group: {
@@ -1411,51 +2097,53 @@ exports.getOverallRevenue = async (req, res) => {
       const { title, ...revenue } = item;
       data[title] = revenue;
     });
-    const getTotalAmountForDateRange = async (startDate, endDate) => {
-      const pipeline = [
-          {
-              $match: {
-                  withdrawalRequestDate: {
-                      $gte: startDate,
-                      ...(endDate && { $lt: endDate })
-                  }
-              }
-          },
-          {
-              $group: {
-                  _id: null,
-                  totalAmount: { $sum: "$amount" }
-              }
-          }
-      ];
-  
-      const results = await Withdrawal.aggregate(pipeline);
-      return results[0] ? results[0].totalAmount : 0;
-  };
-  
-  // Get total amounts for each timeframe
-  const todaysTotal = await getTotalAmountForDateRange(startOfToday);
-  const yesterdaysTotal = await getTotalAmountForDateRange(startOfYesterday, startOfToday);
-  const thisWeeksTotal = await getTotalAmountForDateRange(startOfThisWeek);
-  const lastWeeksTotal = await getTotalAmountForDateRange(startOfLastWeek, startOfThisWeek);
-  const thisMonthsTotal = await getTotalAmountForDateRange(startOfThisMonth);
-  const lastMonthsTotal = await getTotalAmountForDateRange(startOfLastMonth, startOfThisMonth);
-  const thisYearsTotal = await getTotalAmountForDateRange(startOfThisYear);
-  const lastYearsTotal = await getTotalAmountForDateRange(startOfLastYear, startOfThisYear);
-  
-    
-    // console.log("Revenue Details:", data);
+
+    // Get total amounts for each timeframe
+    const result = await Withdrawal.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+          todaysTotal: { $sum: { $cond: [{ $gte: ["$withdrawalRequestDate", startOfToday] }, "$amount", 0] } },
+          yesterdaysTotal: { $sum: { $cond: [{ $and: [{ $gte: ["$withdrawalRequestDate", startOfYesterday] }, { $lt: ["$withdrawalRequestDate", startOfToday] }] }, "$amount", 0] } },
+          thisWeeksTotal: { $sum: { $cond: [{ $gte: ["$withdrawalRequestDate", startOfThisWeek] }, "$amount", 0] } },
+          lastWeeksTotal: { $sum: { $cond: [{ $and: [{ $gte: ["$withdrawalRequestDate", startOfLastWeek] }, { $lt: ["$withdrawalRequestDate", startOfThisWeek] }] }, "$amount", 0] } },
+          thisMonthsTotal: { $sum: { $cond: [{ $gte: ["$withdrawalRequestDate", startOfThisMonth] }, "$amount", 0] } },
+          lastMonthsTotal: { $sum: { $cond: [{ $and: [{ $gte: ["$withdrawalRequestDate", startOfLastMonth] }, { $lt: ["$withdrawalRequestDate", startOfThisMonth] }] }, "$amount", 0] } },
+          thisYearsTotal: { $sum: { $cond: [{ $gte: ["$withdrawalRequestDate", startOfThisYear] }, "$amount", 0] } },
+          lastYearsTotal: { $sum: { $cond: [{ $and: [{ $gte: ["$withdrawalRequestDate", startOfLastYear] }, { $lt: ["$withdrawalRequestDate", startOfThisYear] }] }, "$amount", 0] } }
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          title: "$_id",
+          totalRevenue: 1,
+          todaysTotal: 1,
+          yesterdaysTotal: 1,
+          thisWeeksTotal: 1,
+          lastWeeksTotal: 1,
+          thisMonthsTotal: 1,
+          lastMonthsTotal: 1,
+          thisYearsTotal: 1,
+          lastYearsTotal: 1
+        },
+      },
+    ]);
 
     const response = {
       status: "success",
       message: "Overall Revenue information fetched successfully",
-      data: {...data, todaysWithdrawals:todaysTotal, yesterdaysWithdrawals:yesterdaysTotal, thisWeeksWithdrawals:thisWeeksTotal,
-         lastWeeksWithdrawals:lastWeeksTotal, thisMonthsWithdrawals:thisMonthsTotal, lastMonthsWithdrawals:lastMonthsTotal, thisYearsWithdrawals:thisYearsTotal,
-          lastYearsWithdrawals:lastYearsTotal },
+      data: {
+        ...data, todaysWithdrawals: result?.[0]?.todaysTotal || 0, yesterdaysWithdrawals: result?.[0]?.yesterdaysTotal || 0, thisWeeksWithdrawals: result?.[0]?.thisWeeksTotal || 0,
+        lastWeeksWithdrawals: result?.[0]?.lastWeeksTotal || 0, thisMonthsWithdrawals: result?.[0]?.thisMonthsTotal || 0, lastMonthsWithdrawals: result?.[0]?.lastMonthsTotal || 0, thisYearsWithdrawals: result?.[0]?.thisYearsTotal || 0,
+        lastYearsWithdrawals: result?.[0]?.lastYearsTotal || 0
+      },
     };
 
     res.status(200).json(response);
   } catch (error) {
+    console.log(error)
     res.status(500).json({
       status: "error",
       message: "Something went wrong",
@@ -3660,1783 +4348,6 @@ exports.getMarketingFunnelDataLifetime = async (req, res) => {
   }
 };
 
-// exports.getMarketingFunnelDataBackup = async (req, res) => {
-//   const monthNumber = req.params.month
-//   const yearNumber = req.params.year
-//   console.log(monthNumber, yearNumber)
-//   const today = new Date();
-//   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-//   console.log("Month Start:",startOfMonth)
-//   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-//   console.log("Month End:",endOfMonth)
-//   const thisMonth = today.getMonth() + 1
-//   console.log("This Month:",thisMonth)
-//   const lastMonth = today.getMonth() 
-//   console.log("Last Month:",lastMonth)
-//   const last2lastMonth = today.getMonth()-1
-//   console.log("Last2Last Month:",last2lastMonth)
-//   const startOfLastMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
-//   console.log("Last Month Start:",startOfLastMonth)
-//   const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-//   console.log("Last Month End:",endOfLastMonth)
-//   const thisYear = today.getFullYear()
-//   console.log("This Year:",thisYear)
-//   const lastYear = thisMonth === 1 ? thisYear-1 : thisMonth === 2 ? thisYear -1 : thisYear
-//   console.log("Last Year:",lastYear)
-
-//   try {
-//     const totalSignups = await User.countDocuments();
-//     console.log("Total Signups:",totalSignups)
-//     const thisMonthSignups = await User.aggregate(
-//       [
-//         {
-//           $project: {
-//             _id: 1,
-//             joining_date: 1,
-//           },
-//         },
-//         {
-//           $addFields: {
-//             adjustedJoiningDate: {
-//               $add: [
-//                 "$joining_date",
-//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
-//               ], // Adding 5 hours and 30 minutes in milliseconds
-//             },
-//           },
-//         },
-//         {
-//           $project: {
-//             _id: 1,
-//             month: {
-//               $month: "$adjustedJoiningDate",
-//             },
-//             year: {
-//               $year: "$adjustedJoiningDate",
-//             },
-//           },
-//         },
-//         {
-//           $match: {
-//             month: thisMonth,
-//             year: thisYear,
-//           },
-//         },
-//       ]
-//     );
-//     console.log("This Month Signups:",thisMonthSignups.length)
-
-//     const lastMonthSignups = await User.aggregate(
-//       [
-//         {
-//           $project: {
-//             _id: 1,
-//             joining_date: 1,
-//           },
-//         },
-//         {
-//           $addFields: {
-//             adjustedJoiningDate: {
-//               $add: [
-//                 "$joining_date",
-//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
-//               ], // Adding 5 hours and 30 minutes in milliseconds
-//             },
-//           },
-//         },
-//         {
-//           $project: {
-//             _id: 1,
-//             month: {
-//               $month: "$adjustedJoiningDate",
-//             },
-//             year: {
-//               $year: "$adjustedJoiningDate",
-//             },
-//           },
-//         },
-//         {
-//           $match: {
-//             month: lastMonth,
-//             year: lastYear,
-//           },
-//         },
-//       ]
-//     );
-//     console.log("Last Month Signups:",lastMonthSignups.length)
-
-//     const last2lastMonthSignups = await User.aggregate(
-//       [
-//         {
-//           $project: {
-//             _id: 1,
-//             joining_date: 1,
-//           },
-//         },
-//         {
-//           $addFields: {
-//             adjustedJoiningDate: {
-//               $add: [
-//                 "$joining_date",
-//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
-//               ], // Adding 5 hours and 30 minutes in milliseconds
-//             },
-//           },
-//         },
-//         {
-//           $project: {
-//             _id: 1,
-//             month: {
-//               $month: "$adjustedJoiningDate",
-//             },
-//             year: {
-//               $year: "$adjustedJoiningDate",
-//             },
-//           },
-//         },
-//         {
-//           $match: {
-//             month: last2lastMonth,
-//             year: lastYear,
-//           },
-//         },
-//       ]
-//     );
-//     console.log("Last Month Signups:",last2lastMonthSignups.length)
-
-//     const pipeline = [
-//       {
-//         $project: {
-//           _id: 1,
-//           trader: 1,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             trader: "$trader",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id:'$_id.trader',
-//         },
-//       }
-//     ];
-
-//     const thismonthpipeline = [
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "trader",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 1,
-//           trader: 1,
-//           status: 1,
-//           month: {
-//             $month: "$trade_time",
-//           },
-//           year: {
-//             $year: "$trade_time",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           month: thisMonth,
-//           year: thisYear,
-//           joining_month: thisMonth,
-//           joining_year: thisYear,
-//           status: "COMPLETE",
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             trader: "$trader",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: "$_id.trader",
-//         },
-//       },
-//     ];
-
-//     const lastmonthpipeline = [
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "trader",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 1,
-//           trader: 1,
-//           status: 1,
-//           month: {
-//             $month: "$trade_time",
-//           },
-//           year: {
-//             $year: "$trade_time",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           month: lastMonth,
-//           year: lastYear,
-//           joining_month: lastMonth,
-//           joining_year: lastYear,
-//           status: "COMPLETE",
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             trader: "$trader",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: "$_id.trader",
-//         },
-//       },
-//     ];
-
-//     const last2lastmonthpipeline = [
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "trader",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 1,
-//           trader: 1,
-//           status: 1,
-//           month: {
-//             $month: "$trade_time",
-//           },
-//           year: {
-//             $year: "$trade_time",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           month: last2lastMonth,
-//           year: lastYear,
-//           joining_month: last2lastMonth,
-//           joining_year: lastYear,
-//           status: "COMPLETE",
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             trader: "$trader",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: "$_id.trader",
-//         },
-//       },
-//     ];
-
-//     const paidTotalUserTenX = [
-//       {
-//         $project: {
-//           _id: 0,
-//           users: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$users",
-//         },
-//       },
-//       {
-//         $match: {
-//           "users.fee": {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$users.userId",
-//           fee: "$users.fee",
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidTotalUserContest = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidTotalUserBattle = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//           battleTemplate: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "battle-templates",
-//           localField: "battleTemplate",
-//           foreignField: "_id",
-//           as: "battle",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           entryFee: {
-//             $arrayElemAt: ["$battle.entryFee", 0],
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidTotalUserMarginX = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//           marginXTemplate: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "marginx-templates",
-//           localField: "marginXTemplate",
-//           foreignField: "_id",
-//           as: "marginX",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           entryFee: {
-//             $arrayElemAt: ["$marginX.entryFee", 0],
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidThisMonthUserTenX = [
-//       {
-//         $project: {
-//           _id: 0,
-//           users: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$users",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "users.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           month: {
-//             $month: "$users.subscribedOn",
-//           },
-//           year: {
-//             $year: "$users.subscribedOn",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           "users.fee": {
-//             $gt: 0,
-//           },
-//           month: thisMonth,
-//           year: thisYear,
-//           joining_month: thisMonth,
-//           joining_year: thisYear,
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$users.userId",
-//           fee: "$users.fee",
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidThisMonthUserContest = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "participants.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//           month: {
-//             $month: "$participants.participatedOn",
-//           },
-//           year: {
-//             $year: "$participants.participatedOn",
-//           },
-//           joining_month: {
-//             $month: {
-//               $add: [
-//                 {
-//                   $arrayElemAt: [
-//                     "$user.joining_date",
-//                     0,
-//                   ],
-//                 },
-//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
-//               ],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $add: [
-//                 {
-//                   $arrayElemAt: [
-//                     "$user.joining_date",
-//                     0,
-//                   ],
-//                 },
-//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
-//               ],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//           month: thisMonth,
-//           year: thisYear,
-//           joining_month: thisMonth,
-//           joining_year: thisYear,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidThisMonthUserBattle = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//           battleTemplate: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "participants.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "battle-templates",
-//           localField: "battleTemplate",
-//           foreignField: "_id",
-//           as: "battle",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           entryFee: {
-//             $arrayElemAt: ["$battle.entryFee", 0],
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//           month: {
-//             $month: "$participants.boughtAt",
-//           },
-//           year: {
-//             $year: "$participants.boughtAt",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//           month: thisMonth,
-//           year: thisYear,
-//           joining_month: thisMonth,
-//           joining_year: thisYear,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidThisMonthUserMarginX = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//           marginXTemplate: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "participants.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "marginx-templates",
-//           localField: "marginXTemplate",
-//           foreignField: "_id",
-//           as: "marginX",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           entryFee: {
-//             $arrayElemAt: ["$marginX.entryFee", 0],
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//           month: {
-//             $month: "$participants.boughtAt",
-//           },
-//           year: {
-//             $year: "$participants.boughtAt",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//           month: thisMonth,
-//           year: thisYear,
-//           joining_month: thisMonth,
-//           joining_year: thisYear,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidLastMonthUserTenX = [
-//       {
-//         $project: {
-//           _id: 0,
-//           users: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$users",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "users.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           month: {
-//             $month: "$users.subscribedOn",
-//           },
-//           year: {
-//             $year: "$users.subscribedOn",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           "users.fee": {
-//             $gt: 0,
-//           },
-//           month: lastMonth,
-//           year: lastYear,
-//           joining_month: lastMonth,
-//           joining_year: lastYear,
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$users.userId",
-//           fee: "$users.fee",
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidLastMonthUserContest = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "participants.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//           month: {
-//             $month: "$participants.participatedOn",
-//           },
-//           year: {
-//             $year: "$participants.participatedOn",
-//           },
-//           joining_month: {
-//             $month: {
-//               $add: [
-//                 {
-//                   $arrayElemAt: [
-//                     "$user.joining_date",
-//                     0,
-//                   ],
-//                 },
-//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
-//               ],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $add: [
-//                 {
-//                   $arrayElemAt: [
-//                     "$user.joining_date",
-//                     0,
-//                   ],
-//                 },
-//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
-//               ],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//           month: lastMonth,
-//           year: lastYear,
-//           joining_month: lastMonth,
-//           joining_year: lastYear,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidLastMonthUserBattle = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//           battleTemplate: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "participants.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "battle-templates",
-//           localField: "battleTemplate",
-//           foreignField: "_id",
-//           as: "battle",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           entryFee: {
-//             $arrayElemAt: ["$battle.entryFee", 0],
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//           month: {
-//             $month: "$participants.boughtAt",
-//           },
-//           year: {
-//             $year: "$participants.boughtAt",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//           month: lastMonth,
-//           year: lastYear,
-//           joining_month: lastMonth,
-//           joining_year: lastYear,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidLastMonthUserMarginX = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//           marginXTemplate: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "participants.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "marginx-templates",
-//           localField: "marginXTemplate",
-//           foreignField: "_id",
-//           as: "marginX",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           entryFee: {
-//             $arrayElemAt: ["$marginX.entryFee", 0],
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//           month: {
-//             $month: "$participants.boughtAt",
-//           },
-//           year: {
-//             $year: "$participants.boughtAt",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//           month: lastMonth,
-//           year: lastYear,
-//           joining_month: lastMonth,
-//           joining_year: lastYear,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidLast2LastMonthUserTenX = [
-//       {
-//         $project: {
-//           _id: 0,
-//           users: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$users",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "users.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           month: {
-//             $month: "$users.subscribedOn",
-//           },
-//           year: {
-//             $year: "$users.subscribedOn",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           "users.fee": {
-//             $gt: 0,
-//           },
-//           month: last2lastMonth,
-//           year: lastYear,
-//           joining_month: last2lastMonth,
-//           joining_year: lastYear,
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$users.userId",
-//           fee: "$users.fee",
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidLast2LastMonthUserContest = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "participants.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//           month: {
-//             $month: "$participants.participatedOn",
-//           },
-//           year: {
-//             $year: "$participants.participatedOn",
-//           },
-//           joining_month: {
-//             $month: {
-//               $add: [
-//                 {
-//                   $arrayElemAt: [
-//                     "$user.joining_date",
-//                     0,
-//                   ],
-//                 },
-//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
-//               ],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $add: [
-//                 {
-//                   $arrayElemAt: [
-//                     "$user.joining_date",
-//                     0,
-//                   ],
-//                 },
-//                 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
-//               ],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//           month: last2lastMonth,
-//           year: lastYear,
-//           joining_month: last2lastMonth,
-//           joining_year: lastYear,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidLast2LastMonthUserBattle = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//           battleTemplate: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "participants.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "battle-templates",
-//           localField: "battleTemplate",
-//           foreignField: "_id",
-//           as: "battle",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           entryFee: {
-//             $arrayElemAt: ["$battle.entryFee", 0],
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//           month: {
-//             $month: "$participants.boughtAt",
-//           },
-//           year: {
-//             $year: "$participants.boughtAt",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//           month: last2lastMonth,
-//           year: lastYear,
-//           joining_month: last2lastMonth,
-//           joining_year: lastYear,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-//     const paidLast2LastMonthUserMarginX = [
-//       {
-//         $project: {
-//           _id: 0,
-//           participants: 1,
-//           entryFee: 1,
-//           marginXTemplate: 1,
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$participants",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "user-personal-details",
-//           localField: "participants.userId",
-//           foreignField: "_id",
-//           as: "user",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "marginx-templates",
-//           localField: "marginXTemplate",
-//           foreignField: "_id",
-//           as: "marginX",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           entryFee: {
-//             $arrayElemAt: ["$marginX.entryFee", 0],
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           entryFee: {
-//             $gt: 0,
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           userId: "$participants.userId",
-//           fee: "$entryFee",
-//           month: {
-//             $month: "$participants.boughtAt",
-//           },
-//           year: {
-//             $year: "$participants.boughtAt",
-//           },
-//           joining_month: {
-//             $month: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//           joining_year: {
-//             $year: {
-//               $arrayElemAt: ["$user.joining_date", 0],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $match: {
-//           fee: {
-//             $gt: 0,
-//           },
-//           month: last2lastMonth,
-//           year: lastYear,
-//           joining_month: last2lastMonth,
-//           joining_year: lastYear,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: {
-//             userId: "$userId",
-//           },
-//           totalRevenue: {
-//             $sum: "$fee",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: "$_id.userId",
-//           totalRevenue: 1,
-//         },
-//       },
-//     ]
-
-    
-//     const tenXTraders = await TenXTrading.aggregate(pipeline);
-//     const virtualTraders = await PaperTrading.aggregate(pipeline);
-//     const contestTraders = await ContestTrading.aggregate(pipeline);
-//     const internshipTraders = await InternshipTrading.aggregate(pipeline);
-//     const marginXTraders = await MarginXTrading.aggregate(pipeline);
-//     const battleTraders = await BattleTrading.aggregate(pipeline);
-
-//     const thisMonthtenXTraders = await TenXTrading.aggregate(thismonthpipeline);
-//     const thisMonthvirtualTraders = await PaperTrading.aggregate(thismonthpipeline);
-//     const thisMonthcontestTraders = await ContestTrading.aggregate(thismonthpipeline);
-//     const thisMonthinternshipTraders = await InternshipTrading.aggregate(thismonthpipeline);
-//     const thisMonthmarginXTraders = await MarginXTrading.aggregate(thismonthpipeline);
-//     const thisMonthbattleTraders = await BattleTrading.aggregate(thismonthpipeline);
-
-//     const lastMonthtenXTraders = await TenXTrading.aggregate(lastmonthpipeline);
-//     const lastMonthvirtualTraders = await PaperTrading.aggregate(lastmonthpipeline);
-//     const lastMonthcontestTraders = await ContestTrading.aggregate(lastmonthpipeline);
-//     const lastMonthinternshipTraders = await InternshipTrading.aggregate(lastmonthpipeline);
-//     const lastMonthmarginXTraders = await MarginXTrading.aggregate(lastmonthpipeline);
-//     const lastMonthbattleTraders = await BattleTrading.aggregate(lastmonthpipeline);
-
-//     const last2lastMonthtenXTraders = await TenXTrading.aggregate(last2lastmonthpipeline);
-//     const last2lastMonthvirtualTraders = await PaperTrading.aggregate(last2lastmonthpipeline);
-//     const last2lastMonthcontestTraders = await ContestTrading.aggregate(last2lastmonthpipeline);
-//     const last2lastMonthinternshipTraders = await InternshipTrading.aggregate(last2lastmonthpipeline);
-//     const last2lastMonthmarginXTraders = await MarginXTrading.aggregate(last2lastmonthpipeline);
-//     const last2lastMonthbattleTraders = await BattleTrading.aggregate(last2lastmonthpipeline);
-
-//     const paidTotaltenXTraders = await TenX.aggregate(paidTotalUserTenX);
-//     const paidTotalcontestTraders = await Contest.aggregate(paidTotalUserContest);
-//     const paidTotalmarginXTraders = await MarginX.aggregate(paidTotalUserMarginX);
-//     const paidTotalbattleTraders = await Battle.aggregate(paidTotalUserBattle);
-
-//     const paidThisMonthtenXTraders = await TenX.aggregate(paidThisMonthUserTenX);
-//     const paidThisMonthcontestTraders = await Contest.aggregate(paidThisMonthUserContest);
-//     const paidThisMonthmarginXTraders = await MarginX.aggregate(paidThisMonthUserMarginX);
-//     const paidThisMonthbattleTraders = await Battle.aggregate(paidThisMonthUserBattle);
-
-//     const paidLastMonthtenXTraders = await TenX.aggregate(paidLastMonthUserTenX);
-//     const paidLastMonthcontestTraders = await Contest.aggregate(paidLastMonthUserContest);
-//     const paidLastMonthmarginXTraders = await MarginX.aggregate(paidLastMonthUserMarginX);
-//     const paidLastMonthbattleTraders = await Battle.aggregate(paidLastMonthUserBattle);
-
-//     const paidLast2LastMonthtenXTraders = await TenX.aggregate(paidLast2LastMonthUserTenX);
-//     const paidLast2LastMonthcontestTraders = await Contest.aggregate(paidLast2LastMonthUserContest);
-//     const paidLast2LastMonthmarginXTraders = await MarginX.aggregate(paidLast2LastMonthUserMarginX);
-//     const paidLast2LastMonthbattleTraders = await Battle.aggregate(paidLast2LastMonthUserBattle);
-    
-//     let allTraders = [...tenXTraders, ...virtualTraders, ...contestTraders, ...internshipTraders, ...marginXTraders, ...battleTraders];
-//     let thisMonthallTraders = [...thisMonthtenXTraders, ...thisMonthvirtualTraders, ...thisMonthcontestTraders, ...thisMonthinternshipTraders, ...thisMonthmarginXTraders, ...thisMonthbattleTraders];
-//     let lastMonthallTraders = [...lastMonthtenXTraders, ...lastMonthvirtualTraders, ...lastMonthcontestTraders, ...lastMonthinternshipTraders, ...lastMonthmarginXTraders, ...lastMonthbattleTraders];
-//     let last2lastMonthallTraders = [...last2lastMonthtenXTraders, ...last2lastMonthvirtualTraders, ...last2lastMonthcontestTraders, ...last2lastMonthinternshipTraders, ...last2lastMonthmarginXTraders, ...last2lastMonthbattleTraders];
-//     let paidTotalallTraders = [...paidTotaltenXTraders, ...paidTotalcontestTraders, ...paidTotalmarginXTraders, ...paidTotalbattleTraders];
-//     let paidThisMonthallTraders = [...paidThisMonthtenXTraders, ...paidThisMonthcontestTraders, ...paidThisMonthmarginXTraders, ...paidThisMonthbattleTraders];
-//     let paidLastMonthallTraders = [...paidLastMonthtenXTraders, ...paidLastMonthcontestTraders, ...paidLastMonthmarginXTraders, ...paidLastMonthbattleTraders];
-//     let paidLast2LastMonthallTraders = [...paidLast2LastMonthtenXTraders, ...paidLast2LastMonthcontestTraders, ...paidLast2LastMonthmarginXTraders, ...paidLast2LastMonthbattleTraders];
-
-//     // Create a Set to remove duplicates
-//     const uniqueTraders = new Set(allTraders);
-//     const thisMonthuniqueTraders = new Set(thisMonthallTraders);
-//     const lastMonthuniqueTraders = new Set(lastMonthallTraders);
-//     const last2lastMonthuniqueTraders = new Set(last2lastMonthallTraders);
-//     const paidTotaluniqueTraders = new Set(paidTotalallTraders);
-//     const paidThisMonthuniqueTraders = new Set(paidThisMonthallTraders);
-//     const paidLastMonthuniqueTraders = new Set(paidLastMonthallTraders);
-//     const paidLast2LastMonthuniqueTraders = new Set(paidLast2LastMonthallTraders);
-
-//     // Convert the Set back to an array (if needed)
-//     const uniqueTradersArray = [...uniqueTraders];
-//     const thisMonthuniqueTradersArray = [...thisMonthuniqueTraders];
-//     const lastMonthuniqueTradersArray = [...lastMonthuniqueTraders];
-//     const last2lastMonthuniqueTradersArray = [...last2lastMonthuniqueTraders];
-//     const paidTotaluniqueTradersArray = [...paidTotaluniqueTraders];
-//     const paidThisMonthuniqueTradersArray = [...paidThisMonthuniqueTraders];
-//     const paidLastMonthuniqueTradersArray = [...paidLastMonthuniqueTraders];
-//     const paidLast2LastMonthuniqueTradersArray = [...paidLast2LastMonthuniqueTraders];
-//     const totalActiveTraders = uniqueTradersArray.length;
-//     console.log("Total Active Traders:",totalActiveTraders)
-//     const thisMonthtotalActiveTraders = thisMonthuniqueTradersArray.length;
-//     console.log("This Month Total Active Traders:",thisMonthtotalActiveTraders)
-//     const lastMonthtotalActiveTraders = lastMonthuniqueTradersArray.length;
-//     console.log("Last Month Total Active Traders:",lastMonthtotalActiveTraders)
-//     const last2lastMonthtotalActiveTraders = last2lastMonthuniqueTradersArray.length;
-//     console.log("Last2Last Month Total Active Traders:",last2lastMonthtotalActiveTraders)
-//     const paidTotaltotalActiveTraders = paidTotaluniqueTradersArray.length;
-//     console.log("Paid Total Traders:",paidTotaltotalActiveTraders)
-//     const paidThisMonthActiveTraders = paidThisMonthuniqueTradersArray.length;
-//     console.log("Paid This Month Traders:",paidThisMonthActiveTraders)
-//     const paidLastMonthActiveTraders = paidLastMonthuniqueTradersArray.length;
-//     console.log("Paid Last Month Traders:",paidLastMonthActiveTraders)
-//     const paidLast2LastMonthActiveTraders = paidLast2LastMonthuniqueTradersArray.length;
-//     console.log("Paid Last2Last Month Traders:",paidLast2LastMonthActiveTraders)
-//     let marketingFunnel = [{
-//         totalSignups : totalSignups, 
-//         thisMonthSignups : thisMonthSignups.length, 
-//         lastMonthSignups : lastMonthSignups.length,
-//         last2lastMonthSignups : last2lastMonthSignups.length,
-//         totalActiveTraders : totalActiveTraders, 
-//         thisMonthtotalActiveTraders : thisMonthtotalActiveTraders, 
-//         lastMonthtotalActiveTraders : lastMonthtotalActiveTraders,
-//         last2lastMonthtotalActiveTraders : last2lastMonthtotalActiveTraders,
-//         paidTotaltotalActiveTraders : paidTotaltotalActiveTraders, 
-//         paidThisMonthActiveTraders : paidThisMonthActiveTraders,
-//         paidLastMonthActiveTraders : paidLastMonthActiveTraders,
-//         paidLast2LastMonthActiveTraders : paidLast2LastMonthActiveTraders,
-//       }]
-//     const response = {
-//       status: "success",
-//       message: "Monthly Active Users on Platform fetched successfully",
-//       data: marketingFunnel,
-//     };
-    
-
-//   res.status(200).json(response);
-//   } catch (error) {
-//     res.status(500).json({
-//       status: "error",
-//       message: "Something went wrong",
-//       error: error.message,
-//     });
-//   }
-// };
 
 exports.getMarketingFunnelDataOptimised = async (req, res) => {
   const today = new Date();

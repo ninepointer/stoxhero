@@ -130,7 +130,6 @@ function Users({ selectedUser, setSelectedUser }) {
   }
 
   function handleUserClick(elem) {
-    console.log("value", elem);
     setSelectedUser({
       id: elem?._id,
       name: elem?.first_name + " " + elem?.last_name,

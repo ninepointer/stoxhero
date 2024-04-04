@@ -4548,7 +4548,7 @@ router.get("/updateInstrumentStatusRebuild", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2024-03-31T20:00:00.000+00:00"
+  let expiryDate = "2024-04-03T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
@@ -5225,47 +5225,29 @@ router.get("/insertDocument", async (req, res) => {
 
 module.exports = router;
 
-/*
-requirment: 
-1. testzone is only visible to registered user, if thats visibility is false
-2. admin side affiliates leaderboard
-3. remove revenue sharing on sel purchase
-
-Steps:
-1. add visibility feild in testzone
-2. show testxone according visibility.
-2. regiteration page with clear routing
-3. in admin dashboard show full leaderboard of affiliates
-*/
-
-/*
-requirment: 
-1. tenx running lots > 0 = previous day else total pnl
-2. today pnl is in unrealised pnl
-3. give some insights, max profit, max loss, avg profit, avg loss, roi, ..etc. 
 
 
-
-
-1. 500 open positon Nifty 19000PE
-    400 stop loss ---> pending order api
-
-  500-400 = 100 sl quanity
-  500-0 = 500 sp quantity
-
-
-  
-2. 5000 open positon Nifty 19000PE
-    400 stop loss
-
-    max lot = 1800
-    slQ > maxLot ? maxLot : slQ
-  5000-400 = 4600 sl quanity 
-  5000-0 = 5000 sp quantity
-
-
-
-
-Steps:
-*/
-
+  // "Product": "NRML",
+  // "Quantity": 50,
+  // "TriggerPrice": "",
+  // "battleId": "660ced490bcb586b5312744f",
+  // "buyOrSell": "BUY",
+  // "contestId": "660ced490bcb586b5312744f",
+  // "createdBy": "Vijay V",
+  // "exchange": "NFO",
+  // "exchangeInstrumentToken": 45798,
+  // "instrumentToken": 11724290,
+  // "marginxId": "660ced490bcb586b5312744f",
+  // "order_id": "240403309177542",
+  // "order_type": "MARKET",
+  // "paperTrade": false,
+  // "price": "",
+  // "stopLoss": "",
+  // "stopLossPrice": "",
+  // "subscriptionId": "660ced490bcb586b5312744f",
+  // "symbol": "NIFTY2440422500PE",
+  // "trader": "63788f3991fc4bf629de6df0",
+  // "uId": "lujfjtce",
+  // "userId": "user@ninepointer.in",
+  // "validity": "DAY",
+  // "variety": "regular"
