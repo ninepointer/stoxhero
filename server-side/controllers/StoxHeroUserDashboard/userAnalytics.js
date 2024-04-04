@@ -1853,14 +1853,16 @@ exports.getOverallTradeInformation = async (req, res) => {
     const pipeline = [
       {
         $match:{
-          status : 'COMPLETE'
+          status : 'COMPLETE',
         }
       },
       {
         $group: {
           _id: null,
-          totalTrades: { $sum: { $cond: [{ $gte: ["$trade_time", new Date("2022-06-01")] }, 1, 0] } },
-          totalTurnover: { $sum: { $cond: [{ $gte: ["$trade_time", new Date("2022-06-01")] }, { $abs: "$amount" }, 0] } },
+          totalTrades: { $sum: { $cond: [{ $and: [{ $gte: ["$trade_time", new Date("2022-06-01")] }, { $lt: ["$trade_time", startOfToday] }] }, 1, 0] } },
+          // { $sum: { $cond: [{ $gte: ["$trade_time", new Date("2022-06-01")] }, 1, 0] } },
+          totalTurnover: { $sum: { $cond: [{ $and: [{ $gte: ["$trade_time", new Date("2022-06-01")] }, { $lt: ["$trade_time", startOfToday] }] }, { $abs: "$amount" }, 0] } },
+          // { $sum: { $cond: [{ $gte: ["$trade_time", new Date("2022-06-01")] }, { $abs: "$amount" }, 0] } },
           tradesYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$trade_time", startOfYesterday] }, { $lt: ["$trade_time", startOfToday] }] }, 1, 0] } },
           turnoverYesterday: { $sum: { $cond: [{ $and: [{ $gte: ["$trade_time", startOfYesterday] }, { $lt: ["$trade_time", startOfToday] }] }, { $abs: "$amount" }, 0] } },
           tradesThisWeek: { $sum: { $cond: [{ $gte: ["$trade_time", startOfThisWeek] }, 1, 0] } },
