@@ -257,6 +257,7 @@ exports.mockTrade = async (req, res) => {
   };
 
   if (dailyContest) {
+    console.log('this is dailyontest')
     await dailyContestTrade(req, res, otherData);
     let delRedis = false;
     if (!req?.user?.activationDetails?.activationDate) {

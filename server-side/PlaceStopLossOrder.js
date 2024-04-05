@@ -1105,7 +1105,7 @@ exports.pendingOrderMain = async () => {
             let last_price = message.ltp;
 
             const lockKey = `${createdBy}-${symbol}-${Quantity}-${_id}`
-            const lockValue = Date.now().toString() + Math.random * 1000;
+            const lockValue = Date.now().toString() + Math.random() * 1000;
             const release = await mutex.acquire();
 
             try {

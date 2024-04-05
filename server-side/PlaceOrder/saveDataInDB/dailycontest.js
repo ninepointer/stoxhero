@@ -19,7 +19,17 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser} = otherData;
 
     const session = await mongoose.startSession();
+    const lockKey = `${req.user._id}-${contestId}`
+    const lockValue = Date.now().toString() + Math.random() * 1000;
+
     try{
+        
+        const lockAcquired = await acquireLock(lockKey, lockValue);
+        // console.log('lockAcquired', lockAcquired, lockKey)
+        if (!lockAcquired) {
+            // console.log('Another process is already saving data.');
+            return;
+        }
 
         const mockCompany = await DailyContestMockCompany.findOne({order_id : order_id});
         const mockInfintyTrader = await DailyContestMockUser.findOne({order_id : order_id});
@@ -119,7 +129,8 @@ exports.dailyContestTrade = async (req, res, otherData) => {
           pendingOrderRedis = "OK";
         }
 
-        if (pendingOrderRedis==="OK" && pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {                
+        if (pendingOrderRedis==="OK" && pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {     
+            await releaseLock(lockKey);           
             await session.commitTransaction();
             return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
         } else {
@@ -136,11 +147,25 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         await pipeline.del(`overallMockPnlCompanyDailyContest`);
         await pipeline.del(`lastTradeDataMockDailyContest`);
         const results = await pipeline.exec();
+        await releaseLock(lockKey);
         await session.abortTransaction();
         console.error('Transaction failed, documents not saved:', err);
         res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
     } finally {
-    // End the session
+        // End the session
+        await releaseLock(lockKey);
         session.endSession();
     }
+}
+
+async function acquireLock(lockKey, lockValue) {
+    // console.log('acquiring lock ........')
+    const result = await clientForIORedis.set(lockKey, lockValue, 'NX');
+    return result === 'OK';
+}
+
+async function releaseLock(lockKey) {
+    
+    const result = await clientForIORedis.del(lockKey);
+    // console.log('release lock ........', result, lockKey)
 }
