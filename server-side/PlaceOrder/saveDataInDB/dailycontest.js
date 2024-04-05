@@ -27,8 +27,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         const lockAcquired = await acquireLock(lockKey, lockValue);
         // console.log('lockAcquired', lockAcquired, lockKey)
         if (!lockAcquired) {
-            // console.log('Another process is already saving data.');
-            return;
+            return res.status(400).json({ status: 'error', message: 'Already processing' });
         }
 
         const mockCompany = await DailyContestMockCompany.findOne({order_id : order_id});
@@ -130,8 +129,8 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         }
 
         if (pendingOrderRedis==="OK" && pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {     
-            await releaseLock(lockKey);           
             await session.commitTransaction();
+            await releaseLock(lockKey);
             return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
         } else {
             // await session.commitTransaction();
