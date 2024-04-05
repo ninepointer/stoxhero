@@ -1153,13 +1153,13 @@ exports.pendingOrderMain = async () => {
                 // console.log("first index2", index2)
                 for (let i = 0; i < symbolArr.length; i++) {
 
-                    // if (symbolArr[i]?.instrumentToken === instrumentToken &&
-                    //     symbolArr[i]?.createdBy.toString() === createdBy.toString() &&
-                    //     Math.abs(symbolArr[i]?.Quantity) === Math.abs(Number(Quantity)) &&
-                    //     symbolArr[i]?.buyOrSell === buyOrSell &&
-                    //     symbolArr[i]?.sub_product_id?.toString() === sub_product_id?.toString() &&
-                    //     symbolArr[i]?.type !== type)
-                    if (symbolArr[i]?._id?.toString() === _id?.toString())
+                    if (symbolArr[i]?.instrumentToken === instrumentToken &&
+                        symbolArr[i]?.createdBy.toString() === createdBy.toString() &&
+                        Math.abs(symbolArr[i]?.Quantity) === Math.abs(Number(Quantity)) &&
+                        symbolArr[i]?.buyOrSell === buyOrSell &&
+                        symbolArr[i]?.sub_product_id?.toString() === sub_product_id?.toString() &&
+                        symbolArr[i]?.type !== type)
+                    // if (symbolArr[i]?._id?.toString() === _id?.toString())
                          {
 
                         const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]?._id) })
