@@ -438,6 +438,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
 
       });
       // if instrument is same then just updating value
+      
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
         matchingElement.amount += (pnlData.amount * -1);
@@ -473,6 +474,7 @@ exports.overallpnlDailyContest = async (pnlData, trader, data, contestId, fromPl
     } else{
       const matchingElement = pnl.find((element) => (element._id.instrumentToken === pnlData.instrumentToken && element._id.product === pnlData.Product && !element._id.isLimit ));
       // if instrument is same then just updating value
+      console.log('matching lots', matchingElement.lots)
       if (matchingElement) {
         // Update the values of the matching element with the values of the first document
         matchingElement.amount += (pnlData.amount * -1);
