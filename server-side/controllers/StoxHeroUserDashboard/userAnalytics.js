@@ -1956,11 +1956,11 @@ exports.getOverallTradeInformation = async (req, res) => {
     }
 
     // console.log(tradeSum, turnoverSum)
-    newObj.tradesToday = tradeInformationToday.tradesToday;
-    newObj.turnoverToday = tradeInformationToday.turnoverToday;
+    newObj.tradesToday = tradeInformationToday.tradesToday || 0;
+    newObj.turnoverToday = tradeInformationToday.turnoverToday || 0;
 
-    newObj.totalTrades = tradeInformationToday?.tradesToday + newObj?.totalTrades;
-    newObj.totalTurnover = tradeInformationToday?.turnoverToday + newObj?.totalTurnover;
+    newObj.totalTrades = (tradeInformationToday?.tradesToday || 0) + newObj?.totalTrades;
+    newObj.totalTurnover = (tradeInformationToday?.turnoverToday || 0) + newObj?.totalTurnover;
 
     const response = {
       status: "success",
