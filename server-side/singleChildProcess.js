@@ -259,7 +259,7 @@ async function singleProcess() {
         const dailyContest2oclock = nodeCron.schedule(`1 30 8 * * *`, dailyContestTradeCut);
         const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
         const tradableInstrumentPopulate = nodeCron.schedule(`0 30 16 * * *`, tradableInstrument);
-        const removeInstrumentFromWatch = nodeCron.schedule(`0 46 2 * * *`, removeInstrumentFromWatchlist);
+        const removeInstrumentFromWatch = nodeCron.schedule(`0 0 23 * * *`, removeInstrumentFromWatchlist);
     
     }
 
