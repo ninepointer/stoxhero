@@ -1,17 +1,16 @@
 import { React, useState, useEffect, useContext } from "react";
 import { userContext } from "../../../AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
-import ShareIcon from "@mui/icons-material/Share";
+// import { useNavigate, useLocation } from "react-router-dom";
+// import ShareIcon from "@mui/icons-material/Share";
 import ReactGA from "react-ga";
-import Modal from "react-modal";
+// import Modal from "react-modal";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDAvatar from "../../../components/MDAvatar";
-import MDButton from "../../../components/MDButton";
+// import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import { Grid } from "@mui/material";
-import axios from "axios";
 
 import TenXB from "../../../assets/images/TenXB.png";
 import TenXI from "../../../assets/images/TenXI.png";
@@ -33,14 +32,12 @@ function Header({
   walletCash,
   bonusCash,
   allowRenewal,
+  userCount, isPaid
 }) {
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  const [timeDifference, setTimeDifference] = useState([]);
+  // const [timeDifference, setTimeDifference] = useState([]);
   const getDetails = useContext(userContext);
-  const navigate = useNavigate();
-  const [userCount, setUserCount] = useState(0);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
   let TenXIcon = TenXB;
 
   useEffect(() => {
@@ -67,30 +64,11 @@ function Header({
   }
 
   const openYouTubeVideo = () => {
-    // Replace 'VIDEO_URL' with the actual URL of the YouTube video
-    console.log("Inside Open Youtube Video Function");
     const videoUrl = "https://www.youtube.com/watch?v=a3_bmjv5tXQ";
     window.open(videoUrl, "_blank");
   };
 
-  useEffect(() => {
-    let call2 = axios.get(
-      `${baseUrl}api/v1/tenX/subscribercount/${subscription?._id}`,
-      {
-        withCredentials: true,
-      }
-    );
-    Promise.all([call2])
-      .then(([api2Response]) => {
-        // Process the responses here
-        setUserCount(api2Response?.data?.data[0]?.count);
-      })
-      .catch((error) => {
-        // Handle errors here
-        console.error(error);
-      });
-  }, [subscription]);
-
+  
   async function captureTutorialViews() {
     openYouTubeVideo();
     window.webengage.track("tenx_tutorial_clicked", {
@@ -368,6 +346,7 @@ function Header({
                       walletCash={walletCash}
                       bonusCash={bonusCash}
                       allowRenewal={allowRenewal}
+                      isPaid={isPaid}
                     />
                   </Grid>
                 </Grid>

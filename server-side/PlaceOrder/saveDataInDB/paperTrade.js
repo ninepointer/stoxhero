@@ -3,6 +3,7 @@ const {virtualTrader} = require("../../constant");
 const {applyingSLSP} = require("./PendingOrderCondition/applyingSLSP")
 const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCondition");
 const mongoose = require('mongoose')
+const {clientForIORedis} = require('../../marketData/redisClient');
 
 
 exports.virtualTrade = async (req, res, otherData) => {
@@ -13,8 +14,15 @@ exports.virtualTrade = async (req, res, otherData) => {
 
   let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
   const session = await mongoose.startSession();
+  const lockKey = `${req.user._id}-${portfolioId}`
+  const lockValue = Date.now().toString() + Math.random() * 1000;
 
   try{
+    const lockAcquired = await acquireLock(lockKey, lockValue);
+    // console.log('lockAcquired', lockAcquired, lockKey)
+    if (!lockAcquired) {
+        return res.status(400).json({ status: 'error', message: 'Your previous request is still being processed. Please try again later.' });
+    }
     const paper = await PaperTrade.findOne({order_id: order_id});
     if(paper){
       return res.status(422).json({ status: "error", message: "something went wrong." })
@@ -64,20 +72,32 @@ exports.virtualTrade = async (req, res, otherData) => {
 
     if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
       await session.commitTransaction();
+      await releaseLock(lockKey);
       res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
     }
 
   } catch(err){
     await client.del('stoploss-stopprofit');
-    await client.del(`${req.user._id.toString()}: overallpnlPaperTrade`)
+    await client.del(`${req.user._id.toString()}: overallpnlPaperTrade`);
+    await releaseLock(lockKey);
     await session.abortTransaction();
     console.error('Transaction failed, documents not saved:', err);
     res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
   } finally {
+    await releaseLock(lockKey);
     session.endSession();
   }
 }
 
+async function acquireLock(lockKey, lockValue) {
+  // console.log('acquiring lock ........')
+  const result = await clientForIORedis.set(lockKey, lockValue, 'NX');
+  return result === 'OK';
+}
+
+async function releaseLock(lockKey) {
+  const result = await clientForIORedis.del(lockKey);
+}
 
 const saveInRedis = async (req, paperDoc, portfolioId)=>{
   const {margin, order_type} = req.body;

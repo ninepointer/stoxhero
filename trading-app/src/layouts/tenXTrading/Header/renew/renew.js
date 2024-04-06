@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { userContext } from "../../../../AuthContext";
+import { settingContext } from "../../../../settingContext";
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
 import Dialog from "@mui/material/Dialog";
@@ -32,8 +33,8 @@ const ariaLabel = { "aria-label": "description" };
 export default function Renew({ amount, name, id, walletCash, bonusCash }) {
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
+  const settingData = React.useContext(settingContext);
   const [updatedUser, setUpdatedUser] = React.useState({});
-  // const [isContinue, setIsContinue] = useState(false);
   const [setting, setSetting] = useState([]);
   const [code, setCode] = useState("");
   const [verifiedCode, setVerifiedCode] = useState("");
@@ -47,49 +48,12 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
     lowBalanceMessage: "",
     thanksMessege: "",
   });
-  // console.log('bonus cash', bonusCash);
+
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  // console.log('props', amount, name, walletCash, id);
   useEffect(() => {
-    axios
-      .get(`${baseUrl}api/v1/loginDetail`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      })
-      .then((res) => {
-        setUpdatedUser(res.data);
-        // console.log("subscribed", res.data)
-        let subscribed = res.data?.subscription?.filter((elem) => {
-          return (
-            elem?.subscriptionId?._id?.toString() === id?.toString() &&
-            elem?.status === "Live"
-          );
-        });
-      })
-      .catch((err) => {
-        console.log("Fail to fetch data of user", err);
-      });
-
-    axios
-      .get(`${baseUrl}api/v1/readsetting`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      })
-      .then((res) => {
-        setSetting(res?.data[0]);
-      })
-      .catch((err) => {
-        console.log("Fail to fetch data of user", err);
-      });
+      setUpdatedUser(getDetails?.userDetails);
+      setSetting(settingData?.[0]);
   }, []);
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { settingContext } from "../../../settingContext";
 import { userContext } from "../../../AuthContext";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
@@ -8,7 +9,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import axios from "axios";
-import paymentQr from "../../../assets/images/paymentQrc.jpg";
+// import paymentQr from "../../../assets/images/paymentQrc.jpg";
 import { apiUrl } from "../../../constants/constants";
 
 //icons
@@ -18,19 +19,11 @@ import { Grid } from "@mui/material";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-// import Box from '@mui/material/Box';
-// import Card from '@mui/material/Card';
-// import CardActions from '@mui/material/CardActions';
-// import CardContent from '@mui/material/CardContent';
-import Button from "@mui/material/Button";
-// import MDTypography from '../../../components/MDTypography';
-// import { CopyToClipboard } from 'react-copy-to-clipboard';
-// import {BiCopy} from 'react-icons/bi'
 import MDSnackbar from "../../../components/MDSnackbar";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress, Typography } from "@mui/material";
 import Renew from "./renew/renew";
-import { set } from "react-ga";
+// import { set } from "react-ga";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -50,6 +43,7 @@ export default function Dialogue({
   // console.log("props", amount, name, id, walletCash)
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
+  const settingData = React.useContext(settingContext);
   const [updatedUser, setUpdatedUser] = React.useState({});
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [setting, setSetting] = useState([]);
@@ -57,7 +51,7 @@ export default function Dialogue({
     lowBalanceMessage: "",
     thanksMessege: "",
   });
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
   let baseUrl =
@@ -66,50 +60,46 @@ export default function Dialogue({
   // const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 
   useEffect(() => {
-    axios
-      .get(`${baseUrl}api/v1/loginDetail`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      })
-      .then((res) => {
-        setUpdatedUser(res.data);
-        let subscribed = res.data?.subscription?.filter((elem) => {
-          return (
-            elem?.subscriptionId?._id?.toString() === id?.toString() &&
-            elem?.status === "Live"
-          );
-        });
+    // axios
+    //   .get(`${baseUrl}api/v1/loginDetail`, {
+    //     withCredentials: true,
+    //     headers: {
+    //       Accept: "application/json",
+    //       "Content-Type": "application/json",
+    //       "Access-Control-Allow-Credentials": true,
+    //     },
+    //   })
+    //   .then((res) => {
+    //     setUpdatedUser(res.data);
+    //     let subscribed = res.data?.subscription?.filter((elem) => {
+    //       return (
+    //         elem?.subscriptionId?._id?.toString() === id?.toString() &&
+    //         elem?.status === "Live"
+    //       );
+    //     });
 
-        if (subscribed?.length > 0) {
-          setIsSubscribed(true);
-        }
-      })
-      .catch((err) => {
-        console.log("Fail to fetch data of user", err);
+    //     if (subscribed?.length > 0) {
+    //       setIsSubscribed(true);
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log("Fail to fetch data of user", err);
+    //   });
+
+      setUpdatedUser(getDetails?.userDetails);
+      let subscribed = getDetails?.userDetails?.subscription?.filter((elem) => {
+        return (
+          elem?.subscriptionId?._id?.toString() === id?.toString() &&
+          elem?.status === "Live"
+        );
       });
 
-    axios
-      .get(`${baseUrl}api/v1/readsetting`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      })
-      .then((res) => {
-        setSetting(res?.data[0]);
-        setInterval(() => {
-          setIsLoading(false);
-        }, 5000);
-      })
-      .catch((err) => {
-        console.log("Fail to fetch data of user", err);
-      });
+      if (subscribed?.length > 0) {
+        setIsSubscribed(true);
+      }
+
+      
+      setSetting(settingData?.[0]);
   }, []);
 
   useEffect(() => {

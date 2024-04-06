@@ -5,6 +5,7 @@ const {applyingSLSP} = require("./PendingOrderCondition/applyingSLSP")
 const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCondition");
 const { client } = require("../../marketData/redisClient");
 const {tenxTrader} = require("../../constant");
+const {clientForIORedis} = require('../../marketData/redisClient');
 
 exports.tenxTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, trade_time,  
@@ -15,8 +16,16 @@ exports.tenxTrade = async (req, res, otherData) => {
   let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
   // console.log(req.body, otherData)
   const session = await mongoose.startSession();
+  const lockKey = `${req.user._id}-${subscriptionId}`
+  const lockValue = Date.now().toString() + Math.random() * 1000;
 
-  try {
+  try{
+      
+      const lockAcquired = await acquireLock(lockKey, lockValue);
+      // console.log('lockAcquired', lockAcquired, lockKey)
+      if (!lockAcquired) {
+          return res.status(400).json({ status: 'error', message: 'Your previous request is still being processed. Please try again later.' });
+      }
     const tenxCheck = await TenxTrader.findOne({ order_id: order_id });
     if (tenxCheck) {
       return res.status(422).json({ status: "error", message: "something went wrong." })
@@ -68,17 +77,29 @@ exports.tenxTrade = async (req, res, otherData) => {
     
     if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
       await session.commitTransaction();
+      await releaseLock(lockKey);
       res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
     }
   } catch (err) {
     await client.del('stoploss-stopprofit');
     await client.del(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
     await session.abortTransaction();
+    await releaseLock(lockKey);
     // console.error('Transaction failed, documents not saved:', err);
     res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
   } finally {
+    await releaseLock(lockKey);
     session.endSession();
   }
+}
+
+async function acquireLock(lockKey, lockValue) {
+  const result = await clientForIORedis.set(lockKey, lockValue, 'NX');
+  return result === 'OK';
+}
+
+async function releaseLock(lockKey) {
+  const result = await clientForIORedis.del(lockKey);
 }
 
 const saveInRedis = async (req, tenxDoc, subscriptionId)=>{

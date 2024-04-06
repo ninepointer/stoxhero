@@ -1,25 +1,14 @@
 import { React, useState, useEffect, useContext } from "react";
-import { userContext } from "../../../AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
-import ShareIcon from "@mui/icons-material/Share";
 import ReactGA from "react-ga";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDAvatar from "../../../components/MDAvatar";
-import MDButton from "../../../components/MDButton";
+// import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Paper from "@mui/material/Paper";
-import Draggable from "react-draggable";
-import Button from "@mui/material/Button";
 import { Grid } from "@mui/material";
 import moment from "moment";
-import axios from "axios";
+// import axios from "axios";
 
 import TenXB from "../../../assets/images/TenXB.png";
 import TenXI from "../../../assets/images/TenXI.png";
@@ -40,15 +29,9 @@ function Header({
   id,
   walletCash,
   bonusCash,
-  allowRenewal,
+  allowRenewal, userCount
 }) {
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  const [timeDifference, setTimeDifference] = useState([]);
-  const getDetails = useContext(userContext);
-  const navigate = useNavigate();
-  console.log("allow renewal", allowRenewal, amount);
-  const [userCount, setUserCount] = useState(0);
+
   let TenXIcon = TenXB;
 
   useEffect(() => {
@@ -74,25 +57,7 @@ function Header({
     TenXIcon = TenXD;
   }
 
-  useEffect(() => {
-    let call2 = axios.get(
-      `${baseUrl}api/v1/tenX/subscribercount/${subscription?._id}`,
-      {
-        withCredentials: true,
-      }
-    );
-    Promise.all([call2])
-      .then(([api2Response]) => {
-        // Process the responses here
-        console.log("Count:", api2Response.data.data);
-        setUserCount(api2Response?.data?.data[0]?.count);
-      })
-      .catch((error) => {
-        // Handle errors here
-        console.error(error);
-      });
-  }, [subscription]);
-
+  
   return (
     <>
       <Grid

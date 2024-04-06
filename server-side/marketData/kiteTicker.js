@@ -190,51 +190,52 @@ async function pendingOrderProcess(ticks) {
     let data = await client.get('stoploss-stopprofit');
     data = JSON.parse(data);
 
-    // console.log("this is data", data)
     if (data) {
+      const newDataArr = [];
       for (let tick of ticks) {
 
         let symbolArr = data[`${tick.instrument_token}`];
-        // console.log("this is symbolArr", symbolArr, Boolean(symbolArr))
         try {
           if (symbolArr?.length > 0) {
-            // for(let subelem of symbolArr){
             const length = symbolArr?.length
+            
             for (let i = 0; i < length; i++) {
               // publish(take trade) only when 
               if (symbolArr[i]?.type === "StopLoss" && symbolArr[i]?.price >= tick.last_price && symbolArr[i]?.buyOrSell === "SELL") {
-                console.log("1st if running")
-                await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
               }
               if (symbolArr[i]?.type === "StopLoss" && symbolArr[i]?.price <= tick.last_price && symbolArr[i]?.buyOrSell === "BUY") {
-                console.log("2nd if running")
-                await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
               }
               if (symbolArr[i]?.type === "StopProfit" && symbolArr[i]?.price <= tick.last_price && symbolArr[i]?.buyOrSell === "SELL") {
-                console.log("3rd if running")
-                await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
               }
               if (symbolArr[i]?.type === "StopProfit" && symbolArr[i]?.price >= tick.last_price && symbolArr[i]?.buyOrSell === "BUY") {
-                console.log("4th if running")
-                await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
               }
               if (symbolArr[i]?.type === "Limit" && symbolArr[i]?.price >= tick.last_price && symbolArr[i]?.buyOrSell === "BUY") {
-                console.log("5th if running")
-                await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
               }
               if (symbolArr[i]?.type === "Limit" && symbolArr[i]?.price <= tick.last_price && symbolArr[i]?.buyOrSell === "SELL") {
-                console.log("6th if running")
-                await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
               }
-
             }
           }
         } catch (err) {
           console.log(err);
         }
       }
-    }
 
+      if(newDataArr.length > 0){
+        await client.PUBLISH("place-order", JSON.stringify(newDataArr));
+      }
+    }
     ticks = null;
   } catch (err) {
     console.log(err)
@@ -265,7 +266,6 @@ async function instrumentAndUser(){
 async function index(){
   let isRedisConnected = getValue();
   let indecies = isRedisConnected && await client.get("index");
-  // console.log("indecies redis", indecies);
   if (!indecies) {
     indecies = await StockIndex.find({ status: "Active", accountType: zerodhaAccountType });
     isRedisConnected && await client.set("index", JSON.stringify(indecies));

@@ -59,7 +59,6 @@ exports.mockTrade = async (req, res) => {
     deviceDetails,
   } = req.body;
 
-  // console.log("req data", req.body)
   if (
     !exchange ||
     !symbol ||
@@ -210,8 +209,6 @@ exports.mockTrade = async (req, res) => {
     }
   }
 
-  // console.log("req", req.body)
-
   let brokerageUser;
   let brokerageCompany;
 
@@ -257,7 +254,6 @@ exports.mockTrade = async (req, res) => {
   };
 
   if (dailyContest) {
-    console.log('this is dailyontest')
     await dailyContestTrade(req, res, otherData);
     let delRedis = false;
     if (!req?.user?.activationDetails?.activationDate) {

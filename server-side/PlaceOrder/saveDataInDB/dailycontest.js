@@ -25,9 +25,8 @@ exports.dailyContestTrade = async (req, res, otherData) => {
     try{
         
         const lockAcquired = await acquireLock(lockKey, lockValue);
-        // console.log('lockAcquired', lockAcquired, lockKey)
         if (!lockAcquired) {
-            return res.status(400).json({ status: 'error', message: 'Already processing' });
+            return res.status(400).json({ status: 'error', message: 'Your previous request is still being processed. Please try again later.' });
         }
 
         const mockCompany = await DailyContestMockCompany.findOne({order_id : order_id});
@@ -164,7 +163,5 @@ async function acquireLock(lockKey, lockValue) {
 }
 
 async function releaseLock(lockKey) {
-    
     const result = await clientForIORedis.del(lockKey);
-    // console.log('release lock ........', result, lockKey)
 }

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { userContext } from "../../../AuthContext";
+import { settingContext } from "../../../settingContext";
+
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import Dialog from "@mui/material/Dialog";
@@ -8,7 +10,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import axios from "axios";
-import paymentQr from "../../../assets/images/paymentQrc.jpg";
+// import paymentQr from "../../../assets/images/paymentQrc.jpg";
 import { apiUrl } from "../../../constants/constants";
 import Input from "@mui/material/Input";
 
@@ -19,12 +21,10 @@ import { Grid } from "@mui/material";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-import Button from "@mui/material/Button";
 import MDSnackbar from "../../../components/MDSnackbar";
 import { useNavigate } from "react-router-dom";
 import { CircularProgress, Typography } from "@mui/material";
 import Renew from "./renew/renew";
-import { set } from "react-ga";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -42,10 +42,12 @@ export default function Dialogue({
   bonusCash,
   setCheckPayment,
   checkPayment,
-  allowRenewal,
+  allowRenewal, isPaid
 }) {
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
+  const settingData = React.useContext(settingContext);
+
   const [updatedUser, setUpdatedUser] = React.useState({});
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [setting, setSetting] = useState([]);
@@ -61,9 +63,9 @@ export default function Dialogue({
     lowBalanceMessage: "",
     thanksMessege: "",
   });
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
-  console.log("cash bon", bonusCash);
+  // console.log("cash bon", bonusCash);
 
   const navigate = useNavigate();
   let baseUrl =
@@ -73,54 +75,39 @@ export default function Dialogue({
   const handleChange = (event) => {
     setValue(event.target.value);
   };
-  // const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
+
 
   useEffect(() => {
-    axios
-      .get(`${baseUrl}api/v1/loginDetail`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      })
-      .then((res) => {
-        setUpdatedUser(res.data);
-        let subscribed = res.data?.subscription?.filter((elem) => {
-          return (
-            elem?.subscriptionId?._id?.toString() === id?.toString() &&
-            elem?.status === "Live"
-          );
+    if (open) {
+      axios
+        .get(`${baseUrl}api/v1/loginDetail`, {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true,
+          },
+        })
+        .then((res) => {
+          setUpdatedUser(res.data);
+          let subscribed = res.data?.subscription?.filter((elem) => {
+            return (
+              elem?.subscriptionId?._id?.toString() === id?.toString() &&
+              elem?.status === "Live"
+            );
+          });
+
+          if (subscribed?.length > 0) {
+            setIsSubscribed(true);
+          }
+        })
+        .catch((err) => {
+          console.log("Fail to fetch data of user", err);
         });
+    }
 
-        if (subscribed?.length > 0) {
-          setIsSubscribed(true);
-        }
-      })
-      .catch((err) => {
-        console.log("Fail to fetch data of user", err);
-      });
-
-    axios
-      .get(`${baseUrl}api/v1/readsetting`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      })
-      .then((res) => {
-        setSetting(res?.data[0]);
-        setInterval(() => {
-          setIsLoading(false);
-        }, 5000);
-      })
-      .catch((err) => {
-        console.log("Fail to fetch data of user", err);
-      });
-  }, []);
+    setSetting(settingData?.[0]);
+  }, [open]);
 
   useEffect(() => {
     let subscribed = updatedUser?.subscription?.filter((elem) => {
@@ -135,7 +122,7 @@ export default function Dialogue({
         elem?.status === "Live"
       );
     });
-    console.log("Subscribed:", subscribed);
+    // console.log("Subscribed:", subscribed);
     if (subscribed?.length > 0) {
       setIsSubscribed(true);
     }
@@ -220,7 +207,18 @@ export default function Dialogue({
         thanksMessege:
           "Congrats you have unlocked your TenX trading subscription",
       });
-      setUpdatedUser(dataResp.data);
+      setUpdatedUser(dataResp?.data);
+
+      let subscribed = dataResp?.data?.subscription?.filter((elem) => {
+        return (
+          elem?.subscriptionId?._id?.toString() === id?.toString() &&
+          elem?.status === "Live"
+        );
+      });
+
+      if (subscribed?.length > 0) {
+        setIsSubscribed(true);
+      }
 
       // openSuccessSB("success", dataResp.message)
     }
@@ -403,7 +401,7 @@ export default function Dialogue({
       alignItems="center"
       style={{ width: "90%" }}
     >
-      {isSubscribed ? (
+      {(isSubscribed || isPaid) ? (
         <MDBox
           display="flex"
           justifyContent="center"

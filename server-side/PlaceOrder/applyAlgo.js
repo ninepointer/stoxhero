@@ -15,7 +15,7 @@ const { ObjectId } = require("mongodb");
  
 
 const ApplyAlgo = async (req, res, next) => {
-    // console.log('apply alog middleware');
+
     if (!req.user.isAlgoTrader) {
         return res.status(401).send({ message: "Your profile is not authorised." });
     }
@@ -96,7 +96,7 @@ const ApplyAlgo = async (req, res, next) => {
     if (userPermissionAlgo.length === 0 && req.user.isAlgoTrader) {
         return res.status(401).send({ message: "Your profile is not active yet, please contact the admin @ team@stoxhero.com for more details." });
     }
-    // console.log('working');
+
     next();
 };
 
@@ -197,7 +197,6 @@ const DailyContestApplyAlgo = async (req, res, next)=>{
 
 
     await tradingAlgo();
-    //console.log("caseStudy 6: end apply aplgo")
 
     next();
 
@@ -295,7 +294,6 @@ const MarginXApplyAlgo = async (req, res, next)=>{
 
 
     await tradingAlgo();
-    //console.log("caseStudy 6: end apply aplgo")
 
     next();
 

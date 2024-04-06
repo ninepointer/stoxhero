@@ -136,7 +136,6 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
                     matchingElement.margin = message.data.margin;
 
                 } else {
-                    console.log("in else saving data");
                     // Create a new element if instrument is not matching
                     pnl.push({
                         _id: {
@@ -157,7 +156,6 @@ const tenxTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDetai
                 }
 
                 const data = await client.set(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlTenXTrader`, JSON.stringify(pnl));
-                console.log(data)
 
             }
 
@@ -217,7 +215,6 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
         const margin = (await marginAndCase).margin;
         const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
 
-        console.log("caseNumber", caseNumber)
 
         let functionValue;
 
@@ -276,9 +273,7 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
             if (isRedisConnected && await client.exists(`${createdBy.toString()}: overallpnlPaperTrade`)) {
                 let pnl = await client.get(`${createdBy.toString()}: overallpnlPaperTrade`)
                 pnl = JSON.parse(pnl);
-                // console.log("pnl", pnl);
                 const matchingElement = pnl.find((element) => (element._id.instrumentToken === tradeDoc.instrumentToken && element._id.product === tradeDoc.Product && !element._id.isLimit));
-                // console.log("matchingElement", matchingElement);
                 // if instrument is same then just updating value
                 if (matchingElement) {
                     // Update the values of the matching element with the values of the first document
@@ -435,9 +430,7 @@ const stockStopLoss = async (message) => {
                   pnl = await client.get(`${createdBy?.toString()}: overallpnlDelivery`)
                 }
                 pnl = JSON.parse(pnl);
-                // console.log("pnl", pnl);
                 const matchingElement = pnl.find((element) => (element._id.instrumentToken === tradeDoc.instrumentToken && element._id.product === tradeDoc.Product && !element._id.isLimit));
-                // console.log("matchingElement", matchingElement);
                 // if instrument is same then just updating value
                 if (matchingElement) {
                     // Update the values of the matching element with the values of the first document
@@ -587,9 +580,7 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
             if (isRedisConnected && await client.exists(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlIntern`)) {
                 let pnl = await client.get(`${createdBy.toString()}${sub_product_id.toString()}: overallpnlIntern`)
                 pnl = JSON.parse(pnl);
-                // console.log("pnl", pnl);
                 const matchingElement = pnl.find((element) => (element._id.instrumentToken === tradeDoc.instrumentToken && element._id.product === tradeDoc.Product && !element._id.isLimit));
-                // console.log("matchingElement", matchingElement);
                 // if instrument is same then just updating value
                 if (matchingElement) {
                     // Update the values of the matching element with the values of the first document
@@ -600,7 +591,6 @@ const internTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDet
                     matchingElement.margin = message.data.margin;
 
                 } else {
-                    // console.log("in else saving data");
                     // Create a new element if instrument is not matching
                     pnl.push({
                         _id: {
@@ -1083,21 +1073,30 @@ exports.pendingOrderMain = async () => {
 
     let isRedisConnected = getValue();
     let brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell;
-    // if(product_type?.toString() !== "6583c2012ef31a319cf888c9"){
         brokerageDetailBuy = await buyBrokerageCompany(accountType, isRedisConnected);
         brokerageDetailSell = await sellBrokerageCompany(accountType, isRedisConnected);
         brokerageDetailBuyUser = await buyBrokerageUser(zerodhaAccountType, isRedisConnected);
         brokerageDetailSellUser = await sellBrokerageUser(zerodhaAccountType, isRedisConnected);    
-    // }
 
     try {
 
-        await client2.SUBSCRIBE("place-order", async (message) => {
-            // console.log(message)
+        await client2.SUBSCRIBE("place-order", async (messages) => {
+            messages = JSON.parse(messages);
 
-            message = JSON.parse(message);
+            for (let [index, message] of messages.entries()) {
+                await processMessage(message, client4, brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell);
+            }
 
+        });
 
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+async function processMessage(message, client4, brokerageDetailBuyUser, brokerageDetailSellUser, brokerageDetailBuy, brokerageDetailSell) {
+    return new Promise(async (resolve, reject) => {
+        try {
             let { exchange, symbol, buyOrSell, Quantity, sub_product_id, instrumentToken,
                 createdBy, _id, type, product_type, from, Product } = message.data;
 
@@ -1142,7 +1141,7 @@ exports.pendingOrderMain = async () => {
                     pnlData = await client.get(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`)
                 }
 
-                if(!pnlData){
+                if (!pnlData) {
                     return;
                 }
 
@@ -1160,7 +1159,7 @@ exports.pendingOrderMain = async () => {
                         symbolArr[i]?.sub_product_id?.toString() === sub_product_id?.toString() &&
                         symbolArr[i]?.type !== type)
                     // if (symbolArr[i]?._id?.toString() === _id?.toString())
-                         {
+                    {
 
                         const update = await PendingOrder.findOne({ _id: new ObjectId(symbolArr[i]?._id) })
                         update.status = "Cancelled";
@@ -1186,7 +1185,7 @@ exports.pendingOrderMain = async () => {
                 data[`${instrumentToken}`] = symbolArr;
                 const myDAta = await client.set('stoploss-stopprofit', JSON.stringify(data));
 
-                if(responseData !== "No Margin"){
+                if (responseData !== "No Margin") {
                     const update = await PendingOrder.updateOne({ _id: new ObjectId(_id) }, {
                         $set: {
                             status: "Executed",
@@ -1194,7 +1193,7 @@ exports.pendingOrderMain = async () => {
                             execution_price: last_price
                         }
                     })
-    
+
                     pnlData = JSON.parse(pnlData)
                     for (let elem of pnlData) {
                         // console.log("pnl dtata", elem, pnlData)
@@ -1215,12 +1214,12 @@ exports.pendingOrderMain = async () => {
                         }
                     }
 
-                    await client4.PUBLISH("order-notification", JSON.stringify({ 
+                    await client4.PUBLISH("order-notification", JSON.stringify({
                         status: "Success",
-                        response: `Your ${type==="StopLoss" ? "Stop Loss" : type==="StopProfit" ? "Stop Profit" : "Limit order"} of ${symbol} has been executed at ₹${last_price}.`, 
-                        createdBy: createdBy, 
-                     }))
-                } else if(responseData === "No Margin"){
+                        response: `Your ${type === "StopLoss" ? "Stop Loss" : type === "StopProfit" ? "Stop Profit" : "Limit order"} of ${symbol} has been executed at ₹${last_price}.`,
+                        createdBy: createdBy,
+                    }))
+                } else if (responseData === "No Margin") {
                     const update = await PendingOrder.updateOne({ _id: new ObjectId(_id) }, {
                         $set: {
                             status: "Cancelled",
@@ -1239,11 +1238,11 @@ exports.pendingOrderMain = async () => {
                         }
                     }
 
-                    await client4.PUBLISH("order-notification", JSON.stringify({ 
+                    await client4.PUBLISH("order-notification", JSON.stringify({
                         status: "error",
-                        response: `You do not have sufficient funds to place ${type==="StopLoss" ? "stoploss" : type==="StopProfit" ? "stopprofit" : "limit order"} of ${symbol}.`, 
-                        createdBy: createdBy, 
-                     }))
+                        response: `You do not have sufficient funds to place ${type === "StopLoss" ? "stoploss" : type === "StopProfit" ? "stopprofit" : "limit order"} of ${symbol}.`,
+                        createdBy: createdBy,
+                    }))
                 }
 
                 if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
@@ -1259,20 +1258,20 @@ exports.pendingOrderMain = async () => {
                 } else if (product_type?.toString() === "6583c2012ef31a319cf888c9") {
                     await client.set(`${createdBy?.toString()}: ${Product === "MIS" ? "overallpnlIntraday" : "overallpnlDelivery"}`, JSON.stringify(pnlData))
                 }
+                resolve()
 
             } catch (error) {
+                reject(error);
                 console.error('Error saving data:', error);
             } finally {
                 // Release the lock
                 release();
                 // await releaseLock(lockKey, lockValue);
             }
+        } catch (err) {
 
-        });
-
-    } catch (err) {
-        console.log(err)
-    }
+        }
+    });
 }
 
 async function acquireLock(lockKey, lockValue, expiration) {

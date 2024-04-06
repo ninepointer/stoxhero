@@ -101,11 +101,25 @@ exports.removeFeature = async(req, res, next) => {
 
 exports.getActiveTenXSubs = async(req, res, next)=>{
     try{
-        const tenXSubs = await TenXSubscription.find({status: "Active"}).select('actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')
+        const userId = req?.user?._id;
+        const tenXSubs = await TenXSubscription.find({status: "Active"})
+        .select('users actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')
         .populate('portfolio', 'portfolioName portfolioValue')
         .sort({ validity:1, discounted_price: 1})
+
+        const newObj = JSON.parse(JSON.stringify(tenXSubs));
+        for(const elem of newObj){
+          for(const subelem of elem?.users){
+            if(subelem?.userId?.toString() === userId?.toString() && subelem?.status === 'Live'){
+              elem.isPaid = true;
+              break;
+            }
+          }
+          elem.userCount = elem?.users?.length;
+          delete elem.users;
+        }
         
-        res.status(201).json({status: 'success', data: tenXSubs, results: tenXSubs.length});    
+        res.status(201).json({status: 'success', data: newObj, results: newObj.length});    
     }catch(e){
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
@@ -767,7 +781,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
             'paidDetails.paidProductPrice': subscriptionAmount
           }
         },
-        { new: true, session: session }
+        { new: true, session: session, validateBeforeSave: false }
       );
       await client.del(`${req?.user?._id.toString()}authenticatedUser`);
     }
@@ -993,6 +1007,13 @@ exports.myActiveSubs = async(req, res, next)=>{
     const tenXSubs = await TenXSubscription.aggregate(
       [
         {
+          $addFields: {
+            userCount: {
+              $size: '$users'
+            }
+          }
+        },
+        {
           $unwind: {
             path: "$users",
           },
@@ -1024,7 +1045,8 @@ exports.myActiveSubs = async(req, res, next)=>{
             fee: "$users.fee",
             status: "$users.status",
             subscribedOn: "$users.subscribedOn",
-            allowRenewal:1
+            allowRenewal:1,
+            userCount: 1
           },
         },
         {

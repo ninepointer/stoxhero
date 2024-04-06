@@ -2,24 +2,15 @@ import { React, useState, useEffect, useContext } from "react";
 import { userContext } from "../../../AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Grid from "@mui/material/Grid";
-import ShareIcon from "@mui/icons-material/Share";
+// import ShareIcon from "@mui/icons-material/Share";
 import ReactGA from "react-ga";
-import moment from "moment";
+// import moment from "moment";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Paper from "@mui/material/Paper";
-import Draggable from "react-draggable";
-import Button from "@mui/material/Button";
-
 import TenXB from "../../../assets/images/TenXB.png";
 import TenXI from "../../../assets/images/TenXI.png";
 import TenXA from "../../../assets/images/TenXA.png";
@@ -28,21 +19,13 @@ import TenXG from "../../../assets/images/TenXG.png";
 import TenXD from "../../../assets/images/TenXD.png";
 import checklist from "../../../assets/images/checklist.png";
 import DialogueAnalytics from "../Header/dialogueBoxAnalytics";
-import DialogueKnowMore from "../Header/dialogueBoxKnowMore";
+// import DialogueKnowMore from "../Header/dialogueBoxKnowMore";
 
 function Header({
   subscription,
-  checkPayment,
-  setCheckPayment,
-  amount,
-  name,
   id,
-  walletCash,
-  allowRenewal,
 }) {
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  // const [timeDifference, setTimeDifference] = useState([]);
+
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
   let TenXIcon = TenXB;

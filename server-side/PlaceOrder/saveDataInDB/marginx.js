@@ -21,7 +21,16 @@ exports.marginxTrade = async (req, res, otherData) => {
         let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser} = otherData;
 
     const session = await mongoose.startSession();
+    const lockKey = `${req.user._id}-${marginxId}`
+    const lockValue = Date.now().toString() + Math.random() * 1000;
+
     try{
+
+        const lockAcquired = await acquireLock(lockKey, lockValue);
+        // console.log('lockAcquired', lockAcquired, lockKey)
+        if (!lockAcquired) {
+            return res.status(400).json({ status: 'error', message: 'Your previous request is still being processed. Please try again later.' });
+        }
 
         const mockCompany = await MarginXMockCompany.findOne({order_id : order_id});
         const mockInfintyTrader = await MarginXMockUser.findOne({order_id : order_id});
@@ -126,6 +135,7 @@ exports.marginxTrade = async (req, res, otherData) => {
 
         if (pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {                
             await session.commitTransaction();
+            await releaseLock(lockKey);
             return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
         } else {
             // await session.commitTransaction();
@@ -141,11 +151,22 @@ exports.marginxTrade = async (req, res, otherData) => {
         await pipeline.del(`overallMockPnlCompanyMarginX`);
         await pipeline.del(`lastTradeDataMockMarginX`);
         const results = await pipeline.exec();
+        await releaseLock(lockKey);
         await session.abortTransaction();
         console.error('Transaction failed, documents not saved:', err);
         res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
     } finally {
-    // End the session
+        // End the session
+        await releaseLock(lockKey);
         session.endSession();
     }
+}
+
+async function acquireLock(lockKey, lockValue) {
+    const result = await clientForIORedis.set(lockKey, lockValue, 'NX');
+    return result === 'OK';
+}
+
+async function releaseLock(lockKey) {
+    const result = await clientForIORedis.del(lockKey);
 }

@@ -113,7 +113,6 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
             return 0;
         }
     } else if(Math.abs(actualQuantity) > Math.abs(newQuantity)){
-        console.log("third cndtion");
 
         const quantity = Math.abs(actualQuantity- newQuantity)
         data = await client.get('stoploss-stopprofit');
@@ -164,7 +163,6 @@ async function adjustPendingOrders(symbolArr, quantity, stopOrderType, sortOrder
 
         for (let i = 0; i < symbolArr.length && quantity > 0; i++) {
             if (symbolArr[i].type === stopOrderType) {
-                console.log("quantity", quantity , symbolArr[i].Quantity, symbolArr[i]?._id)
 
                 if (quantity >= symbolArr[i].Quantity) {
                     quantity -= symbolArr[i].Quantity;

@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import Box from '@mui/material/Box';
 import MDBox from '../../../components/MDBox';
-import MDButton from '../../../components/MDButton';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -37,10 +35,10 @@ export default function MaxWidthDialog({ subscription, isActive }) {
 
   useEffect(() => {
     fetchData();
-  }, [open])
+  }, [open, isActive])
 
   async function fetchData() {
-    if (isActive) {
+    if (isActive && open) {
       axios.get(`${apiUrl}tenx/${subscription?._id}/trade/livesubscriptionpnlweb/${subscription?.subscribedOn}`, {
         withCredentials: true,
         headers: {
@@ -54,8 +52,6 @@ export default function MaxWidthDialog({ subscription, isActive }) {
         })
     }
   }
-
-  console.log("data", data)
 
   return (
     <React.Fragment>

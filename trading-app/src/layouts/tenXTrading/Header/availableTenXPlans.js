@@ -3,15 +3,7 @@ import axios from "axios";
 import { CircularProgress, Grid } from "@mui/material";
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
-// import MDAvatar from '../../../components/MDAvatar';
 import MDTypography from "../../../components/MDTypography";
-// import beginner from '../../../assets/images/beginner.png'
-// import intermediate from '../../../assets/images/intermediate.png'
-// import pro from '../../../assets/images/pro.png'
-// import checklist from '../../../assets/images/checklist.png'
-// import Card from '@mui/material/Card';
-// import CardContent from '@mui/material/CardContent';
-// import Dialogue from './dialogueBox';
 import SubscriptionCard from "../data/subscriptionCard";
 import WinnerImage from "../../../assets/images/TenXHeader.png";
 import { userContext } from "../../../AuthContext";
@@ -34,7 +26,7 @@ export default function TenXSubscriptions({ setClicked }) {
   const uniqueValidities = [
     ...new Set(activeTenXSubs.map((item) => item.validity)),
   ];
-  console.log("unique", uniqueValidities);
+  // console.log("unique", uniqueValidities);
 
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
@@ -182,12 +174,14 @@ export default function TenXSubscriptions({ setClicked }) {
                         subscription={elem}
                         checkPayment={checkPayment}
                         setCheckPayment={setCheckPayment}
-                        amount={elem.discounted_price}
-                        name={elem.plan_name}
-                        id={elem._id}
+                        amount={elem?.discounted_price}
+                        name={elem?.plan_name}
+                        id={elem?._id}
                         walletCash={cashBalance}
                         bonusCash={bonusBalance}
-                        allowRenewal={elem.allowRenewal}
+                        allowRenewal={elem?.allowRenewal}
+                        userCount={elem?.userCount}
+                        isPaid={elem?.isPaid}
                       />
                     </MDBox>
                   </Grid>
