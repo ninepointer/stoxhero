@@ -478,9 +478,7 @@ exports.findOpenLots = async (req, res, next) => {
 };
 exports.treaderWiseMockTrader = async (req, res, next) => {
   let date = new Date();
-  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2,
-    "0"
+  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,"0"
   )}-${String(date.getDate()).padStart(2, "0")}`;
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
@@ -517,6 +515,9 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
           traderMobile: {
             $arrayElemAt: ["$user.mobile", 0],
           },
+        },
+        margin: {
+          $max: '$margin'
         },
         amount: {
           $sum: { $multiply: ["$amount", -1] },
