@@ -2,11 +2,12 @@ const PaperTrade = require("../models/mock-trade/paperTrade");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const { client, getValue } = require("../marketData/redisClient");
 const { ObjectId } = require("mongodb");
-const InfinityTrade = require("../models/mock-trade/infinityTrader");
+const PaperTradeLeaderboard = require("../models/mock-trade/paperTradeLeaderboard");
 const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany");
 const PendingOrder = require("../models/PendingOrder/pendingOrderSchema");
 const User = require("../models/User/userDetailSchema");
 const mongoose = require("mongoose");
+const moment = require('moment');
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -476,6 +477,8 @@ exports.findOpenLots = async (req, res, next) => {
   const lots = await InfinityTradeCompany.aggregate(pipeline);
   // console.log('open',lots, lots.length);
 };
+
+
 exports.treaderWiseMockTrader = async (req, res, next) => {
   let date = new Date();
   let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,"0"
@@ -976,3 +979,308 @@ exports.getDailyVirtualUsers = async (req, res) => {
     });
   }
 };
+
+exports.saveLeaderboardData = async () => {
+  try{
+
+    console.log('leaderboard running')
+    const date = new Date();
+    let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,"0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const checkRunningLots = await PaperTrade.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(today),
+          },
+          status: "COMPLETE",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader",
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          lots: {
+            $ne: 0,
+          },
+        },
+      },
+    ]);
+
+    if(checkRunningLots?.length > 0){
+      return false;
+    }
+
+    const data = await PaperTrade.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(today),
+          },
+          status: "COMPLETE",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            traderId: "$trader",
+          },
+          margin: {
+            $max: "$margin",
+          },
+          amount: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+          trades: {
+            $count: {},
+          },
+          lotUsed: {
+            $sum: {
+              $abs: {
+                $toInt: "$Quantity",
+              },
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          lots: 0,
+        },
+      },
+      {
+        $project: {
+          trader: "$_id.traderId",
+          name: "$_id.name",
+          _id: 0,
+          margin: "$margin",
+          grossPnl: "$amount",
+          brokerage: "$brokerage",
+          lotUsed: "$lotUsed",
+          trades: "$trades",
+          runningLots: "$lots",
+          netPnl: {
+            $subtract: ["$amount", "$brokerage"],
+          },
+          roi: {
+            $divide: [
+              {
+                $multiply: [
+                  {
+                    $subtract: [
+                      "$amount",
+                      "$brokerage",
+                    ],
+                  },
+                  100,
+                ],
+              },
+              "$margin",
+            ],
+          },
+        },
+      },
+      {
+        $sort: {
+          roi: -1,
+        },
+      },
+    ]);
+    const create = await PaperTradeLeaderboard.create(data);
+    return true;
+  } catch(err){
+    console.log(err);
+    return false;
+  }
+};
+
+exports.todayLeaderboardData = async (req, res) => {
+  try{
+    const date = new Date();
+    let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,"0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const create = await PaperTradeLeaderboard.find({createdOn: {$gte: new Date(today)}})
+    .populate('trader', 'first_name last_name')
+    .sort({roi: -1});
+    
+    res.status(200).json({
+      status: "success",
+      data: create,
+    });
+  } catch(err){
+    console.log(err);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: err.message,
+    });
+  }
+};
+
+exports.weeklyLeaderboardData = async (req, res) => {
+  try{
+    const today = moment();
+    const startOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
+    const endOfWeek = today.endOf('week').subtract(5, 'hours').subtract(30, 'minutes');
+
+    const data = await leaderboardDataHelper(startOfWeek, endOfWeek);
+    
+    res.status(200).json({
+      status: "success",
+      data: data,
+    });
+  } catch(err){
+    console.log(err);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: err.message,
+    });
+  }
+};
+
+exports.monthlyLeaderboardData = async (req, res) => {
+  try{
+    const today = moment();
+    const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+    const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+
+    const data = await leaderboardDataHelper(startOfMonth, endOfMonth);
+    
+    res.status(200).json({
+      status: "success",
+      data: data,
+    });
+  } catch(err){
+    console.log(err);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: err.message,
+    });
+  }
+};
+
+const leaderboardDataHelper = async(startDate, endDate)=>{
+
+  const pipeline = [
+    {
+      $match: {
+        createdOn: {
+          $gt: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          trader: "$trader",
+          name: {
+            $concat: [
+              {
+                $arrayElemAt: [
+                  "$user.first_name",
+                  0,
+                ],
+              },
+              " ",
+              {
+                $arrayElemAt: [
+                  "$user.last_name",
+                  0,
+                ],
+              },
+            ],
+          },
+        },
+        margin: {
+          $max: "$margin",
+        },
+        grossPnl: {
+          $sum: "$grossPnl",
+        },
+        netPnl: {
+          $sum: "$netPnl",
+        },
+        brokerage: {
+          $sum: "$brokerage",
+        },
+        trades: {
+          $sum: "$trades",
+        },
+      },
+    },
+    {
+      $project: {
+        name: "$_id.name",
+        _id: 0,
+        margin: 1,
+        grossPnl: 1,
+        netPnl: 1,
+        brokerage: 1,
+        trades: 1,
+        roi: {
+          $divide: [
+            {
+              $multiply: ["$netPnl", 100],
+            },
+            "$margin",
+          ],
+        },
+      },
+    },
+    {
+      $sort: {
+        roi: -1,
+      },
+    },
+  ];
+
+  const data = await PaperTradeLeaderboard.aggregate(pipeline)
+  return data;
+}

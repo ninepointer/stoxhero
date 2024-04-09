@@ -16,6 +16,7 @@ const { creditAmountToWalletBattle } = require("../../controllers/battles/battle
 const {client} = require("../../marketData/redisClient");
 const PendingOrder = require("../../models/PendingOrder/pendingOrderSchema");
 const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
+const { saveLeaderboardData } = require("../../controllers/paperTradeController");
 
 const autoCutMainManually = async () => {
     console.log("cronjob running")
@@ -97,8 +98,10 @@ const autoCutMainManuallyMock = async () => {
         await dailyContestMockMod();
         await marginXMockMod();
         await stockTradeMod();
+        await saveLeaderboardData();
         await changeStatus();
         await changeMarginXStatus();
+        
         await PendingOrder.updateMany({ status:'Pending'},{ $set: {status: "Cancelled" }})
         
         return;
