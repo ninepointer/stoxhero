@@ -4548,7 +4548,7 @@ router.get("/updateInstrumentStatusRebuild", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2024-04-04T20:00:00.000+00:00"
+  let expiryDate = "2024-04-09T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

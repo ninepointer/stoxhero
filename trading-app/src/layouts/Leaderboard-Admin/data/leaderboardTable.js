@@ -155,7 +155,7 @@ export default function LeaderboardTable({value}) {
                   </Table>
                 </TableContainer>
                 <TablePagination
-                  rowsPerPageOptions={[10, 50, 100, 200, 500, 1000, 2000, 5000, 10000]}
+                  rowsPerPageOptions={[5, 10, 50, 100, 200, 500, 1000, 2000, 5000, 10000]}
                   component="div"
                   count={rows.length}
                   rowsPerPage={rowsPerPage}

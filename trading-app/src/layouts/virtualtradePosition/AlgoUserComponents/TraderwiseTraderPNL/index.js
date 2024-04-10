@@ -263,8 +263,8 @@ function TraderwiseTraderPNL({ socket }) {
         fontWeight="medium"
       >
         {roi >= 0.0
-          ? "+" + (roi).toFixed(2)
-          : "-" + (-(roi)).toFixed(2)}
+          ? "+" + (roi*100).toFixed(2)
+          : "-" + (-(roi*100)).toFixed(2)}
       </MDTypography>
     );
 
