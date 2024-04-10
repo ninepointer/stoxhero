@@ -666,10 +666,10 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     const newBonusAmount = Number((discountAmount)?.toFixed(2)) + Number((bonusRedemption)?.toFixed(2));
     const totalAmount = (tenXSubs?.discounted_price - newBonusAmount) * (1 + setting[0]?.gstPercentage / 100)
 
-    console.log(Number(totalAmount), Number((subscriptionAmount)?.toFixed(2)));
+    console.log(Number(totalAmount), Number((Number(subscriptionAmount))?.toFixed(2)));
     console.log(tenXSubs?.discounted_price, Number((discountAmount)?.toFixed(2)) , Number((bonusRedemption)?.toFixed(2)), (1 + setting[0]?.gstPercentage / 100));
 
-    if (Number(totalAmount) != Number((subscriptionAmount)?.toFixed(2))) {
+    if (Number(totalAmount) != Number((Number(subscriptionAmount))?.toFixed(2))) {
       return {
         statusCode: 400,
         data: {
