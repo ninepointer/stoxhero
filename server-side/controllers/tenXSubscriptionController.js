@@ -641,7 +641,7 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
           //Calculate amount and match
           discountAmount = couponDoc?.discount;
         } else {
-          discountAmount = Math.min(Number((couponDoc?.discount / 100 * tenXSubs?.discounted_price)?.toFixed(2)), couponDoc?.maxDiscount);
+          discountAmount = Math.min((couponDoc?.discount / 100 * tenXSubs?.discounted_price), couponDoc?.maxDiscount);
 
         }
       } else {
@@ -666,7 +666,9 @@ exports.handleSubscriptionRenewal = async (userId, subscriptionAmount, subscript
     const newBonusAmount = discountAmount + bonusRedemption;
     const totalAmount = (tenXSubs?.discounted_price - newBonusAmount) * (1 + setting[0]?.gstPercentage / 100)
 
-    console.log(Number(totalAmount), Number(subscriptionAmount))
+    console.log(Number(totalAmount), Number(subscriptionAmount));
+    console.log(tenXSubs?.discounted_price, discountAmount, bonusRedemption, (1 + setting[0]?.gstPercentage / 100));
+
     if (Number(totalAmount) != Number(subscriptionAmount)) {
       return {
         statusCode: 400,
