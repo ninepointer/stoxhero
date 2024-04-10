@@ -72,12 +72,11 @@ export default function LabTabs() {
       const res = await axios.get(`${apiUrl}marginxtrade/${selectedMarginx?._id}/${endpoint}`, { withCredentials: true });
       console.log(res.data.data);
       setDateWiseData(prev => res.data.data);
-      setPayout(res?.data?.user);
+      setPayout(res?.data?.data?.reduce((total, acc) => {
+        return total + (acc?.payout || 0);
+      }, 0));
     }
   }
-
-  console.log("selectedMarginx", selectedMarginx)
-
 
   let totalgpnl =0 , totalnpnl =0, totalBrokerage =0, totalOrders=0, totalTradingDays =0, positiveTrader =0, negetiveTrader = 0;
   if(dateWiseData.length>0){
@@ -238,7 +237,7 @@ export default function LabTabs() {
                 <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                     <MDTypography fontSize={13} fontWeight="bold">Payout:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" color="#344767">{payout?.totalPayout?.toFixed(2)}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" color="#344767">{payout?.toFixed(2)}</MDTypography>
                   </MDBox>
                 </Grid>
 
