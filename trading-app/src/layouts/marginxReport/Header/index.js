@@ -49,7 +49,7 @@ export default function LabTabs() {
   })(TextField);
 
   useEffect(()=>{
-    axios.get(`${apiUrl}marginx/completed`, {withCredentials: true})
+    axios.get(`${apiUrl}marginx/completedforreport`, {withCredentials: true})
     .then((res)=>{
       setMarginx(res.data.data);
       setselectedMarginx(res.data.data[0])
@@ -237,7 +237,7 @@ export default function LabTabs() {
                 <Grid item xs={12} md={6} lg={1.7} display="flex" justifyContent="center" alignContent="center" alignItems="center">
                   <MDBox display="flex" justifyContent="center" alignContent="center" alignItems="center" borderRadius={5} border='1px solid grey' p={1}>
                     <MDTypography fontSize={13} fontWeight="bold">Payout:&nbsp;</MDTypography>
-                    <MDTypography fontSize={13} fontWeight="bold" color="#344767">{payout?.toFixed(2)}</MDTypography>
+                    <MDTypography fontSize={13} fontWeight="bold" color="#344767">{(Number(payout))?.toFixed(2)}</MDTypography>
                   </MDBox>
                 </Grid>
 

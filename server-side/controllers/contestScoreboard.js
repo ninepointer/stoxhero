@@ -13,13 +13,17 @@ const {client, getValue} = require('../marketData/redisClient');
 exports.getContestScoreboard = async (req, res) => {
     try {
 
-      let isRedisConnected = getValue();
-      if (isRedisConnected && await client.exists('contestscorboard')) {
-        const data = JSON.parse(await client.get('contestscorboard'));
+      const skip = Number(req.query.skip) || 0;
+      const limit = Number(req.query.limit) || 10;
+      const isRedisConnected = getValue();
+      if (isRedisConnected && await client.exists(`contestscorboard: ${skip}`)) {
+        const data = JSON.parse(await client.get(`contestscorboard: ${skip}`));
+        const count = JSON.parse(await client.get('contestscorboard-count'));
         res.status(200).json({
           status: "success",
           message: "Contest Earnings fetched successfully",
-          data: data
+          data: data,
+          count: count
         });
       } else{
         const pipeline = [
@@ -192,17 +196,135 @@ exports.getContestScoreboard = async (req, res) => {
             {
               totalPayout: -1
             }
+          },
+          {
+            $skip: skip
+          },
+          {
+            $limit: limit
           }
         ]
 
-        const contestScoreboard = await DailyContestMockUser.aggregate(pipeline)
-        await client.set(`contestscorboard`, JSON.stringify(contestScoreboard));
-        await client.expire(`contestscorboard`, 2400);
+        const pipelineCount = [
+          {
+            $match: {
+              status: "COMPLETE",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                trader: "$trader",
+                contest: "$contestId",
+              },
+              gpnl: {
+                $sum: {
+                  $multiply: ["$amount", -1],
+                },
+              },
+              brokerage: {
+                $sum: "$brokerage",
+              },
+            },
+          },
+          {
+            $addFields: {
+              npnl: {
+                $subtract: ["$gpnl", "$brokerage"],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "daily-contests",
+              localField: "_id.contest",
+              foreignField: "_id",
+              as: "contest",
+            },
+          },
+          {
+            $addFields: {
+              payout: {
+                $divide: [
+                  {
+                    $multiply: [
+                      "$npnl",
+                      {
+                        $arrayElemAt: [
+                          "$contest.payoutPercentage",
+                          0,
+                        ],
+                      },
+                    ],
+                  },
+                  100,
+                ],
+              },
+            },
+          },
+          {
+            $match: {
+              "contest.contestStatus": "Completed",
+              "contest.payoutStatus": "Completed",
+              "contest.contestFor": "StoxHero",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                trader: "$_id.trader",
+              },
+              totalPayout: {
+                $sum: {
+                  $cond: [
+                    {
+                      $gt: ["$payout", 0],
+                    },
+                    "$payout",
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              totalPayout: 1,
+            },
+          },
+          {
+            $match:
+              {
+                totalPayout: {
+                  $gt: 0,
+                },
+              },
+          },
+          {
+            $count: "count"
+          },
+         
+        ];
+
+        const contestScoreboard = await DailyContestMockUser.aggregate(pipeline);
+        let count = 0;
+        await client.set(`contestscorboard: ${skip}`, JSON.stringify(contestScoreboard));
+        await client.expire(`contestscorboard: ${skip}`, 2400);
+
+        if (isRedisConnected && await client.exists(`contestscorboard-count`)) {
+          count = JSON.parse(await client.get('contestscorboard-count'));
+        } else{
+          const contestScoreboardCount = await DailyContestMockUser.aggregate(pipelineCount); 
+          await client.set(`contestscorboard-count`, JSON.stringify(contestScoreboardCount?.[0]?.count));
+          await client.expire(`contestscorboard-count`, 2400); 
+          count = contestScoreboardCount?.[0]?.count;
+        }
   
         res.status(200).json({
             status:"success",
             message: "Contest Scoreboard fetched successfully",
-            data: contestScoreboard
+            data: contestScoreboard,
+            count: count || 100
         });
       }
 

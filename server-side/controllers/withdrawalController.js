@@ -183,8 +183,115 @@ exports.getAllWithdrwals = async (req, res, next) => {
 
 exports.getPendingWithdrawals = async (req,res,next) => {
     try{
-        const pendingWithdrawals = await Withdrawal.find({withdrawalStatus:'Pending'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount').populate('userWallet', 'transactions').sort({_id:-1});
-        res.status(200).json({status:'success', data: pendingWithdrawals, results: pendingWithdrawals.length})
+        const skip = Number(req.query.skip) || 0;
+        const limit = Number(req.query.limit) || 10;
+        const count = await Withdrawal.countDocuments({withdrawalStatus:'Pending'});
+
+        const pendingWithdrawals = await Withdrawal.aggregate([
+            {
+                $match: {
+                    withdrawalStatus: "Pending",
+                },
+            },
+            {
+                $sort: {
+                    _id: -1,
+                },
+            },
+            {
+                $skip: skip,
+            },
+            {
+                $limit: limit,
+            },
+            {
+                $lookup: {
+                    from: "user-personal-details",
+                    let: {
+                        userId: "$user",
+                    },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$userId"],
+                                },
+                            },
+                        },
+                        {
+                            $project: {
+                                mobile: 1,
+                                upiId: 1,
+                                bankName: 1,
+                                accountNumber: 1,
+                                ifscCode: 1,
+                                googlePay_number: 1,
+                                phonePe_number: 1,
+                                payTM_number: 1,
+                                nameAsPerBankAccount: 1,
+                                first_name: 1,
+                                last_name: 1,
+                                mobile: 1,
+                            },
+                        },
+                    ],
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "user-wallets",
+                    localField: "userWallet",
+                    foreignField: "_id",
+                    as: "wallet",
+                },
+            },
+            {
+                $addFields: {
+                    walletBalance: {
+                        $sum: {
+                            $map: {
+                                input: "$wallet",
+                                as: "wallet",
+                                in: {
+                                    $sum: {
+                                        $map: {
+                                            input: "$$wallet.transactions",
+                                            as: "transaction",
+                                            in: {
+                                                $cond: [
+                                                    {
+                                                        $eq: [
+                                                            "$$transaction.transactionType",
+                                                            "Cash",
+                                                        ],
+                                                    },
+                                                    "$$transaction.amount",
+                                                    0,
+                                                ],
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                $project: {
+                    wallet: 0,
+                    lastModifiedOn: 0,
+                },
+            }
+        ])
+        res.status(200).json({status:'success', data: pendingWithdrawals, results: count})
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong'});
@@ -193,8 +300,14 @@ exports.getPendingWithdrawals = async (req,res,next) => {
 
 exports.getRejectedWithdrawals = async (req,res,next) => {
     try{
-        const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Rejected'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount').sort({_id:-1});
-        res.status(200).json({status:'success', data: rejectedWithdrawals, results: rejectedWithdrawals.length})
+        const skip = Number(req.query.skip) || 0;
+        const limit = Number(req.query.limit) || 10;
+        const count = await Withdrawal.countDocuments({withdrawalStatus:'Rejected'});
+
+        const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Rejected'})
+        .populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount')
+        .sort({_id:-1}).skip(skip).limit(limit);
+        res.status(200).json({status:'success', data: rejectedWithdrawals, results: count});
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong'});
@@ -202,8 +315,14 @@ exports.getRejectedWithdrawals = async (req,res,next) => {
 }
 exports.getApprovedWithdrawals = async (req,res,next) => {
     try{
-        const rejectedWithdrawals = await Withdrawal.find({withdrawalStatus:'Processed'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount').sort({_id:-1});
-        res.status(200).json({status:'success', data: rejectedWithdrawals, results: rejectedWithdrawals.length})
+        const skip = Number(req.query.skip) || 0;
+        const limit = Number(req.query.limit) || 10;
+        const count = await Withdrawal.countDocuments({withdrawalStatus:'Processed'});
+
+        const approved = await Withdrawal.find({withdrawalStatus:'Processed'})
+        .populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount')
+        .sort({_id:-1}).skip(skip).limit(limit);
+        res.status(200).json({status:'success', data: approved, results: count})
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong'});
@@ -212,8 +331,115 @@ exports.getApprovedWithdrawals = async (req,res,next) => {
 
 exports.getInitiatedWithdrawals = async (req, res, next) => {
     try{
-        const initiatedWithdrawals = await Withdrawal.find({withdrawalStatus:'Initiated'}).populate('user', 'first_name last_name mobile upiId bankName accountNumber ifscCode googlePay_number phonePe_number payTM_number nameAsPerBankAccount').populate('userWallet', 'transactions').sort({_id:-1});
-        res.status(200).json({status:'success', data: initiatedWithdrawals, results: initiatedWithdrawals.length})
+        const skip = Number(req.query.skip) || 0;
+        const limit = Number(req.query.limit) || 10;
+        const count = await Withdrawal.countDocuments({withdrawalStatus:'Initiated'});
+
+        const initiatedWithdrawals = await Withdrawal.aggregate([
+            {
+                $match: {
+                    withdrawalStatus: "Initiated",
+                },
+            },
+            {
+                $sort: {
+                    _id: -1,
+                },
+            },
+            {
+                $skip: skip,
+            },
+            {
+                $limit: limit,
+            },
+            {
+                $lookup: {
+                    from: "user-personal-details",
+                    let: {
+                        userId: "$user",
+                    },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$userId"],
+                                },
+                            },
+                        },
+                        {
+                            $project: {
+                                mobile: 1,
+                                upiId: 1,
+                                bankName: 1,
+                                accountNumber: 1,
+                                ifscCode: 1,
+                                googlePay_number: 1,
+                                phonePe_number: 1,
+                                payTM_number: 1,
+                                nameAsPerBankAccount: 1,
+                                first_name: 1,
+                                last_name: 1,
+                                mobile: 1,
+                            },
+                        },
+                    ],
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "user-wallets",
+                    localField: "userWallet",
+                    foreignField: "_id",
+                    as: "wallet",
+                },
+            },
+            {
+                $addFields: {
+                    walletBalance: {
+                        $sum: {
+                            $map: {
+                                input: "$wallet",
+                                as: "wallet",
+                                in: {
+                                    $sum: {
+                                        $map: {
+                                            input: "$$wallet.transactions",
+                                            as: "transaction",
+                                            in: {
+                                                $cond: [
+                                                    {
+                                                        $eq: [
+                                                            "$$transaction.transactionType",
+                                                            "Cash",
+                                                        ],
+                                                    },
+                                                    "$$transaction.amount",
+                                                    0,
+                                                ],
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                $project: {
+                    wallet: 0,
+                    lastModifiedOn: 0,
+                },
+            }
+        ])
+        res.status(200).json({status:'success', data: initiatedWithdrawals, results: count})
     }catch(e){
         console.log(e);
         res.status(500).json({status:'error', message:'Something went wrong'});

@@ -43,6 +43,10 @@ export default function Dashboard() {
     useState(false);
   const [downloadingMarginXData, setDownloadingMarginXRevenueData] =
     useState(false);
+    const [downloadingBattleData, setDownloadingBattleRevenueData] =
+    useState(false);
+    const [downloadingOverallData, setDownloadingOverallRevenueData] =
+    useState(false);
   const [creationProcess, setCreationProcess] = useState([]);
 
   useEffect(() => {
@@ -173,6 +177,54 @@ export default function Dashboard() {
     });
   };
 
+  const downloadBattleRevenueData = () => {
+    setDownloadingBattleRevenueData(true);
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`${baseUrl}api/v1/revenue/downloadbattlerevenuedata`, {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true,
+          },
+        })
+        .then((res) => {
+          resolve(res.data.data); // Resolve the promise with the data
+          setDownloadingBattleRevenueData(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          reject(err); // Reject the promise with the error'
+          setDownloadingBattleRevenueData(false);
+        });
+    });
+  };
+
+  const downloadOverallRevenueData = () => {
+    setDownloadingOverallRevenueData(true);
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`${baseUrl}api/v1/revenue/downloadoverallrevenuedata`, {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true,
+          },
+        })
+        .then((res) => {
+          resolve(res.data.data); // Resolve the promise with the data
+          setDownloadingOverallRevenueData(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          reject(err); // Reject the promise with the error'
+          setDownloadingOverallRevenueData(false);
+        });
+    });
+  };
+
   const handleDownload = async (nameVariable) => {
 
     try {
@@ -189,6 +241,14 @@ export default function Dashboard() {
       }
       if (nameVariable === "Tenx revenue data") {
         data = await downloadTenxRevenueData();
+        csvData = downloadHelper(data);
+      }
+      if (nameVariable === "Battle Revenue Data") {
+        data = await downloadBattleRevenueData();
+        csvData = downloadHelper(data);
+      }
+      if (nameVariable === "Overall Revenue Data") {
+        data = await downloadOverallRevenueData();
         csvData = downloadHelper(data);
       }
       // Create the CSV content
@@ -251,11 +311,11 @@ export default function Dashboard() {
           elem?.campaignCode,
           elem?.referrerCode,
           elem?.myReferralCode,
-          elem?.testzone,
-          moment.utc(elem?.testzoneDate).format("DD-MMM-YY"),
-          elem?.testzonePortfolio,
+          elem?.name,
+          moment.utc(elem?.date).format("DD-MMM-YY"),
+          elem?.portfolio,
           moment.utc(elem?.purchaseDate).format("DD-MMM-YY HH:mm"),
-          elem?.contestStatus,
+          elem?.status,
           elem?.actualPrice?.toFixed(2),
           elem?.buyingPrice?.toFixed(2),
           elem?.bonusRedemption?.toFixed(2),
@@ -352,18 +412,48 @@ export default function Dashboard() {
                         Overall Revenue Data
                       </MDTypography>
                     </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      lg={4}
-                      display="flex"
-                      justifyContent="flex-end"
-                    >
-                      <MDButton variant="text" color="success">
-                        Download Data
-                      </MDButton>
-                    </Grid>
+                    {!downloadingOverallData ? (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDButton
+                          variant="text"
+                          color="success"
+                          onClick={() => {
+                            handleDownload(`Overall Revenue Data`);
+                          }}
+                        >
+                          Download Data
+                        </MDButton>
+                      </Grid>
+                    ) : (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDTypography
+                          mr={5}
+                          fontSize={15}
+                          color="warning"
+                          fontWeight="bold"
+                        >
+                          Downloading
+                        </MDTypography>
+                      </Grid>
+                    )}
                   </Grid>
                 </Card>
               </Grid>
@@ -1247,18 +1337,48 @@ export default function Dashboard() {
                         Battle Revenue Data
                       </MDTypography>
                     </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      lg={4}
-                      display="flex"
-                      justifyContent="flex-end"
-                    >
-                      <MDButton variant="text" color="success">
-                        Download Data
-                      </MDButton>
-                    </Grid>
+                    {!downloadingBattleData ? (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDButton
+                          variant="text"
+                          color="success"
+                          onClick={() => {
+                            handleDownload(`Battle Revenue Data`);
+                          }}
+                        >
+                          Download Data
+                        </MDButton>
+                      </Grid>
+                    ) : (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDTypography
+                          mr={5}
+                          fontSize={15}
+                          color="warning"
+                          fontWeight="bold"
+                        >
+                          Downloading
+                        </MDTypography>
+                      </Grid>
+                    )}
                   </Grid>
                 </Card>
               </Grid>

@@ -60,32 +60,6 @@ export default function Dialogue({
   // const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 
   useEffect(() => {
-    // axios
-    //   .get(`${baseUrl}api/v1/loginDetail`, {
-    //     withCredentials: true,
-    //     headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //       "Access-Control-Allow-Credentials": true,
-    //     },
-    //   })
-    //   .then((res) => {
-    //     setUpdatedUser(res.data);
-    //     let subscribed = res.data?.subscription?.filter((elem) => {
-    //       return (
-    //         elem?.subscriptionId?._id?.toString() === id?.toString() &&
-    //         elem?.status === "Live"
-    //       );
-    //     });
-
-    //     if (subscribed?.length > 0) {
-    //       setIsSubscribed(true);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log("Fail to fetch data of user", err);
-    //   });
-
       setUpdatedUser(getDetails?.userDetails);
       let subscribed = getDetails?.userDetails?.subscription?.filter((elem) => {
         return (

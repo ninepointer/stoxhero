@@ -363,23 +363,51 @@ exports.todaysMarinX = async (req, res) => {
 exports.getCompletedMarginXs = async (req, res) => {
   const now = new Date();
   try {
+    const skip = Number(req.query.skip) || 0;
+    const limit = Number(req.query.limit) || 10;
+    const count = await MarginX.countDocuments({status: "Completed"});
+
     const completedMarginXs = await MarginX.find({
       status: "Completed",
     })
+    .sort({ startTime: -1, entryFee: -1 })
+    .populate(
+      "participants.userId",
+      "first_name last_name email mobile creationProcess"
+    )
+    .populate(
+      "sharedBy.userId",
+      "first_name last_name email mobile creationProcess"
+    )
+    .populate(
+      "potentialParticipants",
+      "first_name last_name email mobile creationProcess"
+    )
+    .populate("marginXTemplate", "templateName portfolioValue entryFee")
+    .skip(skip).limit(limit);
+
+    res.status(200).json({
+      status: "success",
+      data: completedMarginXs,
+      count: count
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Error fetching completed MarginXs",
+      error: error.message,
+    });
+  }
+};
+
+exports.getCompletedMarginXsForReport = async (req, res) => {
+
+  try {
+    const completedMarginXs = await MarginX.find({
+      status: "Completed",
+    }).select('_id marginXName startTime')
       .sort({ startTime: -1, entryFee: -1 })
-      .populate(
-        "participants.userId",
-        "first_name last_name email mobile creationProcess"
-      )
-      .populate(
-        "sharedBy.userId",
-        "first_name last_name email mobile creationProcess"
-      )
-      .populate(
-        "potentialParticipants",
-        "first_name last_name email mobile creationProcess"
-      )
-      .populate("marginXTemplate", "templateName portfolioValue entryFee");
 
     res.status(200).json({
       status: "success",
