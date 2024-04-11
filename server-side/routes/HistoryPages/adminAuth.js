@@ -3672,12 +3672,8 @@ router.get("/insrtOldPayout", async (req, res) => {
 });
 
 router.get("/del", async (req, res) => {
-  const compnay = await MarginDetailLiveCompany.deleteMany({
-    trader: new ObjectId("6454bd032a2c3b3e4c07e057"),
-  });
-  const user = await MarginDetailLiveUser.deleteMany({
-    trader: new ObjectId("6454bd032a2c3b3e4c07e057"),
-  });
+  const compnay = await PaperTrade.find({createdOn: {$gte: new Date('2024-04-11')}});
+  const user = await TenXTrade.find({createdOn: {$gte: new Date('2024-04-11')}});
   res.send({ data: compnay.length, dat: user.length });
 });
 

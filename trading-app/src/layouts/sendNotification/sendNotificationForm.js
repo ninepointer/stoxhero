@@ -34,14 +34,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 import DefaultCarouselImage from "../../assets/images/defaultcarousel.png";
-// import User from './users';
-// import PotentialUser from "./data/potentialUsers";
-// import Leaderboard from "./data/contestWiseLeaderboard"
-// import CollegeRegistrations from "./data/contestRegistrations";
-// import FeaturedRegistrations from "./data/featuredRegistrations";
-// import Shared from "./data/shared";
-// import CreateRewards from './data/reward/createReward';
-// import ContestRewards from './data/reward/contestReward';
 import { apiUrl } from "../../constants/constants";
 import moment from "moment";
 
@@ -65,9 +57,6 @@ const MenuProps = {
 function Index() {
   const location = useLocation();
   const sendNotification = location?.state?.data;
-  // const [collegeSelectedOption, setCollegeSelectedOption] = useState();
-  // console.log('id hai', sendNotification);
-  // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
@@ -84,11 +73,6 @@ function Index() {
   const [previewUrl, setPreviewUrl] = useState([]);
   const [previousNotifications, setPreviousNotifications] = useState([]);
   const [isSending, setIsSending] = useState(false);
-  // const [featuredRegistrations, setFeaturedRegistrations] = useState([]);
-  // // const [careers,setCareers] = useState([]);
-  // const [action, setAction] = useState(false);
-  // let Url = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
-  // const [type, setType] = useState(sendNotification?.notificationGroup?.notificationGroupName.includes('Workshop')?'Workshop':'Job');
 
   const [formState, setFormState] = useState({
     title: "" || sendNotification?.title,
