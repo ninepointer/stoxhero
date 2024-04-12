@@ -30,10 +30,10 @@ export default function Dashboard() {
   const [oiaffiliateReferrals, setOIAffiliateReferrals] = useState([]);
   const [oiaffiliateOverview, setOIAffiliateOverview] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [downloadingTestZoneData, setDownloadingTestZoneRevenueData] =
-    useState(false);
-  const [downloadingMarginXData, setDownloadingMarginXRevenueData] =
-    useState(false);
+  const [downloadingOverall, setDownloadingOverall] = useState(false);
+  const [downloadingYoutube, setDownloadingYoutube] = useState(false);
+  const [downloadingStoxhero, setDownloadingStoxhero] = useState(false);
+  const [downloadingOffline, setDownloadingOffline] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -121,11 +121,11 @@ export default function Dashboard() {
     return truncatedName;
   }
 
-  const downloadTestZoneRevenueData = () => {
-    setDownloadingTestZoneRevenueData(true);
+  const downloadOverall = () => {
+    setDownloadingOverall(true);
     return new Promise((resolve, reject) => {
       axios
-        .get(`${baseUrl}api/v1/revenue/downloadtestzonerevenuedata`, {
+        .get(`${baseUrl}api/v1/affiliate/downloadaffiliateoverview`, {
           withCredentials: true,
           headers: {
             Accept: "application/json",
@@ -135,21 +135,21 @@ export default function Dashboard() {
         })
         .then((res) => {
           resolve(res.data.data); // Resolve the promise with the data
-          setDownloadingTestZoneRevenueData(false);
+          setDownloadingOverall(false);
         })
         .catch((err) => {
           console.log(err);
           reject(err); // Reject the promise with the error'
-          setDownloadingTestZoneRevenueData(false);
+          setDownloadingOverall(false);
         });
     });
   };
 
-  const downloadMarginXRevenueData = () => {
-    setDownloadingMarginXRevenueData(true);
+  const downloadYoutube = () => {
+    setDownloadingYoutube(true);
     return new Promise((resolve, reject) => {
       axios
-        .get(`${baseUrl}api/v1/revenue/downloadmarginxrevenuedata`, {
+        .get(`${baseUrl}api/v1/affiliate/downloadytaffiliateoverview`, {
           withCredentials: true,
           headers: {
             Accept: "application/json",
@@ -159,12 +159,60 @@ export default function Dashboard() {
         })
         .then((res) => {
           resolve(res.data.data); // Resolve the promise with the data
-          setDownloadingMarginXRevenueData(false);
+          setDownloadingYoutube(false);
         })
         .catch((err) => {
           console.log(err);
           reject(err); // Reject the promise with the error'
-          setDownloadingMarginXRevenueData(false);
+          setDownloadingYoutube(false);
+        });
+    });
+  };
+
+  const downloadStoxhero = () => {
+    setDownloadingStoxhero(true);
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`${baseUrl}api/v1/affiliate/downloadshaffiliateoverview`, {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true,
+          },
+        })
+        .then((res) => {
+          resolve(res.data.data); // Resolve the promise with the data
+          setDownloadingStoxhero(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          reject(err); // Reject the promise with the error'
+          setDownloadingStoxhero(false);
+        });
+    });
+  };
+
+  const downloadOffline = () => {
+    setDownloadingOffline(true);
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`${baseUrl}api/v1/affiliate/downloadoiaffiliateoverview`, {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Credentials": true,
+          },
+        })
+        .then((res) => {
+          resolve(res.data.data); // Resolve the promise with the data
+          setDownloadingOffline(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          reject(err); // Reject the promise with the error'
+          setDownloadingOffline(false);
         });
     });
   };
@@ -175,12 +223,20 @@ export default function Dashboard() {
       // Wait for downloadContestData() to complete and return data
       let data = [];
       let csvData = [];
-      if (nameVariable === "TestZone Revenue Data") {
-        data = await downloadTestZoneRevenueData();
+      if (nameVariable === "Overall Affiliate Data") {
+        data = await downloadOverall();
         csvData = downloadHelper(data);
       }
-      if (nameVariable === "MarginX Revenue Data") {
-        data = await downloadMarginXRevenueData();
+      if (nameVariable === "Youtube Affiliate Data") {
+        data = await downloadYoutube();
+        csvData = downloadHelper(data);
+      }
+      if (nameVariable === "Stoxhero Affiliate Data") {
+        data = await downloadStoxhero();
+        csvData = downloadHelper(data);
+      }
+      if (nameVariable === "Offline Affiliate Data") {
+        data = await downloadOffline();
         csvData = downloadHelper(data);
       }
       // Create the CSV content
@@ -202,30 +258,13 @@ export default function Dashboard() {
     let csvDataFile = [[]];
     let csvDataDailyPnl = [
       [
-        "#",
-        "First Name",
-        "Last Name",
+        "Full Name",
+        "Code",
         "Email",
         "Mobile",
-        "Signup Method",
-        "Joining Date",
-        "Campaign Code",
-        "Referrer Code",
-        "Referral Code",
-        "TestZone",
-        "TestZone Date",
-        "TestZone Portfolio",
-        "Purchase Date",
-        "TestZone Status",
-        "Actual Price",
-        "Buying Price",
-        "Bonus Used",
-        "Rank",
-        "Payout",
-        "TDS Amount",
-        "Net P&L",
-        "Gross P&L",
-        "# of Trades",
+        'Signup User',
+        'Total Revenue',
+        'Affiliate Earning'
       ],
     ];
     if (data) {
@@ -233,30 +272,13 @@ export default function Dashboard() {
       let csvpnlData = Object.values(data);
       csvDataFile = csvpnlData?.map((elem, index) => {
         return [
-          index + 1,
-          TruncatedName(elem?.first_name),
-          TruncatedName(elem?.last_name),
+          TruncatedName(elem?.name),
+          elem?.code,
           elem?.email,
           elem?.mobile,
-          elem?.creationProcess,
-          moment.utc(elem?.joiningDate).format("DD-MMM-YY"),
-          elem?.campaignCode,
-          elem?.referrerCode,
-          elem?.myReferralCode,
-          elem?.testzone,
-          moment.utc(elem?.testzoneDate).format("DD-MMM-YY"),
-          elem?.testzonePortfolio,
-          moment.utc(elem?.purchaseDate).format("DD-MMM-YY HH:mm"),
-          elem?.contestStatus,
-          elem?.actualPrice?.toFixed(2),
-          elem?.buyingPrice?.toFixed(2),
-          elem?.bonusRedemption?.toFixed(2),
-          elem?.rank,
-          elem?.payout?.toFixed(0),
-          elem?.tdsAmount?.toFixed(0),
-          elem?.npnl?.toFixed(0),
-          elem?.gpnl?.toFixed(0),
-          elem?.trades,
+          elem?.signupUsers,
+          elem?.totalProductDiscountedPrice,
+          elem?.totalAffiliatePayout,
         ];
       });
     }
@@ -344,18 +366,48 @@ export default function Dashboard() {
                         Affiliate Program Overview
                       </MDTypography>
                     </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      lg={4}
-                      display="flex"
-                      justifyContent="flex-end"
-                    >
-                      <MDButton variant="text" color="success">
-                        Download Data
-                      </MDButton>
-                    </Grid>
+                    {!downloadingOverall ? (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDButton
+                          variant="text"
+                          color="success"
+                          onClick={() => {
+                            handleDownload(`Overall Affiliate Data`);
+                          }}
+                        >
+                          Download Data
+                        </MDButton>
+                      </Grid>
+                    ) : (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDTypography
+                          mr={5}
+                          fontSize={15}
+                          color="warning"
+                          fontWeight="bold"
+                        >
+                          Downloading
+                        </MDTypography>
+                      </Grid>
+                    )}
                   </Grid>
                 </Card>
               </Grid>
@@ -488,18 +540,48 @@ export default function Dashboard() {
                         YouTube Affiliates Overview
                       </MDTypography>
                     </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      lg={4}
-                      display="flex"
-                      justifyContent="flex-end"
-                    >
-                      <MDButton variant="text" color="success">
-                        Download Data
-                      </MDButton>
-                    </Grid>
+                    {!downloadingYoutube ? (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDButton
+                          variant="text"
+                          color="success"
+                          onClick={() => {
+                            handleDownload(`Youtube Affiliate Data`);
+                          }}
+                        >
+                          Download Data
+                        </MDButton>
+                      </Grid>
+                    ) : (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDTypography
+                          mr={5}
+                          fontSize={15}
+                          color="warning"
+                          fontWeight="bold"
+                        >
+                          Downloading
+                        </MDTypography>
+                      </Grid>
+                    )}
                   </Grid>
                 </Card>
               </Grid>
@@ -652,18 +734,48 @@ export default function Dashboard() {
                         StoxHero Affiliates Overview
                       </MDTypography>
                     </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      lg={4}
-                      display="flex"
-                      justifyContent="flex-end"
-                    >
-                      <MDButton variant="text" color="success">
-                        Download Data
-                      </MDButton>
-                    </Grid>
+                    {!downloadingStoxhero ? (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDButton
+                          variant="text"
+                          color="success"
+                          onClick={() => {
+                            handleDownload(`Stoxhero Affiliate Data`);
+                          }}
+                        >
+                          Download Data
+                        </MDButton>
+                      </Grid>
+                    ) : (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDTypography
+                          mr={5}
+                          fontSize={15}
+                          color="warning"
+                          fontWeight="bold"
+                        >
+                          Downloading
+                        </MDTypography>
+                      </Grid>
+                    )}
                   </Grid>
                 </Card>
               </Grid>
@@ -816,18 +928,48 @@ export default function Dashboard() {
                         Offline Institute Affiliates Overview
                       </MDTypography>
                     </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      lg={4}
-                      display="flex"
-                      justifyContent="flex-end"
-                    >
-                      <MDButton variant="text" color="success">
-                        Download Data
-                      </MDButton>
-                    </Grid>
+                    {!downloadingOffline ? (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDButton
+                          variant="text"
+                          color="success"
+                          onClick={() => {
+                            handleDownload(`Offline Affiliate Data`);
+                          }}
+                        >
+                          Download Data
+                        </MDButton>
+                      </Grid>
+                    ) : (
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignContent="center"
+                        alignItems="center"
+                      >
+                        <MDTypography
+                          mr={5}
+                          fontSize={15}
+                          color="warning"
+                          fontWeight="bold"
+                        >
+                          Downloading
+                        </MDTypography>
+                      </Grid>
+                    )}
                   </Grid>
                 </Card>
               </Grid>

@@ -4,7 +4,9 @@ const router = express.Router({ mergeParams: true });
 const { removeAffiliateUser, createAffiliate, editAffiliate, getAffiliates, affiliateLeaderboard,
     getAffiliateById, addAffiliateUser, getActiveAffiliatePrograms, getStoxHeroAffiliateOverview, getOfflineInstituteAffiliateOverview,
     getInactiveAffiliatePrograms, getDraftAffiliatePrograms, getAffiliateOverview, getYoutubeAffiliateOverview, getMyAffiliateTransaction,
-    getExpiredAffiliatePrograms, getAffiliateProgramTransactions, getMyAffiliatePayout, getAffiliateReferralsSummery } = require('../../controllers/affiliateProgramme/affiliateController');
+    getExpiredAffiliatePrograms, getAffiliateProgramTransactions, getMyAffiliatePayout, getAffiliateReferralsSummery,
+    downloadAffiliateOverview, downloadYoutubeAffiliateOverview, downloadStoxHeroAffiliateOverview, downloadOfflineInstituteAffiliateOverview
+} = require('../../controllers/affiliateProgramme/affiliateController');
 const restrictTo = require('../../authentication/authorization');
 const controller = require('../../controllers/affiliateProgramme/affiliateController');
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createAffiliate).
@@ -33,6 +35,12 @@ router.route('/affiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperA
 router.route('/ytaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getYoutubeAffiliateOverview);
 router.route('/shaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getStoxHeroAffiliateOverview);
 router.route('/oiaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getOfflineInstituteAffiliateOverview);
+
+router.route('/downloadaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), downloadAffiliateOverview);
+router.route('/downloadytaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), downloadYoutubeAffiliateOverview);
+router.route('/downloadshaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), downloadStoxHeroAffiliateOverview);
+router.route('/downloadoiaffiliateoverview').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), downloadOfflineInstituteAffiliateOverview);
+
 router.route('/draft').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftAffiliatePrograms);
 router.route('/inactive').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getInactiveAffiliatePrograms);
 router.route('/expired').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getExpiredAffiliatePrograms);
