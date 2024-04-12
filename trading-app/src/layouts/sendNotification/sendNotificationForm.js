@@ -98,13 +98,13 @@ function Index() {
   }, []);
 
   const getPreviousNotifications = async (id) => {
-    console.log("id hai", id);
-    const res = await axios.get(
-      `${baseUrl}api/v1/notificationgroup/${id}/previousnotifications`,
-      { withCredentials: true }
-    );
-    console.log("data ye aaya", res.data.data);
-    setPreviousNotifications(res.data.data);
+    if(id){
+      const res = await axios.get(
+        `${baseUrl}api/v1/notificationgroup/${id}/previousnotifications`,
+        { withCredentials: true }
+      );
+      setPreviousNotifications(res.data.data);  
+    }
   };
 
   // console.log("College:", collegeSelectedOption)
