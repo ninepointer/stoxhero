@@ -1183,6 +1183,420 @@ exports.getOfflineInstituteAffiliateOverview = async (req, res) => {
   }
 };
 
+exports.downloadAffiliateOverview = async (req, res) => {
+
+  const pipeline = [
+    {
+      "$project": {
+        "affiliates": 1
+      }
+    },
+    {
+      "$unwind": {
+        "path": "$affiliates"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "user-personal-details",
+        "localField": "affiliates.userId",
+        "foreignField": "_id",
+        "as": "affiliateUser"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "affiliate-transactions",
+        "localField": "affiliates.userId",
+        "foreignField": "affiliate",
+        "as": "affiliateTransaction"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "user-personal-details",
+        "localField": "affiliates.userId",
+        "foreignField": "referredBy",
+        "as": "affiliateUsersData"
+      }
+    },
+    {
+      "$project": {
+        "name": {
+          "$concat": [
+            { "$arrayElemAt": [ "$affiliateUser.first_name", 0 ] },
+            " ",
+            { "$arrayElemAt": [ "$affiliateUser.last_name", 0 ] }
+          ]
+        },
+        "email": { "$arrayElemAt": [ "$affiliateUser.email", 0 ] },
+        "mobile": { "$arrayElemAt": [ "$affiliateUser.mobile", 0 ] },
+        "code": { "$arrayElemAt": [ "$affiliateUser.myReferralCode", 0 ] },
+        "signupUsers": { "$size": "$affiliateUsersData" },
+        "affiliateTransaction": 1
+      }
+    },
+    {
+      "$project": {
+        "name": 1,
+        "code": 1,
+        email: 1,
+        mobile: 1,
+        "signupUsers": 1,
+        "totalProductDiscountedPrice": {
+          "$reduce": {
+            "input": "$affiliateTransaction.productDiscountedPrice",
+            "initialValue": 0,
+            "in": { "$add": ["$$value", "$$this"] }
+          }
+        },
+        "totalAffiliatePayout": {
+          "$reduce": {
+            "input": "$affiliateTransaction.affiliatePayout",
+            "initialValue": 0,
+            "in": { "$add": ["$$value", "$$this"] }
+          }
+        }
+      }
+    },
+    {
+      $sort: {
+        totalProductDiscountedPrice: -1
+      }
+    }
+  ];  
+  try {
+    const data = await Affiliate.aggregate(pipeline)
+    res.status(200).json({
+      status: "success",
+      message: "Affiliate Data fetched successfully",
+      data: data,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
+exports.downloadYoutubeAffiliateOverview = async (req, res) => {
+
+  const pipeline = [
+    {
+      $match: {
+        affiliateType:
+          "Youtube Influencer",
+      },
+    },
+    {
+      "$project": {
+        "affiliates": 1
+      }
+    },
+    {
+      "$unwind": {
+        "path": "$affiliates"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "user-personal-details",
+        "localField": "affiliates.userId",
+        "foreignField": "_id",
+        "as": "affiliateUser"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "affiliate-transactions",
+        "localField": "affiliates.userId",
+        "foreignField": "affiliate",
+        "as": "affiliateTransaction"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "user-personal-details",
+        "localField": "affiliates.userId",
+        "foreignField": "referredBy",
+        "as": "affiliateUsersData"
+      }
+    },
+    {
+      "$project": {
+        "name": {
+          "$concat": [
+            { "$arrayElemAt": [ "$affiliateUser.first_name", 0 ] },
+            " ",
+            { "$arrayElemAt": [ "$affiliateUser.last_name", 0 ] }
+          ]
+        },
+        "email": { "$arrayElemAt": [ "$affiliateUser.email", 0 ] },
+        "mobile": { "$arrayElemAt": [ "$affiliateUser.mobile", 0 ] },
+        "code": { "$arrayElemAt": [ "$affiliateUser.myReferralCode", 0 ] },
+        "signupUsers": { "$size": "$affiliateUsersData" },
+        "affiliateTransaction": 1
+      }
+    },
+    {
+      "$project": {
+        "name": 1,
+        "code": 1,
+        email: 1,
+        mobile: 1,
+        "signupUsers": 1,
+        "totalProductDiscountedPrice": {
+          "$reduce": {
+            "input": "$affiliateTransaction.productDiscountedPrice",
+            "initialValue": 0,
+            "in": { "$add": ["$$value", "$$this"] }
+          }
+        },
+        "totalAffiliatePayout": {
+          "$reduce": {
+            "input": "$affiliateTransaction.affiliatePayout",
+            "initialValue": 0,
+            "in": { "$add": ["$$value", "$$this"] }
+          }
+        }
+      }
+    },
+    {
+      $sort: {
+        totalProductDiscountedPrice: -1
+      }
+    }
+  ];  
+  try {
+    const data = await Affiliate.aggregate(pipeline)
+    res.status(200).json({
+      status: "success",
+      message: "Affiliate Data fetched successfully",
+      data: data,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
+exports.downloadStoxHeroAffiliateOverview = async (req, res) => {
+
+  const pipeline = [
+    {
+      $match: {
+        affiliateType:
+          "StoxHero User",
+      },
+    },
+    {
+      "$project": {
+        "affiliates": 1
+      }
+    },
+    {
+      "$unwind": {
+        "path": "$affiliates"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "user-personal-details",
+        "localField": "affiliates.userId",
+        "foreignField": "_id",
+        "as": "affiliateUser"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "affiliate-transactions",
+        "localField": "affiliates.userId",
+        "foreignField": "affiliate",
+        "as": "affiliateTransaction"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "user-personal-details",
+        "localField": "affiliates.userId",
+        "foreignField": "referredBy",
+        "as": "affiliateUsersData"
+      }
+    },
+    {
+      "$project": {
+        "name": {
+          "$concat": [
+            { "$arrayElemAt": [ "$affiliateUser.first_name", 0 ] },
+            " ",
+            { "$arrayElemAt": [ "$affiliateUser.last_name", 0 ] }
+          ]
+        },
+        "email": { "$arrayElemAt": [ "$affiliateUser.email", 0 ] },
+        "mobile": { "$arrayElemAt": [ "$affiliateUser.mobile", 0 ] },
+        "code": { "$arrayElemAt": [ "$affiliateUser.myReferralCode", 0 ] },
+        "signupUsers": { "$size": "$affiliateUsersData" },
+        "affiliateTransaction": 1
+      }
+    },
+    {
+      "$project": {
+        "name": 1,
+        "code": 1,
+        email: 1,
+        mobile: 1,
+        "signupUsers": 1,
+        "totalProductDiscountedPrice": {
+          "$reduce": {
+            "input": "$affiliateTransaction.productDiscountedPrice",
+            "initialValue": 0,
+            "in": { "$add": ["$$value", "$$this"] }
+          }
+        },
+        "totalAffiliatePayout": {
+          "$reduce": {
+            "input": "$affiliateTransaction.affiliatePayout",
+            "initialValue": 0,
+            "in": { "$add": ["$$value", "$$this"] }
+          }
+        }
+      }
+    },
+    {
+      $sort: {
+        totalProductDiscountedPrice: -1
+      }
+    }
+  ];  
+  try {
+    const data = await Affiliate.aggregate(pipeline)
+    res.status(200).json({
+      status: "success",
+      message: "Affiliate Data fetched successfully",
+      data: data,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
+exports.downloadOfflineInstituteAffiliateOverview = async (req, res) => {
+
+  const pipeline = [
+    {
+      $match: {
+        affiliateType:
+          "Offline Institute",
+      },
+    },
+    {
+      "$project": {
+        "affiliates": 1
+      }
+    },
+    {
+      "$unwind": {
+        "path": "$affiliates"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "user-personal-details",
+        "localField": "affiliates.userId",
+        "foreignField": "_id",
+        "as": "affiliateUser"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "affiliate-transactions",
+        "localField": "affiliates.userId",
+        "foreignField": "affiliate",
+        "as": "affiliateTransaction"
+      }
+    },
+    {
+      "$lookup": {
+        "from": "user-personal-details",
+        "localField": "affiliates.userId",
+        "foreignField": "referredBy",
+        "as": "affiliateUsersData"
+      }
+    },
+    {
+      "$project": {
+        "name": {
+          "$concat": [
+            { "$arrayElemAt": [ "$affiliateUser.first_name", 0 ] },
+            " ",
+            { "$arrayElemAt": [ "$affiliateUser.last_name", 0 ] }
+          ]
+        },
+        "email": { "$arrayElemAt": [ "$affiliateUser.email", 0 ] },
+        "mobile": { "$arrayElemAt": [ "$affiliateUser.mobile", 0 ] },
+        "code": { "$arrayElemAt": [ "$affiliateUser.myReferralCode", 0 ] },
+        "signupUsers": { "$size": "$affiliateUsersData" },
+        "affiliateTransaction": 1
+      }
+    },
+    {
+      "$project": {
+        "name": 1,
+        "code": 1,
+        email: 1,
+        mobile: 1,
+        "signupUsers": 1,
+        "totalProductDiscountedPrice": {
+          "$reduce": {
+            "input": "$affiliateTransaction.productDiscountedPrice",
+            "initialValue": 0,
+            "in": { "$add": ["$$value", "$$this"] }
+          }
+        },
+        "totalAffiliatePayout": {
+          "$reduce": {
+            "input": "$affiliateTransaction.affiliatePayout",
+            "initialValue": 0,
+            "in": { "$add": ["$$value", "$$this"] }
+          }
+        }
+      }
+    },
+    {
+      $sort: {
+        totalProductDiscountedPrice: -1
+      }
+    }
+  ];  
+  try {
+    const data = await Affiliate.aggregate(pipeline)
+    res.status(200).json({
+      status: "success",
+      message: "Affiliate Data fetched successfully",
+      data: data,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
 
 exports.getMyAffiliatePayout = async (req, res) => {
   try {
