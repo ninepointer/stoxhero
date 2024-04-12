@@ -28,20 +28,6 @@ import { IoMdAddCircle } from "react-icons/io";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import dayjs from "dayjs";
 import Autocomplete from "@mui/material/Autocomplete";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
-import DefaultCarouselImage from "../../assets/images/defaultcarousel.png";
-// import User from './users';
-// import PotentialUser from "./data/potentialUsers";
-// import Leaderboard from "./data/contestWiseLeaderboard"
-// import CollegeRegistrations from "./data/contestRegistrations";
-// import FeaturedRegistrations from "./data/featuredRegistrations";
-// import Shared from "./data/shared";
-// import CreateRewards from './data/reward/createReward';
-// import ContestRewards from './data/reward/contestReward';
 import { apiUrl } from "../../constants/constants";
 import moment from "moment";
 
@@ -77,18 +63,13 @@ function Index() {
   const [creating, setCreating] = useState(false);
   const navigate = useNavigate();
   const [newObjectId, setNewObjectId] = useState("");
-  const [updatedDocument, setUpdatedDocument] = useState([]);
   const [sendNotificationData, setSendNotification] = useState([]);
   const [notification, setNotification] = useState([]);
   const [image, setImage] = useState(null);
+  const [csvUpload, setCsvUpload] = useState(null);
   const [previewUrl, setPreviewUrl] = useState([]);
   const [previousNotifications, setPreviousNotifications] = useState([]);
   const [isSending, setIsSending] = useState(false);
-  // const [featuredRegistrations, setFeaturedRegistrations] = useState([]);
-  // // const [careers,setCareers] = useState([]);
-  // const [action, setAction] = useState(false);
-  // let Url = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
-  // const [type, setType] = useState(sendNotification?.notificationGroup?.notificationGroupName.includes('Workshop')?'Workshop':'Job');
 
   const [formState, setFormState] = useState({
     title: "" || sendNotification?.title,
@@ -159,10 +140,12 @@ function Index() {
     reader.readAsDataURL(file);
   };
 
+  const handleCsv = (event) => {
+    setCsvUpload(event.target.files);
+  };
+
   async function onSubmit(e, formState) {
-    // console.log("inside submit")
     e.preventDefault();
-    console.log(formState);
 
     if (!formState.title || !formState.body) {
       setTimeout(() => {
@@ -182,8 +165,10 @@ function Index() {
     const { title, body, notificationGroup, actions, external } = formState;
     const formData = new FormData();
     if (image) {
-      console.log("image hai");
       formData.append("notificationImage", image[0]);
+    }
+    if (csvUpload) {
+      formData.append("csvFile", csvUpload[0]);
     }
     formData.append("title", title);
     formData.append("body", body);
@@ -193,7 +178,7 @@ function Index() {
     }
     setIsSending(true);
     const res = await fetch(
-      `${baseUrl}api/v1/push/group/${notificationGroup?.id}`,
+      `${baseUrl}api/v1/push/group/${notificationGroup?.id || 'csv'}`,
       {
         method: "POST",
         credentials: "include",
@@ -224,172 +209,6 @@ function Index() {
       setTimeout(() => {
         setCreating(false);
         setIsSubmitted(true);
-      }, 500);
-    }
-  }
-
-  // console.log("sendNotificationData", sendNotificationData)
-
-  async function onEdit(e, formState) {
-    e.preventDefault();
-    // console.log("Edited FormState: ", new Date(formState.contestStartTime).toISOString(), new Date(formState.contestEndTime).toISOString())
-    setSaving(true);
-    console.log(
-      "formstate....",
-      formState,
-      formState.contestName,
-      formState.contestStartTime,
-      formState.contestEndTime,
-      formState.contestStatus,
-      formState.maxParticipants,
-      formState.description,
-      formState.contestType,
-      formState.notificationGroup,
-      formState.contestFor,
-      (formState.isNifty, formState.isBankNifty, formState.isFinNifty)
-    );
-
-    if (
-      new Date(formState.contestLiveTime).toISOString() >
-      new Date(formState.contestStartTime).toISOString()
-    ) {
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
-      return openErrorSB("Error", "Live time should be less then start time.");
-    }
-
-    if (
-      new Date(formState.contestStartTime).toISOString() >
-      new Date(formState.contestEndTime).toISOString()
-    ) {
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
-      return openErrorSB("Error", "Date range is not valid.");
-    }
-
-    if (
-      !formState.contestName ||
-      !formState.contestStartTime ||
-      !formState.contestEndTime ||
-      !formState.contestStatus ||
-      !formState.maxParticipants ||
-      !formState.description ||
-      !formState.contestType ||
-      !formState.notificationGroup ||
-      !formState.contestFor ||
-      (!formState.isNifty && !formState.isBankNifty && !formState.isFinNifty)
-    ) {
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
-      return openErrorSB(
-        "Missing Field",
-        "Please fill all the mandatory fields"
-      );
-    }
-    const {
-      rewardType,
-      tdsRelief,
-      contestLiveTime,
-      payoutPercentageType,
-      payoutType,
-      liveThreshold,
-      currentLiveStatus,
-      contestName,
-      contestStartTime,
-      contestEndTime,
-      contestStatus,
-      maxParticipants,
-      payoutPercentage,
-      entryFee,
-      description,
-      notificationGroup,
-      contestType,
-      contestFor,
-      collegeCode,
-      college,
-      isNifty,
-      featured,
-      isBankNifty,
-      isFinNifty,
-      isAllIndex,
-      contestExpiry,
-      payoutCapPercentage,
-    } = formState;
-
-    const res = await fetch(
-      `${baseUrl}api/v1/dailycontest/sendNotification/${sendNotification?._id}`,
-      {
-        method: "PUT",
-        credentials: "include",
-        headers: {
-          "content-type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-        body: JSON.stringify({
-          rewardType,
-          tdsRelief,
-          contestLiveTime,
-          payoutPercentageType,
-          payoutType,
-          liveThreshold,
-          currentLiveStatus,
-          contestName,
-          contestStartTime,
-          contestEndTime,
-          contestStatus,
-          maxParticipants,
-          payoutPercentage,
-          entryFee,
-          description,
-          notificationGroup: notificationGroup?.id,
-          contestType,
-          contestFor,
-          collegeCode,
-          college,
-          featured,
-          isNifty,
-          isBankNifty,
-          isFinNifty,
-          isAllIndex,
-          contestExpiry,
-          payoutCapPercentage,
-        }),
-      }
-    );
-
-    const data = await res.json();
-    console.log(data);
-    if (
-      data.status === 500 ||
-      data.status == 400 ||
-      data.status == 401 ||
-      data.status == "error" ||
-      data.error ||
-      !data
-    ) {
-      openErrorSB("Error", data.error);
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
-      }, 500);
-    } else if (data.status == "success") {
-      openSuccessSB("TestZone Edited", "Edited Successfully");
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(false);
-      }, 500);
-      console.log("entry succesfull");
-    } else {
-      openErrorSB("Error", data.message);
-      setTimeout(() => {
-        setSaving(false);
-        setEditing(true);
       }, 500);
     }
   }
@@ -576,7 +395,8 @@ function Index() {
                   />
                 </MDButton>
               </Grid>
-              <Grid item xs={12} md={6} xl={4.5}>
+
+              <Grid item xs={12} md={6} xl={3}>
                 <TextField
                   disabled
                   id="outlined-required"
@@ -593,7 +413,46 @@ function Index() {
                 />
               </Grid>
 
-              <Grid item xs={12} md={6} xl={4.5}>
+              <Grid item xs={12} md={6} xl={3}>
+                <MDButton
+                  variant="outlined"
+                  style={{
+                    fontSize: 10,
+                    color: "black",
+                    border: "1px black solid",
+                  }}
+                  fullWidth
+                  component="label"
+                >
+                  Upload CSV
+                  <input
+                    hidden
+                    // disabled={((imageData || prevData) && (!editing))}
+                    // accept="image/*"
+                    type="file"
+                    // onChange={(e)=>{setTitleImage(e.target.files)}}
+                    onChange={(e) => {
+                      handleCsv(e);
+                    }}
+                  />
+                </MDButton>
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={3}>
+                <TextField
+                  disabled
+                  id="outlined-required"
+                  // label='Selected Carousel Image'
+                  fullWidth
+                  // defaultValue={portfolioData?.portfolioName}
+                  value={
+                       csvUpload?.[0]?.name
+                      || "No CSV Uploaded"
+                  }
+                />
+              </Grid>
+
+              {!csvUpload ? <Grid item xs={12} md={6} xl={4}>
                 <FormControl sx={{ width: "100%" }}>
                   <InputLabel id="demo-multiple-name-label">
                     Notification Group
@@ -628,8 +487,9 @@ function Index() {
                     ))}
                   </Select>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12} md={6} xl={3}>
+              </Grid> : <></>}
+
+              <Grid item xs={12} md={6} xl={4}>
                 <FormGroup>
                   <FormControlLabel
                     checked={
@@ -659,7 +519,7 @@ function Index() {
               </Grid>
 
               {!formState?.external ? (
-                <Grid item xs={12} md={6} xl={3}>
+                <Grid item xs={12} md={6} xl={4}>
                   <FormControl sx={{ width: "100%" }}>
                     <InputLabel id="demo-multiple-name-label">Route</InputLabel>
                     <Select
