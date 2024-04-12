@@ -11,6 +11,8 @@ export default function data() {
       { Header: "Lots Used", accessor: "lotUsed", width: "12.5%", align: "center" },
       { Header: "Brokerage", accessor: "brokerage", width: "12.5%", align: "center" },
       { Header: "Net P&L", accessor: "netPnl", width: "12.5%", align: "center" },
+      { Header: "ROI(%)", accessor: "roi", width: "12.5%", align: "center" },
+      { Header: "Investment", accessor: "investment", width: "12.5%", align: "center" },
       { Header: "Email", accessor: "email", width: "12.5%", align: "center" },
       { Header: "Mobile", accessor: "mobile", width: "12.5%", align: "center" },
 

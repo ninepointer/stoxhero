@@ -51,9 +51,6 @@ const MenuProps = {
 function Index() {
   const location = useLocation();
   const sendNotification = location?.state?.data;
-  // const [collegeSelectedOption, setCollegeSelectedOption] = useState();
-  // console.log('id hai', sendNotification);
-  // const [applicationCount, setApplicationCount] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";

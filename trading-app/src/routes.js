@@ -3,201 +3,26 @@ import {lazy} from 'react';
 import { FaRupeeSign } from "react-icons/fa";
 import { FaAffiliatetheme } from "react-icons/fa";
 import SchoolIcon from '@mui/icons-material/School';
-// import BatchIcon from '@mui/icons-material/Diversity3';
-// import Shop2Icon from '@mui/icons-material/Shop2';
-// import SportsKabaddiIcon from '@mui/icons-material/SportsKabaddi';
 import ReportIcon from '@mui/icons-material/Assessment';
-// import QueryStatsIcon from '@mui/icons-material/QueryStats';
-// import InventoryIcon from '@mui/icons-material/Inventory'; 
 import PersonIcon from '@mui/icons-material/Person';
-// import BusinessIcon from '@mui/icons-material/Business';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import WalletIcon from '@mui/icons-material/Wallet';
 import VpnLockIcon from '@mui/icons-material/VpnLock';
 import Forward10Icon from '@mui/icons-material/Forward10';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
-// import TryIcon from '@mui/icons-material/Try';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-// import HomeIcon from '@mui/icons-material/OtherHouses';
-// import AnalyticsIcon from '@mui/icons-material/Analytics';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import BookIcon from '@mui/icons-material/Book';
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 
 
-
-// import CompanyPosition from "./layouts/companyposition";
-// import CompanyPositionRedis from "./layouts/companypositionRedis";
-// import CohortPosition from "./layouts/cohortposition";
-// import TenXDashboard from "./layouts/tenxdashboard";
-// import TraderDashboard from "./layouts/traderdashboard";
-// import Orders from "./layouts/company-orders";
-// import Instruments from "./layouts/instruments";
-// import TradingAccount from "./layouts/trading-account";
-// import Users from "./layouts/users";
-// import AlgoBox from "./layouts/algobox";
-// import Funds from "./layouts/funds";
-// import Profile from "./layouts/profile";
-// import Setting from "./layouts/settings/Setting";
-// import UserOrders from "./layouts/userorders";
-// import UserPosition from "./layouts/PaperTrade";
-// import TradersReport from "./layouts/tradersReportMock";
-// import AdminReport from "./layouts/adminreportMock";
-// import DailyPNLData from "./layouts/dailyPnlDashboard";
-// import TraderPosition from "./layouts/traderPosition"
-// import InternPosition from "./layouts/internPosition"
-// import TradersReportLive from "./layouts/tradersReportLive"
-// import TradersMarginAllocation from "./layouts/tradersMarginAllocation"
-// import SignUp from './layouts/authentication/sign-up'
-// import SignIn from './layouts/authentication/sign-in'
-// import ResetPassword from './layouts/authentication/reset-password/cover'
-// import Response from './layouts/authentication/sign-up/responseSubmit'
-// import MyReferrals from "./layouts/referrals"
-// import Portfolio from './layouts/portfolio'
-// import CreatePortfolio from './layouts/portfolio/createPortfolio'
-// import CarouselDetails from './layouts/carousel/carouselDetails'
-// import BrokerReportDetails from './layouts/brokerReport/brokerReportDetails'
-// import CareerList from './layouts/career'
-// import CareerDetails from './layouts/career/careerDetails'
-// import BatchDetails from './layouts/internBatch/batchDetails'
-// import DailyContestDetails from './layouts/dailyContest/dailyContestDetails'
-// import NotificationDetails from './layouts/notificationGroup/notificationDetails'
-// import FullCollegeDetail from './layouts/createCollege/collegeDetails'
-// import SendNotificationDetails from './layouts/sendNotification/sendNotificationDetails'
-// import CampaignDetails from './layouts/campaign/campaignDetails'
-// import ReferralProgramDetails from './layouts/referral-program/ReferralProgramDetails'
-// import ContestPage from './layouts/UserContest/contestPage'
-// import ContestRegisterPage from './layouts/UserContest/contestRegistrationPage'
-// import ContestTradePage from './layouts/UserContest/ContestTrade'
-// import Carousel from './layouts/carousel'
-// import BrokerReport from './layouts/brokerReport'
-// import UserSignupDashboard from './layouts/userSignupDashboard'
-// import Campaigns from './layouts/campaign'
-// import TutorialVideos from './layouts/tutorialVideos';
-// import Internship from './layouts/internshipTrading';
-// import InternshipTrade from './layouts/internshipTrading/TradeView/main'
-// import CollegeDetails from './layouts/college/collegeDetails'
-// import CouponDetails from './layouts/coupons/couponDetails'
-// import MyPortfolio from './layouts/UserPortfolio'
-// import BackReportXTS from "./layouts/backReportXTS";
-// import OverallPnlTrader from "./layouts/overallPnlTrader";
-// import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
-// import RevenueDashboard from './layouts/revenueDashboard'
-// import RevenueAnalytics from './layouts/reveneuAnalytics'
-// import AdminDashboard from './layouts/AdminDashboard'
-// import AffiliateDashboard from './layouts/affiliateDashboard'
-// import InfluencerDashboard from './layouts/InfluencerDashboard'
-// import ChallengeDashboard from './layouts/challengeDashboard'
-// import DailyContestDashboard from './layouts/dailyContestDashboard'
-// import BattleDashboard from './layouts/battleDashboard'
-// import PaymentTest from './layouts/paymentTest/index'
-// import ContestScoreboard from './layouts/contestScoreboard'
-// import StoxHeroUserDashboard from './layouts/StoxHeroDashboard'
-// import MarginXReport from "./layouts/marginxReport";
-// import Coupons from './layouts/coupons'
-// import Blogs from './layouts/blog'
-// import BlogDetails from './layouts/blog/blogDetails'
-// import BlogForm from './layouts/blog/blogDetails'
-// import LearningModule from './layouts/learningModule'
-// import LearningModuleDetails from './layouts/learningModule/moduleChapterIndex'
-// import ModuleChapterDetails from './layouts/learningModule/moduleChapterIndex'
-// import AffiliateProgram from './layouts/affiliateProgram'
-// import AffiliateProgramDetails from './layouts/affiliateProgram/AffiliateProgramDetails'
-// import Referral from "./layouts/referral-program";
-// import Batch from "./layouts/batch";
-// import InfinityTrader from "./layouts/InfinityTrading"
-// import UserAnalytics from "./layouts/userAnalytics";
-// import UserWallet from "./layouts/userWallet"
-// import About from './layouts/HomePage/pages/About'
-// import Blog from './layouts/HomePage/pages/BlogCards'
-// import Careers from './layouts/HomePage/pages/Career'
-// import JobForm from './layouts/HomePage/pages/EICCareerForm'
-// import Workshops from './layouts/HomePage/pages/Workshop'
-// import Home from './layouts/HomePage/pages/Home'
-// import JD from './layouts/HomePage/pages/JobDescription'
-// import CareerForm from './layouts/HomePage/pages/CareerForm'
-// import TenXSubscription from './layouts/tenXSubscription'
-// import TenXSubscriptionForm from './layouts/tenXSubscription/TenXSubscriptionDetails'
-// import TutorialCategoryForm from './layouts/tutorialVideos/tutorialCategoryDetails'
-// import TradingHolidaysDetails from './layouts/tradingHolidays'
-// import TradingHolidayForm from './layouts/tradingHolidays/data/tradingHolidayDetails'
-// import Contact from "./layouts/HomePage/pages/Contact"; 
-// import CreatePaymentHeader from "./layouts/Payment/CreatePaymentHeader";
-// import College from "./layouts/college";
-// import InternBatch from "./layouts/internBatch";
-// import DailyContest from "./layouts/dailyContest";
-// import NotificationGroup from "./layouts/notificationGroup";
-// import FullCollege from "./layouts/createCollege";
-// import NotificationSend from "./layouts/sendNotification";
-// import Battles from "./layouts/battle";
-// import CollegeEdit from './layouts/college/CollegeEdit'
-// import TenXTrading from "./layouts/tenXTrading"
-// import VirtualPosition from "./layouts/virtualtradePosition";
-// import StockPosition from "./layouts/stockTradePosition";
-// import TenxPosition from "./layouts/tenxPosition";
-// import DailyContestPosition from "./layouts/dailyContestPosition";
-// import DailyContestPositionTrader from "./layouts/dailyContestPositionTrader";
-// import MarginXPosition from "./layouts/marginxCompanyPosition";
-// import MarginXPositionTrader from "./layouts/marginxTraderPosition";
-// import KYC from './layouts/KYC/index';
-// import MarginDetails from './layouts/margindetails'
-// import CareerDashboard from './layouts/careerdashboard'
-// import VirtualDashboard from './layouts/virtualdashboard'
-// import StockDashboard from './layouts/stockDashboard'
-// import InternshipOrders from './layouts/internshipOrders'
-// import StockOrders from './layouts/stockOrders';
-// import ContactInfo from './layouts/ContactInfo';
-// import TenxReport from "./layouts/tenXReport";
-// import DailyContestReport from "./layouts/dailyContestReport";
-// import InternReport from "./layouts/internReport";
-// import InternshipLeaderboard from './layouts/leaderBoard/internshipLeaderboard'
-// import AdminMockReport from './layouts/adminSideReportMock'
-// import AdminLiveReport from './layouts/adminSideReportLive'
-// import WorkShopOrders from './layouts/userorders/workshopOrder';
-// import Chart from './layouts/charts/index';
-// import Withdrawal from "./layouts/withdrawals";
-// import WalletPayment from "./layouts/walletPayment";
-// import PaymentStatus from "./layouts/paymentTest/paymentStatus";
-// import InfinityContest from "./layouts/dailyContestDashboard/data/infinityContestHeader"
-// import DailyContestLiveReport from "./layouts/dailyContestReportLive"
-// import ContestMaster from "./layouts/dailyContest/contestMaster/contestMaster"
-// import CreateContestMasterHeader from "./layouts/dailyContest/contestMaster/createContestMasterHeader";
-// import MarginXDashboard from "./layouts/marginXDashboard"
-// import MarginXTemplateDetail from "./layouts/marginXTemplate"
-// import ChallengeTemplateDetail from "./layouts/challengeTemplate"
-// import ChallengeTemplateForm from "./layouts/challengeTemplate/challengeTemplateIndex"
-// import BattleTemplateDetail from "./layouts/battleTemplate"
-// import BattleTemplateForm from "./layouts/battleTemplate/battleTemplateIndex"
-// import CreateMarginXTemplate from "./layouts/marginXTemplate/createMarginIndex"
-// import CreateMarginX from "./layouts/marginX/createMarginIndex"
-// import CreateBattle from "./layouts/battle/createBattleIndex"
-// import MarginX from "./layouts/marginX"
-// import BattlePosition from "./layouts/battleTraderPosition";
-// import BattleReport from "./layouts/battleReport";
-// import DailyContestAnalytics from "./layouts/dailyContestAnalytics"
-// import TenXSubscribers from "./layouts/tenXSubscribers"
-// import MarketingFunnel from "./layouts/marketingDashboard"
-// import Quiz from './layouts/quiz'
-// import City from './layouts/city'
-// import QuizDetails from './layouts/quiz/quizDetails'
-// import CityDetails from './layouts/city/cityDetails'
-// import Register from "./layouts/authentication/sign-up/register"
-// import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo"
-// import Lobby from "./layouts/schoolLobby/lobby"
-// import QuestionBankDetails from './layouts/questionBank/questionBankDetails';
-// import QuestionBank from './layouts/questionBank';
-// import SchoolDetails from './layouts/schoolOnboarding/schoolDetails';
-// import School from './layouts/schoolOnboarding';
-// import CourseDetails from './layouts/courses/courseDetails';
-// import Course from './layouts/courses';
-// import AllTransaction from './layouts/allWalletTransaction';
-
-
+const Leaderboard = lazy(()=> import("./layouts/Leaderboard-Admin"));
 const CompanyPosition = lazy(()=> import("./layouts/companyposition"));
 const CompanyPositionRedis = lazy(()=> import("./layouts/companypositionRedis"));
-const CohortPosition = lazy(()=> import("./layouts/cohortposition"));
+// const CohortPosition = lazy(()=> import("./layouts/cohortposition"));
 const TenXDashboard = lazy(()=> import("./layouts/tenxdashboard"));
 const TraderDashboard = lazy(()=> import("./layouts/traderdashboard"));
 const Orders = lazy(()=> import("./layouts/company-orders"));
@@ -769,14 +594,6 @@ const routes = [
     route: "/careers/:name/jobdescription",
     component: <JD />,
   },
-  // {
-  //   // type: "collapse",
-  //   // name: "Arena",
-  //   // key: "arena",
-  //   // icon: <BusinessIcon/>,
-  //   route: "/home",
-  //   component: <Home />,
-  // },
   {
     // type: "collapse",
     // name: "Arena",
@@ -882,14 +699,14 @@ const routes = [
     route: "/companypositionredis",
     component: <CompanyPositionRedis />,
   },
-  {
-    // type: "collapse",
-    // name: "Cohort Position",
-    key: "cohortposition",
-    // icon: <BusinessIcon/>,
-    route: "/cohortposition",
-    component: <CohortPosition />,
-  },
+  // {
+  //   // type: "collapse",
+  //   // name: "Cohort Position",
+  //   key: "cohortposition",
+  //   // icon: <BusinessIcon/>,
+  //   route: "/cohortposition",
+  //   component: <CohortPosition />,
+  // },
 
   {
     // type: "collapse",
@@ -1043,14 +860,14 @@ const routes = [
     route: "/walletpayment",
     component: <WalletPayment />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Contests",
-  //   key: "contests",
-  //   icon: <WalletIcon/>,
-  //   route: "/contests",
-  //   component: <Contests />,
-  // },
+  {
+    type: "collapse",
+    name: "Leaderboard",
+    key: "leaderboard",
+    icon: <LeaderboardIcon/>,
+    route: "/leaderboard",
+    component: <Leaderboard />,
+  },
   {
     type: "collapse",
     name: "Carousel",

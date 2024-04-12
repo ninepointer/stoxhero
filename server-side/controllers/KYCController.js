@@ -88,10 +88,19 @@ exports.uploadToS3 = async(req, res, next) => {
 
 
 exports.getAllPendingApprovalKYC = async (req, res, next) => {
+  try{
+    const skip = Number(req.query.skip) || 0;
+    const limit = Number(req.query.limit) || 10;
+    const count = await User.countDocuments({KYCStatus:'Pending Approval'});
     const pendingKYCUsers = await User.find({KYCStatus:'Pending Approval'})
-    .sort({KYCActionDate: -1})
-    res.status(200).json({status:'success', data: pendingKYCUsers, results: pendingKYCUsers.length})
+    .select('first_name last_name dob state mobile aadhaarNumber panNumber KYCActionDate KYCStatus KYCRejectionReason aadhaarCardFrontImage panCardFrontImage upiId phonePe_number googlePay_number payTM_number bankName nameAsPerBankAccount ifscCode accountNumber')
+    .sort({KYCActionDate: -1}).skip(skip).limit(limit);
+    res.status(200).json({status:'success', data: pendingKYCUsers, results: count})
+  } catch(err){
+    res.status(200).json({status:'err', message: 'Something went wrong'});
+  }
 }
+
 exports.getAllPendingApprovalKYPageC = async (req, res, next) => {
   // Extract page and limit from query parameters. Default to page 1 and limit 10 if not provided
   let { page, limit } = req.query;
@@ -126,10 +135,19 @@ exports.getAllPendingApprovalKYPageC = async (req, res, next) => {
 
 
 exports.getApporvedKYC = async (req,res,next) => {
+  try{
+    const skip = Number(req.query.skip) || 0;
+    const limit = Number(req.query.limit) || 10;
+    const count = await User.countDocuments({KYCStatus:'Approved'});
     const approvedKYCs = await User.find({KYCStatus:'Approved'})
-    .sort({KYCActionDate: -1})
-    res.status(200).json({status:'success', data: approvedKYCs, results: approvedKYCs.length})
+    .select('first_name last_name dob state mobile aadhaarNumber panNumber KYCActionDate KYCStatus KYCRejectionReason aadhaarCardFrontImage panCardFrontImage upiId phonePe_number googlePay_number payTM_number bankName nameAsPerBankAccount ifscCode accountNumber')
+    .sort({KYCActionDate: -1}).skip(skip).limit(limit);
+    res.status(200).json({status:'success', data: approvedKYCs, results: count})
+  } catch(err){
+    res.status(200).json({status:'err', message: 'Something went wrong'});
+  }
 }
+
 exports.getApprovedKYCPage = async (req, res, next) => {
   let { page, limit } = req.query;
   page = page * 1 || 1; // Convert to number, defaulting to 1 if undefined
@@ -159,9 +177,17 @@ exports.getApprovedKYCPage = async (req, res, next) => {
 
 
 exports.getRejectedKYCS = async (req,res,next) => {
-    const rejectedKYCS = await User.find({KYCStatus:'Rejected'})
-    .sort({KYCActionDate: -1})
-    res.status(200).json({status:'success', data: rejectedKYCS, results: rejectedKYCS.length})
+    try{
+      const skip = Number(req.query.skip) || 0;
+      const limit = Number(req.query.limit) || 10;
+      const count = await User.countDocuments({KYCStatus:'Rejected'});
+      const rejectedKYCS = await User.find({KYCStatus:'Rejected'})
+      .select('first_name last_name dob state mobile aadhaarNumber panNumber KYCActionDate KYCStatus KYCRejectionReason aadhaarCardFrontImage panCardFrontImage upiId phonePe_number googlePay_number payTM_number bankName nameAsPerBankAccount ifscCode accountNumber')
+      .sort({KYCActionDate: -1}).skip(skip).limit(limit);
+      res.status(200).json({status:'success', data: rejectedKYCS, results: count})
+    } catch(err){
+      res.status(200).json({status:'err', message: 'Something went wrong'});
+    }
 }
 
 exports.getRejectedKYCSPage = async (req, res, next) => {

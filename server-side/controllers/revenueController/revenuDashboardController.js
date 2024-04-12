@@ -2268,9 +2268,9 @@ exports.downloadTestZoneRevenueData = async (req, res) => {
           last_name: "$user.last_name",
           mobile: "$user.mobile",
           email: "$user.email",
-          testzone: "$contestName",
-          testzoneDate: "$testzoneDate",
-          testzonePortfolio:
+          name: "$contestName",
+          date: "$testzoneDate",
+          portfolio:
             "$portfolio-details.portfolioValue",
           purchaseDate: "$purchaseDate",
           joiningDate: "$joiningDate",
@@ -2283,7 +2283,7 @@ exports.downloadTestZoneRevenueData = async (req, res) => {
           myReferralCode: {
             $ifNull: ["$user.myReferralCode", ""],
           },
-          contestStatus: {
+          status: {
             $ifNull: ["$contestStatus", ""],
           },
           actualPrice: {
@@ -2323,7 +2323,7 @@ exports.downloadTestZoneRevenueData = async (req, res) => {
       },
       {
         $sort:{
-          testzoneDate:-1
+          date:-1
         }
       }
     ]
@@ -2407,11 +2407,11 @@ exports.downloadTenxRevenueData = async (req, res) => {
           last_name: "$user.last_name",
           mobile: "$user.mobile",
           email: "$user.email",
-          tenx: "$plan_name",
+          name: "$plan_name",
 
-          tenxPortfolio:
+          portfolio:
             "$portfolio-details.portfolioValue",
-          purchaseDate: "$purchaseDate",
+          date: "$purchaseDate",
           joiningDate: "$joiningDate",
           campaignCode: {
             $ifNull: ["$user.campaignCode", ""],
@@ -2422,7 +2422,7 @@ exports.downloadTenxRevenueData = async (req, res) => {
           myReferralCode: {
             $ifNull: ["$user.myReferralCode", ""],
           },
-          tenxStatus: {
+          status: {
             $ifNull: ["$status", ""],
           },
           actualPrice: {
@@ -2459,7 +2459,7 @@ exports.downloadTenxRevenueData = async (req, res) => {
       },
       {
         $sort: {
-          purchaseDate: -1
+          date: -1
         }
       }
     ]
@@ -2542,9 +2542,9 @@ exports.downloadMarginXRevenueData = async (req, res) => {
           last_name: "$user.last_name",
           mobile: "$user.mobile",
           email: "$user.email",
-          testzone: "$marginXName",
-          testzoneDate: "$testzoneDate",
-          testzonePortfolio:
+          name: "$marginXName",
+          date: "$testzoneDate",
+          portfolio:
             "$marginx-template.portfolioValue",
           purchaseDate: "$purchaseDate",
           joiningDate: "$joiningDate",
@@ -2560,7 +2560,7 @@ exports.downloadMarginXRevenueData = async (req, res) => {
           creationProcess: {
             $ifNull: ["$user.creationProcess", ""],
           },
-          contestStatus: {
+          status: {
             $ifNull: ["$status", ""],
           },
           actualPrice: {
@@ -2603,6 +2603,621 @@ exports.downloadMarginXRevenueData = async (req, res) => {
       status: "success",
       message: "MatginX Revenue Data fetched",
       data: marginXRevenueData,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.downloadBattleRevenueData = async (req, res) => {
+
+  try {
+
+    const battleRevenueDataPipeline = [
+      {
+        $unwind: "$participants",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $lookup: {
+          from: "battle-templates",
+          localField: "battleTemplate",
+          foreignField: "_id",
+          as: "battle-template",
+        },
+      },
+      {
+        $unwind: "$battle-template",
+      },
+      {
+        $addFields: {
+          testzoneDate: {
+            $add: [
+              "$startTime",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          purchaseDate: {
+            $add: [
+              "$participants.boughtAt",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          joiningDate: {
+            $add: [
+              "$user.joining_date",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          first_name: "$user.first_name",
+          last_name: "$user.last_name",
+          mobile: "$user.mobile",
+          email: "$user.email",
+          name: "$marginXName",
+          date: "$testzoneDate",
+          portfolio:
+            "$battle-template.portfolioValue",
+          purchaseDate: "$purchaseDate",
+          joiningDate: "$joiningDate",
+          campaignCode: {
+            $ifNull: ["$user.campaignCode", ""],
+          },
+          referrerCode: {
+            $ifNull: ["$user.referrerCode", ""],
+          },
+          myReferralCode: {
+            $ifNull: ["$user.myReferralCode", ""],
+          },
+          creationProcess: {
+            $ifNull: ["$user.creationProcess", ""],
+          },
+          status: {
+            $ifNull: ["$status", ""],
+          },
+          actualPrice: {
+            $ifNull: ["$actualPrice", "$battle-template.entryFee"],
+          },
+          buyingPrice: {
+            $ifNull: [
+              "$participants.fee",
+              "$battle-template.entryFee",
+            ],
+          },
+          bonusRedemption: {
+            $ifNull: ["$bonusRedemption", 0],
+          },
+          tdsAmount: {
+            $ifNull: ["$tdsAmount", 0],
+          },
+          rank: {
+            $ifNull: ["$participants.rank", ""],
+          },
+          payout: {
+            $ifNull: ["$participants.payout", 0],
+          },
+          npnl: {
+            $ifNull: ["$participants.npnl", 0],
+          },
+          gpnl: {
+            $ifNull: ["$participants.gpnl", 0],
+          },
+          trades: {
+            $ifNull: ["$participants.trades", 0],
+          },
+        },
+      },
+    ]
+
+    const battleRevenueData = await Battle.aggregate(battleRevenueDataPipeline);
+    
+    const response = {
+      status: "success",
+      message: "Battle Revenue Data fetched",
+      data: battleRevenueData,
+    };
+    
+
+  res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+exports.downloadOverallRevenueData = async (req, res) => {
+
+  try {
+
+    const battleRevenueDataPipeline = [
+      {
+        $unwind: "$participants",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $lookup: {
+          from: "battle-templates",
+          localField: "battleTemplate",
+          foreignField: "_id",
+          as: "battle-template",
+        },
+      },
+      {
+        $unwind: "$battle-template",
+      },
+      {
+        $addFields: {
+          testzoneDate: {
+            $add: [
+              "$startTime",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          purchaseDate: {
+            $add: [
+              "$participants.boughtAt",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          joiningDate: {
+            $add: [
+              "$user.joining_date",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          first_name: "$user.first_name",
+          last_name: "$user.last_name",
+          mobile: "$user.mobile",
+          email: "$user.email",
+          name: "$marginXName",
+          date: "$testzoneDate",
+          portfolio:
+            "$battle-template.portfolioValue",
+          purchaseDate: "$purchaseDate",
+          joiningDate: "$joiningDate",
+          campaignCode: {
+            $ifNull: ["$user.campaignCode", ""],
+          },
+          referrerCode: {
+            $ifNull: ["$user.referrerCode", ""],
+          },
+          myReferralCode: {
+            $ifNull: ["$user.myReferralCode", ""],
+          },
+          creationProcess: {
+            $ifNull: ["$user.creationProcess", ""],
+          },
+          status: {
+            $ifNull: ["$status", ""],
+          },
+          actualPrice: {
+            $ifNull: ["$actualPrice", "$battle-template.entryFee"],
+          },
+          buyingPrice: {
+            $ifNull: [
+              "$participants.fee",
+              "$battle-template.entryFee",
+            ],
+          },
+          bonusRedemption: {
+            $ifNull: ["$bonusRedemption", 0],
+          },
+          tdsAmount: {
+            $ifNull: ["$tdsAmount", 0],
+          },
+          rank: {
+            $ifNull: ["$participants.rank", ""],
+          },
+          payout: {
+            $ifNull: ["$participants.payout", 0],
+          },
+          npnl: {
+            $ifNull: ["$participants.npnl", 0],
+          },
+          gpnl: {
+            $ifNull: ["$participants.gpnl", 0],
+          },
+          trades: {
+            $ifNull: ["$participants.trades", 0],
+          },
+        },
+      },
+    ]
+
+    const marginXRevenueDataPipeline = [
+      {
+        $unwind: "$participants",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $lookup: {
+          from: "marginx-templates",
+          localField: "marginXTemplate",
+          foreignField: "_id",
+          as: "marginx-template",
+        },
+      },
+      {
+        $unwind: "$marginx-template",
+      },
+      {
+        $addFields: {
+          testzoneDate: {
+            $add: [
+              "$startTime",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          purchaseDate: {
+            $add: [
+              "$participants.boughtAt",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          joiningDate: {
+            $add: [
+              "$user.joining_date",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          first_name: "$user.first_name",
+          last_name: "$user.last_name",
+          mobile: "$user.mobile",
+          email: "$user.email",
+          name: "$marginXName",
+          date: "$testzoneDate",
+          portfolio:
+            "$marginx-template.portfolioValue",
+          purchaseDate: "$purchaseDate",
+          joiningDate: "$joiningDate",
+          campaignCode: {
+            $ifNull: ["$user.campaignCode", ""],
+          },
+          referrerCode: {
+            $ifNull: ["$user.referrerCode", ""],
+          },
+          myReferralCode: {
+            $ifNull: ["$user.myReferralCode", ""],
+          },
+          creationProcess: {
+            $ifNull: ["$user.creationProcess", ""],
+          },
+          status: {
+            $ifNull: ["$status", ""],
+          },
+          actualPrice: {
+            $ifNull: ["$actualPrice", "$marginx-template.entryFee"],
+          },
+          buyingPrice: {
+            $ifNull: [
+              "$participants.fee",
+              "$marginx-template.entryFee",
+            ],
+          },
+          bonusRedemption: {
+            $ifNull: ["$bonusRedemption", 0],
+          },
+          tdsAmount: {
+            $ifNull: ["$tdsAmount", 0],
+          },
+          rank: {
+            $ifNull: ["$participants.rank", ""],
+          },
+          payout: {
+            $ifNull: ["$participants.payout", 0],
+          },
+          npnl: {
+            $ifNull: ["$participants.npnl", 0],
+          },
+          gpnl: {
+            $ifNull: ["$participants.gpnl", 0],
+          },
+          trades: {
+            $ifNull: ["$participants.trades", 0],
+          },
+        },
+      },
+    ]
+
+    const tenxRevenueDataPipeline = [
+      {
+        $match: {
+          discounted_price: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $unwind: "$users",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "users.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $lookup: {
+          from: "user-portfolios",
+          localField: "portfolio",
+          foreignField: "_id",
+          as: "portfolio-details",
+        },
+      },
+      {
+        $unwind: "$portfolio-details",
+      },
+      {
+        $addFields: {
+          purchaseDate: {
+            $add: [
+              '$users.subscribedOn',
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          joiningDate: {
+            $add: [
+              "$user.joining_date",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          first_name: "$user.first_name",
+          last_name: "$user.last_name",
+          mobile: "$user.mobile",
+          email: "$user.email",
+          name: "$plan_name",
+
+          portfolio:
+            "$portfolio-details.portfolioValue",
+          date: "$purchaseDate",
+          joiningDate: "$joiningDate",
+          campaignCode: {
+            $ifNull: ["$user.campaignCode", ""],
+          },
+          referrerCode: {
+            $ifNull: ["$user.referrerCode", ""],
+          },
+          myReferralCode: {
+            $ifNull: ["$user.myReferralCode", ""],
+          },
+          status: {
+            $ifNull: ["$status", ""],
+          },
+          actualPrice: {
+            $ifNull: ["$actualPrice", "$actual_price"],
+          },
+          creationProcess: {
+            $ifNull: ["$user.creationProcess", ""],
+          },
+          buyingPrice: {
+            $ifNull: [
+              "$users.fee",
+              "$discounted_price",
+            ],
+          },
+          bonusRedemption: {
+            $ifNull: ["$bonusRedemption", 0],
+          },
+          tdsAmount: {
+            $ifNull: ["$tdsAmount", 0],
+          },
+          payout: {
+            $ifNull: ["$user.payout", 0],
+          },
+          npnl: {
+            $ifNull: ["$user.npnl", 0],
+          },
+          gpnl: {
+            $ifNull: ["$user.gpnl", 0],
+          },
+          trades: {
+            $ifNull: ["$user.trades", 0],
+          },
+        },
+      },
+      {
+        $sort: {
+          date: -1
+        }
+      }
+    ]
+
+    const testZoneRevenueDataPipeline = [
+      {
+        $match: {
+          entryFee: {
+            $gt: 0,
+          },
+        },
+      },
+      {
+        $unwind: "$participants",
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "participants.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $lookup: {
+          from: "user-portfolios",
+          localField: "portfolio",
+          foreignField: "_id",
+          as: "portfolio-details",
+        },
+      },
+      {
+        $unwind: "$portfolio-details",
+      },
+      {
+        $addFields: {
+          testzoneDate: {
+            $add: [
+              "$contestStartTime",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          purchaseDate: {
+            $add: [
+              "$participants.participatedOn",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+          joiningDate: {
+            $add: [
+              "$user.joining_date",
+              5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          first_name: "$user.first_name",
+          last_name: "$user.last_name",
+          mobile: "$user.mobile",
+          email: "$user.email",
+          name: "$contestName",
+          date: "$testzoneDate",
+          portfolio:
+            "$portfolio-details.portfolioValue",
+          purchaseDate: "$purchaseDate",
+          joiningDate: "$joiningDate",
+          campaignCode: {
+            $ifNull: ["$user.campaignCode", ""],
+          },
+          referrerCode: {
+            $ifNull: ["$user.referrerCode", ""],
+          },
+          myReferralCode: {
+            $ifNull: ["$user.myReferralCode", ""],
+          },
+          status: {
+            $ifNull: ["$contestStatus", ""],
+          },
+          actualPrice: {
+            $ifNull: ["$actualPrice", "$entryFee"],
+          },
+          creationProcess: {
+            $ifNull: ["$user.creationProcess", ""],
+          },
+          buyingPrice: {
+            $ifNull: [
+              "$participants.fee",
+              "$entryFee",
+            ],
+          },
+          bonusRedemption: {
+            $ifNull: ["$bonusRedemption", 0],
+          },
+          tdsAmount: {
+            $ifNull: ["$tdsAmount", 0],
+          },
+          rank: {
+            $ifNull: ["$participants.rank", ""],
+          },
+          payout: {
+            $ifNull: ["$participants.payout", 0],
+          },
+          npnl: {
+            $ifNull: ["$participants.npnl", 0],
+          },
+          gpnl: {
+            $ifNull: ["$participants.gpnl", 0],
+          },
+          trades: {
+            $ifNull: ["$participants.trades", 0],
+          },
+        },
+      },
+      {
+        $sort:{
+          date:-1
+        }
+      }
+    ]
+
+    const testZoneRevenueData = await TestZone.aggregate(testZoneRevenueDataPipeline);
+    const tenxRevenueData = await TenX.aggregate(tenxRevenueDataPipeline);
+    const marginXRevenueData = await MarginX.aggregate(marginXRevenueDataPipeline);
+    const battleRevenueData = await Battle.aggregate(battleRevenueDataPipeline);
+    
+    const newData = [...testZoneRevenueData, ...tenxRevenueData, ...marginXRevenueData, ...battleRevenueData];
+    const response = {
+      status: "success",
+      message: "Overall Revenue Data fetched",
+      data: newData,
     };
     
 

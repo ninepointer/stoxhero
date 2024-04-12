@@ -3,42 +3,61 @@ import Grid from "@mui/material/Grid";
 import axios from "axios";
 // Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
-// import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-// import money from "../../../assets/images/money.png"
 import { Link, useLocation } from "react-router-dom";
 import moment from "moment";
 import { apiUrl } from "../../../constants/constants";
+import { CircularProgress } from '@mui/material';
 
 const CompletedContest = () => {
-  // const [registeredUsersCount, setRegisteredUsersCount] = useState(0);
   const [completedMarginX, setCompletedMarginX] = useState([]);
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  const [skip, setSkip] = useState(0);
+  const limitSetting = 12;
+  const [count, setCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    let call1 = axios.get(`${apiUrl}marginx/completed`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true,
-      },
-    });
-    Promise.all([call1])
-      .then(([api1Response]) => {
-        // Process the responses here
-        setCompletedMarginX(api1Response.data.data);
-      })
-      .catch((error) => {
-        // Handle errors here
-        console.error(error);
-      });
-  }, []);
+    fetchData()
+  }, [skip]);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const res = await axios.get(`${apiUrl}marginx/completed?skip=${skip}&limit=${limitSetting}`, { withCredentials: true });
+      setCompletedMarginX((prev) => res.data.data);
+      setCount(res.data.count);
+      setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+    }
+  }
+
+  function backHandler() {
+    if (skip <= 0) {
+      return;
+    }
+    setSkip((prev) => prev - limitSetting);
+    setCompletedMarginX([]);
+  }
+
+  function nextHandler() {
+    if (skip + limitSetting >= count) {
+      return;
+    }
+    setSkip((prev) => prev + limitSetting);
+    setCompletedMarginX([]);
+  }
 
   return (
     <>
-      {completedMarginX.length > 0 ? (
+      {
+       isLoading ?
+       <MDBox sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+         <CircularProgress color='light' />
+       </MDBox>
+       :
+      completedMarginX.length > 0 ? (
         <MDBox>
           <Grid container spacing={2} bgColor="dark">
             {completedMarginX?.map((e) => {
@@ -235,12 +254,11 @@ const CompletedContest = () => {
                           <MDTypography fontSize={9} style={{ color: "black" }}>
                             Index:{" "}
                             <span style={{ fontSize: 11, fontWeight: 700 }}>
-                              {`${e?.isNifty ? "NIFTY 50 | " : ""}${
-                                e?.isBankNifty ? "BANKNIFTY | " : ""
-                              }${e?.isFinNifty ? "FINNIFTY | " : ""}`.slice(
-                                0,
-                                -3
-                              )}
+                              {`${e?.isNifty ? "NIFTY 50 | " : ""}${e?.isBankNifty ? "BANKNIFTY | " : ""
+                                }${e?.isFinNifty ? "FINNIFTY | " : ""}`.slice(
+                                  0,
+                                  -3
+                                )}
                             </span>
                           </MDTypography>
                         </Grid>
@@ -321,6 +339,56 @@ const CompletedContest = () => {
             <MDTypography color="light">No Completed MarginX(s)</MDTypography>
           </Grid>
         </Grid>
+      )}
+
+      {!isLoading && count !== 0 && (
+        <MDBox
+          mt={1}
+          p={1}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          width="100%"
+        >
+          <MDButton
+            variant="outlined"
+            color="light"
+            disabled={
+              (skip + limitSetting) / limitSetting === 1
+                ? true
+                : false
+            }
+            size="small"
+            onClick={backHandler}
+          >
+            Back
+          </MDButton>
+          <MDTypography
+            color="light"
+            fontSize={15}
+            fontWeight="bold"
+          >
+            Total Data: {!count ? 0 : count} | Page{" "}
+            {(skip + limitSetting) / limitSetting} of{" "}
+            {!count ? 1 : Math.ceil(count / limitSetting)}
+          </MDTypography>
+          <MDButton
+            variant="outlined"
+            color="light"
+            disabled={
+              Math.ceil(count / limitSetting) ===
+                (skip + limitSetting) / limitSetting
+                ? true
+                : !count
+                  ? true
+                  : false
+            }
+            size="small"
+            onClick={nextHandler}
+          >
+            Next
+          </MDButton>
+        </MDBox>
       )}
     </>
   );

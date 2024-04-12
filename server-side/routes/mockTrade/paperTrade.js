@@ -11,8 +11,8 @@ const {
   marginDetail,
   getDailyVirtualUsers,
   findOpenLots,
-  treaderWiseMockTrader,
-  influencerTraderWiseMockTrader,
+  treaderWiseMockTrader, weeklyLeaderboardData, monthlyLeaderboardData,
+  influencerTraderWiseMockTrader, todayLeaderboardData
 } = require("../../controllers/paperTradeController");
 const Authenticate = require("../../authentication/authentication");
 const restrictTo = require("../../authentication/authorization");
@@ -32,6 +32,10 @@ router.route("/my/historyorders").get(Authenticate, myHistoryTrade);
 router.route("/margin").get(Authenticate, marginDetail);
 router.route("/openlots").get(findOpenLots);
 router.route("/traderWisePnl").get(Authenticate, treaderWiseMockTrader);
+router.route("/todayleaderboard").get(Authenticate, todayLeaderboardData);
+router.route("/weekleaderboard").get(Authenticate, weeklyLeaderboardData);
+router.route("/monthleaderboard").get(Authenticate, monthlyLeaderboardData);
+
 router.route("/influencer/traderwisepnl/").get(Authenticate, influencerTraderWiseMockTrader);
 
 module.exports = router;

@@ -1462,51 +1462,45 @@ exports.MarginxPnlTWiseTraderSide = async (req, res, next) => {
 
     let { id } = req.params
     let pipeline = [
-
+        {
+            $match: {
+                _id: new ObjectId(id),
+            },
+        },
+        {
+            $unwind: {
+                path: "$participants",
+            },
+        },
         {
             $lookup: {
                 from: "user-personal-details",
-                localField: "trader",
+                localField: "participants.userId",
                 foreignField: "_id",
                 as: "user",
-            },
-        },
-
-        {
-            $match: {
-                status: "COMPLETE",
-                marginxId: new ObjectId(id)
-            }
-        },
-        {
-            $group: {
-                _id: {
-                    userId: "$trader",
-                    name: {
-                        $concat: [
-                            { $arrayElemAt: ["$user.first_name", 0] },
-                            " ",
-                            { $arrayElemAt: ["$user.last_name", 0] },
-                        ],
-                    },
-                },
-                gpnl: { $sum: { $multiply: ["$amount", -1] } },
-                brokerage: { $sum: { $toDouble: "$brokerage" } },
-                trades: { $count: {} },
-                tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
-                
             },
         },
         {
             $project: {
                 _id: 0,
-                userId: "$_id.userId",
-                name: "$_id.name",
-                tradingDays: { $size: "$tradingDays" },
-                gpnl: 1,
-                brokerage: 1,
-                npnl: { $subtract: ["$gpnl", "$brokerage"] },
-                noOfTrade: "$trades"
+                userId: "$participants.userId",
+                name: {
+                    $concat: [
+                        {
+                            $arrayElemAt: ["$user.first_name", 0],
+                        },
+                        " ",
+                        {
+                            $arrayElemAt: ["$user.last_name", 0],
+                        },
+                    ],
+                },
+                tradingDays: "$participants.tradingDays",
+                gpnl: "$participants.gpnl",
+                brokerage: "$participants.brokerage",
+                npnl: "$participants.npnl",
+                noOfTrade: "$participants.trades",
+                payout: "$participants.payout",
             },
         },
         {
@@ -1516,114 +1510,9 @@ exports.MarginxPnlTWiseTraderSide = async (req, res, next) => {
         },
     ]
 
-    let pipeline1 = [
-        {
-          $match: {
-            status: "COMPLETE",
-            marginxId: new ObjectId(
-              id
-            ),
-          },
-        },
-        {
-          $group: {
-            _id: {
-              trader: "$trader",
-              marginxId: "$marginxId",
-            },
-            amount: {
-              $sum: {
-                $multiply: ["$amount", -1],
-              },
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-          },
-        },
-        {
-          $lookup: {
-            from: "marginxes",
-            localField: "_id.marginxId",
-            foreignField: "_id",
-            as: "marginx",
-          },
-        },
-        {
-          $lookup: {
-            from: "marginx-templates",
-            localField: "marginx.marginXTemplate",
-            foreignField: "_id",
-            as: "templates",
-          },
-        },
-        {
-          $project: {
-            marginxId: "$_id.marginxId",
-            _id: 0,
-            trader: "$_id.trader",
-            npnl: {
-              $subtract: ["$amount", "$brokerage"],
-            },
-            portfolioValue: {
-              $arrayElemAt: [
-                "$templates.portfolioValue",
-                0,
-              ],
-            },
-            entryFee: {
-              $arrayElemAt: ["$templates.entryFee", 0],
-            },
-            return: {
-              $divide: [
-                {
-                  $subtract: ["$amount", "$brokerage"],
-                },
-                {
-                  $divide: [
-                    {
-                      $arrayElemAt: [
-                        "$templates.portfolioValue",
-                        0,
-                      ],
-                    },
-                    {
-                      $arrayElemAt: [
-                        "$templates.entryFee",
-                        0,
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              // trader: "$trader",
-            },
-            cumm_return: {
-              $sum: "$return",
-            },
-          },
-        },
-        {
-          $project: {
-            trader: "$_id.trader",
-            total_return: "$cumm_return",
-            _id: 0,
-          },
-        },
-      ]
+    let x = await MarginX.aggregate(pipeline)
 
-    let user = await MarginxMockUser.aggregate(pipeline1)
-    let x = await MarginxMockUser.aggregate(pipeline)
-
-    res.status(201).json({ message: "data received", data: x, user: user[0] });
+    res.status(201).json({ message: "data received", data: x });
 }
 
 exports.MarginXPayoutChart = async (req, res, next) => {

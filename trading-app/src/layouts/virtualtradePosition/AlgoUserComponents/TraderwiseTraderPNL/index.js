@@ -64,48 +64,44 @@ function TraderwiseTraderPNL({ socket }) {
       });
   }, []);
 
-  // useEffect(() => {
-  //   return () => {
-  //       socket.close();
-  //   }
-  // }, [])
-
   let mapForParticularUser = new Map();
   for (let i = 0; i < allTrade.length; i++) {
-    if (mapForParticularUser.has(allTrade[i]._id.traderId)) {
+    if (mapForParticularUser.has(allTrade[i]?._id.traderId)) {
       let marketDataInstrument = marketData.filter((elem) => {
-        return elem.instrument_token == Number(allTrade[i]._id.symbol);
+        return elem.instrument_token == Number(allTrade[i]?._id.symbol);
       });
 
-      let obj = mapForParticularUser.get(allTrade[i]._id.traderId);
+      let obj = mapForParticularUser.get(allTrade[i]?._id.traderId);
       obj.totalPnl +=
-        allTrade[i].amount +
-        allTrade[i].lots * marketDataInstrument[0]?.last_price;
-      obj.lotUsed += Math.abs(allTrade[i].lotUsed);
-      obj.runninglots += allTrade[i].lots;
-      obj.brokerage += allTrade[i].brokerage;
-      obj.noOfTrade += allTrade[i].trades;
-      obj.absRunninglots += Math.abs(allTrade[i].lots);
+        allTrade[i]?.amount +
+        allTrade[i]?.lots * marketDataInstrument[0]?.last_price;
+      obj.lotUsed += Math.abs(allTrade[i]?.lotUsed);
+      obj.runninglots += allTrade[i]?.lots;
+      obj.brokerage += allTrade[i]?.brokerage;
+      obj.noOfTrade += allTrade[i]?.trades;
+      obj.margin = Math.max(allTrade[i]?.margin, obj.margin);
+      obj.absRunninglots += Math.abs(allTrade[i]?.lots);
     } else {
-      let marketDataInstrument = marketData.filter((elem) => {
+      let marketDataInstrument = marketData?.filter((elem) => {
         return (
           elem !== undefined &&
-          elem.instrument_token === Number(allTrade[i]._id.symbol)
+          elem.instrument_token === Number(allTrade[i]?._id.symbol)
         );
       });
-      mapForParticularUser.set(allTrade[i]._id.traderId, {
-        name: allTrade[i]._id.traderName,
+      mapForParticularUser.set(allTrade[i]?._id.traderId, {
+        name: allTrade[i]?._id?.traderName,
         totalPnl:
-          allTrade[i].amount +
-          allTrade[i].lots * marketDataInstrument[0]?.last_price,
-        lotUsed: Math.abs(allTrade[i].lotUsed),
-        runninglots: allTrade[i].lots,
-        absRunninglots: Math.abs(allTrade[i].lots),
-        brokerage: allTrade[i].brokerage,
-        noOfTrade: allTrade[i].trades,
-        userId: allTrade[i]._id.traderId,
-        email: allTrade[i]._id.traderEmail,
-        mobile: allTrade[i]._id.traderMobile,
+          allTrade[i]?.amount +
+          allTrade[i]?.lots * marketDataInstrument[0]?.last_price,
+        lotUsed: Math.abs(allTrade[i]?.lotUsed),
+        runninglots: allTrade[i]?.lots,
+        absRunninglots: Math.abs(allTrade[i]?.lots),
+        brokerage: allTrade[i]?.brokerage,
+        noOfTrade: allTrade[i]?.trades,
+        userId: allTrade[i]?._id?.traderId,
+        email: allTrade[i]?._id?.traderEmail,
+        mobile: allTrade[i]?._id?.traderMobile,
+        margin: allTrade[i]?.margin,
       });
     }
   }
@@ -116,7 +112,7 @@ function TraderwiseTraderPNL({ socket }) {
   }
 
   finalTraderPnl.sort((a, b) => {
-    return b.totalPnl - b.brokerage - (a.totalPnl - a.brokerage);
+    return ((b.totalPnl - b.brokerage) / b.margin) - ((a.totalPnl - a.brokerage) / a.margin);
   });
 
   let totalGrossPnl = 0;
@@ -129,6 +125,7 @@ function TraderwiseTraderPNL({ socket }) {
 
   finalTraderPnl.map((subelem, index) => {
     let obj = {};
+    const roi = (subelem.totalPnl - subelem.brokerage) / subelem.margin;
     let npnlcolor =
       subelem.totalPnl - subelem.brokerage >= 0 ? "success" : "error";
     let tradercolor =
@@ -138,8 +135,8 @@ function TraderwiseTraderPNL({ socket }) {
       subelem.runninglots > 0
         ? "info"
         : subelem.runninglots < 0
-        ? "error"
-        : "dark";
+          ? "error"
+          : "dark";
     let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : "";
     let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5";
 
@@ -172,9 +169,17 @@ function TraderwiseTraderPNL({ socket }) {
         color={gpnlcolor}
         fontWeight="medium"
       >
-        {subelem.totalPnl >= 0.0
-          ? "+₹" + subelem.totalPnl.toFixed(2)
-          : "-₹" + (-subelem.totalPnl).toFixed(2)}
+        {subelem.totalPnl >= 0
+          ? "+₹" +
+          new Intl.NumberFormat(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(subelem.totalPnl)
+          : "-₹" +
+          new Intl.NumberFormat(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(-subelem.totalPnl)}
       </MDTypography>
     );
 
@@ -236,9 +241,52 @@ function TraderwiseTraderPNL({ socket }) {
         color={npnlcolor}
         fontWeight="medium"
       >
-        {subelem.totalPnl - subelem.brokerage >= 0.0
-          ? "+₹" + (subelem.totalPnl - subelem.brokerage).toFixed(2)
-          : "-₹" + (-(subelem.totalPnl - subelem.brokerage)).toFixed(2)}
+        {(subelem.totalPnl - subelem.brokerage) >= 0
+          ? "+₹" +
+          new Intl.NumberFormat(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format((subelem.totalPnl - subelem.brokerage))
+          : "-₹" +
+          new Intl.NumberFormat(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(-(subelem.totalPnl - subelem.brokerage))}
+      </MDTypography>
+    );
+
+    obj.roi = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={roi >= 0 ? 'success' : 'error'}
+        fontWeight="medium"
+      >
+        {roi >= 0.0
+          ? "+" + (roi*100).toFixed(2)
+          : "-" + (-(roi*100)).toFixed(2)}
+      </MDTypography>
+    );
+
+    obj.investment = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color={'text'}
+        fontWeight="medium"
+      >
+        {subelem.margin >= 0
+          ? "+₹" +
+          new Intl.NumberFormat(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(subelem.margin)
+          : "-₹" +
+          new Intl.NumberFormat(undefined, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(-subelem.margin)}
+
       </MDTypography>
     );
 
@@ -398,26 +446,6 @@ function TraderwiseTraderPNL({ socket }) {
           </MDTypography>
         </MDBox>
       </MDBox>
-
-      {/* <MDBox sx={{display: 'flex', alignItems: 'center', marginLeft:'24px'}}>
-        <MDTypography fontSize={15}>Select Batch</MDTypography>
-        <TextField
-                select
-                label=""
-                value={subscriptions[0]?.plan_name}
-                minHeight="4em"
-                //helperText="Please select the body condition"
-                variant="outlined"
-                sx={{margin: 1, padding: 1, width: "200px"}}
-                onChange={(e)=>{setselectedSubscription(subscriptions.filter((item)=>item.plan_name == e.target.value)[0]._id)}}
-        >
-          {subscriptions?.map((option) => (
-                <MenuItem key={option.plan_name} value={option.plan_name} minHeight="4em">
-                  {option.plan_name}
-                </MenuItem>
-              ))}
-        </TextField>          
-      </MDBox> */}
 
       <MDBox>
         <DataTable

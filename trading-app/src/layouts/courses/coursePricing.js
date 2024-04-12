@@ -230,23 +230,21 @@ const CoursePricing = ({ setActiveStep, activeStep, steps }) => {
               alignItems="center"
             >
               <TextField
-                disabled={editing}
-                id="outlined-required"
-                // label='Course Name *'
-                label="Price"
-                value={
-                  formState?.coursePrice
-                  // formState?.coursePrice || ''
-                }
-                fullWidth
-                type="number"
-                onChange={(e) => {
-                  setFormState((prevState) => ({
-                    ...prevState,
-                    coursePrice: Math.abs(e.target.value),
-                  }));
-                }}
-              />
+  disabled={editing}
+  id="outlined-required"
+  label="Price"
+  value={formState?.coursePrice}
+  InputLabelProps={{ shrink: true }}
+  fullWidth
+  type="number"
+  onChange={(e) => {
+    setFormState((prevState) => ({
+      ...prevState,
+      coursePrice: Math.abs(e.target.value),
+    }));
+  }}
+/>
+
             </Grid>
 
             <Grid
@@ -263,6 +261,7 @@ const CoursePricing = ({ setActiveStep, activeStep, steps }) => {
                 id="outlined-required"
                 // label='Course Name *'
                 label="Discounted Price"
+                InputLabelProps={{ shrink: true }}
                 value={
                   formState?.discountedPrice
                   // formState?.discountedPrice || ''
@@ -292,6 +291,7 @@ const CoursePricing = ({ setActiveStep, activeStep, steps }) => {
                 id="outlined-required"
                 // label='Course Name *'
                 label="Commission Percentage"
+                InputLabelProps={{ shrink: true }}
                 value={
                   formState?.commissionPercentage
                   // formState?.commissionPercentage===0 ? 0 : (formState?.commissionPercentage || '')

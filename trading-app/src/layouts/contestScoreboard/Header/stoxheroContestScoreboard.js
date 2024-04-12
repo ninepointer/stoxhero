@@ -6,15 +6,16 @@ import { Paper, Avatar, Box, Divider, CircularProgress } from "@mui/material";
 import { Grid } from "@mui/material";
 import MDTypography from "../../../components/MDTypography";
 import MDBox from "../../../components/MDBox";
-import MDAvatar from "../../../components/MDAvatar";
+import MDButton from '../../../components/MDButton';
 import logo from "../../../assets/images/logo1.jpeg";
+import { apiUrl } from '../../../constants/constants';
 
 const Scoreboard = () => {
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  // const [sortedTraders, setSortedTraders] = useState([]);
-  const [traders, setTraders] = useState([]);
+  const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [skip, setSkip] = useState(0);
+  const limitSetting = 50;
+  const [count, setCount] = useState(0);
 
   function convertName(name) {
     // const name = 'SARTHAK SINGHAL';
@@ -29,31 +30,36 @@ const Scoreboard = () => {
   }
 
   useEffect(() => {
+    fetchData()
+  }, [skip])
+
+  const fetchData = async () => {
     setIsLoading(true);
-    let call1 = axios.get(`${baseUrl}api/v1/contestscoreboard/scoreboard`, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": true,
-      },
-    });
-    Promise.all([call1])
-      .then(([api1Response]) => {
-        // Process the responses here
-        console.log(api1Response.data.data);
-        setTraders(api1Response.data.data);
-        ReactGA.pageview(window.location.pathname);
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 200);
-      })
-      .catch((error) => {
-        // Handle errors here
-        console.error(error);
-        setIsLoading(true);
-      });
-  }, []);
+    try {
+      const res = await axios.get(`${apiUrl}contestscoreboard/scoreboard?skip=${skip}&limit=${limitSetting}`, { withCredentials: true });
+      setData((prev) => res?.data?.data);
+      setCount(res?.data?.count);
+      setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+    }
+  }
+
+  function backHandler() {
+    if (skip <= 0) {
+      return;
+    }
+    setSkip((prev) => prev - limitSetting);
+    setData([]);
+  }
+
+  function nextHandler() {
+    if (skip + limitSetting >= count) {
+      return;
+    }
+    setSkip((prev) => prev + limitSetting);
+    setData([]);
+  }
 
   return (
     <Box
@@ -187,7 +193,7 @@ const Scoreboard = () => {
           </Grid>
           <Divider style={{ backgroundColor: "grey" }} />
 
-          {traders.map((trader, index) => (
+          {data.map((trader, index) => (
             <>
               <Grid
                 container
@@ -238,7 +244,7 @@ const Scoreboard = () => {
                             : logo
                         }
                         alt={trader?.traderFirstName}
-                        // sx={{padding: "5px"}}
+                      // sx={{padding: "5px"}}
                       />
                     </MDBox>
                     <MDBox
@@ -310,6 +316,56 @@ const Scoreboard = () => {
             </>
           ))}
         </Box>
+      )}
+
+      {!isLoading && count !== 0 && (
+        <MDBox
+          mt={1}
+          p={1}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          width="100%"
+        >
+          <MDButton
+            variant="outlined"
+            color="light"
+            disabled={
+              (skip + limitSetting) / limitSetting === 1
+                ? true
+                : false
+            }
+            size="small"
+            onClick={backHandler}
+          >
+            Back
+          </MDButton>
+          <MDTypography
+            color="light"
+            fontSize={15}
+            fontWeight="bold"
+          >
+            Total Data: {!count ? 0 : count} | Page{" "}
+            {(skip + limitSetting) / limitSetting} of{" "}
+            {!count ? 1 : Math.ceil(count / limitSetting)}
+          </MDTypography>
+          <MDButton
+            variant="outlined"
+            color="light"
+            disabled={
+              Math.ceil(count / limitSetting) ===
+                (skip + limitSetting) / limitSetting
+                ? true
+                : !count
+                  ? true
+                  : false
+            }
+            size="small"
+            onClick={nextHandler}
+          >
+            Next
+          </MDButton>
+        </MDBox>
       )}
     </Box>
   );

@@ -322,6 +322,7 @@ const CreateCourse = (
                     // label='Course Name *'
                     label="Course Name: e.g Introduction to Stock Market"
                     value={formState?.courseName}
+                    InputLabelProps={{ shrink: true }}
                     fullWidth
                     onChange={(e) => {
                       setFormState((prevState) => ({
@@ -336,7 +337,7 @@ const CreateCourse = (
                   <TextField
                     disabled={editing}
                     id="outlined-required"
-                    // label='Course Overview *'
+                    InputLabelProps={{ shrink: true }}
                     label="Course Overview: e.g This course will cover basic of stock market"
                     value={formState?.courseOverview}
                     fullWidth
@@ -354,6 +355,7 @@ const CreateCourse = (
                     disabled={editing}
                     id="outlined-required"
                     // label='Course Name *'
+                    InputLabelProps={{ shrink: true }}
                     label="Course Language: e.g Introduction to Stock Market"
                     value={formState?.courseLanguages}
                     fullWidth
@@ -371,6 +373,7 @@ const CreateCourse = (
                     disabled={editing}
                     id="outlined-required"
                     // label='Course Name *'
+                    InputLabelProps={{ shrink: true }}
                     label="Tags: e.g Live Simulation, Live Trading"
                     value={formState?.tags}
                     fullWidth
@@ -509,6 +512,7 @@ const CreateCourse = (
                     id="outlined-required"
                     type="number"
                     label="Duration in minutes"
+                    InputLabelProps={{ shrink: true }}
                     value={
                       formState?.courseDurationInMinutes===0 ? '' : formState?.courseDurationInMinutes
                     }
@@ -528,6 +532,7 @@ const CreateCourse = (
                       disabled={editing}
                       id="outlined-required"
                       label="Max Enrollments *"
+                      InputLabelProps={{ shrink: true }}
                       value={
                         formState?.maxEnrolments || courseData?.maxEnrolments
                       }
@@ -740,6 +745,7 @@ const CreateCourse = (
                       id="outlined-required"
                       type="text"
                       label="Meet Link"
+                      InputLabelProps={{ shrink: true }}
                       value={
                         formState?.meetLink
                       }
@@ -759,6 +765,7 @@ const CreateCourse = (
                       id="outlined-required"
                       type="text"
                       label="Meta Title"
+                      InputLabelProps={{ shrink: true }}
                       value={
                         formState?.metaTitle
                       }
@@ -778,6 +785,7 @@ const CreateCourse = (
                       id="outlined-required"
                       type="text"
                       label="Meta Description"
+                      InputLabelProps={{ shrink: true }}
                       value={
                         formState?.metaDescription
                       }
@@ -797,6 +805,7 @@ const CreateCourse = (
                       id="outlined-required"
                       type="text"
                       label="Meta Keywords"
+                      InputLabelProps={{ shrink: true }}
                       value={
                         formState?.metaKeywords
                       }
