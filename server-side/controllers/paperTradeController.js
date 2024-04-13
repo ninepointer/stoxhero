@@ -1198,7 +1198,7 @@ exports.monthlyLeaderboardData = async (req, res) => {
 };
 
 const leaderboardDataHelper = async(startDate, endDate)=>{
-
+  console.log(new Date(startDate), new Date(endDate));
   const pipeline = [
     {
       $match: {

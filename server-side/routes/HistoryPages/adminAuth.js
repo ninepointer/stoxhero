@@ -139,6 +139,7 @@ const NewSchool = require("../../models/School/newSchool");
 const City = require("../../models/City/city");
 const {getInfluencerUsers} = require('../../controllers/influencer/influencerController')
 const { getIOValue } = require('../../marketData/socketio');
+const {autoCreate} = require('../../controllers/AutoCreate');
 
 // client8.connect()
 // .then(async (res) => {
@@ -148,6 +149,11 @@ const { getIOValue } = require('../../marketData/socketio');
 // .catch((err) => {
 //     console.log("redis not connected", err)
 // })
+
+router.get("/date", async (req, res) => {
+  await autoCreate();
+  res.send('ok');
+});
 
 router.get("/influencerUser", async (req, res) => {
   // await client8.connect();
