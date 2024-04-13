@@ -123,7 +123,7 @@ exports.autoCreate = async()=>{
     console.log('startOfDay', startOfDay);
     const checkStartDate = await holiday(holidays, startOfDay, 'next');
     console.log('startOfDay 2', startOfDay);
-    const checkLiveDate = await holiday(holidays, startOfDay, 'back');
+    const checkLiveDate = await holiday(holidays, startOfDay.clone().subtract(1, 'day'), 'back');
 
     console.log(checkStartDate
         , checkLiveDate
@@ -167,9 +167,9 @@ const isHoliday = (date, holidays) => {
     return holidays.some(elem => {
             console.log('isHoliday',
     moment(elem.holidayDate), moment(date) );
-        return moment(elem.holidayDate).isSame(date, 'day') && 
-        moment(elem.holidayDate).isSame(date, 'month') && 
-        moment(elem.holidayDate).isSame(date, 'year')
+        return moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'day') && 
+        moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'month') && 
+        moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'year')
     });
 };
 
