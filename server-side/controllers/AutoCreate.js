@@ -135,7 +135,7 @@ const autoTestZoneCreate = async () => {
             elem.contestStartTime = new Date(elem.contestStartTime).setHours(5, 0, 0, 0);
         }
 
-        const slugCount = await TestZone.countDocuments({ slug: elem.slug });
+        const slugCount = await TestZone.countDocuments({ contestName: elem.contestName });
         elem.slug = slugCount ? `${elem.slug}-${slugCount + 1}` : elem.slug;
 
         elem.description = elem.contestName;
