@@ -123,11 +123,17 @@ const autoTestZoneCreate = async () => {
     const startDate = checkStartDate.clone().add(4, 'hours');
     const endDate = checkStartDate.clone().add(9, 'hours').add(50, 'minutes');
     const liveDate = checkLiveDate.clone().add(4, 'hours');
+    const increaseTime = ['StoxHero Dream', 'StoxHero Blaze', 'StoxHero Target'];
 
     for(const elem of testzoneDetail){
+        
         elem.contestStartTime = startDate;
         elem.contestEndTime = endDate;
         elem.contestLiveTime = liveDate;
+
+        if(increaseTime.includes(elem.contestName)){
+            elem.contestStartTime = new Date(elem.contestStartTime).setHours(5, 0, 0, 0);
+        }
 
         const slugCount = await TestZone.countDocuments({ slug: elem.slug });
         elem.slug = slugCount ? `${elem.slug}-${slugCount + 1}` : elem.slug;
@@ -198,9 +204,9 @@ const autoMarginxCreate = async () => {
     const checkStartDate = await holiday(holidays, startOfDay, 'next');
     const checkLiveDate = await holiday(holidays, startOfDay.clone().subtract(1, 'day'), 'back');
 
-    const startDate = checkStartDate.clone().add(9, 'hours').add(30, 'minutes');
-    const endDate = checkStartDate.clone().add(15, 'hours').add(20, 'minutes');
-    const liveDate = checkLiveDate.clone().add(9, 'hours').add(30, 'minutes');
+    const startDate = checkStartDate.clone().add(4, 'hours');
+    const endDate = checkStartDate.clone().add(9, 'hours').add(50, 'minutes');
+    const liveDate = checkLiveDate.clone().add(4, 'hours');
 
     for (const elem of marginxDetail) {
         elem.startTime = startDate;
