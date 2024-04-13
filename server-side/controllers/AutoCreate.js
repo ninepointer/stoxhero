@@ -15,7 +15,7 @@ const Holiday = require('../models/TradingHolidays/tradingHolidays');
 //   },
 exports.autoCreate = async()=>{
     const today = moment();
-    const startOfDay = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const startOfDay = today.clone().startOf('day');
     const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const holidays = await Holiday.find({holidayDate: {$gte: new Date(firstDayOfMonth)}});
     const testzoneDetail = [
@@ -144,7 +144,9 @@ const holiday = async (holidays, date, backOrForward) => {
     let newDate = moment(date);
 
     // Loop until the date is not a holiday or a weekend
+    
     while (isHoliday(newDate, holidays) || isWeekend(newDate)) {
+        console.log(isHoliday(newDate, holidays), isWeekend(newDate), backOrForward, newDate)
         if (backOrForward === 'back') {
             newDate = newDate.subtract(1, 'days');
         } else {
@@ -162,12 +164,16 @@ const isHoliday = (date, holidays) => {
     // moment(elem.holidayDate).isSame(date, 'year'));
     console.log('holidays', holidays.length);
 
-    return holidays.some(elem => moment(elem.holidayDate).isSame(date, 'day') && 
-                                  moment(elem.holidayDate).isSame(date, 'month') && 
-                                  moment(elem.holidayDate).isSame(date, 'year'));
+    return holidays.some(elem => {
+            console.log('isHoliday',
+    moment(elem.holidayDate), moment(date) );
+        return moment(elem.holidayDate).isSame(date, 'day') && 
+        moment(elem.holidayDate).isSame(date, 'month') && 
+        moment(elem.holidayDate).isSame(date, 'year')
+    });
 };
 
 const isWeekend = (date) => {
-    console.log('weekend', date.day())
+    console.log('weekend', date.day(), date)
     return date.day() === 0 || date.day() === 6; // Sunday or Saturday
 };
