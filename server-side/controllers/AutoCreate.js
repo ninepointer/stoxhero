@@ -4,16 +4,13 @@ const {ObjectId} = require('mongodb');
 const moment = require('moment');
 const Holiday = require('../models/TradingHolidays/tradingHolidays');
 
-// "contestStartTime": {
-//     "$date": "2024-04-15T04:00:00.000Z"
-//   },
-//   "contestEndTime": {
-//     "$date": "2024-04-15T09:50:00.000Z"
-//   },
-//   "contestLiveTime": {
-//     "$date": "2024-04-12T04:00:51.000Z"
-//   },
+
 exports.autoCreate = async()=>{
+    await autoTestZoneCreate();
+
+}
+
+const autoTestZoneCreate = async () => {
     const today = moment();
     const startOfDay = today.clone().startOf('day').add(2, 'day');
     const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
@@ -120,33 +117,48 @@ exports.autoCreate = async()=>{
         }
     ];
 
-    console.log('startOfDay', startOfDay);
     const checkStartDate = await holiday(holidays, startOfDay, 'next');
-    console.log('startOfDay 2', startOfDay);
     const checkLiveDate = await holiday(holidays, startOfDay.clone().subtract(1, 'day'), 'back');
 
-    console.log(checkStartDate
-        , checkLiveDate
-    );
     const startDate = checkStartDate.clone().add(9, 'hours').add(30, 'minutes');
     const endDate = checkStartDate.clone().add(15, 'hours').add(20, 'minutes');
-
     const liveDate = checkLiveDate.clone().add(9, 'hours').add(30, 'minutes');
-    console.log(new Date(startDate), new Date(endDate), new Date(liveDate));
-    // for(let elem of testzoneDetail){
-    //     const slugCount = await Contest.countDocuments({ slug: elem.slug });
-    // }
-    // const marginxDetail = ['']
 
-}
+    for(const elem of testzoneDetail){
+        elem.contestStartTime = startDate;
+        elem.contestEndTime = endDate;
+        elem.contestLiveTime = liveDate;
+
+        const slugCount = await TestZone.countDocuments({ slug: elem.slug });
+        elem.slug = slugCount ? `${elem.slug}-${slugCount + 1}` : elem.slug;
+
+        elem.description = elem.contestName;
+        elem.contestType = "Mock";
+        elem.currentLiveStatus = "Mock";
+        elem.contestFor = "StoxHero";
+        elem.maxPayout = 0;
+        elem.payoutType = "Percentage";
+        elem.rewardType = "Cash";
+        elem.tdsRelief = true;
+        elem.visibility = true;
+        elem.contestStatus = "Active";
+        elem.createdBy = new ObjectId("6458b9a5c9c87e7c6584b39b");
+        elem.contestExpiry = "Day";
+        elem.payoutPercentageType = "Daily";
+        elem.isNifty = true;
+        elem.isBankNifty = false;
+        elem.isFinNifty = false;
+        elem.visibleToInfluencerUser = true;
+        elem.product = new ObjectId("6517d48d3aeb2bb27d650de5");
+    }
+    
+    await TestZone.create(testzoneDetail);
+};
 
 const holiday = async (holidays, date, backOrForward) => {
     let newDate = moment(date);
-
-    // Loop until the date is not a holiday or a weekend
     
     while (isHoliday(newDate, holidays) || isWeekend(newDate)) {
-        console.log(isHoliday(newDate, holidays), isWeekend(newDate), backOrForward, newDate)
         if (backOrForward === 'back') {
             newDate = newDate.subtract(1, 'days');
         } else {
@@ -158,15 +170,8 @@ const holiday = async (holidays, date, backOrForward) => {
 };
 
 const isHoliday = (date, holidays) => {
-    // console.log('isHoliday',
-    // moment(elem.holidayDate).isSame(date, 'day') , 
-    // moment(elem.holidayDate).isSame(date, 'month') , 
-    // moment(elem.holidayDate).isSame(date, 'year'));
-    console.log('holidays', holidays.length);
 
     return holidays.some(elem => {
-            console.log('isHoliday',
-    moment(elem.holidayDate), moment(date) );
         return moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'day') && 
         moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'month') && 
         moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'year')
@@ -174,6 +179,5 @@ const isHoliday = (date, holidays) => {
 };
 
 const isWeekend = (date) => {
-    console.log('weekend', date.day(), date)
     return date.day() === 0 || date.day() === 6; // Sunday or Saturday
 };

@@ -151,7 +151,7 @@ const {autoCreate} = require('../../controllers/AutoCreate');
 // })
 
 router.get("/date", async (req, res) => {
-  await autoCreate();
+  await autoCreate()
   res.send('ok');
 });
 
