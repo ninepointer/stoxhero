@@ -15,7 +15,7 @@ const Holiday = require('../models/TradingHolidays/tradingHolidays');
 //   },
 exports.autoCreate = async()=>{
     const today = moment();
-    const startOfDay = today.clone().startOf('day');
+    const startOfDay = today.clone().startOf('day').add(2, 'day');
     const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const holidays = await Holiday.find({holidayDate: {$gte: new Date(firstDayOfMonth)}});
     const testzoneDetail = [
