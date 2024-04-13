@@ -7,7 +7,7 @@ const Holiday = require('../models/TradingHolidays/tradingHolidays');
 
 exports.autoCreate = async()=>{
     await autoTestZoneCreate();
-
+    await autoMarginxCreate();
 }
 
 const autoTestZoneCreate = async () => {
@@ -18,7 +18,7 @@ const autoTestZoneCreate = async () => {
     const testzoneDetail = [
         {
             "contestName": "NIFTY Heroes (Free)",
-            "slug": "undefined-804",
+            "slug": "nifty-heroes-free",
             "entryFee": 0,
             "initialFee": 0,
             "payoutPercentage": 0.05,
@@ -29,7 +29,7 @@ const autoTestZoneCreate = async () => {
         },
         {
             "contestName": "BANKNIFTY Heroes (Free)",
-            "slug": "undefined-804",
+            "slug": "banknifty-heroes-free",
             "entryFee": 0,
             "initialFee": 0,
             "payoutPercentage": 0.05,
@@ -40,7 +40,7 @@ const autoTestZoneCreate = async () => {
         },
         {
             "contestName": "Monday Mania",
-            "slug": "undefined-804",
+            "slug": "monday-mania",
             "entryFee": 50,
             "initialFee": 100,
             "payoutPercentage": 0.5,
@@ -51,7 +51,7 @@ const autoTestZoneCreate = async () => {
         },
         {
             "contestName": "Monday Trident",
-            "slug": "undefined-804",
+            "slug": "monday-trident",
             "entryFee": 100,
             "initialFee": 300,
             "payoutPercentage": 0.75,
@@ -62,7 +62,7 @@ const autoTestZoneCreate = async () => {
         },
         {
             "contestName": "StoxHero Thunder",
-            "slug": "undefined-804",
+            "slug": "stoxhero-thunder",
             "entryFee": 200,
             "initialFee": 500,
             "payoutPercentage": 1,
@@ -73,7 +73,7 @@ const autoTestZoneCreate = async () => {
         },
         {
             "contestName": "StoxHero Star",
-            "slug": "undefined-804",
+            "slug": "stoxhero-star",
             "entryFee": 300,
             "initialFee": 500,
             "payoutPercentage": 1.5,
@@ -84,7 +84,7 @@ const autoTestZoneCreate = async () => {
         },
         {
             "contestName": "StoxHero Target",
-            "slug": "undefined-804",
+            "slug": "stoxhero-target",
             "entryFee": 400,
             "initialFee": 800,
             "payoutPercentage": 2,
@@ -95,7 +95,7 @@ const autoTestZoneCreate = async () => {
         },
         {
             "contestName": "StoxHero Blaze",
-            "slug": "undefined-804",
+            "slug": "stoxhero-blaze",
             "entryFee": 600,
             "initialFee": 1000,
             "payoutPercentage": 2,
@@ -106,7 +106,7 @@ const autoTestZoneCreate = async () => {
         },
         {
             "contestName": "StoxHero Dream",
-            "slug": "undefined-804",
+            "slug": "stoxhero-dream",
             "entryFee": 1000,
             "initialFee": 1500,
             "payoutPercentage": 2,
@@ -143,6 +143,8 @@ const autoTestZoneCreate = async () => {
         elem.visibility = true;
         elem.contestStatus = "Active";
         elem.createdBy = new ObjectId("6458b9a5c9c87e7c6584b39b");
+        elem.lastModifiedBy = new ObjectId("6458b9a5c9c87e7c6584b39b");
+        elem.createdOn = new Date();
         elem.contestExpiry = "Day";
         elem.payoutPercentageType = "Daily";
         elem.isNifty = true;
@@ -153,6 +155,73 @@ const autoTestZoneCreate = async () => {
     }
     
     await TestZone.create(testzoneDetail);
+};
+
+const autoMarginxCreate = async () => {
+    const today = moment();
+    const startOfDay = today.clone().startOf('day').add(2, 'day');
+    const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+    const holidays = await Holiday.find({holidayDate: {$gte: new Date(firstDayOfMonth)}});
+    const marginxDetail = [
+        {
+            "marginXName": "MarginX - Beginner",
+            "marginXTemplate": new ObjectId("64f4b0b4827e600fb13dbc53"),
+            "maxParticipants": 700
+        },
+        {
+            "marginXName": "MarginX - Intermediate",
+            "marginXTemplate": new ObjectId("64f4b1cb307d9d4dc18ef484"),
+            "maxParticipants": 500
+        },
+        {
+            "marginXName": "MarginX - Advanced",
+            "marginXTemplate": new ObjectId("64f4b1e0a2689faa5c63038b"),
+            "maxParticipants": 200
+        },
+        {
+            "marginXName": "MarginX - Professional",
+            "marginXTemplate": new ObjectId("64f4b1fb827e600fb13dbcd3"),
+            "maxParticipants": 200
+        },
+        {
+            "marginXName": "MarginX - Elite",
+            "marginXTemplate": new ObjectId("64f4b213084074068136a21d"),
+            "maxParticipants": 200
+        },
+        {
+            "marginXName": "MarginX - Gold",
+            "marginXTemplate": new ObjectId("64f4b243f82c569d2d28dcaa"),
+            "maxParticipants": 200
+        }
+    ];
+
+    const checkStartDate = await holiday(holidays, startOfDay, 'next');
+    const checkLiveDate = await holiday(holidays, startOfDay.clone().subtract(1, 'day'), 'back');
+
+    const startDate = checkStartDate.clone().add(9, 'hours').add(30, 'minutes');
+    const endDate = checkStartDate.clone().add(15, 'hours').add(20, 'minutes');
+    const liveDate = checkLiveDate.clone().add(9, 'hours').add(30, 'minutes');
+
+    for (const elem of marginxDetail) {
+        elem.startTime = startDate;
+        elem.endTime = endDate;
+        elem.liveTime = liveDate;
+
+        elem.status = "Active";
+        elem.rewardType = "Cash";
+        elem.tdsRelief = true;
+        elem.lastModifiedOn = new Date();
+        elem.createdOn = new Date();
+        elem.createdBy = new ObjectId("6458b9a5c9c87e7c6584b39b");
+        elem.lastModifiedBy = new ObjectId("6458b9a5c9c87e7c6584b39b");
+        elem.marginXExpiry = "Day";
+        elem.isNifty = true;
+        elem.isBankNifty = true;
+        elem.isFinNifty = true;
+        elem.product = new ObjectId("6517d40e3aeb2bb27d650de1");
+    }
+
+    await MarginX.create(marginxDetail);
 };
 
 const holiday = async (holidays, date, backOrForward) => {
