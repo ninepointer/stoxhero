@@ -139,7 +139,7 @@ exports.createContest = async (req, res) => {
       slug, visibleToInfluencerUser,
     } = req.body;
 
-    const slugCount = await Contest.countDocuments({ slug: slug });
+    const slugCount = await Contest.countDocuments({ contestName: contestName });
 
     let contestImage;
     if (req.files["image"]) {
