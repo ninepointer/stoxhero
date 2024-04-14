@@ -13,12 +13,10 @@ client3.connect()
 
 exports.notificationSender = async () => {
     try{
-        console.log("notificationSender is runninig")
         const io = getIOValue();
         await client3.SUBSCRIBE("order-notification", async (message) => {
     
             message = JSON.parse(message);
-            console.log("this is notification data", message.response)
             io?.emit(`sendOrderResponse${message.createdBy}`, {status: message.status, message: `${message.response}`, data: Math.random() * 1000000 })
         })
     } catch(err){

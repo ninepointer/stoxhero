@@ -11,7 +11,6 @@ exports.SchoolAuthenticate = async (req, res, next) => {
     try {
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             token = req.headers?.authorization?.split(' ')[1];
-            console.log("req.headers?.authorization", req.headers?.authorization)
         }
 
         if (req.cookies && req.cookies.jwtoken) {

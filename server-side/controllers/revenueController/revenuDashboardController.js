@@ -4869,33 +4869,8 @@ exports.getBonusRevenueSplit = async (req, res, next) => {
       },
     ])
 
-    console.log('lengths', bonus.length, prevRevenue.length, currentRevenue.length)
-
-    // const obj = {
-    //   revenue: 0,
-    //   bonus: 0
-    // }
-
-
-    // for(let elem of currentRevenue){
-    //   const bonusData = bonus.filter(subelem => subelem.user?.toString() === elem?.user?.toString());
-    //   const currRev = elem?.revenue;
-    //   const prev = prevRevenue.filter(subelem => subelem.user?.toString() === elem?.user?.toString());
-    //   const prevRev = prev?.[0]?.revenue || 0;
-    //   const mybonus = bonusData?.[0]?.bonus || 0;
-    //   const bonusUsed = prevRev > mybonus ? mybonus : prevRev;
-    //   const bonusRemains = mybonus - bonusUsed;
-
-    //   const actualRevenue = currRev > bonusRemains ? (currRev - bonusRemains) : 0;
-    //   const currentBonusUsed = currRev > bonusRemains ?  bonusRemains : currRev;
-    //   obj.revenue += actualRevenue;
-    //   obj.bonus += currentBonusUsed;
-    // }
 
     const obj = calculateRevenueAndBonus(prevRevenue, currentRevenue, bonus);
-
-
-    console.log(obj);
 
     const response = {
       data: obj,
@@ -7854,8 +7829,6 @@ function getDates(period) {
     default:
       break;
   }
-
-  console.log(new Date(startDate), new Date(endDate))
 
   return { startDate, endDate };
 }

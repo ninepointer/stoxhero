@@ -133,7 +133,7 @@ exports.editBatch = async(req, res, next) => {
         }
     })
     const updatedBatch = await Batch.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    console.log()
+
     res.status(200).json({data:updatedBatch ,message: 'Successfully edited batch.'});
 }
 
@@ -1093,10 +1093,8 @@ exports.downloadCertificate = async (req,res, next) => {
     const userId = req.user._id;
     const user = await User.findById(userId).select('first_name last_name');
     const name = `${user.first_name} ${user.last_name}`;
-    console.log('this', batch?.batchStartDate);
     const start = moment(batch?.batchStartDate).format('Do MMM YY').toString();
     const end = moment(batch?.batchEndDate).format('Do MMM YY').toString();
-    console.log('start and end', start, end, batch?.batchStartDate, batch?.batchEndDate);
     const existingPdfBytes = fs.readFileSync(path.join(__dirname, '/template.pdf'));
     // console.log(existingPdfBytes);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);

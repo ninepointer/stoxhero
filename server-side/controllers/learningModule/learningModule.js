@@ -38,7 +38,6 @@ exports.uploadMulter = upload;
 exports.resizePhoto = (req, res, next) => {
     if (!req.file) {
       // no file uploaded, skip to next middleware
-      console.log('no file');
       next();
       return;
     }
@@ -171,8 +170,6 @@ exports.createLearningModule = async (req, res) => {
 
 exports.editBlog = async(req, res, next) => {
     const id = req.params.id;
-    console.log("Req Body:",req.body)
-    console.log("id is ,", id)
     const blog = await Blog.findById(id);
 
     const filteredBody = filterObj(req.body, "blogTitle", "content", "author", "thumbnailImage");
@@ -181,7 +178,6 @@ exports.editBlog = async(req, res, next) => {
             content:req.body.blogContent.content,header:req.body.blogContent.header,youtubeVideoCode:req.body.blogContent.youtubeVideoCode,image:req.body.blogContent.image}]
     filteredBody.lastModifiedBy = req.user._id;    
 
-    console.log(filteredBody)
     const updated = await Blog.findByIdAndUpdate(id, filteredBody, { new: true });
 
     return res.status(200).json({message: 'Successfully edited Blog.', data: updated});
@@ -190,7 +186,6 @@ exports.editBlog = async(req, res, next) => {
 exports.updateBlogStatus = async (req, res) => {
     try {
         const { id, status } = req.params;
-        console.log("Update Blog:",id,status)
         const updateFields = req.body;
 
         let blog = await Blog.findOne({ _id: id },{ new: true }).populate('lastModifiedBy', 'first_name last_name');
@@ -206,7 +201,6 @@ exports.updateBlogStatus = async (req, res) => {
         updateFields.lastModifiedOn = new Date();
         updateFields.status = status;
         blog = await Blog.findOneAndUpdate({  _id: id }, updateFields, { new: true });
-        console.log(blog)
         res.status(200).json({
             status: 'success',
             message: `Blog ${status} successfully`,

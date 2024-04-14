@@ -11,7 +11,7 @@ const fs = require('fs');
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
-    console.log("File upload started");
+
     if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("application/")) {
         cb(null, true);
     } else {
@@ -26,8 +26,6 @@ AWS.config.update({
 });
 
 const upload = multer({ storage, fileFilter }).fields([{ name: "notificationImage", maxCount: 1 }, { name: "csvFile", maxCount: 1 }])
-// .single("notificationImage");
-console.log("Upload:", upload)
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -39,7 +37,6 @@ exports.uploadMulter = upload;
 exports.resizePhoto = (req, res, next) => {
     if (!req.file) {
         // no file uploaded, skip to next middleware
-        console.log('no file');
         next();
         return;
     }
@@ -259,7 +256,6 @@ exports.sendGroupNotifications = async (req, res, next) => {
             group.lastNotificationTime = new Date();
             await group.save({ validateBeforeSave: false });
         }
-        console.log('count', users, success);
         res.status(200).json({ status: 'success', message: 'Notifications sent' });
     } catch (e) {
         console.log(e)

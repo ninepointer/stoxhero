@@ -85,7 +85,6 @@ exports.createTradeView = async (req, res, next) => {
             }
           ]
         const result = await view.aggregate(traderPipeline).toArray();
-        console.log('View created successfully');
         return result.uniqueTraderCount;
       } catch (err) {
         console.error('Error creating the view:', err);

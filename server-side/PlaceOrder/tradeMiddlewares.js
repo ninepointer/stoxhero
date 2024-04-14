@@ -67,7 +67,6 @@ exports.isInfinityLive = async(req,res,next) => {
 }
 
 exports.tradeChecks = async(req,res,next) => {
-    console.log(req.body)
     try{
         const {Quantity, symbol} = req.body;
         let maxLot = symbol.includes("BANK") ? maxLot_BankNifty : symbol.includes("FIN") ? maxLot_FinNifty : maxLot_Nifty;

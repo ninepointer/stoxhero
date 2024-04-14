@@ -309,10 +309,7 @@ exports.initiatePayment = async (req, res) => {
         bonusRedemption,
         productDetails
     } = req.body;
-    console.log('all body params', amount,
-        redirectTo,
-        productId,
-        paymentFor, coupon, bonusRedemption);
+
     const setting = await Setting.find();
     let merchantId = process.env.PROD == 'true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING;
     let merchantTransactionId = generateUniqueTransactionId();
@@ -409,8 +406,7 @@ exports.handleCallback = async (req, res, next) => {
 
         // Check if Server-to-Server response is received
         if (!decodedResponse) {
-            console.log('no decoded response');
-            // Call PG Check Status API if S2S response is not received
+
             // TODO: Implement call to PG Check Status API and handle its response
 
         } else {
@@ -494,7 +490,6 @@ const verifyChecksum = (encodedPayload, receivedChecksum) => {
 
 exports.checkPaymentStatus = async (req, res, next) => {
     try {
-        console.log('chekcing payment status-------------------------------------------------');
         const { merchantTransactionId } = req.params;
         const merchantId = process.env.PROD == 'true' ? process.env.PHONEPE_MERCHANTID : process.env.PHONEPE_MERCHANTID_STAGING;
         const payment = await Payment.findOne({ merchantTransactionId });
@@ -518,10 +513,8 @@ exports.checkPaymentStatus = async (req, res, next) => {
                 data: resp.data
             });
         }
-        console.log('response payment instrument', resp?.data?.data?.paymentInstrument);
         if (resp.data.code == 'PAYMENT_SUCCESS') {
             if (payment.paymentStatus != 'succeeded') {
-                console.log('updating payment status');
                 payment.paymentStatus = 'succeeded';
                 payment.transactionId = resp?.data?.data?.transactionId;
                 payment.paymentMode = resp?.data?.data?.paymentInstrument?.type;
@@ -684,7 +677,6 @@ const participateUser = async (paymentFor, productId, paymentBy, amount, coupon,
         case 'Olympiad':
             if (productId) {
                 const quiz = await Quiz.findById(productId).select('_id');
-                console.log('sending this', paymentBy, productId, productDetails);
                 await handleOlympiadParticipation(paymentBy, productId, productDetails);
             }
             break;

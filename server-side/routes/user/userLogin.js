@@ -605,7 +605,6 @@ router.post("/verifyphonelogin", async (req, res, next) => {
   const { mobile, mobile_otp, fcmTokenData, college, rollno } = req.body;
 
   try {
-    console.log("fcm data", fcmTokenData);
     const user = await UserDetail.findOne({ mobile });
     if (!user) {
       return res
@@ -623,13 +622,8 @@ router.post("/verifyphonelogin", async (req, res, next) => {
           message: "The mobile number is not registered. Please signup.",
         });
     }
-    console.log(
-      college &&
-        user?.collegeDetails &&
-        user?.collegeDetails?.college?.toString() !== college?.toString(),
-      (college, user?.collegeDetails),
-      (user?.collegeDetails?.college?.toString(), college?.toString())
-    );
+
+    
     if (
       college &&
       user?.collegeDetails?.college &&
@@ -649,22 +643,16 @@ router.post("/verifyphonelogin", async (req, res, next) => {
       mobile_otp == "987654"
     ) {
       const token = await user.generateAuthToken();
-      console.log(fcmTokenData?.token);
       if (fcmTokenData?.token) {
-        console.log("inside if");
         const tokenExists = user?.fcmTokens?.some(
           (token) => token?.token === fcmTokenData.token
         );
         // If the token does not exist, add it to the fcmTokens array
-        console.log("token exists", tokenExists);
         if (!tokenExists) {
-          console.log("saving fcm token");
           fcmTokenData.lastUsedAt = new Date();
           user.fcmTokens.push(fcmTokenData);
           await user.save({ validateBeforeSave: false });
-          console.log("FCM token added successfully.");
         } else {
-          console.log("FCM token already exists.");
         }
       }
 
@@ -705,22 +693,16 @@ router.post("/verifyphonelogin", async (req, res, next) => {
     // }
 
     const token = await user.generateAuthToken();
-    console.log(fcmTokenData?.token);
     if (fcmTokenData?.token) {
-      console.log("inside if");
       const tokenExists = user?.fcmTokens?.some(
         (token) => token?.token === fcmTokenData.token
       );
       // If the token does not exist, add it to the fcmTokens array
-      console.log("token exists", tokenExists);
       if (!tokenExists) {
-        console.log("saving fcm token");
         fcmTokenData.lastUsedAt = new Date();
         user.fcmTokens.push(fcmTokenData);
         await user.save({ validateBeforeSave: false });
-        console.log("FCM token added successfully.");
       } else {
-        console.log("FCM token already exists.");
       }
     }
 
@@ -820,22 +802,16 @@ router.post("/verifyphoneloginmobile", async (req, res, next) => {
       mobile_otp == "987654"
     ) {
       const token = await user.generateAuthToken();
-      console.log(fcmTokenData?.token);
       if (fcmTokenData?.token) {
-        console.log("inside if");
         const tokenExists = user?.fcmTokens?.some(
           (token) => token?.token === fcmTokenData.token
         );
         // If the token does not exist, add it to the fcmTokens array
-        console.log("token exists", tokenExists);
         if (!tokenExists) {
-          console.log("saving fcm token");
           fcmTokenData.lastUsedAt = new Date();
           user.fcmTokens.push(fcmTokenData);
           await user.save({ validateBeforeSave: false });
-          console.log("FCM token added successfully.");
         } else {
-          console.log("FCM token already exists.");
         }
       }
 
@@ -880,22 +856,18 @@ router.post("/verifyphoneloginmobile", async (req, res, next) => {
     // }
 
     const token = await user.generateAuthToken();
-    console.log(fcmTokenData?.token);
+
     if (fcmTokenData?.token) {
-      console.log("inside if");
+
       const tokenExists = user?.fcmTokens?.some(
         (token) => token?.token === fcmTokenData.token
       );
       // If the token does not exist, add it to the fcmTokens array
-      console.log("token exists", tokenExists);
       if (!tokenExists) {
-        console.log("saving fcm token");
         fcmTokenData.lastUsedAt = new Date();
         user.fcmTokens.push(fcmTokenData);
         await user.save({ validateBeforeSave: false });
-        console.log("FCM token added successfully.");
       } else {
-        console.log("FCM token already exists.");
       }
     }
 
@@ -1038,14 +1010,14 @@ router.post("/createusermobile", async (req, res, next) => {
     }
     referral = await Referral.findOne({ status: "Active" });
   }
-  console.log("Affiliate obj", affiliateObj, performance.now() - startNow);
 
+  
   // free portfolio adding in user collection
   const activeFreePortfolios = await PortFolio.find({
     status: "Active",
     portfolioAccount: "Free",
   }).select("_id");
-  console.log("Just fetching portfolios", performance.now() - startNow);
+
   let portfolioArr = [];
   for (const portfolio of activeFreePortfolios) {
     let obj = {};
@@ -1053,8 +1025,8 @@ router.post("/createusermobile", async (req, res, next) => {
     obj.activationDate = new Date();
     portfolioArr.push(obj);
   }
-  console.log("portfolios fetched", performance.now() - startNow);
 
+  
   try {
     let creation;
     if (campaign) {
@@ -1099,13 +1071,13 @@ router.post("/createusermobile", async (req, res, next) => {
     // }
 
     const newuser = await UserDetail.create(obj);
-    console.log("user created", newuser?._id);
+
     await UserWallet.create({
       userId: newuser._id,
       createdOn: new Date(),
       createdBy: newuser._id,
     });
-    console.log("wallet created");
+
     const populatedUser = await UserDetail.findById(newuser._id)
       .populate("role", "roleName")
       .populate(
@@ -1150,13 +1122,6 @@ router.post("/createusermobile", async (req, res, next) => {
       );
     // const token = await newuser.generateAuthToken();
 
-    // // console.log("Token:",token)
-
-    // res.cookie("jwtoken", token, {
-    //     expires: new Date(Date.now() + 25892000000),
-    // });
-
-    console.log("sending response");
 
     // now inserting userId in free portfolio's
     const idOfUser = newuser._id;
@@ -1174,7 +1139,7 @@ router.post("/createusermobile", async (req, res, next) => {
         let referrerCodeMatch = await UserDetail.findOne({
           myReferralCode: referrerCode,
         });
-        console.log("updating affiliate program");
+
         const updateProgramme = await AffiliatePrograme.findOneAndUpdate(
           { _id: new ObjectId(affiliateObj?._id) },
           {
@@ -1277,7 +1242,7 @@ router.post("/createusermobile", async (req, res, next) => {
       } else {
         // referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
         // await referral.save();
-        console.log("updating referral program");
+
         const referralProgramme = await Referral.findOneAndUpdate(
           { status: "Active" },
           {
@@ -1402,9 +1367,6 @@ router.post("/createusermobile", async (req, res, next) => {
     res.cookie("jwtoken", token, {
       expires: new Date(Date.now() + 25892000000),
     });
-
-    console.log("sending response");
-    // res.status(201).json({ status: "Success", data: populatedUser, message: "Account created successfully.", token: token });
 
     // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
     // let email = newuser.email;
@@ -1587,7 +1549,7 @@ router.post("/createusermobile", async (req, res, next) => {
 
 const addSignupBonus = async (userId, amount, currency) => {
   const wallet = await UserWallet.findOne({ userId: userId });
-  console.log("Wallet, Amount, Currency:", wallet, userId, amount, currency);
+
   try {
     wallet?.transactions?.push({
       title: "Sign up Bonus",
@@ -1598,7 +1560,6 @@ const addSignupBonus = async (userId, amount, currency) => {
       transactionType: currency,
     });
     await wallet?.save({ validateBeforeSave: false });
-    console.log("Saved Wallet:", wallet);
   } catch (e) {
     console.log(e);
   }
@@ -1779,7 +1740,6 @@ router.get("/schoollogout", SchoolAuthenticate, (req, res) => {
 
 router.post("/addfcmtoken", authentication, async (req, res) => {
   const { fcmTokenData } = req.body;
-  console.log("fcm", fcmTokenData);
   try {
     const user = await UserDetail.findById(req.user._id);
     if (fcmTokenData?.token) {
@@ -1791,10 +1751,8 @@ router.post("/addfcmtoken", authentication, async (req, res) => {
         fcmTokenData.lastUsedAt = new Date();
         user.fcmTokens.push(fcmTokenData);
         await user.save({ validateBeforeSave: false });
-        console.log("FCM token added successfully.");
         res.status(200).json({ status: "success", message: "Fcm data added." });
       } else {
-        console.log("FCM token already exists.");
         res
           .status(200)
           .json({ status: "success", message: "Fcm token already exists." });

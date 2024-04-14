@@ -24,12 +24,10 @@ router.post("/contestrule",authentication, async (req, res)=>{
         ContestRule.findOne({ruleName : ruleName})
         .then(async (dataExist)=>{
             if(dataExist){
-                console.log("This rule name already exists");
                 res.status(422).json({error : "This rule name already exists"})
                 return;
             }
             const rule = new ContestRule({ruleName, status, createdBy : id, lastModifiedBy : id});
-            console.log("Rule: ",ruleName,status)
             rule.save().then(async(data)=>{
                 res.status(201).json({message : "Contest Rule Created", data: rule});
             }).catch((err)=> res.status(500).json({error:err}));
@@ -53,13 +51,11 @@ router.get("/contestrule", (req, res)=>{
 
 router.put("/contestrule/:id",authentication, async (req, res)=>{
     const {id} = req.params;
-    console.log("Request Body on Edit",req.body)
     let {orderNo,rule} = req.body.contestRules;
     const modifiedBy = req.user._id;
     const modifiedOn = new Date();
     // console.log(displayName, exchange, instrumentSymbol, status)
     const contestRule = await ContestRule.findOne({_id : id})
-    console.log(contestRule)
     
     ContestRule.findOneAndUpdate({_id : id}, 
         {contestRules:[...contestRule.contestRules,{orderNo:orderNo,rule:rule}], lastModifiedBy:modifiedBy, lastModifiedOn:modifiedOn}, 

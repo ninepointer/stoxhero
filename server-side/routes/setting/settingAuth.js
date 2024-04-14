@@ -61,7 +61,7 @@ router.patch("/applive/:id", Authentication, restrictTo('Admin', 'SuperAdmin'), 
         const setting = await Setting.findOneAndUpdate({_id : id}, {
             isAppLive, infinityLive, modifiedBy: req.user._id, modifiedOn: new Date()
         }, {new:true})
-        console.log("this is role", setting);
+
         // res.send(setting)
         res.status(201).json({message : "Timming updated succesfully"});
     } catch (e){
@@ -74,7 +74,6 @@ router.get("/mobileappversion", async(req,res) => {
     try{
         const setting = await Setting.find({}).select('-__v -_id -name -user');
         const mobileAppVersion = setting[0]?.mobileAppVersion;
-        console.log(setting[0]);
         res.status(200).json({status:'success', data:mobileAppVersion});
     }catch(e){
         console.log(e);
@@ -104,7 +103,7 @@ router.patch("/mobileappversion", async(req,res) => {
 router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     try{ 
         const {id} = req.params
-        console.log(id, req.body)
+
         const setting = await Setting.findOneAndUpdate({_id : id}, {
             $set:{ 
                 modifiedOn: new Date(),
@@ -132,7 +131,6 @@ router.patch("/settings/:id", Authentication, restrictTo('Admin', 'SuperAdmin'),
                 "time.timerStartTimeInEnd": req.body.timerStartTimeInEnd,
             }
         })
-        console.log("this is role", setting);
         // res.send(setting)
         res.status(201).json({message : "Timming updated succesfully"});
     } catch (e){
@@ -146,7 +144,7 @@ router.patch("/toggleLTP/:id", Authentication, restrictTo('Admin', 'SuperAdmin')
 
     try{ 
         const {id} = req.params
-        console.log(id, req.body)
+
         const setting = await Setting.findOneAndUpdate({_id : id}, {
             $set:{ 
                 modifiedOn: new Date(),
@@ -154,7 +152,7 @@ router.patch("/toggleLTP/:id", Authentication, restrictTo('Admin', 'SuperAdmin')
                 "toggle.ltp": req.body.ltp,
             }
         })
-        console.log("this is role", setting);
+
         // res.send(setting)
         res.status(201).json({message : "Timming updated succesfully"});
     } catch (e){
@@ -168,7 +166,7 @@ router.patch("/toggleLiveOrder/:id", restrictTo('Admin', 'SuperAdmin'), Authenti
 
     try{ 
         const {id} = req.params
-        console.log(id, req.body)
+
         const setting = await Setting.findOneAndUpdate({_id : id}, {
             $set:{ 
                 modifiedOn: new Date(),
@@ -190,7 +188,7 @@ router.patch("/toggleComplete/:id", restrictTo('Admin', 'SuperAdmin'), Authentic
 
     try{ 
         const {id} = req.params
-        console.log(id, req.body)
+
         const setting = await Setting.findOneAndUpdate({_id : id}, {
             $set:{ 
                 modifiedOn: new Date(),
@@ -198,7 +196,7 @@ router.patch("/toggleComplete/:id", restrictTo('Admin', 'SuperAdmin'), Authentic
                 "toggle.complete": req.body.complete,
             }
         }, {new: true})
-        console.log("this is role", setting);
+
         // res.send(setting)
         res.status(201).json({message : "Timming updated succesfully", data: setting});
     } catch (e){
@@ -223,13 +221,10 @@ router.get("/deletetxns", async (req, res)=>{
             const contestTxns = txns?.filter((item) => { return item?.title == 'TestZone Credit' && new Date(item?.transactionDate)>= new Date('2023-10-25') && item?.description == 'Amount credited for contest Campus Financial Faceoff (Day 1)'});
             // const sumPayouts = contestTxns?.reduce()
             if(contestTxns.length > 1){
-                console.log('red', elem?.userId, elem?.payout);
             }
             if(contestTxns.length == 1){
-                console.log('green', elem?.userId ,elem?.payout);
             }
             if(contestTxns.length > 2){
-                console.log('extreme', elem?.userId, contestTxns?.length);
             }
 
             if (contestTxns.length > 0) {
@@ -263,8 +258,6 @@ router.get("/deletetxns", async (req, res)=>{
             }
             // console.log(`For user${elem?.userId}`, contestTxns?.length);    
         }
-        console.log(`Total Payout: ${totalPayout}`);
-        console.log('finished')
         res.status(200).send("Duplicate transactions deleted");
     }catch(error) {
     console.error("Error deleting duplicate transactions:", error);
@@ -288,7 +281,6 @@ router.get("/deletenotifs", async (req, res)=>{
             if(not?.length == 2){
                 if(not[0]?.description == not[1]?.description){
                     const duplicateNot = not[1];
-                    console.log('Deleting notification for', elem?.userId);
                     await Notification.findByIdAndDelete(duplicateNot?._id);
                 }
             }
@@ -319,7 +311,6 @@ router.get("/deletenotifs", async (req, res)=>{
             // console.log(`For user${elem?.userId}`, contestTxns?.length);    
         }
         // console.log(`Total Payout: ${totalPayout}`);
-        console.log('finished')
         res.status(200).send("Duplicate transactions deleted");
     }catch(error) {
     console.error("Error deleting duplicate transactions:", error);
@@ -358,7 +349,6 @@ router.get('/uniqueactivated', async(req,res) => {
         const combined = [...participants1, ...participants2, ...participants3, ...potentialParticipants1, ...potentialParticipants2, ...potentialParticipants3];
         const uniqueList = [...new Set(combined)];
 
-        console.log(uniqueList?.length);
         const collections = [TenXTrade, MarginXTrade, VirtualTrade, InternshipTrade, ContestTrade];
         let activatedUsers = [];
         const cutoffDate = new Date('2023-10-18');
@@ -366,9 +356,7 @@ router.get('/uniqueactivated', async(req,res) => {
         let activatedUsersSet = new Set();  // Use a set for efficient lookups
         let tradersBeforeCutoffSet = new Set();  // Track traders with trades before cutoff
         let totalSet = new Set();
-        console.log('scanning models');
         for (let Model of collections) {
-            console.log('model', Model);
             const postCutoffTraders = await Model.find({ 
                 trader: { $in: uniqueList },
                 trade_time: { $gte: cutoffDate, $lte: new Date('2023-10-20')}
@@ -399,15 +387,8 @@ router.get('/uniqueactivated', async(req,res) => {
             //     }
             }
         }
-    
-        // Remove traders from the activated set if they're in the exclusion set
-        // for (let traderId of tradersBeforeCutoffSet) {
-        //     activatedUsersSet.delete(traderId);
-        // }
-        console.log('data population now');
         const newActivatedUsers =  Array.from(new Set(activatedUsersSet));
         const allUsers =  Array.from(new Set(totalSet));
-        console.log(allUsers[0]);
         const allUserIds = allUsers.map(item=>item?.trader);
         // console.log(newActivatedUsers?.length);
         let detailedArray = [];
@@ -421,9 +402,7 @@ router.get('/uniqueactivated', async(req,res) => {
             let firstTrade = '';
             if(tradeDoc!=-1){
                 firstTrade = tradeDoc?.first_trade;
-                console.log('first trade', firstTrade)
             }else{
-                console.log('not found', user?.userId);
             }
             let detailedObject = {
                 Name: user?.first_name +' '+user?.last_name, 
@@ -444,7 +423,6 @@ router.get('/uniqueactivated', async(req,res) => {
 )
 
 router.get('/collegecontestusers', async(req,res) => {
-    console.log('starting pipeline');
     const pipeline = [
         {
           $match: {
@@ -658,12 +636,8 @@ router.get('/collegecontestusers', async(req,res) => {
     
       const data = await Contest.aggregate(pipeline);
 
-console.log(data?.length);
-
 // Correcting the sort logic
 let newData = data.sort((a, b) => new Date(a.trade_time) - new Date(b.trade_time));
-
-console.log(newData.length);
 
 let finalData = [];
 
@@ -688,7 +662,6 @@ for (let item of newData) {
     }
 }
 
-console.log(finalData.length);
 res.json(finalData);
 
 });
@@ -701,10 +674,8 @@ router.get("/checkextra", async (req, res)=>{
         const participantIds = participants.map(item=>item.userId.toString());
         const pot = contest.potentialParticipants.map(item=>item?.toString());
         const potSet = new Set(pot);
-        console.log(pot, participantIds);
         let arr = [];
         const difference = participantIds.filter(item => !potSet.has(item.toString()));
-        console.log('only',difference);
     }catch(e){
         console.log(e);
     }

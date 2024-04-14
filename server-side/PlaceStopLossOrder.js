@@ -1485,7 +1485,6 @@ const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, dat
     }
 
     if (((availableMargin+prevLimitMargin) - requiredMargin) > 0) {
-        console.log("In if")
         tradeData.margin = requiredMargin + prevMargin;
         return;
     } else {
@@ -1496,7 +1495,6 @@ const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, dat
 const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
     const quantityPer = Math.abs(tradeData.Quantity) * 100 / Math.abs(prevQuantity);
     const marginReleased = prevMargin * quantityPer / 100;
-    console.log("2st case", marginReleased,  prevMargin)
 
     
     tradeData.margin = prevMargin - marginReleased;
@@ -1597,7 +1595,6 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
         if (runningLots === 0) {
             return openingBalance - totalMargin + npnl;
         } else {
-            console.log("margin", openingBalance  - (Math.abs(amount-subtractAmount)+margin))
             return openingBalance  - (Math.abs(amount-subtractAmount)+margin);
         }
     else{

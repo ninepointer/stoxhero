@@ -53,7 +53,6 @@ exports.sendIndividualNotification = async (title, body, token, mediaUrl = null,
   if (mediaUrl || actions) {
       message.data = {};
       if (mediaUrl) {
-          console.log('This is the image url', mediaUrl);  
           message.data.mediaUrl = mediaUrl;
           message.notification.image = mediaUrl;
       }
@@ -63,9 +62,7 @@ exports.sendIndividualNotification = async (title, body, token, mediaUrl = null,
   }
 
   try {
-      console.log('sending this', message);  
       const res = await messaging.send(message);
-      console.log('Successfully sent message:', res);
       return res;
   } catch (e) {
       console.log('Error sending message:', e);    
@@ -98,7 +95,6 @@ exports.sendMultiNotifications = async (title, body, tokens, mediaUrl = null, ac
   try {
       // console.log('sending this', message);  
       const res = await messaging.sendEachForMulticast(message);
-      console.log('Successfully sent message');
       return res;
   } catch (e) {
       console.log('Error sending message:', e);    

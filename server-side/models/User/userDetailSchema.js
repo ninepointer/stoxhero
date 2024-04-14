@@ -553,10 +553,8 @@ userDetailSchema.pre("save", async function (next) {
   if (!this.employeeid || this.isNew) {
     const count = await this.constructor.countDocuments();
 
-    console.log("this?.email", this?.email);
     if (this?.email) {
       let userId = this?.email?.split("@")[0] || this?.email;
-      console.log("Count of Documents: ", userId, this?.email);
       let userIds = await userPersonalDetail.find({ employeeid: userId });
       if (userIds.length > 0) {
         userId = userId?.toString() + (userIds?.length + 1).toString();
@@ -569,7 +567,6 @@ userDetailSchema.pre("save", async function (next) {
           this.schoolDetails.dob.getMonth() + 1
         }${this.schoolDetails.dob.getFullYear()}`;
 
-      console.log("userId", userId);
       let userIds = await userPersonalDetail.find({ employeeid: userId });
       if (userIds.length > 0) {
         userId = userId?.toString() + (userIds?.length + 1).toString();

@@ -11,7 +11,7 @@ const {createUserNotification} = require('../controllers/notification/notificati
 const {ObjectId} = require('mongodb')
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
-console.log("File upload started");
+
   if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("application/")) {
     cb(null, true);
 } else {
@@ -26,7 +26,7 @@ AWS.config.update({
   });
   
 const upload = multer({ storage, fileFilter }).single("transactionDocument");
-console.log("Upload:",upload)
+
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -38,7 +38,7 @@ exports.uploadMulter = upload;
 exports.resizePhoto = (req, res, next) => {
     if (!req.file) {
       // no file uploaded, skip to next middleware
-      console.log('no file');
+
       next();
       return;
     }
@@ -468,7 +468,6 @@ exports.rejectKYC = async(req,res,next) => {
 
 exports.generateOtp = async(req,res) => {
   const {aadhaarNumber} = req.body;
-  console.log('aadhaar otp req');
   try{
     const setting = await Settings.findOne();
     const wallet = await Wallet.findOne({userId: new ObjectId(req?.user?._id)});
@@ -498,14 +497,13 @@ exports.generateOtp = async(req,res) => {
 
 exports.verifyOtp = async(req,res) =>{
   const{client_id, otp, panNumber, bankAccountNumber, ifsc} = req.body;
-  console.log(req.body);
+
   try{
     const aadhaarData =  await verifyAadhaarOtp(client_id, otp);
-    console.log('aadhaar data', aadhaarData);
+
     const panData = await verifyPan(panNumber);
-    console.log('pan data', panData);
+
     const bankAccountData = await verifyBankAccount(bankAccountNumber, ifsc);
-    console.log('bank account data', bankAccountData);
     const user = await User.findById(req?.user?._id);
     const titleRegex = /\b(Mr\.|Dr\.|Dr|Mr|Ms\.|Ms|Mrs\.|Shri|Smt|Sri)\s+/gi;
 
@@ -516,8 +514,8 @@ exports.verifyOtp = async(req,res) =>{
     const aadhaarName = cleanName(aadhaarData?.full_name);
     const panName = cleanName(panData?.full_name);
     const bankAccountName = cleanName(bankAccountData?.full_name);
-    console.log(aadhaarName, panName, bankAccountName);
 
+    
     if(aadhaarName === panName && panName === bankAccountName){
       user.KYCStatus = 'Approved';
       user.KYCActionDate = new Date();

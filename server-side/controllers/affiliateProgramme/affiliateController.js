@@ -274,7 +274,6 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
   const productDoc = await Product.findOne({ _id: product });
   const affiliateUser = await User.findOne({ _id: affiliate?.userId }).select('first_name last_name mobile fcmTokens');
   let discount = Math.min(affiliateProgram?.discountPercentage / 100 * actualPrice, affiliateProgram?.maxDiscount);
-  console.log('ignore dis', ignoreDiscount, actualPrice, discount);
   if(ignoreDiscount)discount=0;
   const affiliatePayout = affiliateProgram?.commissionPercentage / 100 * (actualPrice - discount);
   let walletTransactionId = uuid.v4();
@@ -323,7 +322,6 @@ exports.creditAffiliateAmount = async (affiliate, affiliateProgram, product, spe
       whatsAppService.sendWhatsApp({ destination: affiliateUser?.mobile, campaignName: 'affiliate_transaction_campaign', userName: affiliateUser?.first_name, source: affiliateUser?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
       whatsAppService.sendWhatsApp({ destination: '8076284368', campaignName: 'affiliate_transaction_campaign', userName: user?.first_name, source: user?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
     } else {
-      console.log("sending msg")
       whatsAppService.sendWhatsApp({ destination: '9319671094', campaignName: 'affiliate_transaction_campaign', userName: affiliateUser?.first_name, source: affiliateUser?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
       whatsAppService.sendWhatsApp({ destination: '8076284368', campaignName: 'affiliate_transaction_campaign', userName: affiliateUser?.first_name, source: affiliateUser?.creationProcess, templateParams: [affiliateUser.first_name, `${user.first_name} ${user.last_name}`, productDoc?.productName, (actualPrice - discount).toLocaleString('en-IN'), moment.utc(new Date()).utcOffset('+05:30').format("DD-MMM hh:mm a"), affiliatePayout.toLocaleString('en-IN')], tags: '', attributes: '' });
     }
@@ -366,7 +364,6 @@ exports.removeAffiliateUser = async (req, res) => {
     const affiliate = await Affiliate.findOne({ _id: id })
       .populate('affiliates.userId', 'first_name last_name email mobile creationProcess myReferralCode');
 
-      console.log("userId", userId)
       for(let elem of affiliate?.affiliates){
         if(elem.userId._id.toString() === userId.toString()){
           elem.affiliateStatus = "Inactive";
@@ -604,17 +601,10 @@ exports.affiliateLeaderboard = async (req, res) => {
     // console.log("affilifateUser.length", affilifateUser[0].affiliateReferrals[0])
     for(let elem of leaderboard){
       let filteredUser = affilifateUser.filter((item)=>{
-        // console.log(elem?.affiliate, item?.referredUserId?._id ,  item?.referredUserId?.joining_date , new Date(startDate) , item?.referredUserId?.joining_date , new Date(endDate))
-        // console.log("elem", elem)
-        console.log( elem?.affiliate?.toString() , item?._id?.toString())
         return elem?.affiliate?.toString() === item?._id?.toString()
         // 645cc77c2f0bba5a7a3ff427 63788f3991fc4bf629de6df0 return (elem?.affiliate===item?.referredUserId?._id && item?.referredUserId?.joining_date >= new Date(startDate) && item?.referredUserId?.joining_date <= new Date(endDate))
       })
 
-
-
-      console.log("filteredUser", filteredUser?.[0]?.affiliateReferrals?.length, elem.first_name)
-      // elem.signup = filteredUser?.[0]?.affiliateReferrals?.length;
       elem.signup_payout = filteredUser?.[0]?.affiliateReferrals.reduce((total, acc)=>{
         return (acc?.referredUserId?.joining_date >= new Date(startDate) && acc?.referredUserId?.joining_date <= new Date(endDate)) && (total + acc?.affiliateEarning);
       }, 0)

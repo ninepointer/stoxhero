@@ -844,7 +844,6 @@ exports.tradingDays = async (req, res, next) => {
 }
 
 exports.autoExpireTenXSubscription = async () => {
-  console.log("autoExpireSubscription running");
   const subscription = await Subscription.find();
   const setting = await Setting.find();
 
@@ -1061,7 +1060,6 @@ exports.autoExpireTenXSubscription = async () => {
             },
           ], { allowDiskUse: true })
 
-          console.log(pnlDetails)
           let tradingDays = pnlDetails?.[0]?.tradingDays;
           let pnl = pnlDetails[0]?.npnl * payoutPercentage/100;
           let profitCap = subscription[i].profitCap;
@@ -1083,13 +1081,10 @@ exports.autoExpireTenXSubscription = async () => {
           const currentDate = new Date();
           // Compare the expiration date with the current date
           if (expirationDate < currentDate) {
-            console.log("correct");
           }
 
-          console.log("payoutAmount",tradingDays, pnlDetails[0]?.npnl, pnl, profitCap, subscription[i].profitCap, payoutPercentage, payoutAmountWithoutTDS, users[j]?.fee, daysDifference >= expiryDays)
 
           if ((tradingDays >= validity) || (daysDifference >= expiryDays) || (expirationDate < currentDate)) {
-            console.log("in if")
 
             const user = await User.findOne({ _id: new ObjectId(userId), status: "Active" });
             if(user){
@@ -1154,10 +1149,8 @@ exports.autoExpireTenXSubscription = async () => {
                 }
               }
     
-              console.log(payoutAmount, tradingDays, new ObjectId(userId));
               
               if(payoutAmount > 0 && tradingDays >= validity){
-                console.log(user._id, user.first_name)
                 const wallet = await Wallet.findOne({userId: new ObjectId(userId)});
                 wallet.transactions = [...wallet.transactions, {
                       title: 'TenX Trading Payout',
@@ -2314,13 +2307,10 @@ exports.backfillPayouts = async (req, res) => {
                     }
                 }  
           }
-          console.log(`Net payout for ${sub?.plan_name}`, netPayout);
           totalPayout += netPayout;
         }
-        
-        console.log('sub user', subPayout, userPayout);
-      console.log('Total payout', totalPayout);
 
+        
   } }catch (e) {
       console.log(e);
   }
@@ -2418,12 +2408,9 @@ exports.backfillPayouts = async (req, res) => {
                 }
 
             }
-            console.log(`Net payout for ${sub?.plan_name}`, netPayout);
             totalPayout += netPayout;
         }
 
-        console.log('sub user', subPayout, userPayout);
-        console.log('Total payout', totalPayout);
 
     } catch (e) {
         console.log(e);

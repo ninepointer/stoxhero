@@ -227,7 +227,6 @@ router.get("/gettraderwisepnlmocktradetradertoday/nonalgo", async(req, res)=>{
 // order
 router.get("/getusermocktrades/nonalgo/:userId", async(req, res)=>{
   const {userId} = req.params;
-  console.log(userId)
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   

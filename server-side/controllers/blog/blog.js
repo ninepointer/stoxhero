@@ -137,12 +137,7 @@ exports.removeImage = (async (req, res, next) => {
 });
 
 exports.saveBlogData = async(req, res, next) => {
-    console.log("saved data")
     const id = req.params.id;
-//     const textDecoder = new TextEncoder();
-
-//     const decodedData = textDecoder.decode(req.body.blogData);
-// console.log(decodedData)
     const content = decode(req.body.blogData)
     const wordCount = content.split(" ").length;
 
@@ -219,7 +214,6 @@ exports.viewBlog = async(req, res, next) => {
 exports.updateBlogStatus = async (req, res) => {
     try {
         const { id, status } = req.params;
-        console.log("Update Blog:",id,status)
         const updateFields = req.body;
 
         let blog = await Blog.findOne({ _id: id },{ new: true }).populate('lastModifiedBy', 'first_name last_name');
@@ -334,7 +328,6 @@ exports.getPublishedBlogs = async (req, res) => {
 exports.getDraftBlogs = async (req, res) => {
     try {
         const clientIP = req.ip || req.connection.remoteAddress;
-        console.log("clientIP", clientIP, req.headers['x-forwarded-for'], req.ip, req.connection.remoteAddress)
         const draftBlogs = await Blog.find({ status: 'Created' }).populate('lastModifiedBy', 'first_name last_name')
         // .populate('blogContent', 'header, serialNumber, content, image, youtubeVideoCode')
         

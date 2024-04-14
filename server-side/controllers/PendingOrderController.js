@@ -38,9 +38,6 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
       product_type = "6583c2012ef31a319cf888c9"
     }
 
-
-    console.log(from, tenxTrader, product_type, userId, id)
-
     const count = await PendingOrder.countDocuments({
       product_type: new ObjectId(
         product_type
@@ -595,7 +592,6 @@ const availableMarginFunc = async (fundDetail, pnlData, npnl) => {
       if (runningLots === 0) {
         return openingBalance - totalMargin + npnl;
       } else {
-        console.log("margin", openingBalance - (Math.abs(amount - subtractAmount) + margin))
         return openingBalance - (Math.abs(amount - subtractAmount) + margin);
       }
     else {
@@ -782,8 +778,6 @@ const fundCheck = async (modifyData, price) => {
           break;
         }
       }
-
-      console.log(todayPnlData)
 
       if (product_type?.toString() === "6517d3803aeb2bb27d650de0") {
         await client.set(`${createdBy?.toString()}${sub_product_id?.toString()}: overallpnlTenXTrader`, JSON.stringify(todayPnlData))

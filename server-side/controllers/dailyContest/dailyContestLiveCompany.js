@@ -409,7 +409,6 @@ exports.switchWindowPnlData = async(req, res, next)=>{
     for(subelem of contest.participants){
       if(elem.traderId.toString() === subelem.userId.toString()){
         elem.isLive = subelem.isLive ? true : false;
-        console.log(elem)
       }
     }
   }
@@ -3228,7 +3227,7 @@ exports.overallDailyContestPnlYesterday = async (req, res, next) => {
       let startTime = new Date(day.setHours(0, 0, 0, 0));
       let endTime = new Date(day.setHours(23, 59, 59, 999));
       date = startTime;
-      console.log('times', startTime, endTime)
+
       pnlDetailsData = await DailyContestLiveCompany.aggregate([
           {
               $match: {

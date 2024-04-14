@@ -62,7 +62,6 @@ const getAwsS3CoverImageUrl = async (file, type) => {
       .toBuffer();
   }
 
-  console.log(file.buffer);
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: `courses/${Date.now()}-${file.originalname}`,
@@ -604,7 +603,6 @@ exports.addInstructor = async (req, res) => {
       image = await getAwsS3Url(req.files["instructorImage"][0]);
     }
 
-    console.log("image", image);
     const course = await Course.findByIdAndUpdate(
       new ObjectId(req.params.id),
       {
@@ -694,7 +692,6 @@ exports.addContent = async (req, res) => {
   try {
     const { order, topic } = req.body;
 
-    console.log(req.body, order, topic);
 
     const course = await Course.findByIdAndUpdate(
       new ObjectId(req.params.id),
@@ -891,7 +888,7 @@ exports.editContent = async (req, res) => {
   try {
     const { contentId } = req.params;
     const { order, topic } = req.body;
-    console.log(req.body);
+
     const course = await Course.findOneAndUpdate(
       {
         _id: new ObjectId(req.params.id),
@@ -1286,7 +1283,7 @@ exports.createCourseInfo = async (req, res) => {
 
 exports.setPricing = async (req, res) => {
   const { coursePrice, discountedPrice, commissionPercentage } = req.body;
-  console.log(req.body);
+
   const { id } = req.params;
   try {
     const course = await Course.findByIdAndUpdate(
@@ -2105,7 +2102,7 @@ exports.getCourseBySlugUser = async (req, res) => {
       const newCourse = await Course.findOne({ courseSlug: slug }).select(
         "-enrollments -createdOn -createdBy -commissionPercentage -courseContent"
       );
-      console.log(newCourse, slug);
+
       return res.status(200).json({
         status: "success",
         message: `${
@@ -3610,18 +3607,14 @@ exports.addUserRating = async (req, res, next) => {
 };
 
 exports.handleS3Upload = async (req, res) => {
-  console.log(
-    req.body,
-    req.files["fileVid"][0],
-    req.files["fileVid"][0].mimetype
-  );
+ 
   try {
     const url = await getAwsS3Key(
       req.files["fileVid"][0],
       "Video",
       `courses/video/${req.body?.courseId}-${req.body.contentId}-${Date.now()}`
     );
-    console.log(url);
+    
     res.status(200).json({
       message: "File uploaded successfully",
       fileUrl: url,

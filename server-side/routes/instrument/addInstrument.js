@@ -86,7 +86,6 @@ router.post("/addInstrument", authentication, async (req, res) => {
             return;
         } else {
             try{
-                console.log("instrumentToken", instrumentToken)
                 await client5.PUBLISH("subscribe-single-token", JSON.stringify({ instrumentToken }));
 
                 const token = JSON.parse(await client.get('all-token')) || [];
@@ -221,7 +220,6 @@ router.post("/addstock", authentication, async (req, res) => {
             return;
         } else {
             try{
-                console.log("instrumentToken", instrumentToken)
                 await client5.PUBLISH("subscribe-single-token", JSON.stringify({ instrumentToken }));
 
                 const token = JSON.parse(await client.get('all-token')) || [];
@@ -246,7 +244,6 @@ router.post("/addstock", authentication, async (req, res) => {
                     const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
                 }
     
-                console.log(`${req.user._id.toString()}: equity-instrument`)
                 await client.LPUSH(`${req.user._id.toString()}: equity-instrument`, JSON.stringify({
                     _id: addingInstruments._id,
                     instrument: addingInstruments.instrument,
@@ -344,7 +341,6 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
         }
         let index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
 
-        console.log("index", index, isRedisConnected)
         if (index !== -1 && isRedisConnected) {
             try{
             //  const redisClient = await client.LREM((_id).toString(), 1, (instrumentToken).toString());
@@ -384,7 +380,6 @@ router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req
               })
 
               user.watchlistInstruments.splice(index, 1); // remove the element at the index
-              console.log("watchlist", user.watchlistInstruments)
               await user.save();
 
               const redisClient = await client.SREM((_id).toString(), (removeFromSet[0]));
@@ -423,7 +418,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
     isBankNifty = isBankNifty==="true" ?  true : false;
     isFinNifty = isFinNifty==="true" ?  true : false;
     dailyContest = dailyContest==="true" ?  true : false;
-    console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
+
     let url;
     let roleObj;
 
@@ -574,7 +569,6 @@ router.patch("/removestock/:instrumentToken/", authentication, async (req, res)=
         
         const index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
 
-        console.log("index", index, isRedisConnected)
         if (index !== -1 && isRedisConnected) {
             try{
             let removeInstrumentObject = {

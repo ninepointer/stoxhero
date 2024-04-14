@@ -824,8 +824,6 @@ exports.overallMarginXPnlYesterday = async (req, res, next) => {
         }
     }
 
-    console.log("pnlDetailsData", pnlDetailsData)
-
     res.status(201).json({
         message: "pnl received",
         data: pnlDetailsData ? pnlDetailsData : [],
@@ -1014,7 +1012,7 @@ exports.overallMarginXCompanySidePnlThisMonth = async (req, res, next) => {
     ]
 
     let x = await MarginxMockCompany.aggregate(pipeline)
-    console.log("MTD",x)
+
     res.status(201).json({ message: "data received", data: x ? x : [] });
 }
 

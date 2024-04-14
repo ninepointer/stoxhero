@@ -19,7 +19,6 @@ async function sendWhatsApp({destination, campaignName, userName, source, media,
     
     try{
         const res = await axios.post(`${ai_sensi}`,option);
-        console.log('WhatsApp Msg sent to:', destination);
     } catch(err){
         // console.log(err)
         console.log(err);

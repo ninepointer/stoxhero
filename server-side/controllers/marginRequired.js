@@ -154,7 +154,6 @@ exports.DailyContestMargin = async (req, res) => {
               "trigger_price": 0
             }];
 
-            console.log("orderData", orderData);
             let marginData;
             let zerodhaMargin;
 
@@ -472,10 +471,8 @@ exports.saveMockUsedMargin = async ()=>{
           try {
             marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers });
             let liveData = await singleLivePrice(finalArr[i].exchange, finalArr[i].symbol)
-            console.log(liveData)
+
             zerodhaMargin = marginData.data.data.orders[0].total;
-            // total += zerodhaMargin;
-            // console.log(zerodhaMargin);
             tradeData.push({
               instrument: finalArr[i].symbol,
               marginRequired: zerodhaMargin,

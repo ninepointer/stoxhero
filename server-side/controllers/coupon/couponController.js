@@ -281,17 +281,13 @@ exports.verifyCouponCode = async (req, res) => {
   try {
     let { code, product, orderValue, platform, paymentMode } = req.body;
     
-    // if(!product){
-    //     product = '65f053dc1e78925c8675ed81'
-    // }
-    console.log("Coupon Data:", req.body);
     const userId = req.user._id;
     let coupon = await Coupon.findOne({
       code: code,
       expiryDate: { $gte: new Date() },
       status: "Active",
     });
-    console.log("Coupon:", coupon);
+
     if (!coupon) {
       let match = false;
       const affiliatePrograms = await AffiliateProgram.find({
@@ -305,7 +301,7 @@ exports.verifyCouponCode = async (req, res) => {
               item?.affiliateStatus == "Active"
           );
           if (match) {
-            console.log("match", match, program?.maxDiscount);
+
             //check for eligible platforms
             if (
               program?.eligiblePlatforms?.length != 0 &&
@@ -346,7 +342,7 @@ exports.verifyCouponCode = async (req, res) => {
           }
         }
       }
-      console.log("this is match", match);
+
       if (!match) {
         const userCoupon = await User.findOne({
           myReferralCode: code?.toString(),
@@ -391,11 +387,8 @@ exports.verifyCouponCode = async (req, res) => {
             referralProgram?.affiliateDetails?.minOrderValue &&
             orderValue < referralProgram?.affiliateDetails?.minOrderValue
           ) {
-            console.log(
-              "Inside Min Order and order value check:",
-              paymentMode,
-              referralProgram?.affiliateDetails?.rewardType
-            );
+           
+            
             return res.status(400).json({
               status: "error",
               message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${referralProgram?.affiliateDetails?.minOrderValue}`,
@@ -421,22 +414,16 @@ exports.verifyCouponCode = async (req, res) => {
       });
     }
     if (paymentMode == "wallet" && coupon?.rewardType == "Cashback") {
-      console.log(
-        "Payment Mode & RewardType:",
-        paymentMode,
-        coupon?.rewardType
-      );
+      
+      
       return res.status(400).json({
         status: "error",
         message: "This coupon is not valid for your selected payment mode",
       });
     }
     if (paymentMode == "addition" && coupon?.rewardType == "Discount") {
-      console.log(
-        "Payment Mode & RewardType:",
-        paymentMode,
-        coupon?.rewardType
-      );
+      
+      
       return res.status(400).json({
         status: "error",
         message: "This coupon is not valid for wallet topup",
@@ -461,7 +448,7 @@ exports.verifyCouponCode = async (req, res) => {
       });
     }
     if (coupon?.isOneTimeUse) {
-      console.log("Inside Onetime Use:", paymentMode, coupon?.rewardType);
+
       if (coupon?.usedBySuccessful.length > 0) {
         const uses = coupon?.usedBySuccessful?.filter(
           (item) => item?.user?.toString() == userId?.toString()
@@ -475,11 +462,7 @@ exports.verifyCouponCode = async (req, res) => {
       }
     }
     if (coupon?.minOrderValue && orderValue < coupon?.minOrderValue) {
-      console.log(
-        "Inside Min Order and order value check:",
-        paymentMode,
-        coupon?.rewardType
-      );
+      
       return res.status(400).json({
         status: "error",
         message: `Your order is not eligible for this coupon. The minimum order value for this coupon is ₹${coupon?.minOrderValue}`,
@@ -792,11 +775,9 @@ async function appendAdditionalDataa(coupons) {
         usedBySuccessful.specificProduct,
         coupon
       );
-      console.log("product detail", specificProductDetail);
-      // usedBySuccessful.specificProductDetail = specificProductDetail;
+
       usedBySuccessful.specificProductDetail = specificProductDetail;
-      // specificProductCache.set(cacheKey, specificProductDetail);
-      // }
+     
     }
   }
 }
@@ -924,9 +905,7 @@ function calculateMetrics(coupon) {
         metrics.contestBonus += detail?.bonusAmount ?? 0;
         break;
       default:
-        console.log(
-          `Unknown product name: ${usedBySuccessful.product.productName}`
-        );
+       
         break;
     }
   }
@@ -984,9 +963,7 @@ function calculateMetricss(coupon) {
         metrics.contestDiscount += detail?.discountAmount;
         break;
       default:
-        console.log(
-          `Unknown product name: ${usedBySuccessful?.product?.productName}`
-        );
+       
         break;
     }
   }

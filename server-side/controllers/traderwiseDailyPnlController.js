@@ -32,20 +32,12 @@ exports.traderDailyPnlCalculation = async(date) => {
         instrumentData.map(async(elem)=>{
             //Converting the date time format
             let filteringTimestamp = elem.timestamp.split("T")[0] + " " + elem.timestamp.split("T")[1].split("+")[0]
-            ////console.log("Filtering Date: "+filteringTimestamp);
             
             let pnlTimeTradeData = mockTradeData.filter((e)=> {
-              console.log("in elem1")
-
-                ////console.log("Compare Time: ",Date(filteringTimestamp),Date(e.trade_time))
-                ////console.log(elem.open,e.Quantity,elem.symbol,e.symbol,e.status,e.userId,td.email);
                 return filteringTimestamp >= e.trade_time && elem.symbol == e.symbol && e.status == "COMPLETE" && e.userId == td.email
                 
             })
-            ////console.log("PNL Trade Data Length: "+pnlTimeTradeData.length)
-            ////console.log("PNL Time Trade Data Length: "+pnlTimeTradeData.length);
             if(pnlTimeTradeData.length !== 0){
-              console.log("in elem")
 
                 let totalAmount = 0;
                 let totalRunningLots = 0;
@@ -70,7 +62,6 @@ exports.traderDailyPnlCalculation = async(date) => {
           
                 let x = await TraderDailyPnlData.create({symbol:elem.symbol,timestamp:filteringTimestamp,calculatedGpnl:-finalPnlTimeData,noOfTrades:totalTrades,traderName:traderName,userId:userId}, function (err, TraderDailyPnlData){
                     if (err) return console.log(err);
-                     console.log("Data Saved for :"+td.name)
                 });
               
           

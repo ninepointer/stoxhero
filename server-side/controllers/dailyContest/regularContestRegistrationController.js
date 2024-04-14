@@ -197,7 +197,7 @@ exports.createUser = async (req, res, next) => {
         // }
 
         const newuser = await UserDetail.create(obj);
-        console.log("user created", newuser?._id);
+
         const addInPotentialUser = await DailyContest.findByIdAndUpdate(new ObjectId(dailycontestId), {
             $push: {
                 potentialParticipants: newuser?._id
@@ -209,7 +209,7 @@ exports.createUser = async (req, res, next) => {
             createdOn: new Date(),
             createdBy: newuser._id,
         });
-        console.log("wallet created");
+
         const populatedUser = await UserDetail.findById(newuser._id)
             .populate("role", "roleName")
             .populate(
@@ -269,7 +269,7 @@ exports.createUser = async (req, res, next) => {
                 let referrerCodeMatch = await UserDetail.findOne({
                     myReferralCode: referrerCode,
                 });
-                console.log("updating affiliate program");
+
                 const updateProgramme = await AffiliatePrograme.findOneAndUpdate(
                     { _id: new ObjectId(affiliateObj?._id) },
                     {
@@ -372,7 +372,7 @@ exports.createUser = async (req, res, next) => {
             } else {
                 // referral?.users?.push({ userId: newuser._id, joinedOn: new Date() })
                 // await referral.save();
-                console.log("updating referral program");
+
                 const referralProgramme = await Referral.findOneAndUpdate(
                     { status: "Active" },
                     {
@@ -496,11 +496,6 @@ exports.createUser = async (req, res, next) => {
             expires: new Date(Date.now() + 25892000000),
         });
 
-        console.log("sending response");
-        // res.status(201).json({ status: "Success", data: populatedUser, message: "Account created successfully.", token: token });
-
-        // res.status(201).json({status: "Success", data:newuser, token: token, message:"Welcome! Your account is created, please check your email for your userid and password details."});
-        // let email = newuser.email;
         let subject = "Welcome to StoxHero - Learn, Trade, and Earn!";
         let message = `
               <!DOCTYPE html>
@@ -757,9 +752,7 @@ exports.confirmOTP = async (req, res, next) => {
             fcmTokenData.lastUsedAt = new Date();
             user.fcmTokens.push(fcmTokenData);
             await user.save({ validateBeforeSave: false });
-            console.log("FCM token added successfully.");
           } else {
-            console.log("FCM token already exists.");
           }
         }
   
@@ -799,9 +792,7 @@ exports.confirmOTP = async (req, res, next) => {
           fcmTokenData.lastUsedAt = new Date();
           user.fcmTokens.push(fcmTokenData);
           await user.save({ validateBeforeSave: false });
-          console.log("FCM token added successfully.");
         } else {
-          console.log("FCM token already exists.");
         }
       }
   
@@ -910,7 +901,6 @@ exports.registeredCount = async (req, res, next) => {
 }
 
 exports.getRegistrations = async (req, res, next) => {
-    console.log('here');
     const { id } = req.params;
     try {
         const regs = await ContestRegistration.find({ contest: new ObjectId(id), status: 'OTP Verified' })

@@ -19,7 +19,6 @@ router.route('/historyMyrank').get(Authenticate, getHistoryMyRank);
 router.route('/myrank').get(Authenticate, getRedisMyRank);
 router.route('/redtest').get( async(req,res,next)=>{
     try{
-        console.log('we\'re testing');
         for(let i = 0; i<5; i++){
             await client.ZADD('test2', {
                 score: 23+i,

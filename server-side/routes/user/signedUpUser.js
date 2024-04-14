@@ -283,8 +283,6 @@ router.post("/fetchschools", async (req, res) => {
     let cityData = await client.get(`citySchools-${cityId}`);
     cityData = JSON.parse(cityData);
 
-    console.log("cityData", cityData, cityId);
-
     if (!cityData?.length) {
       // Data not in cache, fetch from database and cache it
       const dataFromDB = await School.find({
@@ -294,7 +292,6 @@ router.post("/fetchschools", async (req, res) => {
         .populate("city", "name")
         .select("_id school_name city state address");
 
-      console.log("dataFromDB", dataFromDB);
       await client.set(`citySchools-${cityId}`, JSON.stringify(dataFromDB));
       await client.expire(`citySchools-${cityId}`, 600);
       // cityData = JSON.stringify(dataFromDB);
@@ -793,8 +790,6 @@ router.patch("/verifyotp", async (req, res) => {
         "student_name schoolDetails full_name city dob pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch"
       );
     const token = await populatedUser.generateAuthToken();
-
-    console.log("Token:", token);
 
     res.cookie("jwtoken", token, {
       expires: new Date(Date.now() + 25892000000),
@@ -1451,8 +1446,6 @@ router.patch("/createuserbyworkshop", async (req, res) => {
         "student_name schoolDetails full_name city dob pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch"
       );
     const token = await populatedUser.generateAuthToken();
-
-    console.log("Token:", token);
 
     res.cookie("jwtoken", token, {
       expires: new Date(Date.now() + 25892000000),

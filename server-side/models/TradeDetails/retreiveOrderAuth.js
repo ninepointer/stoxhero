@@ -87,9 +87,6 @@ router.get("/filldatainDB/:date/:symbol", async (req, res)=>{
         }
       ]);
       
-    //   const count = uniqueDocumentsCount[0].count;
-
-      console.log(missedOrderId)
 })
 
 

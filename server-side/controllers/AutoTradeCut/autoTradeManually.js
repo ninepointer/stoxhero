@@ -41,7 +41,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
     if (!exchange || !symbol || !buyOrSell || !Quantity) {
       
       if (!dontSendResp) {
-        console.log("Please fill all fields, autotrade");
+
       } else {
         return;
       }
@@ -78,7 +78,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
     TenxTrader.findOne({ order_id: order_id })
       .then((dateExist) => {
         if (dateExist) {
-          console.log("data already");
+
         }
 
         const tenx = new TenxTrader({

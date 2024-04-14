@@ -391,7 +391,7 @@ const paperTradeMod = async () => {
       exchange: item.exchange,
       symbol: item.symbol
   }));
-  console.log('getting internship', data?.length);
+
   const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
   const tradeObjects = data.map((item)=>{
     return {
@@ -1114,7 +1114,7 @@ const internshipTradeMod = async () => {
       exchange: item.exchange,
       symbol: item.symbol
   }));
-  console.log('getting internship', data?.length);
+
   const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
   const tradeObjects = data.map((item)=>{
     return {
@@ -1218,7 +1218,7 @@ const stockTradeMod = async () => {
       exchange: item.exchange,
       symbol: item.symbol
   }));
-  console.log('getting stock', data?.length);
+
   const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
   const tradeObjects = data.map((item)=>{
     return {
@@ -1323,7 +1323,7 @@ const dailyContestMockMod = async () => {
       exchange: item.exchange,
       symbol: item.symbol
   }));
-  console.log('getting contest');
+
   const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
   const companyTradeObjects = data.map((item)=>{
     return {
@@ -1372,7 +1372,7 @@ const dailyContestSingleMockMod = async (contestId) => {
       stopLossData = JSON.parse(stopLossData);
 
       for (let elem in stopLossData) {
-        console.log(elem);
+
         let indicesToRemove = [];
         const symbolArr = stopLossData[elem];
         for (let i = 0; i < symbolArr.length; i++) {
@@ -1458,7 +1458,7 @@ const dailyContestSingleMockMod = async (contestId) => {
 
         ]
       );
-      console.log(data.length);
+
       if (data.length !== 0){
         const system = await User.findOne({ email: 'system@ninepointer.in' }).select('_id');
         //const uniqueInstrumentTokens = [...new Set(data.map(item => item.instrumentToken))];
@@ -1474,7 +1474,7 @@ const dailyContestSingleMockMod = async (contestId) => {
           exchange: item.exchange,
           symbol: item.symbol
         }));
-        console.log('getting contest');
+
         const pricesByTokens = await fetchPricesForTokensArr(uniqueInstrumentObjects);
         const companyTradeObjects = data.map((item) => {
           return {
@@ -1492,8 +1492,6 @@ const dailyContestSingleMockMod = async (contestId) => {
             instrumentToken: item?.instrumentToken, contestId: item?.contestId, exchangeInstrumentToken: item?.exchangeInstrumentToken, createdBy: system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5 * 60 + 30) * 60 * 1000),
           }
         });
-        console.log('userTrades', userTradeObjects);
-        console.log('company trades', companyTradeObjects);
   
         await takeDailyContestMockTrades(companyTradeObjects, userTradeObjects);
   
@@ -1642,10 +1640,7 @@ async function fetchPricesForTokens(tokenObjects) {
 async function fetchPricesForTokensArr(tokenObjects) {
   try {
     // Fetch all the prices in one API call
-    console.log('token objects', tokenObjects);
     const fetchedPrices = await getLivePrices(tokenObjects);
-    console.log('fetched prices', fetchedPrices);
-
     // Convert the array of results into the desired object format
     const priceByToken = {};
 
@@ -1828,7 +1823,6 @@ const contestTradeLive = async () => {
 };
 
 const battleTradeMod = async () => {
-  console.log("in battle trade mode")
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -1923,7 +1917,6 @@ const battleTradeMod = async () => {
       instrumentToken: item?.instrumentToken, battleId: item?.battleId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
   });
-  console.log('tradeObjects', tradeObjects);
   
   await takeBattleTrades(tradeObjects);
 

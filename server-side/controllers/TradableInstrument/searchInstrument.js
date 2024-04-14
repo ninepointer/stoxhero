@@ -17,8 +17,8 @@ exports.search = async (searchString, res, req) => {
   const page = parseInt(req.query.page);
   const size = parseInt(req.query.size);
   let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
-  console.log(isNifty, isBankNifty, isFinNifty, dailyContest)
 
+  
   let query = [];
   if(isNifty==="true"){
     query.push({ $and: [{ isNifty: true }, { name: 'NIFTY50' }] })
@@ -59,7 +59,6 @@ exports.search = async (searchString, res, req) => {
 
     let fromLessThen = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     let data ;
-    console.log(todayDate , fromLessThen, searchString)
 
     if(roleObj.roleName === infinityTrader){
       data = await TradableInstrument.find({
@@ -168,7 +167,6 @@ exports.search = async (searchString, res, req) => {
 exports.equitySearch = async (searchString, res, req) => {
   // const size = parseInt(req.query.size);
 
-  console.log(searchString)
   try {
     let data = await EquityInstrument.find({
       $and: [

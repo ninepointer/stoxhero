@@ -80,7 +80,6 @@ const resizePhoto = async (req, res, next) => {
   // console.log("Uploaded Files: ",req.files)
   if (!req.files) {
     // no file uploaded, skip to next middleware
-    console.log("no file");
     next();
     return;
   }
@@ -153,7 +152,6 @@ const resizePhoto = async (req, res, next) => {
 const uploadToS3 = async (req, res, next) => {
   if (!req.files) {
     // no file uploaded, skip to next middleware
-    console.log("no files bro");
     next();
     return;
   }
@@ -379,7 +377,6 @@ exports.deactivateUser = async (req, res) => {
     );
 
     await client.del(`${deactivatedUser.toString()}authenticatedUser`);
-    console.log(deactivatedUser);
     if (isMail) {
       if (process.env.PROD == "true") {
         sendMail(
@@ -1174,14 +1171,7 @@ exports.getFilteredUsers = async (req, res, next) => {
     let query = {};
 
     let { startDate, endDate, referral, campaign, referredBy } = req.query;
-    console.log(
-      "Query",
-      new Date(startDate),
-      new Date(endDate),
-      referral,
-      campaign,
-      referredBy
-    );
+
 
     // If startDate and endDate are provided, add a range query for joiningDate
     if (!startDate) startDate = new Date("2022-01-01");
@@ -1214,7 +1204,6 @@ exports.getFilteredUsers = async (req, res, next) => {
       .select(
         "first_name last_name email mobile joining_date referredBy campaign creationProcess"
       );
-    console.log("filtered users", users);
 
     // Return the results
     res.status(200).json({
@@ -1251,7 +1240,6 @@ exports.getReferralsBetweenDates = async (req, res, next) => {
   endDate = new Date(endDate);
   endDate.setUTCHours(0, 0, 0, 0);
   endDate.setUTCHours(18, 59, 59, 999); // set the time to start of day in UTC
-  console.log(startDate, endDate);
 
   const pipeline = [
     {
@@ -1307,7 +1295,6 @@ exports.getReferralsBetweenDates = async (req, res, next) => {
   ];
 
   const referrals = await UserDetail.aggregate(pipeline);
-  console.log("Referrals", referrals.length);
   res
     .status(201)
     .json({ message: "Referrals Recieved", data: referrals.length });
@@ -1369,7 +1356,6 @@ exports.getUsersSearch = async (req, res) => {
 exports.addInfluencer = async (req, res) => {
   const id = req.params.id;
   let bannerImageWebUrl, bannerImageMobileUrl;
-  console.log(req.files);
   if (req.files["bannerImageWeb"] && req.files["bannerImageWeb"][0]) {
     bannerImageWebUrl = await getAwsS3Url(
       req.files["bannerImageWeb"][0],
@@ -1418,7 +1404,6 @@ exports.addInfluencer = async (req, res) => {
     if (user?.myReferralCode != myReferralCode) {
       user.myReferralCode = myReferralCode;
     }
-    console.log(Boolean(slug), slug);
     if (Boolean(slug) && user?.slug != slug) {
       user.slug = slug;
     }
@@ -1534,7 +1519,7 @@ exports.editInfluencer = async (req, res) => {
     if (state) user.influencerDetails.state = state;
     if (city) user.influencerDetails.city = city;
     if (about) user.influencerDetails.about = about;
-    console.log(req.body);
+    
     if (shTelegramCommunityLink)
       user.influencerDetails.shTelegramCommunityLink = shTelegramCommunityLink;
     if (tags)
