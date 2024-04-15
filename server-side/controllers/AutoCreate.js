@@ -20,7 +20,7 @@ exports.autoCreate = async(res)=>{
 
 const autoTestZoneCreate = async () => {
     const today = moment();
-    const startOfDay = today.clone().startOf('day').add(2, 'day');
+    const startOfDay = today.clone().startOf('day').add(1, 'day');
     const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const holidays = await Holiday.find({holidayDate: {$gte: new Date(firstDayOfMonth)}});
     const testzoneDetail = [
@@ -134,7 +134,7 @@ const autoTestZoneCreate = async () => {
     const increaseTime = ['StoxHero Dream', 'StoxHero Blaze', 'StoxHero Target'];
 
     const checkAlreadyExist = await TestZone.find({contestStartTime: {$gte: new Date(startDate), $lt: new Date(endDate)}});
-    if(checkAlreadyExist){
+    if(checkAlreadyExist.length > 0){
         return false;
     }
 
@@ -179,7 +179,7 @@ const autoTestZoneCreate = async () => {
 
 const autoMarginxCreate = async () => {
     const today = moment();
-    const startOfDay = today.clone().startOf('day').add(2, 'day');
+    const startOfDay = today.clone().startOf('day').add(1, 'day');
     const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const holidays = await Holiday.find({holidayDate: {$gte: new Date(firstDayOfMonth)}});
     const marginxDetail = [
@@ -222,7 +222,7 @@ const autoMarginxCreate = async () => {
     const endDate = checkStartDate.clone().add(9, 'hours').add(50, 'minutes');
     const liveDate = checkLiveDate.clone().add(4, 'hours');
     const checkAlreadyExist = await MarginX.find({startTime: {$gte: new Date(startDate), $lt: new Date(endDate)}});
-    if(checkAlreadyExist){
+    if(checkAlreadyExist.length > 0){
         return false;
     }
     for (const elem of marginxDetail) {

@@ -78,42 +78,7 @@ import brandDark from "./assets/images/logo-ct-dark.png";
 import { userContext } from "./AuthContext";
 import Cookies from "js-cookie";
 import homeRoutes from "./homeRoute";
-
-// import SignUp from "./layouts/authentication/sign-up";
-// import Careers from "./layouts/HomePage/pages/Career";
-// import Workshops from "./layouts/HomePage/pages/Workshop";
-// import JobDescription from "./layouts/HomePage/pages/JobDescription";
-// import JobApply from "./layouts/HomePage/pages/EICCareerForm";
-// import ContestRegistration from "./layouts/HomePage/pages/ContestRegistration";
-// import FeaturedContestRegistration from "./layouts/HomePage/pages/FeaturedContestRegistration";
-// import About from "./layouts/HomePage/pages/About";
-// import Courses from "./layouts/HomePage/pages/courses/Courses";
-// import CoursesDetail from "./layouts/HomePage/pages/courses/CoursesDetails";
-// import AboutFinowledge from "./layouts/HomePage/pages/AboutFinowledge";
-// import FillSignupDetail from "./layouts/HomePage/pages/courses/signupDetail";
-// import ResetPin from "./layouts/authentication/reset-password/cover/resetPin";
-// import ResetPassword from "./layouts/authentication/reset-password/cover";
-// import Contact from "./layouts/HomePage/pages/Contact";
-// import Privacy from "./layouts/HomePage/pages/Privacy";
-// import Terms from "./layouts/HomePage/pages/Tnc";
-
 import MessagePopUp from "./MessagePopup";
-
-// import AdminLogin from "./layouts/authentication/sign-in/adminLogin";
-// import SchoolLogin from "./layouts/authentication/sign-in/schoolLogin";
-// import TradingGuru from "./layouts/authentication/sign-up/tradingguru";
-// import Register from "./layouts/authentication/sign-up/register";
-// import RegisterInfo from "./layouts/authentication/sign-up/registerationinfo";
-// import Lobby from "./layouts/schoolLobby/lobby";
-// import BlogCard from "./layouts/HomePage/pages/BlogCards";
-// import BlogData from "./layouts/HomePage/pages/BlogData";
-// import Calculator from "./layouts/HomePage/pages/Calculator";
-// import CollegeSignUp from "./layouts/authentication/sign-up/collegeSignupLogin";
-// import ContactFinowledge from "./layouts/HomePage/pages/ContactFinowledge";
-// import FinowledgeComingSoon from "./layouts/HomePage/pages/finowledgeComingSoon";
-// import MyQuiz from "./layouts/schoolLobby/quizApp/docs/index";
-// import Workshop from "./layouts/HomePage/pages/courses/Workshop";
-
 
 const SignUp = lazy(() => import("./layouts/authentication/sign-up"));
 const Careers = lazy(() => import("./layouts/HomePage/pages/Career"));
@@ -140,7 +105,7 @@ const RegisterInfo = lazy(() => import("./layouts/authentication/sign-up/registe
 const Lobby = lazy(() => import("./layouts/schoolLobby/lobby"));
 const BlogCard = lazy(() => import("./layouts/HomePage/pages/BlogCards"));
 const BlogData = lazy(() => import("./layouts/HomePage/pages/BlogData"));
-const Calculator = lazy(() => import("./layouts/HomePage/pages/Calculator"));
+const Calculator = lazy(() => import("./layouts/HomePage/pages/calculator/Calculator"));
 const CollegeSignUp = lazy(() => import("./layouts/authentication/sign-up/collegeSignupLogin"));
 const ContactFinowledge = lazy(() => import("./layouts/HomePage/pages/ContactFinowledge"));
 const FinowledgeComingSoon = lazy(() => import("./layouts/HomePage/pages/finowledgeComingSoon"));
