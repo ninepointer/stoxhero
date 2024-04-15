@@ -1853,6 +1853,9 @@ exports.getOverallTradeInformation = async (req, res) => {
       {
         $match:{
           status : 'COMPLETE',
+          trade_time: {
+            $lt: new Date(startOfToday)
+          }
         }
       },
       {
@@ -1954,12 +1957,21 @@ exports.getOverallTradeInformation = async (req, res) => {
       newObj[elem] = tradeInformation[elem]
     }
 
-    // console.log(tradeSum, turnoverSum)
     newObj.tradesToday = tradeInformationToday.tradesToday || 0;
     newObj.turnoverToday = tradeInformationToday.turnoverToday || 0;
 
     newObj.totalTrades = (tradeInformationToday?.tradesToday || 0) + newObj?.totalTrades;
     newObj.totalTurnover = (tradeInformationToday?.turnoverToday || 0) + newObj?.totalTurnover;
+
+    newObj.tradesThisWeek = (tradeInformationToday?.tradesToday || 0) + newObj?.tradesThisWeek;
+    newObj.turnoverThisWeek = (tradeInformationToday?.turnoverToday || 0) + newObj?.turnoverThisWeek;
+
+    newObj.tradesThisMonth = (tradeInformationToday?.tradesToday || 0) + newObj?.tradesThisMonth;
+    newObj.turnoverThisMonth = (tradeInformationToday?.turnoverToday || 0) + newObj?.turnoverThisMonth;
+
+    newObj.tradesThisYear = (tradeInformationToday?.tradesToday || 0) + newObj?.tradesThisYear;
+    newObj.turnoverThisYear = (tradeInformationToday?.turnoverToday || 0) + newObj?.turnoverThisYear;
+
 
     const response = {
       status: "success",

@@ -5,9 +5,17 @@ const moment = require('moment');
 const Holiday = require('../models/TradingHolidays/tradingHolidays');
 
 
-exports.autoCreate = async()=>{
-    await autoTestZoneCreate();
-    await autoMarginxCreate();
+exports.autoCreate = async(res)=>{
+    const testzone = await autoTestZoneCreate();
+    const marginx = await autoMarginxCreate();
+
+    if(testzone || marginx){
+        res.status(200).json({status: 'success', message: 'Created Successfully'})
+    }
+
+    if(!testzone && !marginx){
+        res.status(200).json({status: 'error', message: 'Already exists'})
+    }
 }
 
 const autoTestZoneCreate = async () => {
@@ -125,6 +133,11 @@ const autoTestZoneCreate = async () => {
     const liveDate = checkLiveDate.clone().add(4, 'hours');
     const increaseTime = ['StoxHero Dream', 'StoxHero Blaze', 'StoxHero Target'];
 
+    const checkAlreadyExist = await TestZone.find({contestStartTime: {$gte: new Date(startDate), $lt: new Date(endDate)}});
+    if(checkAlreadyExist){
+        return false;
+    }
+
     for(const elem of testzoneDetail){
         
         elem.contestStartTime = startDate;
@@ -161,6 +174,7 @@ const autoTestZoneCreate = async () => {
     }
     
     await TestZone.create(testzoneDetail);
+    return true;
 };
 
 const autoMarginxCreate = async () => {
@@ -207,7 +221,10 @@ const autoMarginxCreate = async () => {
     const startDate = checkStartDate.clone().add(4, 'hours');
     const endDate = checkStartDate.clone().add(9, 'hours').add(50, 'minutes');
     const liveDate = checkLiveDate.clone().add(4, 'hours');
-
+    const checkAlreadyExist = await MarginX.find({startTime: {$gte: new Date(startDate), $lt: new Date(endDate)}});
+    if(checkAlreadyExist){
+        return false;
+    }
     for (const elem of marginxDetail) {
         elem.startTime = startDate;
         elem.endTime = endDate;
@@ -228,6 +245,7 @@ const autoMarginxCreate = async () => {
     }
 
     await MarginX.create(marginxDetail);
+    return true;
 };
 
 const holiday = async (holidays, date, backOrForward) => {
