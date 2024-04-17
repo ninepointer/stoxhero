@@ -9,10 +9,10 @@ const { sendLeaderboardData, sendMyRankData, emitServerTime } = require("./contr
 const { sendMyRankDataBattle, sendLeaderboardDataBattle } = require("./controllers/battles/battleTradeController");
 
 const { saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, saveXtsMargin } = require("./controllers/marginRequired")
-const { autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
-const { removeInstrumentFromWatchlist} = require("./controllers/instrument");
-const {tradableInstrument} = require("./controllers/TradableInstrument/tradableInstrument")
-const {autoCreate} = require('./controllers/AutoCreate');
+const { autoCutMainManually, autoCutMainManuallyMock } = require("./controllers/AutoTradeCut/mainManually");
+const { removeInstrumentFromWatchlist } = require("./controllers/instrument");
+const { tradableInstrument } = require("./controllers/TradableInstrument/tradableInstrument")
+const { autoCreate } = require('./controllers/AutoCreate');
 
 const { createNewTicker, disconnectTicker, getDummyTicks,
     subscribeTokens, subscribeWatchListInstrument, tempGetTicks,
@@ -32,8 +32,8 @@ const { openPrice } = require("./marketData/setOpenPriceFlag");
 const webSocketService = require('./services/chartService/chartService');
 const { updateUserWallet } = require('./controllers/internshipTradeController');
 const { EarlySubscribedInstrument } = require("./marketData/earlySubscribeInstrument");
-const {notificationSender} = require("./notificationSender")
-const {SocketDataReceiver} = require("./socketDataReceiver")
+const { notificationSender } = require("./notificationSender")
+const { SocketDataReceiver } = require("./socketDataReceiver")
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -43,9 +43,10 @@ const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const { processBattles } = require("./controllers/battles/battleController")
 const Product = require('./models/Product/product');
-const {mail} = require("./controllers/dailyReportMail")
-const {dailyContestTradeCut, dailyContestTimeStore} = require("./dailyContestTradeCut")
+const { mail } = require("./controllers/dailyReportMail")
+const { dailyContestTradeCut, dailyContestTimeStore } = require("./dailyContestTradeCut")
 const Grade = require('./models/grade/grade');
+const AssetClass = require('./models/calculator/calculatorSchema');
 
 async function singleProcess() {
     await setIOValue()
@@ -148,7 +149,7 @@ async function singleProcess() {
             socket.on('company-ticks', async (data) => {
                 socket.join("company-side");
                 socket.join("equity");
-                
+
             });
 
             socket.on('user-ticks', async (data) => {
@@ -179,10 +180,10 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-   if (process.env.PROD === "true") {
+    if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
-   }
+    }
 
     emitServerTime().then(() => { });
 
@@ -261,7 +262,7 @@ async function singleProcess() {
         const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
         const tradableInstrumentPopulate = nodeCron.schedule(`0 30 16 * * *`, tradableInstrument);
         const removeInstrumentFromWatch = nodeCron.schedule(`0 0 1 * * *`, removeInstrumentFromWatchlist);
-    
+
     }
     // const autoCreateTestzoneMarginx = nodeCron.schedule(`0 0 11 * * *`, autoCreate);
     // const autoCreateTestzoneMarginx = nodeCron.schedule(`0 0 11 * * *`, autoCreate);
@@ -271,26 +272,29 @@ async function singleProcess() {
     app.use(require("cookie-parser")());
     app.use(cors({
         credentials: true,
-        
+
         // origin: "http://3.7.187.183/"  // staging
         // origin: "http://3.108.76.71/"  // production
         origin: 'http://localhost:3000'
-        
+
     }));
-    
+
     app.use(mongoSanitize());
     app.use(helmet());
     app.use(xssClean());
     app.use(hpp());
-    app.get('/api/v1/products', async(req, res, next) => {
-        const products = await Product.find({}); 
-        res.json({ status: 'success', data: products }); 
+    app.get('/api/v1/products', async (req, res, next) => {
+        const products = await Product.find({});
+        res.json({ status: 'success', data: products });
     })
-    app.get('/api/v1/grades', async(req, res, next) => {
-        const grade = await Grade.find({}); 
-        res.json({ status: 'success', data: grade }); 
+    app.get('/api/v1/grades', async (req, res, next) => {
+        const grade = await Grade.find({});
+        res.json({ status: 'success', data: grade });
     })
-
+    app.get("/api/v1/assetclass", async (req, res, next) => {
+        const assetClass = await AssetClass.find({ status: 'Active' }).sort({createdOn: -1});
+        res.json({ status: "success", data: assetClass });
+    });
     app.get('/api/v1/productautocreate', async (req, res, next) => {
         await autoCreate(res)
     })
@@ -423,12 +427,12 @@ async function singleProcess() {
     const server = app.listen(PORT);
 
 
-    if(process.env.CHART === "true"){
+    if (process.env.CHART === "true") {
         webSocketService.init(io);
     }
 
-    notificationSender().then(()=>{});
-    SocketDataReceiver().then(()=>{});
+    notificationSender().then(() => { });
+    SocketDataReceiver().then(() => { });
 }
 
 

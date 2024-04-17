@@ -61,7 +61,7 @@ export default function Courses() {
         // Access the duration of the video from the event
         const videoDuration = event.target.duration;
         setDuration(videoDuration);
-      };
+    };
 
 
     useEffect(() => {
@@ -152,7 +152,7 @@ export default function Courses() {
                                             </Grid>
                                             <Grid gap={2} item xs={12} md={12} lg={12} display='flex' justifyContent='flex-start' alignContent='center' alignItems='center'>
 
-                                                { courses?.discountedPrice !==0 &&
+                                                {courses?.discountedPrice !== 0 &&
                                                     <>
                                                         <MDTypography variant='body3' color='light' style={{ textDecoration: 'line-through' }}>
                                                             ₹{new Intl.NumberFormat(
@@ -176,7 +176,7 @@ export default function Courses() {
                                                 }
 
                                                 <MDTypography variant='body3' color='light' style={{ maxWidth: '50%' }}>
-                                                    <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} workshop={courses?.type==='Workshop' ? true: false} fromCourses={courses?.type==='Workshop' ? true: false} />
+                                                    <SignupLoginPopup data={courses} slug={slug} checkPaid={checkPaid} workshop={courses?.type === 'Workshop' ? true : false} fromCourses={courses?.type === 'Workshop' ? true : false} />
                                                 </MDTypography>
                                             </Grid>
 
@@ -186,22 +186,22 @@ export default function Courses() {
                                                         <Grid container justifyContent='flex-start' alignItems={isMobile ? 'center' : 'flex-start'} flexDirection='column' spacing={2}>
                                                             <Grid >
                                                                 <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                                👨‍👨‍👦 {`Max Enrollments : ${courses?.maxEnrolments}`}
+                                                                    👨‍👨‍👦 {`Max Enrollments : ${courses?.maxEnrolments}`}
                                                                 </MDTypography>
                                                             </Grid>
                                                             <Grid >
                                                                 <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                                🕑 {`Registration End : ${moment(courses?.registrationEndTime).format('DD MMM hh:mm a')}`}
+                                                                    🕑 {`Registration End : ${moment(courses?.registrationEndTime).format('DD MMM hh:mm a')}`}
                                                                 </MDTypography>
                                                             </Grid>
                                                             <Grid >
                                                                 <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                                🕑 {`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Start : ${moment(courses?.courseStartTime).format('DD MMM hh:mm a')}`}
+                                                                    🕑 {`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} Start : ${moment(courses?.courseStartTime).format('DD MMM hh:mm a')}`}
                                                                 </MDTypography>
                                                             </Grid>
                                                             <Grid >
                                                                 <MDTypography variant='body3' color='light' fontSize={isMobile ? '12.5px' : '18px'}>
-                                                                🕑 {`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} End : ${moment(courses?.courseEndTime).format('DD MMM hh:mm a')}`}
+                                                                    🕑 {`${courses?.type === 'Workshop' ? 'Workshop' : 'Course'} End : ${moment(courses?.courseEndTime).format('DD MMM hh:mm a')}`}
                                                                 </MDTypography>
                                                             </Grid>
                                                         </Grid>

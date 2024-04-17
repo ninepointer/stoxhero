@@ -79,9 +79,15 @@ const Navbar = () => {
             </LinkButton>
             </a>
 
-            <a href="/workshops">
+            {/* <a href="/workshops">
             <LinkButton>
               <Typography fontWeight="bold" variant="body2">Workshops</Typography>
+            </LinkButton>
+            </a> */}
+
+            <a href="/calculators">
+            <LinkButton>
+              <Typography fontWeight="bold" variant="body2">Net Worth Calculator</Typography>
             </LinkButton>
             </a>
 

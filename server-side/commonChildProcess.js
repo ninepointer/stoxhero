@@ -13,6 +13,8 @@ const Product = require("./models/Product/product");
 const { pendingOrderMain } = require("./PlaceStopLossOrder");
 const Grade = require("./models/grade/grade");
 const { autoCreate } = require('./controllers/AutoCreate');
+const AssetClass = require('./models/calculator/calculatorSchema');
+
 
 async function commonProcess() {
   // await setIOValue();
@@ -72,6 +74,11 @@ async function commonProcess() {
   app.get("/api/v1/grades", async (req, res, next) => {
     const grade = await Grade.find({});
     res.json({ status: "success", data: grade });
+  });
+
+  app.get("/api/v1/assetclass", async (req, res, next) => {
+    const assetClass = await AssetClass.find({status: 'Active'}).sort({createdOn: -1});
+    res.json({ status: "success", data: assetClass });
   });
 
   app.get('/api/v1/productautocreate', async (req, res, next) => {

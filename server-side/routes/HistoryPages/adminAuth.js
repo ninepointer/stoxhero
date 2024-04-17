@@ -140,6 +140,7 @@ const City = require("../../models/City/city");
 const {getInfluencerUsers} = require('../../controllers/influencer/influencerController')
 const { getIOValue } = require('../../marketData/socketio');
 const {autoCreate} = require('../../controllers/AutoCreate');
+const Calculator = require('../../models/calculator/calculatorSchema');
 
 // client8.connect()
 // .then(async (res) => {
@@ -152,6 +153,164 @@ const {autoCreate} = require('../../controllers/AutoCreate');
 
 router.get("/date", async (req, res) => {
   await autoCreate()
+  res.send('ok');
+});
+// 1. Stocks
+// 2. Mutual Funds
+// 3. ETFs
+// 4. Real Estate
+// 5. Gold and Other Precious Metals
+// 6. Derivatives
+// 7. Fixed Deposits
+// 8. Bonds
+// 9. Savings Account
+// 10. Cash in hand
+router.get("/createAssets", async (req, res) => {
+  // const assets = [
+  //   {
+  //     assetName: "Stocks",
+  //     expectedRoi: 17,
+  //     riskLevel: "High",
+  //     type: "Asset",
+  //     description: "Equity shares of companies traded on stock exchanges.",
+  //     status: "Active"
+  //   },
+  //   {
+  //     assetName: "Mutual Funds",
+  //     expectedRoi: 14.6,
+  //     riskLevel: "Medium",
+  //     type: "Asset",
+  //     description: "Pooled funds managed by professionals, investing in various securities.",
+  //     status: "Active"
+  //   },
+  //   {
+  //     assetName: "ETFs",
+  //     expectedRoi: 12,
+  //     riskLevel: "Medium",
+  //     type: "Asset",
+  //     description: "Exchange-traded funds representing a basket of assets.",
+  //     status: "Active"
+  //   },
+  //   {
+  //     assetName: "Real Estate",
+  //     expectedRoi: 11,
+  //     riskLevel: "Medium",
+  //     type: "Asset",
+  //     description: "Physical properties like land and buildings.",
+  //     status: "Active"
+  //   },
+  //   {
+  //     assetName: "Metals",
+  //     expectedRoi: 8,
+  //     riskLevel: "Medium",
+  //     type: "Asset",
+  //     description: "Valuable metals like gold, silver, and platinum.",
+  //     status: "Active"
+  //   },
+  //   {
+  //     assetName: "Derivatives",
+  //     expectedRoi: 10,
+  //     riskLevel: "High",
+  //     type: "Asset",
+  //     description: "Financial contracts whose value derives from an underlying asset.",
+  //     status: "Active"
+  //   },
+  //   {
+  //     assetName: "Fixed Deposits",
+  //     expectedRoi: 7.25,
+  //     riskLevel: "Low",
+  //     type: "Asset",
+  //     description: "Investments with fixed interest rates for a specified term.",
+  //     status: "Active"
+  //   },
+  //   {
+  //     assetName: "Bonds",
+  //     expectedRoi: 7,
+  //     riskLevel: "Low",
+  //     type: "Asset",
+  //     description: "Debt securities issued by governments or corporations.",
+  //     status: "Active"
+  //   },
+  //   {
+  //     assetName: "Savings Account",
+  //     expectedRoi: 2.5,
+  //     riskLevel: "Low",
+  //     type: "Asset",
+  //     description: "Bank accounts with interest rates for saving money.",
+  //     status: "Active"
+  //   },
+  //   {
+  //     assetName: "Cash in hand",
+  //     expectedRoi: 0,
+  //     riskLevel: "Low",
+  //     type: "Asset",
+  //     description: "Physical money held by an individual or organization.",
+  //     status: "Active"
+  //   }
+  // ]
+
+  const liabilities = [
+    {
+      assetName: "Housing Loans",
+      expectedRoi: 9,
+      riskLevel: "High",
+      type: "Liability",
+      description: "Loans taken to purchase or renovate residential properties.",
+      status: "Active"
+    },
+    {
+      assetName: "Education Loans",
+      expectedRoi: 10,
+      riskLevel: "Medium",
+      type: "Liability",
+      description: "Loans taken for educational expenses like tuition fees and books.",
+      status: "Active"
+    },
+    {
+      assetName: "Car Loans",
+      expectedRoi: 11,
+      riskLevel: "Medium",
+      type: "Liability",
+      description: "Loans taken for purchasing vehicles.",
+      status: "Active"
+    },
+    {
+      assetName: "Personal Loans",
+      expectedRoi: 15,
+      riskLevel: "High",
+      type: "Liability",
+      description: "Loans taken for personal expenses like medical emergencies or vacations.",
+      status: "Active"
+    },
+    {
+      assetName: "Credit Card Debt",
+      expectedRoi: 30,
+      riskLevel: "High",
+      type: "Liability",
+      description: "Unpaid balances on credit cards.",
+      status: "Active"
+    },
+    {
+      assetName: "Business Loans",
+      expectedRoi: 15,
+      riskLevel: "High",
+      type: "Liability",
+      description: "Loans taken for business purposes.",
+      status: "Active"
+    },
+    {
+      assetName: "Others",
+      expectedRoi: 0,
+      riskLevel: "Medium",
+      type: "Liability",
+      description: "Other types of loans not categorized above.",
+      status: "Active"
+    }
+  ];
+
+
+  const save = await Calculator.create(liabilities);
+
   res.send('ok');
 });
 
