@@ -48,7 +48,6 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
   const [content, setContent] = useState("");
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (title, content) => {
-    console.log("status success");
     setTitle(title);
     setContent(content);
     setSuccessSB(true);
@@ -109,7 +108,6 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
               return transaction.transactionType === "Cash";
             }
           );
-          // console.log((res.data.data)?.transactions);
           const bonusTransactions = res.data.data?.transactions?.filter(
             (transaction) => {
               return transaction.transactionType === "Bonus";
@@ -135,7 +133,6 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
           // console.log("totalCashAmount", totalCashAmount)
         })
         .catch((err) => {
-          console.log("Fail to fetch data of user", err);
         });
 
       axios
@@ -151,7 +148,6 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
           setSetting(res?.data[0]);
         })
         .catch((err) => {
-          console.log("Fail to fetch data of user", err);
         });
     }
   }, [open]);
@@ -281,11 +277,9 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
         },
         { withCredentials: true }
       );
-      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
     } catch (e) {
-      console.log(e);
     }
   };
   const calculateDiscount = (
@@ -333,7 +327,6 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
         },
         { withCredentials: true }
       );
-      console.log("verified code", res?.data?.data);
       if (res.status == 200) {
         setVerifiedCode(code);
         setInvalidCode("");
@@ -348,7 +341,6 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
         setInvalidCode(res?.data?.message);
       }
     } catch (e) {
-      console.log("verified error", e);
       if (e.name == "AxiosError") {
         setInvalidCode(e?.response?.data?.message);
       }

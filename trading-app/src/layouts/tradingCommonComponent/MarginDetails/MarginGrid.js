@@ -20,7 +20,6 @@ const MarginGrid = () => {
   let margin = 0;
   let subtractAmount = 0;
   pnlData.map((elem) => {
-    console.log(elem?._id?.isLimit);
     if (elem?._id.isLimit) {
       margin += elem?.margin;
     } else {
@@ -61,7 +60,6 @@ const MarginGrid = () => {
   const openingBalance = fundDetail?.openingBalance
     ? fundDetail?.openingBalance?.toFixed(0)
     : fundDetail?.totalFund;
-  console.log("amount", amount, margin, subtractAmount, openingBalance);
   const availableMargin = (
     runningPnl < 0
       ? totalRunningLots === 0

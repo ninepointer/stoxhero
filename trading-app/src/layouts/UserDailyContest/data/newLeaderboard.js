@@ -37,14 +37,13 @@ function Leaderboard({ socket, name, id, data}) {
     useEffect(() => {
         socket?.on(`contest-leaderboardData${id}`, (data) => {
 
-            console.log("leaderboard", data)
+            
             setLeaderboard(data);
             setIsLoading(false);
         })
 
         socket?.on(`contest-myrank${getDetails.userDetails?._id}${id}`, (data) => {
 
-            console.log("leaderboard rank", data)
             setMyRankData((prev) => (data !== null ? data : prev));
             setIsLoading(false);
 

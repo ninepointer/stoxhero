@@ -3,7 +3,6 @@ import * as echarts from 'echarts';
 
 const GaugeChart = ({myReferralCount, referralCount}) => {
   const chartRef = useRef(null);
-  console.log("Referral Limit & Count:", referralCount,myReferralCount)
 
   useEffect(() => {
     const chartDom = chartRef.current;

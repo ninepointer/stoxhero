@@ -66,13 +66,11 @@ const Payment = ({
   const [value, setValue] = useState(signedUp ? "bank" : "wallet");
   const [successSB, setSuccessSB] = useState(false);
   const openSuccessSB = (title, content) => {
-    console.log("status success");
     setTitle(title);
     setContent(content);
     setSuccessSB(true);
   };
   const closeSuccessSB = () => setSuccessSB(false);
-  console.log("referrer code", referrerCode);
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -141,7 +139,6 @@ const Payment = ({
               return transaction.transactionType === "Bonus";
             }
           );
-          // console.log((res.data.data)?.transactions);
 
           const totalCashAmount = cashTransactions?.reduce(
             (total, transaction) => {
@@ -372,7 +369,7 @@ const Payment = ({
         },
         { withCredentials: true }
       );
-      console.log("verified code", res?.data?.data);
+
       if (res.status == 200) {
         setVerifiedCode(code);
         setInvalidCode("");
@@ -387,7 +384,7 @@ const Payment = ({
         setInvalidCode(res?.data?.message);
       }
     } catch (e) {
-      console.log("verified error", e);
+
       if (e.name == "AxiosError") {
         setInvalidCode(e?.response?.data?.message);
       }

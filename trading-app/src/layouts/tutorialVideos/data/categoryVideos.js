@@ -11,31 +11,10 @@ function YouTubeVideo({ updatedDocument, setUpdatedDocument }) {
   // YouTube video options
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  console.log("Updated Category Data: ", updatedDocument);
 
   async function onDelete(e, id) {
-    console.log(e, id);
     e.preventDefault();
-    // const res = await fetch(`${baseUrl}api/v1/tutorialcategory/delete/${id}`, {
-    //     method: "PATCH",
-    //     credentials:"include",
-    //     headers: {
-    //         "content-type" : "application/json",
-    //         "Access-Control-Allow-Credentials": true
-    //     },
-    //     body: JSON.stringify({
-    //         isDeleted: true
-    //     })
-    // });
-
-    // const data = await res.json();
-    // console.log(data);
-    // if (data.status === 422 || data.error || !data) {
-    //     openErrorSB("Error",data.error)
-    // } else {
-    //     openSuccessSB("Video Deleted", "Deleted Successfully")
-    //     console.log("entry succesfull");
-    // }
+ 
   }
 
   const [title, setTitle] = useState("");

@@ -33,7 +33,6 @@ function MyRank({ socket, id, data, setRank }) {
 
   useEffect(() => {
     socket?.on(`contest-myrank${getDetails.userDetails?._id}${id}`, (data) => {
-      console.log("leaderboard rank", data);
       setMyRankData((prev) => (data !== null ? data : prev));
       setRank((prev) => (data !== null ? data : prev));
       setIsLoading(false);

@@ -74,7 +74,6 @@ export default function Wallet() {
 
     Promise.all([call1])
       .then(([api1Response]) => {
-        // console.log(api1Response?.data?.data);
         setNotifications(api1Response?.data?.data);
         // setNotifications(dummyData);
         const startIndex = (currentPage - 1) * perPage;
@@ -84,8 +83,6 @@ export default function Wallet() {
         );
         // const slicedData = dummyData?.slice(startIndex, startIndex + perPage);
         setData(slicedData);
-        // setPhoto(api1Response?.data?.data?.userId?.profilePhoto?.url)
-        // console.log(api1Response?.data?.data?.userId?.profilePhoto?.url)
       })
       .catch((error) => {
         console.error(error);

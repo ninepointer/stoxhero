@@ -117,12 +117,6 @@ function ExitPosition({
     );
   }, [quantity]);
 
-  // console.log("filledQuantity", filledQuantity, quantity)
-
-  // function quantityChange(e) {
-  //   setFilledQuantity(e.target.value)
-  //   exitPositionFormDetails.Quantity = e.target.value
-  // }
 
   exitPositionFormDetails.Product = product;
 

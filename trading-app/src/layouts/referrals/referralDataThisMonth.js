@@ -40,7 +40,6 @@ const ReferralDataThisMonth = ({
     axios
       .get(`${baseUrl}api/v1/myreferrals/${id}`)
       .then((res) => {
-        console.log(res?.data);
         setReferralData(res?.data?.data);
         setThisMonthsReferral(res?.data?.count);
       })

@@ -41,7 +41,6 @@ export default function Dialogue({ amount, name, id, walletCash }) {
   const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`;
 
   useEffect(() => {
-    console.log("in useEffect");
 
     axios
       .get(`${baseUrl}api/v1/loginDetail`, {
@@ -54,7 +53,6 @@ export default function Dialogue({ amount, name, id, walletCash }) {
       })
       .then((res) => {
         setUpdatedUser(res.data);
-        console.log("subscribed", res.data);
         let subscribed = res.data?.subscription?.filter((elem) => {
           return (
             elem?.subscriptionId?.toString() === id?.toString() &&
@@ -62,13 +60,11 @@ export default function Dialogue({ amount, name, id, walletCash }) {
           );
         });
 
-        console.log("subscribed", subscribed);
         if (subscribed?.length > 0) {
           setIsSubscribed(true);
         }
       })
       .catch((err) => {
-        console.log("Fail to fetch data of user", err);
       });
   }, []);
 
@@ -96,7 +92,6 @@ export default function Dialogue({ amount, name, id, walletCash }) {
   };
 
   async function captureIntent() {
-    console.log(getDetails);
     handleClickOpen();
     const res = await fetch(`${baseUrl}api/v1/tenX/capturepurchaseintent`, {
       method: "POST",
@@ -130,7 +125,6 @@ export default function Dialogue({ amount, name, id, walletCash }) {
       }),
     });
     const dataResp = await res.json();
-    console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
       openSuccessSB("error", dataResp.message);
     } else {
@@ -139,7 +133,6 @@ export default function Dialogue({ amount, name, id, walletCash }) {
         thanksMessege:
           "Congrats you have unlocked your TenX trading subscription",
       });
-      console.log(dataResp.data);
       setUpdatedUser(dataResp.data);
       // openSuccessSB("success", dataResp.message)
     }

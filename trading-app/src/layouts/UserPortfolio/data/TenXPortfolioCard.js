@@ -26,7 +26,7 @@ const MyPortfolioCard = ({ subscriptionId }) => {
         },
       })
       .then((res) => {
-        console.log(res.data.data);
+
         setTenXMarginDetail(res.data.data);
       });
   }, []);

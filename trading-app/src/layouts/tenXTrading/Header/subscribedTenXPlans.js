@@ -26,8 +26,8 @@ export default function TenXSubscriptions({ setClicked }) {
   const uniqueValidities = [
     ...new Set(currentTenXSubs.map((item) => item.validity)),
   ];
-  // console.log("unique", uniqueValidities);
 
+  
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
@@ -77,14 +77,14 @@ export default function TenXSubscriptions({ setClicked }) {
       .then(([api2Response]) => {
         // Process the responses here
         setCurrentTenXSubs(api2Response.data.data);
-        console.log("renewal check", api2Response.data.data);
+
         setTimeout(() => {
           setIsLoading(false);
         }, 500);
       })
       .catch((error) => {
         // Handle errors here
-        console.error(error);
+
       });
   }, [checkPayment]);
 

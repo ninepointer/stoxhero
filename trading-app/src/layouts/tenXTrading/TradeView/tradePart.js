@@ -80,7 +80,6 @@ export default function TenXTrading({ tradingDayData, socket, subscriptionId }) 
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData.totalFund;
   let fundChangePer = openingBalance ? ((openingBalance + pnl.netPnl - openingBalance) * 100 / openingBalance) : 0;
 
-  // console.log("fundDetail", fundChangePer, openingBalance)
   return (
     <>
       <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >

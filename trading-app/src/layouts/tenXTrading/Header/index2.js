@@ -171,7 +171,7 @@ export default function TenXSubscriptions() {
       })
       .catch((error) => {
         // Handle errors here
-        console.error(error);
+
       });
   }, [checkPayment]);
 

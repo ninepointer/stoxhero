@@ -34,12 +34,10 @@ const Workshops = () => {
 
   const fetchData = async() => {
     const res = await axios.get(`${apiUrl}internbatch/currentworkshop`, {withCredentials: true});
-    console.log(res.data);
     if(Object.keys(res.data.data).length!=0){
         setCurrentWorkshop(res.data.data);
     }
     const resp = await axios.get(`${apiUrl}internbatch/workshops`, {withCredentials: true});
-        console.log(resp.data);
         if(Object.keys(resp.data.data).length!=0){
             setWorkshops(resp.data.data.filter((item)=>item._id!=res.data.data?._id));
         }
@@ -47,8 +45,6 @@ const Workshops = () => {
     const res2 = await axios.get(`${apiUrl}servertime`)
         setServerTime(res2.data.data)
   }
-
-  // console.log("Checking dates:",currentworkshop?.batchStartDate, serverTime)
   
   return (
     <MDBox bgColor="dark" color="light" mt={0} mb={0} p={1} borderRadius={10} minHeight='auto' >

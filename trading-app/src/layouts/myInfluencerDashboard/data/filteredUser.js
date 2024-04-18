@@ -91,7 +91,6 @@ export default function FilteredUsers({ setFilteredUsers }) {
       })
       .catch((error) => {
         // Handle errors here
-        console.error(error);
       });
   }, []);
 
@@ -109,7 +108,6 @@ export default function FilteredUsers({ setFilteredUsers }) {
         //handle error
       }
     } catch (e) {
-      console.log(e);
       //handle error
     }
   }
@@ -119,7 +117,6 @@ export default function FilteredUsers({ setFilteredUsers }) {
     const selectedAffiliate = affiliate.filter(
       (elem) => elem?._id == affiliateId
     );
-    // console.log('selected', selectedAffiliate[0], affiliateId);
     setSelectedTab((prev) => {
       return {
         ...prev,
@@ -129,16 +126,10 @@ export default function FilteredUsers({ setFilteredUsers }) {
         },
       };
     });
-    // console.log('selected tab', selectedTab);
   };
 
   const handleLifetime = (value) => {
-    // if(selectedTab?.isLifetime){
-    //   value = false;
-    // } else{
-    //   value = true;
-    // }
-    // console.log("value", value)
+
     setSelectedTab((prevState) => ({
       ...prevState,
       isLifetime: value,

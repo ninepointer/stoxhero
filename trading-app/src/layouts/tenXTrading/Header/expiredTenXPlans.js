@@ -32,7 +32,7 @@ export default function TenXSubscriptions({ setClicked }) {
   const uniqueValidities = [
     ...new Set(expiredTenXSubs.map((item) => item.validity)),
   ];
-  console.log("unique", uniqueValidities);
+
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
@@ -77,7 +77,7 @@ export default function TenXSubscriptions({ setClicked }) {
       })
       .catch((error) => {
         // Handle errors here
-        console.error(error);
+
       });
   }, [checkPayment]);
 

@@ -121,7 +121,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
   // console.log(formStateKYC)
   useEffect(() => {
     getData();
-    console.log("setting data again");
   }, [action]);
 
   const handleRadioChange = (event) => {
@@ -133,7 +132,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
       const res = await axios.get(`${apiUrl}loginDetail`, {
         withCredentials: true,
       });
-      console.log("setting", res.data);
       setFormStatePD({
         employeeid: res?.data?.employeeid,
         first_name: res.data?.first_name,
@@ -189,7 +187,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
         dob: res.data?.dob,
       });
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -243,7 +240,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
         body: formData,
       });
       let response = await res.json();
-      console.log('response', response);
       if (response.status === "success") {
         // getDetails.setUserDetail(response.data);
         // console.log("Response: ",response.data,data);
@@ -507,8 +503,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
     />
   );
 
-  // console.log("Condition 1: ",formStateKYC.aadhaarCardBackImage ? formStateKYC.aadhaarCardBackImage : console.log(formStateKYC.aadhaarCardBackPreview))
-  // console.log("Condition 2: ",formStateKYC.aadhaarCardBackPreview,blankImageUrl)
 
   const [file, setFile] = React.useState(null);
 
@@ -540,7 +534,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
         openErrorSB("KYC Details", "Please check your aadhaar number again");
       }
     } catch (e) {
-      console.log(e);
       openErrorSB(
         "KYC Details",
         `${e?.response?.data?.message}Please check your input again.`
@@ -550,7 +543,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
   };
   const verifyAadhaarOtp = async () => {
     if (!KYCVerification?.aadhaarNumber || !KYCVerification?.aadhaarOtp) {
-      console.log("KYC verification", KYCVerification);
       return openErrorSB("KYC Details", "Please fill mandatory fields");
     }
     try {
@@ -575,7 +567,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
         setIsVerifying(false);
       }
     } catch (e) {
-      console.log(e);
       openErrorSB("KYC Details", `${e?.response?.data?.message}`);
       setIsVerifying(false);
     }

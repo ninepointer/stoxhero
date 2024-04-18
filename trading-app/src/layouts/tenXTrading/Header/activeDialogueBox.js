@@ -63,9 +63,6 @@ export default function Dialogue({
     lowBalanceMessage: "",
     thanksMessege: "",
   });
-  // const [isLoading, setIsLoading] = useState(true);
-
-  // console.log("cash bon", bonusCash);
 
   const navigate = useNavigate();
   let baseUrl =
@@ -102,7 +99,7 @@ export default function Dialogue({
           }
         })
         .catch((err) => {
-          console.log("Fail to fetch data of user", err);
+
         });
     }
 
@@ -111,18 +108,13 @@ export default function Dialogue({
 
   useEffect(() => {
     let subscribed = updatedUser?.subscription?.filter((elem) => {
-      console.log(
-        "Return:",
-        elem?.subscriptionId?._id?.toString(),
-        id?.toString(),
-        elem?.status
-      );
+     
       return (
         elem?.subscriptionId?._id?.toString() === id?.toString() &&
         elem?.status === "Live"
       );
     });
-    // console.log("Subscribed:", subscribed);
+
     if (subscribed?.length > 0) {
       setIsSubscribed(true);
     }
@@ -304,7 +296,7 @@ export default function Dialogue({
   const subs_actualAmount =
     ((amount - discountAmount) * setting?.gstPercentage) / 100;
   const initiatePayment = async () => {
-    console.log("initiating");
+    
     try {
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
@@ -320,11 +312,11 @@ export default function Dialogue({
         },
         { withCredentials: true }
       );
-      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
     } catch (e) {
-      console.log(e);
+
     }
   };
   const calculateDiscount = (
@@ -372,7 +364,7 @@ export default function Dialogue({
         },
         { withCredentials: true }
       );
-      console.log("verified code", res?.data?.data);
+
       if (res.status == 200) {
         setVerifiedCode(code);
         setInvalidCode("");
@@ -387,7 +379,7 @@ export default function Dialogue({
         setInvalidCode(res?.data?.message);
       }
     } catch (e) {
-      console.log("verified error", e);
+
       if (e.name == "AxiosError") {
         setInvalidCode(e?.response?.data?.message);
       }

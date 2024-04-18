@@ -58,15 +58,10 @@ export default function Dashboard() {
         setTopPerformerData(api1Response3?.data?.data);
         setStartOfWeek(api1Response3?.data?.startOfWeek);
         setEndOfWeek(api1Response3?.data?.endOfWeek);
-        console.log(
-          api1Response3?.data?.data,
-          api1Response3?.data?.startOfWeek,
-          api1Response3?.data?.endOfWeek
-        );
+      
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error(error);
         setIsLoading(false);
       });
   }, []);

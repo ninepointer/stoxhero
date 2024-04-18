@@ -116,7 +116,7 @@ export default function AddMoney() {
         },
         { withCredentials: true }
       );
-      console.log("verified code", res?.data?.data);
+
       if (res.status == 200) {
         setVerifiedCode(code);
         setInvalidCode("");
@@ -131,7 +131,7 @@ export default function AddMoney() {
         setInvalidCode(res?.data?.message);
       }
     } catch (e) {
-      console.log("verified error", e);
+
       if (e.name == "AxiosError") {
         setInvalidCode(e?.response?.data?.message);
       }
@@ -149,7 +149,7 @@ export default function AddMoney() {
         },
         { withCredentials: true }
       );
-      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
     } catch (e) {

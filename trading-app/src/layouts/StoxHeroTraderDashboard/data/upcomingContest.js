@@ -78,8 +78,6 @@ function OnGoingContests() {
       date.getMinutes()
     )}`;
 
-    console.log(formattedDate);
-
     // Helper function to get the month name
     function getMonthName(month) {
       const monthNames = [

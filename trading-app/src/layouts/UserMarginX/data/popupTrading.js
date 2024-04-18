@@ -24,7 +24,6 @@ const PopupTrading = ({ elem, timeDifference }) => {
     "The TestZone is already full. We sincerely appreciate your enthusiasm to participate in our TestZone. Please join in our future TestZone."
   );
   const getDetails = useContext(userContext);
-  console.log("time difference", timeDifference);
 
   // console.log("main data", open)
   const navigate = useNavigate();

@@ -14,13 +14,11 @@ import TenXTrading from "./tradePart";
 import { socketContext } from "../../../socketContext";
 
 function TradeViewTenX() {
-  console.log("rendering in userPosition: infinity");
-  let baseUrl1 =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/";
+
+
   const getDetails = useContext(userContext);
   const location = useLocation();
   const subscriptionId = location?.state?.subscriptionId;
-  console.log("subscriptionId", subscriptionId);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [tradingDayData, setTradingDayData] = useState([]);
@@ -64,18 +62,13 @@ function TradeViewTenX() {
   // }
 
   useEffect(() => {
-    // socket.on("connect", () => {
-    //   console.log("socket is connected 3rd")
-    //   socket.emit('userId', getDetails.userDetails._id)
-    //   socket.emit("user-ticks", getDetails.userDetails._id)
-    // })
+  
     socket.emit("userId", getDetails.userDetails._id);
     socket.emit("user-ticks", getDetails.userDetails._id);
 
     ReactGA.pageview(window.location.pathname);
   }, []);
 
-  console.log("tradingDayData", tradingDayData);
   return (
     <>
       <DashboardLayout>

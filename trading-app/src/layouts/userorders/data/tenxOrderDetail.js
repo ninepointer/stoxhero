@@ -62,7 +62,7 @@ function TenxOrderDetail({
         setUserSubs(res.data.data[0]?.userPurchaseDetail[0]);
       })
       .catch((err) => {
-        console.log(err);
+
         return new Error(err);
       });
   }, []);

@@ -48,7 +48,6 @@ function Header({ children }) {
         { withCredentials: true }
       )
       .then((res) => {
-        console.log(res.data);
         setuserDetail(res.data);
       })
       .catch((err) => {
@@ -56,7 +55,6 @@ function Header({ children }) {
         return new Error(err);
       });
   }, [getDetails]);
-  console.log("Logged In user details: " + userDetail);
 
   useEffect(() => {
     // A function that sets the orientation state of the tabs.

@@ -108,18 +108,8 @@ function ContestResultPage() {
         return new Error(err);
       });
 
-    // axios.get(`${baseUrl}api/v1/dailycontest/trade/${contestId}/resultData?.rank`, { withCredentials: true })
-    //     .then((res) => {
-    //         setresultData?.rankProps(res?.data?.data);
-    //         // console.log("data is", res?.data?.data)
-    //         // setIsLoading(false)
-    //     }).catch((err) => {
-    //         return new Error(err);
-    //     })
   }, [contestId]);
 
-  console.log("contestId after", contestId, resultData);
-  // const reward = (resultData?.npnl) > 0 ? (resultData?.npnl)*contestData?.payoutPercentage/100 : 0;
 
   let myReward;
   if (contestData?.payoutType === "Percentage") {

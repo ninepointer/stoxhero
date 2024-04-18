@@ -174,7 +174,6 @@ export default function Dashboard() {
         }
       )
       .catch((error) => {
-        console.error(error);
         setIsLoading(false);
       });
   }, []);
@@ -198,7 +197,6 @@ export default function Dashboard() {
       const res = await axios.get(url, { withCredentials: true });
       setStats(res.data.data);
     } catch (e) {
-      console.log(e);
     }
   };
   const getTraderSummary = async () => {
@@ -208,7 +206,6 @@ export default function Dashboard() {
       });
       setSummary(res.data.data);
     } catch (e) {
-      console.log(e);
     }
   };
   useEffect(() => {

@@ -40,7 +40,6 @@ export default function TutorialCategory() {
   const [newObjectId, setNewObjectId] = useState("");
   const [updatedDocument, setUpdatedDocument] = useState([]);
 
-  console.log("location", location, id);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
@@ -67,7 +66,6 @@ export default function TutorialCategory() {
         withCredentials: true,
       })
       .then((res) => {
-        console.log(res?.data?.data);
         setTutorialCategory(res?.data?.data);
         setVideos(res?.data?.data?.categoryVideos?.length);
         setFormState({
@@ -88,7 +86,6 @@ export default function TutorialCategory() {
   async function onEdit(e, formState) {
     e.preventDefault();
     setSaving(true);
-    console.log(formState);
     if (
       !formState.categoryName ||
       !formState.status ||
@@ -120,7 +117,6 @@ export default function TutorialCategory() {
     });
 
     const data = await res.json();
-    console.log(data);
     if (data.status === 422 || data.error || !data) {
       openErrorSB("Error", data.error);
     } else {
@@ -129,13 +125,11 @@ export default function TutorialCategory() {
         setSaving(false);
         setEditing(false);
       }, 500);
-      console.log("entry succesfull");
     }
   }
 
   async function onSubmit(e, formState) {
     e.preventDefault();
-    console.log(formState);
     if (
       !formState.categoryName ||
       !formState.status ||
@@ -189,7 +183,6 @@ export default function TutorialCategory() {
   async function AddVideo(e, childFormState, setChildFormState) {
     e.preventDefault();
     setSaving(true);
-    console.log(id, newObjectId);
     if (!childFormState?.title || !childFormState?.videoId) {
       setTimeout(() => {
         setCreating(false);
@@ -217,7 +210,6 @@ export default function TutorialCategory() {
       }
     );
     const data = await res.json();
-    console.log(data);
     if (data.status === 422 || data.error || !data) {
       openErrorSB("Error", data.error);
     } else {

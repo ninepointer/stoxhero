@@ -114,7 +114,6 @@ export default function LabTabs() {
       );
       setExpected(res.data.data);
     } catch (err) {
-      console.log(err);
     }
   };
 
@@ -150,7 +149,6 @@ export default function LabTabs() {
       `${apiUrl}analytics/${endpoint}/mystats?from=${from}&to=${to}`,
       { withCredentials: true }
     );
-    console.log(res.data.data);
     setDateWiseData((prev) => res.data.data);
   };
   let totalgpnl = 0,
@@ -161,7 +159,6 @@ export default function LabTabs() {
     totalGreenDays = 0,
     totalRedDays = 0;
   if (dateWiseData.length > 0) {
-    console.log("datewise", dateWiseData);
     for (let item of dateWiseData) {
       totalgpnl += item.gpnl;
       totalnpnl += item.npnl;

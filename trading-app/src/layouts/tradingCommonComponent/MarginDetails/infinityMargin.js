@@ -10,8 +10,6 @@ import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
 import { renderContext } from "../../../renderContext";
 
 const InfinityMarginGrid = ({ setyesterdayData, contestId }) => {
-  // console.log("rendering : infinitymargin")
-  //console.log("rendering in userPosition: marginGrid")
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
@@ -26,7 +24,6 @@ const InfinityMarginGrid = ({ setyesterdayData, contestId }) => {
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  // console.log("pnlData", pnlData)
 
   useEffect(() => {
     axios

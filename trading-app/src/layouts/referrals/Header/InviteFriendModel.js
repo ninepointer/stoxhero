@@ -31,7 +31,6 @@ export default function BasicModal({
   referralProgramId,
 }) {
   // const [invited,setInvited] = useState(false)
-  console.log(invited, referralCode, referralProgramId);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => {

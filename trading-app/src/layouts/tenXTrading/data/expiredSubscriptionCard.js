@@ -205,7 +205,6 @@ function Header({
                   flexDirection="column"
                 >
                   {subscription?.features?.map((e) => {
-                    console.log(e?.description);
                     return (
                       <MDBox
                         mt={0.5}

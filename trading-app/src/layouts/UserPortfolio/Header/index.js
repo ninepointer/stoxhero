@@ -64,7 +64,6 @@ export default function LabTabs() {
         },
       })
       .then((res) => {
-        console.log(res.data.data);
         setMarginDetail(res.data.data);
         setIsLoading(false);
       })

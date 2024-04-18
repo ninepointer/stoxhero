@@ -45,8 +45,6 @@ const ContestCard = () => {
     Promise.all([call1, call2])
       .then(([api1Response, api2Response]) => {
         // Process the responses here
-        console.log(api1Response.data.data);
-        console.log(api2Response.data.data);
         let activeData = api1Response.data.data;
         let myData = api2Response.data.data;
 
@@ -54,7 +52,6 @@ const ContestCard = () => {
           (elem1) => !myData.some((elem2) => elem1._id === elem2._id)
         );
 
-        console.log(activeData);
         setContestData(activeData);
       })
       .catch((error) => {
@@ -97,8 +94,6 @@ const ContestCard = () => {
       minute: "numeric",
       hour12: true,
     })}`;
-
-    // console.log(finalFormattedDate);
 
     return finalFormattedDate;
   }

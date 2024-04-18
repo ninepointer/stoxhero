@@ -44,7 +44,6 @@ const Scoreboard = () => {
     Promise.all([call1])
       .then(([api1Response]) => {
         // Process the responses here
-        console.log(api1Response.data.data);
         setTraders(api1Response.data.data);
         ReactGA.pageview(window.location.pathname);
         setTimeout(() => {

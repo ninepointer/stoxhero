@@ -20,7 +20,6 @@ const InternShipMargin = ({ contestId, setyesterdayData }) => {
   let amount = 0;
   let margin = 0;
   pnlData.map((elem) => {
-    console.log(elem._id.isLimit);
     if (elem._id.isLimit) {
       margin += elem.margin;
     } else {

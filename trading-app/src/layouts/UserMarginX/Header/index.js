@@ -31,7 +31,6 @@ function Header() {
   let page = "MarginX";
   let pageLink = window.location.pathname;
   async function capturePageView() {
-    console.log("Page:", page);
     await fetch(`${baseUrl}api/v1/pageview/${page}${pageLink}`, {
       method: "POST",
       credentials: "include",

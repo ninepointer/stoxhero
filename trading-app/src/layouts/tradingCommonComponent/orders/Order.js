@@ -49,10 +49,10 @@ export default function Order({ from, id }) {
 
   useEffect(() => {
     setIsLoading(true)
-    console.log("Inside Use Effect")
+    // console.log("Inside Use Effect")
     axios.get(`${apiUrl}${url}?skip=${skip}&limit=${limitSetting}`, { withCredentials: true })
       .then((res) => {
-        console.log(res.data)
+        // console.log(res.data)
         setData(res.data.data);
         setCount(res.data.count);
         setIsLoading(false)
@@ -81,14 +81,14 @@ export default function Order({ from, id }) {
       },
     })
       .then((res) => {
-        console.log("Orders:", res.data)
+        // console.log("Orders:", res.data)
         setData(res.data.data)
         setCount(res.data.count)
         setTimeout(() => {
           setIsLoading(false)
         }, 500)
       }).catch((err) => {
-        console.log(err)
+        // console.log(err)
         setIsLoading(false)
         return new Error(err);
       })
@@ -96,10 +96,10 @@ export default function Order({ from, id }) {
 
   function nextHandler() {
     if (skip + limitSetting >= count) {
-      console.log("inside skip", count, skip + limitSetting)
+      // console.log("inside skip", count, skip + limitSetting)
       return;
     }
-    console.log("inside next handler")
+    // console.log("inside next handler")
     setSkip(prev => prev + limitSetting);
     setData([]);
     setIsLoading(true)
@@ -112,14 +112,14 @@ export default function Order({ from, id }) {
       },
     })
       .then((res) => {
-        console.log("orders", res.data)
+        // console.log("orders", res.data)
         setData(res.data.data)
         setCount(res.data.count)
         setTimeout(() => {
           setIsLoading(false)
         }, 500)
       }).catch((err) => {
-        console.log(err)
+        // console.log(err)
         setIsLoading(false)
         return new Error(err);
       })

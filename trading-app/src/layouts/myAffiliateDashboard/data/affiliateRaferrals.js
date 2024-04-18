@@ -67,7 +67,6 @@ const AffiliateRafferals = ({showDetailClicked, start, end, affiliateData }) => 
                     setIsLoading(false)
                 }, 500)
             }).catch((err) => {
-                console.log(err)
                 setIsLoading(false)
                 return new Error(err);
             })
@@ -98,7 +97,6 @@ const AffiliateRafferals = ({showDetailClicked, start, end, affiliateData }) => 
                     setIsLoading(false)
                 }, 500)
             }).catch((err) => {
-                console.log(err)
                 setIsLoading(false)
                 return new Error(err);
             })
@@ -112,7 +110,6 @@ const AffiliateRafferals = ({showDetailClicked, start, end, affiliateData }) => 
         { Header: "Status", accessor: "status", align: "center" },
     ];
     let rows = [];
-    //   console.log('checking',referralRanks, getDetails.userDetails.employeeid);
     data?.map((elem, index) => {
         let refData = {}
         let userStatus = elem?.paidDetails?.paidStatus ? (elem?.paidDetails?.paidStatus === 'Active' ? 'Paid' : 'Free') : (elem?.activationDetails?.activationStatus ? elem?.activationDetails?.activationStatus : 'Inactive')

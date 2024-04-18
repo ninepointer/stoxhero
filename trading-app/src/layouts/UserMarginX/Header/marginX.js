@@ -28,7 +28,6 @@ export default function LabTabs() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = (e) => {
-    console.log(e);
     setClicked(e);
   };
 

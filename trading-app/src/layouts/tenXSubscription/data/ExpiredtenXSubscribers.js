@@ -14,7 +14,6 @@ export default function TenXSubscribers({ tenXSubscription }) {
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   // const [tenXSubsPurchaseIntent,setTenXSubsPurchaseIntent] = React.useState([]);
-  console.log("TenX Subscribers:", tenXSubscription);
   function TruncatedName(name) {
     const originalName = name;
     const convertedName = originalName

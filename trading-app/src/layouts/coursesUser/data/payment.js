@@ -145,7 +145,6 @@ const Payment = ({
               return transaction.transactionType === "Bonus";
             }
           );
-          // console.log((res.data.data)?.transactions);
 
           const totalCashAmount = cashTransactions?.reduce(
             (total, transaction) => {
@@ -165,7 +164,6 @@ const Payment = ({
           setUserWallet(totalCashAmount.toFixed(2));
         })
         .catch((err) => {
-          console.log("Fail to fetch data of user", err);
         });
 
       axios
@@ -181,7 +179,6 @@ const Payment = ({
           setSetting(res?.data[0]);
         })
         .catch((err) => {
-          console.log("Fail to fetch data of user", err);
         });
     }
   }, [open]);
@@ -263,7 +260,6 @@ const Payment = ({
       }),
     });
     const dataResp = await res.json();
-    // console.log(dataResp);
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
       // openSuccessSB("error", dataResp.message)
       setMessege({
@@ -320,13 +316,11 @@ const Payment = ({
         },
         { withCredentials: true }
       );
-      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
       setIsPaymentStart(false);
     } catch (e) {
       setIsPaymentStart(false);
-      console.log(e);
     }
   };
 
@@ -376,7 +370,6 @@ const Payment = ({
         },
         { withCredentials: true }
       );
-      console.log("verified code", res?.data?.data);
       if (res.status == 200) {
         setVerifiedCode(code);
         setInvalidCode("");
@@ -391,7 +384,6 @@ const Payment = ({
         setInvalidCode(res?.data?.message);
       }
     } catch (e) {
-      console.log("verified error", e);
       if (e.name == "AxiosError") {
         setInvalidCode(e?.response?.data?.message);
       }
