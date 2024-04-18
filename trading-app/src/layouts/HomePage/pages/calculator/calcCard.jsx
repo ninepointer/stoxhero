@@ -61,6 +61,7 @@ export default function CalculatorCard({ assets, liabilities, assetSum, setAsset
 
     function setROI(keyword) {
         const newValue = growthRate?.[keyword]?.split('%')?.[0];
+        
         if (!Number(newValue) && newValue?.length > 0) {
             setGrowthRate(prevFormData => ({
                 ...prevFormData,
@@ -70,6 +71,13 @@ export default function CalculatorCard({ assets, liabilities, assetSum, setAsset
             setGrowthRate(prevFormData => ({
                 ...prevFormData,
                 [keyword]: Number(newValue)
+            }));
+        }
+
+        if(!newValue){
+            setGrowthRate(prevFormData => ({
+                ...prevFormData,
+                [keyword]: definedROI[keyword]
             }));
         }
     }
