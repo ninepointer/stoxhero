@@ -54,7 +54,6 @@ const EarlySubscribedInstrument = async () => {
         const liveData = await singleLivePrice("NSE", indexName);
         let ltp = liveData?.last_price;
 
-        console.log("last_price", ltp)
         const aboveDocs = await TradableInstrument.aggregate([
           {
             $match:
@@ -186,7 +185,6 @@ const optionChain = async (req, res) => {
         const liveData = await singleLivePrice("NSE", indexName);
         let ltp = liveData?.last_price;
 
-        console.log("last_price", ltp)
         const aboveDocs = await TradableInstrument.aggregate([
           {
             $match:

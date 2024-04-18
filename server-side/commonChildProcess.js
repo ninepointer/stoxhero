@@ -12,6 +12,7 @@ const { zerodhaAccountType } = require("./constant");
 const Product = require("./models/Product/product");
 const { pendingOrderMain } = require("./PlaceStopLossOrder");
 const Grade = require("./models/grade/grade");
+const { autoCreate } = require('./controllers/AutoCreate');
 
 async function commonProcess() {
   // await setIOValue();
@@ -72,6 +73,10 @@ async function commonProcess() {
     const grade = await Grade.find({});
     res.json({ status: "success", data: grade });
   });
+
+  app.get('/api/v1/productautocreate', async (req, res, next) => {
+    await autoCreate(res)
+  })
   app.use("/api/v1", require("./routes/OpenPositions/openPositionsAuth"));
   app.use("/api/v1", require("./routes/StockIndex/addStockIndex"));
   app.use("/api/v1", require("./routes/expense/expenseAuth"));

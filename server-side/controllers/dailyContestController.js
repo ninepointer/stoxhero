@@ -139,7 +139,7 @@ exports.createContest = async (req, res) => {
       slug, visibleToInfluencerUser,
     } = req.body;
 
-    const slugCount = await Contest.countDocuments({ slug: slug });
+    const slugCount = await Contest.countDocuments({ contestName: contestName });
 
     let contestImage;
     if (req.files["image"]) {
@@ -248,7 +248,6 @@ exports.editContest = async (req, res) => {
       updates.image = await getAwsS3Url(req.files["image"][0], "Image");
     }
 
-    console.log("updates", updates);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res
@@ -1126,9 +1125,8 @@ exports.getUserFeaturedContests = async (req, res) => {
     const upcomingFeatured = newContest.filter((elem) => {
       return elem.contestStartTime > new Date();
     });
-    // console.log('contests', contests[0].rewards);
-    // console.log('live', liveFeatured);
 
+    
     res.status(200).json({
       status: "success",
       message: "Featured TestZones fetched successfully",
@@ -2783,7 +2781,7 @@ exports.creditAmountToWallet = async () => {
               maxPayout
             );
             let payoutAmount = payoutAmountWithoutTDS;
-            console.log("check payout", payoutAmount, payoutAmountWithoutTDS);
+
             if (payoutAmountWithoutTDS > fee) {
               if (contest[j]?.rewardType === "Cash") {
                 payoutAmount =
@@ -3929,21 +3927,12 @@ exports.handleSubscriptionDeduction = async (
     const totalAmount =
       (contest?.entryFee - discountAmount - bonusRedemption) *
       (1 + setting[0]?.gstPercentage / 100);
-    console.log(
-      "entry",
-      contest?.entryFee,
-      "disc",
-      discountAmount,
-      "hc",
-      bonusRedemption,
-      "gst",
-      setting[0]?.gstPercentage
-    );
+ 
     if (
       Number(Number(totalAmount)?.toFixed(2)) >
       Number(Number(contestFee)?.toFixed(2))
     ) {
-      console.log("amounts", totalAmount, contestFee);
+
       return {
         statusCode: 400,
         data: {
@@ -4570,7 +4559,6 @@ exports.getDailyContestAllUsers = async (req, res) => {
 exports.findContestByName = async (req, res, next) => {
   try {
     const { name, date } = req.query;
-    console.log("Body:", req.query);
     let dateString = date.includes("-")
       ? date.split("-").join("")
       : date.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
@@ -7130,7 +7118,6 @@ exports.addInstructor = async (req, res) => {
       image = await getAwsS3Url(req.files["instructorImage"][0]);
     }
 
-    console.log("image", image);
     const contest = await Contest.findByIdAndUpdate(
       new ObjectId(req.params.id),
       {

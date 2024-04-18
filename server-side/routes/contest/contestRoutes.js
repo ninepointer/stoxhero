@@ -47,11 +47,8 @@ const s3 = new AWS.S3({
 });
 
 const resizePhoto = async (req, res, next) => {
-    // console.log('resize func');
-    // console.log(req.files,req.body)
     if (!req.files) {
       // no file uploaded, skip to next middleware
-      console.log('no file');
       next();
       return;
     }
@@ -63,7 +60,6 @@ const resizePhoto = async (req, res, next) => {
 const uploadToS3 = async (req, res, next) => {
     if (!req.files) {
       // no file uploaded, skip to next middleware
-      console.log('no files bro');
       next();
       return;
     }

@@ -6,16 +6,16 @@ import MDButton from "../../../components/MDButton";
 import { Grid, CircularProgress, Divider } from "@mui/material";
 import MDTypography from "../../../components/MDTypography";
 import { Link, useLocation } from "react-router-dom";
-import { suppressDeprecationWarnings } from "moment";
+// import { suppressDeprecationWarnings } from "moment";
 import { apiUrl } from "../../../constants/constants.js";
-//data
+import MDSnackbar from "../../../components/MDSnackbar";
 import DailyTenXUsers from "../data/dailyTenXUsers";
 
 export default function LabTabs({ socket }) {
   const [isLoading, setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
   const [lastTenXTradingDate, setLastTenXTradingDate] = useState("");
-  const [liveDetail, setLiveDetail] = useState([]);
+  // const [liveDetail, setLiveDetail] = useState([]);
   const [dailyTenXUsers, setDailyTenXUsers] = useState();
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
@@ -155,7 +155,74 @@ export default function LabTabs({ socket }) {
   async function revenueMail() {
     const data = await axios.get(`${apiUrl}revenue/revenuemail`);
   }
+
+  async function autoCreateProduct() {
+    const data = await axios.get(`${apiUrl}productautocreate`);
+    if (data?.data?.status === 'success') {
+      openSuccessSB('success', data?.data?.message)
+    } else {
+      openSuccessSB('error', data?.data?.message)
+    }
+  }
+
+  const [successSB, setSuccessSB] = useState(false);
+  const [messageObj, setMessageObj] = useState({
+    color: "",
+    icon: "",
+    title: "",
+    content: "",
+  });
+  const openSuccessSB = (value, content) => {
+    if (value === "success") {
+      messageObj.color = "success";
+      messageObj.icon = "check";
+      messageObj.title = "Successful";
+      messageObj.content = content;
+      setSuccessSB(true);
+    }
+    if (value === "error") {
+      messageObj.color = "error";
+      messageObj.icon = "error";
+      messageObj.title = "Error";
+      messageObj.content = content;
+    }
+
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  };
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color={messageObj.color}
+      icon={messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite={messageObj.color}
+      sx={{
+        borderLeft: `10px solid ${
+          messageObj.color === "success"
+            ? "#4CAF50"
+            : messageObj.color === "error"
+            ? "#F44335"
+            : "#1A73E8"
+        }`,
+        borderRight: `10px solid ${
+          messageObj.color === "success"
+            ? "#4CAF50"
+            : messageObj.color === "error"
+            ? "#F44335"
+            : "#1A73E8"
+        }`,
+        borderRadius: "15px",
+        width: "auto",
+      }}
+    />
+  );
   return (
+    <>
     <MDBox
       bgColor="dark"
       mt={2}
@@ -1661,6 +1728,20 @@ export default function LabTabs({ socket }) {
                   Create College
                 </MDButton>
               </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"light"}
+                  size="small"
+                  onClick={async ()=>{
+                    await autoCreateProduct()
+                  }}
+                >
+                  Create TestZone & MarginX
+                </MDButton>
+              </Grid>
+
               <Grid item fullWidth>
                 <MDButton
                   variant="contained"
@@ -1755,7 +1836,7 @@ export default function LabTabs({ socket }) {
               <Grid item fullWidth>
                 <MDButton
                   variant="contained"
-                  color={"secondary"}
+                  color={"light"}
                   size="small"
                   component={Link}
                   to={{
@@ -1852,5 +1933,7 @@ export default function LabTabs({ socket }) {
         </Grid>
       </Grid>
     </MDBox>
+    {renderSuccessSB}
+    </>
   );
 }

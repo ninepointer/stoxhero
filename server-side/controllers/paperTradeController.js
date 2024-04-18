@@ -550,7 +550,6 @@ async function fetchReferredUsersByInfluencer(influencerId) {
   let referredUserIds = await client.get(`referredUsers:${influencerId}`);
   if (!referredUserIds) {
     // Cache miss, query the database
-    console.log("cache miss");
     const users = await User.find({ referredBy: influencerId }, "_id");
     // console.log("users ref", users?.length);
     referredUserIds = users.map((user) => user._id.toString());
@@ -983,7 +982,6 @@ exports.getDailyVirtualUsers = async (req, res) => {
 exports.saveLeaderboardData = async () => {
   try{
 
-    console.log('leaderboard running')
     const date = new Date();
     let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,"0"
     )}-${String(date.getDate()).padStart(2, "0")}`;

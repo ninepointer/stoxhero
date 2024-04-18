@@ -127,7 +127,6 @@ schoolSchema.methods.correctPassword = async function (
 // generating jwt token
 schoolSchema.methods.generateAuthToken = async function () {
     try {
-        console.log(this._id)
         let token = jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
         // this.tokens = this.tokens.concat({token: token});
         return token;

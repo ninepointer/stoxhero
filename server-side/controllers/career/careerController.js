@@ -31,7 +31,6 @@ exports.getUploadsApplication = (async(req, res, next) => {
 
 try {
   const { firstName, lastName, email, mobile, dob, gender, college, collegeName, course, passingoutyear, linkedInProfileLink, priorTradingExperience, source, career, campaignCode } = req.body;
-  console.log(req.body)
   const data = await CareerApplication.create({
     first_name: firstName.trim(),
     last_name: lastName.trim(),
@@ -50,7 +49,7 @@ try {
     career: career,
     campaignCode: campaignCode.trim(),
     });
-    console.log(data)
+
     res.status(201).json({message: "Your application has been submitted successfully!"});
 
 
@@ -63,7 +62,6 @@ try {
 });
 
 exports.generateOTP = async(req, res, next)=>{
-  console.log(req.body)
 
   const{ firstName, lastName, email, mobile, dob, gender, college, collegeName, course, passingoutyear, linkedInProfileLink, priorTradingExperience, source, career, campaignCode
   } = req.body
@@ -97,7 +95,7 @@ exports.generateOTP = async(req, res, next)=>{
       status: 'OTP Verification Pending',
       applicationStatus: 'Applied'
       });
-      console.log(data)
+
       if(process.env.PROD == 'true')sendOTP(mobile.toString(), mobile_otp);
      if(process.env.PROD!=='true')sendOTP("9319671094", mobile_otp);
       res.status(201).json({info: "OTP Sent on your mobile number!"}); 
@@ -153,8 +151,8 @@ exports.confirmOTP = async(req, res, next)=>{
   const myReferralCode = generateUniqueReferralCode();
   let userId = email.split('@')[0]
   let userIds = await User.find({employeeid:userId})
-  console.log("User Ids: ",userIds)
-    if(userIds.length > 0)
+
+  if(userIds.length > 0)
     {
         userId = userId?.toString()+(userIds?.length+1).toString()
     }

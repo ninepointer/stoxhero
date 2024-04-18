@@ -68,7 +68,6 @@ exports.getActiveReferral = async(req, res, next)=>{
 
 exports.getReferralName = async(req, res, next)=>{
 
-  console.log("getReferralName")
   try{
   const referral = await Referral.find().select('referralProgramName')
   res.status(201).json({message: "Referral Retrived",data: referral});    
@@ -291,7 +290,6 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
 exports.getReferredProduct = async (req, res) => {
   try {
     const userId = req.user._id;
-    console.log(userId)
     const product = await AffiliateTransaction.aggregate([
       {
         $facet:

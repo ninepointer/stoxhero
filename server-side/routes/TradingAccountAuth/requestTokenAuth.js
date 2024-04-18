@@ -173,9 +173,6 @@ router.patch("/inactiveRequestToken/:id", Authenticate, restrictTo('Admin', 'Sup
             }
         },{new: true})
 
-        // res.status(500).json({"Failed to edit data"});
-        console.log("this is role", account);
-        // res.send(account)
     } catch (e){
         res.status(500).json({error:"Failed to edit data"});
     }

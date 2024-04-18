@@ -1560,7 +1560,6 @@ exports.getRollingActiveUsersOnPlatform = async (req, res) => {
     DaysAgoBasedOnYesterday_29.setDate(DaysAgoBasedOnYesterday_29.getDate()-29);
     DaysAgoBasedOnYesterday_29.setUTCHours(-5, -29, -59, -999);
 
-    console.log(sevenDaysAgoBasedOnYesterday)
     const pipeline = [
       {
         $match: {
@@ -1854,6 +1853,9 @@ exports.getOverallTradeInformation = async (req, res) => {
       {
         $match:{
           status : 'COMPLETE',
+          trade_time: {
+            $lt: new Date(startOfToday)
+          }
         }
       },
       {
@@ -1955,12 +1957,21 @@ exports.getOverallTradeInformation = async (req, res) => {
       newObj[elem] = tradeInformation[elem]
     }
 
-    // console.log(tradeSum, turnoverSum)
     newObj.tradesToday = tradeInformationToday.tradesToday || 0;
     newObj.turnoverToday = tradeInformationToday.turnoverToday || 0;
 
     newObj.totalTrades = (tradeInformationToday?.tradesToday || 0) + newObj?.totalTrades;
     newObj.totalTurnover = (tradeInformationToday?.turnoverToday || 0) + newObj?.totalTurnover;
+
+    newObj.tradesThisWeek = (tradeInformationToday?.tradesToday || 0) + newObj?.tradesThisWeek;
+    newObj.turnoverThisWeek = (tradeInformationToday?.turnoverToday || 0) + newObj?.turnoverThisWeek;
+
+    newObj.tradesThisMonth = (tradeInformationToday?.tradesToday || 0) + newObj?.tradesThisMonth;
+    newObj.turnoverThisMonth = (tradeInformationToday?.turnoverToday || 0) + newObj?.turnoverThisMonth;
+
+    newObj.tradesThisYear = (tradeInformationToday?.tradesToday || 0) + newObj?.tradesThisYear;
+    newObj.turnoverThisYear = (tradeInformationToday?.turnoverToday || 0) + newObj?.turnoverThisYear;
+
 
     const response = {
       status: "success",
@@ -2205,8 +2216,6 @@ exports.getMonthWiseCummActiveUsers = async (req, res) => {
         
         monthWiseMAUs.virtualTrading = traders;
         monthWiseMAUs.uniqueUsers.push(...uniqueUsers);
-        console.log("Traders:",traders)
-        console.log("Monthweise MASUs at Virtual:",monthWiseMAUs)
     });
     tenXTraders.forEach(entry => {
       const { traders, uniqueUsers } = entry;
@@ -2249,16 +2258,10 @@ exports.getMonthWiseCummActiveUsers = async (req, res) => {
     // Calculate the month-wise total MAUs and unique users
     // console.log("MonthwiseMAUs:",monthWiseMAUs)
     Object.keys(monthWiseMAUs).forEach(month => {
-      // console.log("Month:",month)
-      // const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = monthWiseMAUs[month];
-      // console.log("Data:",virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers)
-      // console.log("Data:",virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers)
-      console.log("Month Wise MAUs:",monthWiseMAUs[month])
       monthWiseMAUs.uniqueUsers = ([...new Set(monthWiseMAUs['uniqueUsers'])]);
       monthWiseMAUs.total = monthWiseMAUs['uniqueUsers'].length
     });
 
-    console.log("Unique Users at month:",monthWiseMAUs.uniqueUsers.length)
 
     const response = {
       status: "success",
@@ -2337,7 +2340,6 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-    console.log(dateWiseDAUs)
     tenXTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -2359,7 +2361,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-    console.log(dateWiseDAUs)
+
     contestTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -2381,7 +2383,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-    console.log(dateWiseDAUs)
+
     internshipTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -2403,7 +2405,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-    console.log(dateWiseDAUs)
+
     marginXTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -2425,7 +2427,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-    console.log(dateWiseDAUs)
+
     battleTraders.forEach(entry => {
       const { _id, traders, uniqueUsers } = entry;
       const date = _id.date;
@@ -2447,15 +2449,14 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
         dateWiseDAUs[date].uniqueUsers.push(...uniqueUsers);
       }
     });
-    console.log(dateWiseDAUs)
-    // Calculate the month-wise total MAUs and unique users
+
     Object.keys(dateWiseDAUs).forEach(date => {
       const { virtualTrading, tenXTrading, contest, internshipTrading, marginXTrading, uniqueUsers } = dateWiseDAUs[date];
       dateWiseDAUs[date].uniqueUsers = [...new Set(uniqueUsers)];
       dateWiseDAUs[date].total = dateWiseDAUs[date].uniqueUsers.length
     });
-    console.log("DateWiseDAUs:",dateWiseDAUs)
 
+    
     const months = ['2023-01', '2023-02', '2023-03', '2023-04', '2023-05', '2023-06', '2023-07', '2023-08', '2023-09', '2023-10', '2023-11', '2023-12'];
     let data = []
     for(let elem in dateWiseDAUs){
@@ -2468,7 +2469,7 @@ exports.getDateWiseAverageActiveUsers = async (req, res) => {
     const average_data = [];
     for (const month of months) {
       const average = calculateAverageForMonth(month, data);
-      console.log(`Average for ${month}:`, average);
+
       average_data.push({month: month, data: Math.floor(average)})
     }
 
@@ -2770,7 +2771,7 @@ exports.getSignUpAndCummSignup = async(req, res) =>{
 
       date1.setMonth(date1.getMonth() + 2);
       date2.setMonth(date2.getMonth() + 2);
-      console.log("first", date1, date1.getMonth())
+
       // Set date1 to the first day of the next month
       date1.setDate(0);
     
@@ -4566,7 +4567,7 @@ exports.getMarketingFunnelDataOptimised = async (req, res) => {
 
     monthToTradersMap.forEach((yearMap, year) => {
       yearMap.forEach((traders, month) => {
-        console.log(month, year, traders)
+
         result.push({ month, year, uniqueUsersCount: traders.size });
       });
     });

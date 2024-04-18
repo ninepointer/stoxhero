@@ -427,7 +427,7 @@ router.get("/gettraderwisepnllivetradecompanytoday", Authenticate, restrictTo('A
 router.get("/gettraderwisepnllivetradecompanytoday", Authenticate, restrictTo('Admin', 'Super Admin'), async(req, res)=>{
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    console.log(todayDate)
+
     let pnlDetails = await LiveCompanyTradeData.aggregate([
         { $match: { trade_time : {$gte: `${todayDate} 00:00:00` , $lte: `${todayDate} 23:59:59`}, status: "COMPLETE", "algoBox.isDefault": true} },
         
@@ -859,14 +859,12 @@ router.get("/updatealgoidlive", Authenticate, restrictTo('Admin', 'Super Admin')
 
       for(let i = 0; i< algoiddoc.length; i++ ){
           if(!algoiddoc[i].algoBox.isDefault && !algoiddoc[i].algoBox.marginDeduction){
-          console.log(algoiddoc[i]._id);
           await LiveCompanyTradeData.findByIdAndUpdate(algoiddoc[i]._id, {'algoBox.isDefault' : true,'algoBox.marginDeduction' : false},
               function (err, algoBox) {
                   if (err){
                       console.log(err)
                   }
                   else{
-                      console.log("Is Default : ", algoiddoc[i].algoBox.isDefault,algoBox);
                   }
       }).clone();
       }

@@ -8,10 +8,8 @@ const EquityStock = require('../../models/Instruments/equityStocks');
 
 exports.tradableInstrument = async (req,res,next) => {
 
-    console.log("trade instrument")
     let userId = "63ecbc570302e7cf0153370c";
     getKiteCred.getAccess().then((data)=>{
-        console.log(data)
         // createNewTicker(data.getApiKey, data.getAccessToken);
         const url = 'https://api.kite.trade/instruments/NFO';
 
@@ -42,14 +40,13 @@ exports.tradableInstrument = async (req,res,next) => {
             ? response.data.pipe(zlib.createGunzip())
             : response.data;
 
-            console.log("unzip", unzip)
             // Parse the CSV data from the response
             unzip
             .pipe(csv())
             .on('data', async (row) => {
 
                 const existingInstrument = await TradableInstrument.findOne({ tradingsymbol: row.tradingsymbol, status: "Active" });
-                console.log("existingInstrument", existingInstrument)
+
                 if (!existingInstrument) {
                   if((row.name == "NIFTY" || row.name == "BANKNIFTY" || row.name == "FINNIFTY") && row.segment == "NFO-OPT"){
                     
@@ -65,10 +62,9 @@ exports.tradableInstrument = async (req,res,next) => {
                     if(row.name === "NIFTY"){
                         row.name = row.name+"50"
                     }
-                    console.log("getting row in instrument", row);
+
                     try{
                         const x = await TradableInstrument.create([row]);
-                        console.log(x)
                     } catch(err){
                         console.log(err);
                     }
@@ -189,7 +185,6 @@ exports.tradableNSEInstrument = async (req,res,next) => {
             ? response.data.pipe(zlib.createGunzip())
             : response.data;
 
-            console.log("unzip", unzip)
             // Parse the CSV data from the response
             unzip
             .pipe(csv())
@@ -202,19 +197,8 @@ exports.tradableNSEInstrument = async (req,res,next) => {
                     
                     row.lastModifiedBy = userId;
                     row.createdBy = userId;
-                    // let date = changeDate(row.expiry);
-                    // let prefix = "OPTIDX_" + row.name;
-                    // let type = row.instrument_type;
-                    // let strike = row.strike;
-
-                    // row.chartInstrument = `${prefix}_${date}_${type}_${strike}`;
-                    // if(row.name === "NIFTY"){
-                    //     row.name = row.name+"50"
-                    // }
-                    console.log("getting row in instrument", row);
                     try{
                         const x = await EquityStock.create([row]);
-                        console.log(x)
                     } catch(err){
                         console.log(err);
                     }

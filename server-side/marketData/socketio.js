@@ -5,7 +5,6 @@ let io;
 
 async function setIOValue() {
   try{
-    console.log("socket running.")
     io = new Server(9000, {
       cors: {
         origin: 'http://localhost:3000',

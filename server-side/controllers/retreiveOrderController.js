@@ -35,7 +35,6 @@ exports.getTodaysRetreiveOrder = async (req, res, next) => {
 }
 
 exports.getAllRetreiveOrder = async(req, res, next)=>{
-    console.log("Inside Internship all orders API")
     const skip = parseInt(req.query.skip) || 0;
     const limit = parseInt(req.query.limit) || 10
     const count = await RetreiveOrder.countDocuments()

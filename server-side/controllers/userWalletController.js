@@ -122,7 +122,6 @@ exports.deductSubscriptionAmount = async(req,res,next) => {
 
     try {
         const result = await exports.handleDeductSubscriptionAmount(userId, subscriptionAmount, subscriptionName, subscribedId, coupon, bonusRedemption, req);
-        console.log("result", result)
         res.status(result.statusCode).json(result.data);
         // console.log(result, result.statusCode, result.data);
     } catch (error) {
@@ -248,8 +247,6 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
 
         const newBonusAmount = Number((discountAmount)?.toFixed(2)) + Number((bonusRedemption)?.toFixed(2));
         const totalAmount = (subs?.discounted_price - newBonusAmount)*(1+setting[0]?.gstPercentage/100)
-        console.log(Number(totalAmount) , Number((Number(subscriptionAmount))?.toFixed(2)));
-        console.log(subs?.discounted_price,  Number((discountAmount)?.toFixed(2)) , Number((bonusRedemption)?.toFixed(2)), (1 + setting[0]?.gstPercentage / 100));
         if(Number(totalAmount) != Number((Number(subscriptionAmount))?.toFixed(2))){
             result= {
             statusCode:400,
@@ -348,7 +345,6 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
                 {  new: true, session: session }
 
             );
-            console.log("updatePaidDetails", updatePaidDetails)
 
             await client.del(`${req?.user?._id.toString()}authenticatedUser`);
 
@@ -477,7 +473,6 @@ exports.handleDeductSubscriptionAmount = async(userId, subscriptionAmount, subsc
         `
         if(process.env.PROD === "true"){
             emailService(recipientString,subject,message);
-            console.log("Subscription Email Sent")
         }
         // console.log("mail gya" )
 

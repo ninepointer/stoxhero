@@ -89,8 +89,6 @@ const autoCutMainManuallyMock = async () => {
         },
     ]);
 
-    console.log(data)
-
     if (data.length === 0) {
         await tenx();
         await paperTradeMod();
@@ -233,10 +231,7 @@ const changeStatus = async () => {
         ]
     );
 
-    console.log("data", data, dataUser)
-
     if (data.length === 0 && dataUser.length === 0) {
-        console.log("in if change status..")
         await changeContestStatus();
         await creditAmount();
         return;
@@ -265,7 +260,6 @@ const changeContestStatus = async () => {
             // }
 
             const updatePromises = contest.map(async (elem) => {
-                console.log(elem.contestEndTime, new Date())
                 elem.contestStatus = "Completed";
                 await elem.save();
             });
@@ -298,13 +292,10 @@ const creditAmount = async () => {
 
     // if(data.length === contest.length){
     if (data.length > 0) {
-        console.log("in if wallet..")
         await creditAmountToWallet();
         return;
 
     }
-    console.log('running');
-    // await creditAmount();
 }
 // end of contest
 
@@ -457,7 +448,6 @@ const changeMarginXStatus = async () => {
     );
 
     if (data.length === 0 && dataUser.length === 0) {
-        console.log("in if change status marginx..")
         await changeMarginXDocStatus();
         await creditAmountMarginX();
         return;
@@ -477,12 +467,6 @@ const creditAmountMarginX = async () => {
 
 
     const data = await MarginX.find({ payoutStatus: null, status: "Completed", endTime: { $gte: today } });
-    console.log('data', data);
-    // const contest = await Contest.find({ contestEndTime: {$gte: today, $lte: todayEnd} });
-
-    // console.log("contest", contest.length, data.length);
-
-    // if(data.length === contest.length){
     if (data.length > 0) {
         console.log("in if wallet..")
         await marginxController.creditAmountToWallet();

@@ -143,7 +143,6 @@ const courseSchema = new Schema({
 });
 
 courseSchema.methods.calculateAverageRating = function () {
-  console.log("average rating calc");
   if (!this.ratings || this.ratings.length === 0) {
     this.averageRating = 0;
   } else {

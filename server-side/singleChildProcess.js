@@ -12,6 +12,7 @@ const { saveLiveUsedMargin, saveMockUsedMargin, saveMockDailyContestUsedMargin, 
 const { autoCutMainManually, autoCutMainManuallyMock} = require("./controllers/AutoTradeCut/mainManually");
 const { removeInstrumentFromWatchlist} = require("./controllers/instrument");
 const {tradableInstrument} = require("./controllers/TradableInstrument/tradableInstrument")
+const {autoCreate} = require('./controllers/AutoCreate');
 
 const { createNewTicker, disconnectTicker, getDummyTicks,
     subscribeTokens, subscribeWatchListInstrument, tempGetTicks,
@@ -262,6 +263,8 @@ async function singleProcess() {
         const removeInstrumentFromWatch = nodeCron.schedule(`0 0 1 * * *`, removeInstrumentFromWatchlist);
     
     }
+    // const autoCreateTestzoneMarginx = nodeCron.schedule(`0 0 11 * * *`, autoCreate);
+    // const autoCreateTestzoneMarginx = nodeCron.schedule(`0 0 11 * * *`, autoCreate);
 
     app.get('/api/v1/servertime', (req, res, next) => { res.json({ status: 'success', data: new Date() }) })
     app.use(express.json({ limit: "10mb" }));
@@ -286,6 +289,10 @@ async function singleProcess() {
     app.get('/api/v1/grades', async(req, res, next) => {
         const grade = await Grade.find({}); 
         res.json({ status: 'success', data: grade }); 
+    })
+
+    app.get('/api/v1/productautocreate', async (req, res, next) => {
+        await autoCreate(res)
     })
     app.use('/api/v1', require("./routes/OpenPositions/openPositionsAuth"))
     app.use('/api/v1', require("./routes/StockIndex/addStockIndex"))

@@ -22,7 +22,6 @@ exports.generateAadhaarOtp = async(aadhaarNo) => {
         const clientId = res.data.data;
         return clientId;
         }catch(e){
-            console.log('error',e?.response?.data?.message);
             const message = e?.response?.data?.message || "Something went wrong";
             const statusCode = e?.response?.status || 500;
             const errorToThrow = new Error(message);
@@ -32,7 +31,6 @@ exports.generateAadhaarOtp = async(aadhaarNo) => {
 }
 
 exports.verifyAadhaarOtp = async(clientId, otp) => {
-    console.log(clientId, otp);
     try{
         const res = await axios.post(
             `https://kyc-api.surepass.io/api/v1/aadhaar-v2/submit-otp`, 
@@ -48,7 +46,6 @@ exports.verifyAadhaarOtp = async(clientId, otp) => {
         }
         return res.data.data;
     }catch(e){
-        console.log('error',e?.response?.data?.message);
         const message = e?.response?.data?.message || "Something went wrong";
         const statusCode = e?.response?.status || 500;
         const errorToThrow = new Error(message);
@@ -72,7 +69,6 @@ exports.verifyBankAccount = async(bankAccountNumber, ifscCode) => {
         }
         return res.data.data;
     }catch(e){
-        console.log('error',e?.response?.data?.message);
         const message = e?.response?.data?.message || "Something went wrong";
         const statusCode = e?.response?.status || 500;
         const errorToThrow = new Error(message);
@@ -96,7 +92,6 @@ exports.verifyPan = async(panNumber) => {
         }
         return res.data.data;
     }catch(e){
-        console.log('error',e?.response?.data?.message);
         const message = e?.response?.data?.message || "Something went wrong";
         const statusCode = e?.response?.status || 500;
         const errorToThrow = new Error(message);

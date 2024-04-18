@@ -64,7 +64,6 @@ const router = express.Router();
               // console.log("this is trade data", tradeData, typeof(tradeData));
               tradeData.save()
               .then(()=>{
-                  console.log("data enter succesfully")
               }).catch((err)=> {
                 res.status(500).json({error:"Failed to enter data"});
                 console.log("failed to enter data of order");

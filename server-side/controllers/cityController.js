@@ -35,7 +35,7 @@ exports.createCity = async (req, res) => {
 exports.editCity = async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
-    console.log(req.body,req.params);
+
     try {
         const city = await City.findByIdAndUpdate(id, updates, { new: true });
         
@@ -106,7 +106,7 @@ exports.getCityById = async (req, res) => {
 exports.getCityByState = async (req, res) => {
     
     const { state } = req.params;
-    console.log(state);
+
     try {
         const city = await City.find({ state: { $regex: new RegExp(state, 'i') } }).sort({ name: 1 });
 

@@ -22,7 +22,6 @@ async function getLivePrices(instruments) {
       
       const response = await axios.get(url, authOptions);
       const { status, data } = response.data;
-      console.log('response', response.data);
       if (status !== 'success') {
         throw new Error('API request was not successful');
       }

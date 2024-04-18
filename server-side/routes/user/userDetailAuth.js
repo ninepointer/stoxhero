@@ -846,7 +846,7 @@ router.patch(
   uploadToS3,
   async (req, res, next) => {
     try {
-      console.log(req.body.isKycUpdate)
+
       if(req.body.isKycUpdate === 'true'){
         const setting = await Settings.findOne();
         const wallet = await Wallet.findOne({userId: new ObjectId(req?.user?._id)});

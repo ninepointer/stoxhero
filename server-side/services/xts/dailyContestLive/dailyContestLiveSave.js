@@ -22,8 +22,6 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
     const io = getIOValue();
     let { algoBoxId, exchange, symbol, buyOrSell, Quantity, variety, trader,
       instrumentToken, dontSendResp, tradedBy, autoTrade, marginData, userQuantity, dailyContestId, contestId } = traderData;
-
-      console.log('contest ids', dailyContestId, contestId);
   
     let { ClientID, AppOrderID, ExchangeOrderID, ExchangeInstrumentID, OrderSide, order_type, ProductType,
       TimeInForce, OrderPrice, OrderQuantity, OrderStatus, OrderAverageTradedPrice, OrderDisclosedQuantity,
@@ -51,7 +49,6 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
 
       let token;
       if(await client.exists('interactive-token')){
-        console.log("in if condition")
         token = await client.get('interactive-token');
         token = JSON.parse(token);
       } else{
@@ -279,7 +276,6 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
       const lastTradeMock = await lastTradeDataMockDailyContest(companyDocMock, liveLastTrade, dailyContestId);
       const lastTradeLive = await lastTradeDataLiveDailyContest(companyDocMock, mockLastTrade, dailyContestId);
   
-      console.log("overallPnlUser", overallPnlUser, lastTradeLive, dailyContestId)
       let pipelineForSet; 
       
       // if(isInsertedAllDB){
@@ -319,7 +315,6 @@ const dailyContestLiveSave = async (orderData, traderData, startTime) => {
         // console.log("in redisApproval")
         await session.commitTransaction();
       } else if (status == "REJECTED") {
-        console.log("in rejected")
         await session.commitTransaction();
   
         if (!autoTrade){

@@ -170,11 +170,10 @@ exports.fundCheck = async (req, res, next) => {
 
         let userNetPnl = pnlDetails[0]?.npnl;
 
-        console.log(userFunds, userNetPnl, zerodhaMargin)
-        console.log((userFunds + userNetPnl - zerodhaMargin))
+        // console.log(userFunds, userNetPnl, zerodhaMargin)
+        // console.log((userFunds + userNetPnl - zerodhaMargin))
 
         if (Number(userFunds + userNetPnl) >= 0 && ((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
-            console.log("user wants square off")
             return next();
         } else {
             // console.log("in else", Boolean(!userFunds))
@@ -210,7 +209,6 @@ exports.fundCheck = async (req, res, next) => {
                         createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate,
 
                     });
-                    console.log("margincall saving")
                     await algoTrader.save();
                 } catch (e) {
                     console.log("error saving margin call", e);
@@ -220,7 +218,6 @@ exports.fundCheck = async (req, res, next) => {
                 return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
             }
             else {
-                console.log("if user have enough funds")
                 // console.log("caseStudy 7: fund check")
                 return next();
             }
@@ -329,27 +326,20 @@ exports.contestFundCheck = async (req, res, next) => {
             isOpposite = true;
         }
 
-        // console.log("lots and fund", runningLots, contestFunds)
         if (((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
-            // console.log("checking runninglot- reverse trade");
             next();
             return;
         }
-        //console.log(transactionTypeRunningLot, runningLots[0]?._id?.symbol, Math.abs(Number(Quantity)), Math.abs(runningLots[0]?.runningLots))
         let marginData;
         let zerodhaMargin;
 
-        // if( (!runningLots[0]?.runningLots) || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))){
         try {
-            // console.log("fetching margin data")
             marginData = await axios.post(`https://api.kite.trade/margins/basket?consider_positions=true`, orderData, { headers: headers })
 
             zerodhaMargin = marginData.data.data.orders[0].total;
-            // console.log("zerodhaMargin", marginData);
         } catch (e) {
             // console.log("error fetching zerodha margin", e);
         }
-        // }
 
 
         //TODO: get user pnl data and replace 0 with the value 
@@ -393,18 +383,10 @@ exports.contestFundCheck = async (req, res, next) => {
             },
         ])
 
-        // console.log("pnlDetails", pnlDetails)
-
-
         let userNetPnl = pnlDetails[0]?.npnl;
-        console.log(contestFunds, userNetPnl, zerodhaMargin)
-        console.log((contestFunds + userNetPnl - zerodhaMargin))
-        // if(( !runningLots[0]?.runningLots || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) && Number(contestFunds + userNetPnl - zerodhaMargin)  < 0){
-        // if(( !runningLots[0]?.runningLots || (((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) || ((runningLots[0]?._id?.symbol !== symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot == buyOrSell))) && Number(contestFunds + userNetPnl - zerodhaMargin)  < 0){   
-        // //console.log("in if")
-        // return res.status(401).json({status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.'});
+        // console.log(contestFunds, userNetPnl, zerodhaMargin)
+        // console.log((contestFunds + userNetPnl - zerodhaMargin))
         if (Number(contestFunds + userNetPnl) >= 0 && ((runningLots[0]?._id?.symbol === symbol) && Math.abs(Number(Quantity)) <= Math.abs(runningLots[0]?.runningLots) && (transactionTypeRunningLot !== buyOrSell))) {
-            console.log("user wants square off")
             return next();
         } else {
             // console.log("in else")
@@ -442,7 +424,6 @@ exports.contestFundCheck = async (req, res, next) => {
 
 
             else {
-                console.log("if user have enough funds")
                 return next();
             }
         }
@@ -606,7 +587,6 @@ const marginSecondCase = async (req, res, next, prevMargin, prevQuantity) => {
 
 const marginThirdCase = async (req, res, next, netPnl) => {
     req.body.margin = 0;
-    console.log("3rd case");
 
     return next();
 }
@@ -758,7 +738,6 @@ const takeRejectedTrade = async(req, res, from)=>{
                 trader: trader, amount: 0, trade_time: myDate, portfolioId: portfolioId, margin: 0
 
             });
-            console.log("margincall saving")
             await paperTrade.save();
         } catch (e) {
             console.log("error saving margin call", e);
@@ -779,7 +758,6 @@ const takeRejectedTrade = async(req, res, from)=>{
                 trader: req?.user?._id, amount: 0, trade_time: myDate, portfolioId: portfolioId, margin: 0
 
             });
-            console.log("margincall saving")
             await stock.save();
         } catch (e) {
             console.log("error saving margin call", e);
@@ -799,7 +777,6 @@ const takeRejectedTrade = async(req, res, from)=>{
                 trader: trader, amount: 0, trade_time: myDate, subscriptionId, margin: 0
 
             });
-            console.log("margincall saving")
             await tenXTrade.save();
         } catch (e) {
             console.log("error saving margin call", e);
@@ -820,7 +797,6 @@ const takeRejectedTrade = async(req, res, from)=>{
                 trader: trader, amount: 0, trade_time: myDate, batch: subscriptionId, margin: 0
 
             });
-            console.log("margincall saving")
             await internshipTrade.save();
         } catch (e) {
             console.log("error saving margin call", e);
@@ -851,7 +827,6 @@ const takeRejectedTrade = async(req, res, from)=>{
                 createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate, margin: 0
 
             });
-            console.log("margincall saving")
             await algoTrader.save();
         } catch (e) {
             console.log("error saving margin call", e);
@@ -882,13 +857,11 @@ const takeRejectedTrade = async(req, res, from)=>{
                 createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate, margin: 0
 
             });
-            console.log("margincall saving")
             await algoTrader.save();
         } catch (e) {
             console.log("error saving margin call", e);
         }
 
-        //console.log("sending response from authorise trade");
         return res.status(401).json({ status: 'Failed', message: 'You do not have sufficient funds to take this trade. Please try with smaller lot size.' });
     }
     if(from === battle){
@@ -905,7 +878,6 @@ const takeRejectedTrade = async(req, res, from)=>{
                 createdBy: req.user._id, trader: req.user._id, amount: 0, trade_time: myDate, margin: 0
 
             });
-            console.log("margincall saving")
             await algoTrader.save();
         } catch (e) {
             console.log("error saving margin call", e);
@@ -938,7 +910,6 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
         console.log("errro fetching pnl 2", e);
     }
 
-    console.log(todayPnlData)
     const data = await getKiteCred.getAccess();
     const netPnl = await calculateNetPnl(req, todayPnlData, data );
     const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
@@ -1221,8 +1192,6 @@ exports.fundCheckStock = async (req, res, next) => {
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
-
-    console.log(req.body)
 
     try {
         if(Product === "MIS"){

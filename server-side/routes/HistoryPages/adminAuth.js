@@ -139,6 +139,7 @@ const NewSchool = require("../../models/School/newSchool");
 const City = require("../../models/City/city");
 const {getInfluencerUsers} = require('../../controllers/influencer/influencerController')
 const { getIOValue } = require('../../marketData/socketio');
+const {autoCreate} = require('../../controllers/AutoCreate');
 
 // client8.connect()
 // .then(async (res) => {
@@ -148,6 +149,11 @@ const { getIOValue } = require('../../marketData/socketio');
 // .catch((err) => {
 //     console.log("redis not connected", err)
 // })
+
+router.get("/date", async (req, res) => {
+  await autoCreate()
+  res.send('ok');
+});
 
 router.get("/influencerUser", async (req, res) => {
   // await client8.connect();
@@ -4544,7 +4550,7 @@ router.get("/updateInstrumentStatusRebuild", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2024-04-09T20:00:00.000+00:00"
+  let expiryDate = "2024-04-11T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

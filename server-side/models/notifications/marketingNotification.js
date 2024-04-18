@@ -59,6 +59,9 @@ const marketingNotificationSchema = new Schema({
         enum:['en','hi'],
         default:'en',
     },
+    mobilesFile:{
+        type:String,
+    },
     createdOn:{
         type: Date,
         required : true,

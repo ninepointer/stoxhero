@@ -16,8 +16,8 @@ const Battle = require("../../models/battle/battle");
 const MarketingNotification = require("../../models/notifications/marketingNotification");
 
 exports.createNotificationGroup = async(req,res) => {
-    console.log("createNotificationGroup")
-    const {criteria, notificationGroupName, status} = req.body;
+
+  const {criteria, notificationGroupName, status} = req.body;
     try{
         const users = await getUsersFromCriteria(criteria);
         const group = await NotificationGroup.create({

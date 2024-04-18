@@ -11,7 +11,6 @@ const getInstrumentTicksHistoryData = async () => {
   return new Promise(async (resolve, reject) => { 
     try{
       const data = await getKiteCred.getAccess();
-      console.log("in ticks")
       let date = new Date();
       let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
       let todayDate1 = todayDate + "T00:00:00.000Z";
@@ -43,7 +42,6 @@ const getInstrumentTicksHistoryData = async () => {
         let {instrumentToken, symbol} = instrumentDetail[i]._id;
   
         const historyData = await HistoryData.find({instrumentToken: instrumentToken, timestamp: {$regex:todayDate}})
-        console.log("above if")
         if(historyData.length === 0){
           console.log("in if")
           const api_key = data.getApiKey;
