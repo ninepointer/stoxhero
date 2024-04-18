@@ -98,7 +98,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
         return new Error(err);
       });
   }
@@ -131,7 +130,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
         return new Error(err);
       });
   }
@@ -160,7 +158,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
         return new Error(err);
       });
     // }

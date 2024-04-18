@@ -81,7 +81,7 @@ function TraderwiseTraderPNL({ socket }) {
       });
 
     socket.on("tick", (data) => {
-      //console.log("this is live market data", data);
+
       setMarketData((prevInstruments) => {
         const instrumentMap = new Map(
           prevInstruments.map((instrument) => [
@@ -107,7 +107,6 @@ function TraderwiseTraderPNL({ socket }) {
           setAllTrade(res.data.data);
         })
         .catch((err) => {
-          console.error(err);
           // Normally, just logging the error or setting some state to indicate an error is enough.
           // Throwing an error here won't be caught by anything since this is an asynchronous callback.
         });

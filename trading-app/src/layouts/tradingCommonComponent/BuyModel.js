@@ -125,12 +125,10 @@ const BuyModel = ({
   useEffect(() => {
     socket?.on(`sendResponse${trader.toString()}`, (data) => {
       // render ? setRender(false) : setRender(true);
-      console.log("response", data.status, data.message);
       openSuccessSB(data.status, data.message);
     });
   }, []);
 
-  console.log(buyFormDetails.price, Number(ltp));
   const [value, setValue] = React.useState("NRML");
   buyFormDetails.Product = value;
   // const handleChange = (event) => {
@@ -404,7 +402,6 @@ const BuyModel = ({
       endPoint = "battleTrade";
     }
 
-    console.log("module", module);
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
       method: "POST",
       credentials: "include",

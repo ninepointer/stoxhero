@@ -114,7 +114,6 @@ export default function Dashboard() {
         })
         .catch((error) => {
           //   Handle errors here
-          console.error(error);
         });
     }
 
@@ -143,7 +142,6 @@ export default function Dashboard() {
         })
         .catch((error) => {
           //   Handle errors here
-          console.error(error);
         });
     }
 
@@ -175,7 +173,6 @@ export default function Dashboard() {
       })
       .catch((error) => {
         //   Handle errors here
-        console.error(error);
       });
   }
 

@@ -110,10 +110,6 @@ function ReferralProduct({ setAffiliateSummery }) {
         
         // combine date and time string with suffix
         const finalFormattedDate = `${dayOfMonth}${suffix} ${formattedDate?.split(" ")[0]} ${getYear}, ${date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}`;
-        
-        // console.log(finalFormattedDate); // Output: "3rd April, 9:27 PM"
-        
-     
 
       return finalFormattedDate
     }

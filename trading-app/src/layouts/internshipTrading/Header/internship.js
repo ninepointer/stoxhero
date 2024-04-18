@@ -113,8 +113,6 @@ export default function TenXSubscriptions({
           withCredentials: true,
         }
       );
-      console.log(response.data);
-      console.log(response.data.size, response.data.type);
       const blob = new Blob([response.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -124,7 +122,6 @@ export default function TenXSubscriptions({
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      console.error("Error generating certificate:", error);
     }
   };
   useEffect(() => {
@@ -178,7 +175,6 @@ export default function TenXSubscriptions({
         setServerTime(res.data.data);
       })
       .catch((e) => {
-        console.log(e);
       });
   }, []);
 
@@ -220,7 +216,6 @@ export default function TenXSubscriptions({
         `${baseUrl}api/v1/internbatch/currentinternship`,
         { withCredentials: true }
       );
-      console.log("Current Batch", res?.data?.data);
       if (Object.keys(res?.data?.data)?.length !== 0) {
         setBatchId(res?.data?.data?._id);
         setBatchEndDate(res?.data?.data?.batchEndDate);
@@ -234,7 +229,6 @@ export default function TenXSubscriptions({
         `${baseUrl}api/v1/internbatch/eligibleforcertificate`,
         { withCredentials: true }
       );
-      console.log("Batch certificate", res?.data?.batches);
       if (res?.data?.batches) {
         setCertificateBatches(res.data.batches);
       }
@@ -279,7 +273,6 @@ export default function TenXSubscriptions({
           },
         })
         .then((api1Response) => {
-          // console.log(api1Response.data.data)
           setMyOverallInternshipPNL(api1Response.data.data);
         });
     }
@@ -327,14 +320,7 @@ export default function TenXSubscriptions({
   const endDate = moment(new Date().toString()).format("YYYY-MM-DD");
   let workingDays = calculateWorkingDays(startDate, endDate);
   workingDays = workingDays - holiday;
-  console.log(
-    "workingDays",
-    myTradingDays,
-    workingDays,
-    holiday,
-    startDate,
-    endDate
-  );
+
   tradeData.map((subelem, index) => {
     let obj = {};
     let liveDetail = marketDetails.marketData.filter((elem) => {
@@ -591,8 +577,6 @@ export default function TenXSubscriptions({
       });
   }, []);
 
-  // console.log("cashBalance", cashBalance)
-  // console.log("User Details: ",getDetails?.userDetails?.internshipBatch[0]?.batchName)
 
   return (
     <MDBox

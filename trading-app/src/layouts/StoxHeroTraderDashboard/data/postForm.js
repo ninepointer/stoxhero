@@ -77,7 +77,6 @@ const PostForm = ({ postCount, setPostCount }) => {
         setSubmitted(true);
       }, 500);
       setFormState((prevState) => ({ ...prevState, post: "" }));
-      console.log("Post Count", data?.count);
       setPostCount(data?.count);
     }
   }
@@ -100,7 +99,6 @@ const PostForm = ({ postCount, setPostCount }) => {
       msgDetail.color = "error";
       msgDetail.icon = "warning";
     }
-    // console.log(msgDetail)
     setMsgDetail(msgDetail);
     setSuccessSB(true);
   };

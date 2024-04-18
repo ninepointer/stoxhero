@@ -74,7 +74,6 @@ function Header({
     window.webengage.track("tenx_tutorial_clicked", {
       user: getDetails?.userDetails?._id,
     });
-    console.log("Inside Capture Tutorial View");
     const res = await fetch(`${baseUrl}api/v1/tenX/tenxtutorialview`, {
       method: "POST",
       credentials: "include",
@@ -228,7 +227,6 @@ function Header({
                   flexDirection="column"
                 >
                   {subscription?.features?.map((e) => {
-                    console.log(e?.description);
                     return (
                       <MDBox
                         mt={0.5}

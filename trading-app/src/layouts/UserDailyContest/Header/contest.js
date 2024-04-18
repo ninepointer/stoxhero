@@ -68,7 +68,6 @@ export default function LabTabs() {
   });
 
   const handleClick = (e) => {
-    console.log(e);
     setClicked(e);
   };
 

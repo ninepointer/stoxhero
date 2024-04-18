@@ -83,7 +83,6 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
   };
 
   async function captureIntent() {
-    // console.log(getDetails)
     handleClickOpen();
     const res = await fetch(`${baseUrl}api/v1/tenX/capturepurchaseintent`, {
       method: "POST",
@@ -136,7 +135,7 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
       }),
     });
     const dataResp = await res.json();
-    // console.log(dataResp);
+
     if (dataResp.status === "error" || dataResp.error || !dataResp) {
       openSuccessSB("error", dataResp.message);
     } else {
@@ -145,7 +144,7 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
         thanksMessege:
           "Congrats you have renewed your TenX trading subscription",
       });
-      console.log(dataResp.data);
+
       setUpdatedUser(dataResp.data);
       // openSuccessSB("success", dataResp.message)
     }
@@ -235,9 +234,9 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
       )
     : 0;
   const subs_actualAmount = (amount * setting.gstPercentage) / 100;
-  // console.log('amounts', subs_amount, amount, subs_actualAmount);
+
   const initiatePayment = async () => {
-    console.log("initiating");
+
     try {
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
@@ -253,11 +252,11 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
         },
         { withCredentials: true }
       );
-      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
     } catch (e) {
-      console.log(e);
+
     }
   };
   const calculateDiscount = (
@@ -305,7 +304,7 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
         },
         { withCredentials: true }
       );
-      console.log("verified code", res?.data?.data);
+
       if (res.status == 200) {
         setVerifiedCode(code);
         setInvalidCode("");
@@ -320,7 +319,7 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
         setInvalidCode(res?.data?.message);
       }
     } catch (e) {
-      console.log("verified error", e);
+
       if (e.name == "AxiosError") {
         setInvalidCode(e?.response?.data?.message);
       }

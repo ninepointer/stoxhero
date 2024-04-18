@@ -28,12 +28,10 @@ const ActiveTutorialCategory = ({ type }) => {
     Promise.all([call1])
       .then(([api1Response]) => {
         // Process the responses here
-        console.log(api1Response.data.data);
         setActiveTutorialCateogry(api1Response.data.data);
       })
       .catch((error) => {
         // Handle errors here
-        console.error(error);
       });
   }, []);
   return (

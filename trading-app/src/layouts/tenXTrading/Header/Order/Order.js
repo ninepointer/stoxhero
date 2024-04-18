@@ -44,10 +44,8 @@ function Orders({ subscriptionId, socket, updatePendingOrder }) {
     let url =  `tenX/my/todayorders/${subscriptionId}`;
     useEffect(() => {
         setIsLoading(true)
-        console.log("Inside Use Effect")
         axios.get(`${apiUrl}${url}?skip=${skip}&limit=${limitSetting}`, { withCredentials: true })
             .then((res) => {
-                console.log(res.data)
                 setData(res.data.data);
                 setCount(res.data.count);
                 setIsLoading(false)
@@ -86,14 +84,12 @@ function Orders({ subscriptionId, socket, updatePendingOrder }) {
             },
         })
             .then((res) => {
-                console.log("Orders:", res.data)
                 setData(res.data.data)
                 setCount(res.data.count)
                 setTimeout(() => {
                     setIsLoading(false)
                 }, 500)
             }).catch((err) => {
-                console.log(err)
                 setIsLoading(false)
                 return new Error(err);
             })
@@ -101,10 +97,8 @@ function Orders({ subscriptionId, socket, updatePendingOrder }) {
 
     function nextHandler() {
         if (skip + limitSetting >= count) {
-            console.log("inside skip", count, skip + limitSetting)
             return;
         }
-        console.log("inside next handler")
         setSkip(prev => prev + limitSetting);
         setData([]);
         setIsLoading(true)
@@ -117,14 +111,12 @@ function Orders({ subscriptionId, socket, updatePendingOrder }) {
             },
         })
             .then((res) => {
-                console.log("orders", res.data)
                 setData(res.data.data)
                 setCount(res.data.count)
                 setTimeout(() => {
                     setIsLoading(false)
                 }, 500)
             }).catch((err) => {
-                console.log(err)
                 setIsLoading(false)
                 return new Error(err);
             })

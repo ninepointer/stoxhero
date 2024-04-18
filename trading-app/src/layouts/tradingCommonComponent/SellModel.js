@@ -69,7 +69,6 @@ const SellModel = ({
     return total; // return the accumulator if the condition is false
   }, 0);
 
-  console.log(runningLotsSymbol);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const { render, setRender } = useContext(renderContext);
@@ -390,7 +389,6 @@ const SellModel = ({
       endPoint = "battleTrade";
     }
 
-    console.log("module", module);
     const res = await fetch(`${baseUrl}api/v1/${endPoint}`, {
       method: "POST",
       credentials: "include",

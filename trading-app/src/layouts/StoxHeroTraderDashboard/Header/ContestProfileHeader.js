@@ -14,7 +14,6 @@ import { CircularProgress } from "@mui/material";
 export default function Dashboard() {
   const location = useLocation();
   const userData = location?.state?.data;
-  console.log("User Data:", userData);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   let [contestProfile, setContestProfile] = useState([]);
@@ -61,7 +60,6 @@ export default function Dashboard() {
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error(error);
         setIsLoading(false);
       });
   }, []);

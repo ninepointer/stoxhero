@@ -84,7 +84,6 @@ function InstrumentDetails({
         return new Error(err);
       });
     socket?.on("tick-room", (data) => {
-      console.log("this is tick data", data);
       marketDetails.setMarketData((prevInstruments) => {
         const instrumentMap = new Map(
           prevInstruments.map((instrument) => [
@@ -99,13 +98,9 @@ function InstrumentDetails({
       });
     });
 
-    // socket?.on('equity-ticks', (data)=>{
-    //   console.log(data)
-    // })
   }, []);
 
   useEffect(() => {
-    // console.log("InfinityTraderRole", InfinityTraderRole , getDetail.userDetails.role.roleName)
     axios
       .get(`${baseUrl}api/v1/readsetting`, { withCredentials: true })
       .then((res) => {

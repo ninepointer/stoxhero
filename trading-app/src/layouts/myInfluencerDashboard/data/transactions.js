@@ -61,7 +61,6 @@ function ReferralProduct({showDetailClicked, start, end, affiliateData }) {
         setIsLoading(true)
         axios.get(`${apiUrl}affiliate/${getDetails.userDetails.role.roleName===adminRole ? "admintransactions" : "mytransactions"}?startDate=${start}&endDate=${end}&skip=${skip}&limit=${limitSetting}&affiliateId=${affiliateData?.affiliateId}&affiliateType=${affiliateData?.affiliateType}&affiliatePrograme=${affiliateData?.affiliatePrograme}`, { withCredentials: true })
             .then((res) => {
-                // console.log(res.data)
                 setData(res.data.data);
                 setCount(res.data.count);
                 setIsLoading(false)
@@ -97,7 +96,6 @@ function ReferralProduct({showDetailClicked, start, end, affiliateData }) {
                     setIsLoading(false)
                 }, 500)
             }).catch((err) => {
-                console.log(err)
                 setIsLoading(false)
                 return new Error(err);
             })
@@ -128,7 +126,6 @@ function ReferralProduct({showDetailClicked, start, end, affiliateData }) {
                     setIsLoading(false)
                 }, 500)
             }).catch((err) => {
-                console.log(err)
                 setIsLoading(false)
                 return new Error(err);
             })

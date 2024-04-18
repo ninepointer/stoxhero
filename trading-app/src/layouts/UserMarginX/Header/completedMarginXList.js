@@ -84,7 +84,6 @@ function Header({ marginX }) {
           setShowDownloadButton(true);
         })
         .catch((error) => {
-          console.error("Error capturing screenshot:", error);
           setShowDownloadButton(true);
         });
     }, 500);
@@ -104,8 +103,6 @@ function Header({ marginX }) {
       date.getHours(),
       date.getMinutes()
     )}`;
-
-    // console.log(formattedDate);
 
     // Helper function to get the month name
     function getMonthName(month) {

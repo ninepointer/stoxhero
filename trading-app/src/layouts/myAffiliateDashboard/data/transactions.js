@@ -97,7 +97,6 @@ function ReferralProduct({showDetailClicked, start, end, affiliateData }) {
                     setIsLoading(false)
                 }, 500)
             }).catch((err) => {
-                console.log(err)
                 setIsLoading(false)
                 return new Error(err);
             })
@@ -128,7 +127,6 @@ function ReferralProduct({showDetailClicked, start, end, affiliateData }) {
                     setIsLoading(false)
                 }, 500)
             }).catch((err) => {
-                console.log(err)
                 setIsLoading(false)
                 return new Error(err);
             })

@@ -56,7 +56,6 @@ function OnGoingContests() {
       })
       .catch((error) => {
         // Handle errors here
-        console.error(error);
       });
   }, []);
 
@@ -74,8 +73,6 @@ function OnGoingContests() {
       date.getHours(),
       date.getMinutes()
     )}`;
-
-    console.log(formattedDate);
 
     // Helper function to get the month name
     function getMonthName(month) {

@@ -19,8 +19,8 @@ import { userContext } from "../../../AuthContext";
 
 
 const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
-    console.log('modal')
-    const style = {
+
+  const style = {
       position: 'absolute',
       top: '50%',
       left: '50%',
@@ -123,7 +123,7 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
               return openErrorSB('Maintain minimum wallet balance', `Your minimum wallet balance should be ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(minWalletBalance ? minWalletBalance : 0)}, you can withdraw only upto ₹${new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(walletBalance - minWalletBalance ? walletBalance - minWalletBalance : 0)}`) ;
             }
             const res = await axios.post(`${apiUrl}withdrawals`, {amount}, {withCredentials: true});
-            console.log(res.data, res.status, res.statusCode);
+
             if(res.data.status == 'success'){
                 openSuccessSB('Withdrawal Request Successful', 'Withdrawal Request submitted.')
                 handleClose();
@@ -131,8 +131,8 @@ const WithDrawalModal = ( {open, handleClose, walletBalance}) => {
               openErrorSB('Error', res.data.message)
             }    
         }catch(e){
-            console.log(e.response.data);
-            openErrorSB('Error', e.response.data.message);
+
+          openErrorSB('Error', e.response.data.message);
         }
         //check if user has kyc verified
         

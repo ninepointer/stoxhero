@@ -35,8 +35,6 @@ const MyPortfolioCard = ({ type }) => {
     Promise.all([call1, call2])
       .then(([api1Response, api2Response]) => {
         // Process the responses here
-        console.log(api1Response.data.data);
-        console.log(api2Response.data);
         setMyPortfolio(api1Response.data.data);
         setPortfolioPnl(api2Response.data);
       })

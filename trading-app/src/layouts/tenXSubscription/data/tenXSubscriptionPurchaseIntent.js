@@ -33,13 +33,11 @@ export default function SubscriptionPurchaseIntent({
     Promise.all([call1])
       .then(([api1Response]) => {
         // Process the responses here
-        console.log(api1Response.data.data);
         setTenXSubsPurchaseIntent(api1Response.data.data);
         setPurchaseIntentCount(api1Response.data.count);
       })
       .catch((error) => {
         // Handle errors here
-        console.error(error);
       });
   }
 

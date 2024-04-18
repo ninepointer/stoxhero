@@ -27,7 +27,6 @@ export default function EnrolledUsers({ course, isAdmin = false }) {
 
   course?.enrollments?.map((elem, index) => {
     let obj = {};
-    console.log("elem is", elem);
 
     obj.name = (
       <MDTypography

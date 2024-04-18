@@ -26,7 +26,7 @@ function Header() {
   let page = "TenXTrading";
   let pageLink = "tenxtrading";
   async function capturePageView() {
-    console.log("Page:", page);
+
     await fetch(`${baseUrl}api/v1/pageview/${page}/${pageLink}`, {
       method: "POST",
       credentials: "include",

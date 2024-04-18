@@ -26,7 +26,6 @@ function Tables() {
     ReactGA.pageview(window.location.pathname)
   }, []);
 
-  console.log("trading window", location.state, location.state.name.includes("muhurat"))
   return (
     <>
     <DashboardLayout>

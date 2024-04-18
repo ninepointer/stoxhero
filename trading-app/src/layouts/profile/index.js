@@ -33,16 +33,7 @@ function Overview() {
       },
     });
   }
-  //  useEffect(()=>{
-  //        axios.get(`${baseUrl}api/v1/readparticularuserdetails/${getDetails.userDetails.email}`)
-  //       .then((res)=>{
-  //           console.log(res.data);
-  //           setuserDetail(res.data)
-  //       }).catch((err)=>{
-  //           //window.alert("Server Down");
-  //           return new Error(err);
-  //       })
-  //   },[getDetails])
+
 
   return (
     <DashboardLayout>

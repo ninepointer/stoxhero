@@ -38,7 +38,6 @@ export default function AfiliateBasicSummary({affiliateData, setReferralData}) {
         })
         .catch((error) => {
           //   Handle errors here
-          console.error(error);
         });
     }
 

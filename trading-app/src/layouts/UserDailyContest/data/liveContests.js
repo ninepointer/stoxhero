@@ -66,11 +66,6 @@ export default function LabTabs({ setClicked }) {
     return elem?.entryFee !== 0;
   });
 
-  // const handleClick = (e) => {
-  //     console.log(e)
-  //     setClicked(e)
-  //   };
-
   return (
     <MDBox
       bgColor="dark"

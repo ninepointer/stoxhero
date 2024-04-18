@@ -24,8 +24,6 @@ const tenx = chartData?.map((e)=>{
   return (e?.totalTenxEarnings)?.toFixed(0)
 })
 
-// console.log(dates, testzone, total, tenx)
-
 useEffect(() => {
   const chartInstance = echarts.init(chartRef.current);
 

@@ -52,7 +52,6 @@ const LeaderBoard = ({id}) => {
             })
             .catch((error) => {
                 // Handle errors here
-                console.error(error);
                 setIsLoading(true)
             });
     }, [])

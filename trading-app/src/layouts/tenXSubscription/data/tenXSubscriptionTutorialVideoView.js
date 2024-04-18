@@ -12,7 +12,6 @@ export default function SubscriptionTutorialVideoView({
   tutorialVideoViewCount,
   setTutorialVideoViewCount,
 }) {
-  console.log("Subscription", tenXSubscription);
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [tenXSubsTutorialView, setTenXSubsTutorialView] = React.useState([]);
@@ -31,13 +30,12 @@ export default function SubscriptionTutorialVideoView({
     Promise.all([call1])
       .then(([api1Response]) => {
         // Process the responses here
-        console.log(api1Response.data.data);
+
         setTenXSubsTutorialView(api1Response.data.data);
         setTutorialVideoViewCount(api1Response.data.count);
       })
       .catch((error) => {
         // Handle errors here
-        console.error(error);
       });
   }
 

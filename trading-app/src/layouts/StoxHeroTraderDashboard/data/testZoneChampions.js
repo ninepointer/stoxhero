@@ -25,7 +25,6 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 function Summary({lastPaidContests, lastContestDate}) {
-    console.log(lastPaidContests)
     const navigate = useNavigate();
     function TruncatedName(name) {
         const originalName = name;

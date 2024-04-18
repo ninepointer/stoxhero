@@ -161,13 +161,7 @@ function OverallGrid({
           : subelem.amount;
       let netupdatedValue = updatedValue - Number(subelem.brokerage);
       totalGrossPnl += updatedValue;
-      console.log(
-        "updatedValue",
-        updatedValue,
-        subelem.lots,
-        subelem.amount,
-        liveDetail[0]?.last_price
-      );
+      
       totalTransactionCost += Number(subelem.brokerage);
       // let lotSize = (subelem._id.symbol)?.includes("BANKNIFTY") ? 25 : 50;
       // let maxLot = (getDetails?.userDetails?.role?.roleName === infinityTrader) ? 900 : lotSize*36;

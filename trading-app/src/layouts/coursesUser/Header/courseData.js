@@ -59,7 +59,6 @@ const Courses = () => {
             })
             .catch((error) => {
                 // Handle errors here
-                console.error(error);
             });
     }, [])
 

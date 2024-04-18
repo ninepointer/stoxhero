@@ -76,7 +76,6 @@ export default function ChooseAfiliate({setAffiliateData}) {
         name: affiliateId[0]?.affiliateName
       });
     }
-    // console.log("portfolioId", portfolioId, formState)
   };
   
   
@@ -98,7 +97,6 @@ export default function ChooseAfiliate({setAffiliateData}) {
       })
       .catch((error) => {
         //   Handle errors here
-        console.error(error);
       });
 
   }, [])
@@ -126,7 +124,6 @@ export default function ChooseAfiliate({setAffiliateData}) {
       })
       .catch((error) => {
         //   Handle errors here
-        console.error(error);
       });
 
   }, [selectedType])
@@ -152,7 +149,6 @@ export default function ChooseAfiliate({setAffiliateData}) {
       })
       .catch((error) => {
         //   Handle errors here
-        console.error(error);
       });
 
   }, [selectedPrograme])

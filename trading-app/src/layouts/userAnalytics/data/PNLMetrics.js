@@ -16,8 +16,6 @@ export default function PNLMetrics({traderType, endpoint}) {
   const [overview, setOverview] = React.useState({});
   const todayPnl = useContext(NetPnlContext); 
 
-  console.log("todayPnl", todayPnl)
-
   const getOverview = async()=>{
     const res = await axios.get(`${apiUrl}analytics/${endpoint}/myoverview`, {withCredentials: true});
     setOverview(prev=>res.data.data[0]);
@@ -26,8 +24,6 @@ export default function PNLMetrics({traderType, endpoint}) {
   useEffect(()=>{
     getOverview();
   },[endpoint])
-
-  console.log("overview", overview)
 
   return (
    

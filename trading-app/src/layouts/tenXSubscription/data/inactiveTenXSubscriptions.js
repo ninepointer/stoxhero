@@ -25,7 +25,6 @@ export default function ActiveTenXSubscriptions() {
     });
     let data = await res.json();
     setTenX(data?.data);
-    console.log(data?.data);
   }
 
   useEffect(() => {

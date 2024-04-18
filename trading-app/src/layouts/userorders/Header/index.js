@@ -55,7 +55,6 @@ function Header() {
 
   const [data, setData] = useState([]);
   const getDetails = useContext(userContext);
-  console.log("selected", selectedSubscription, userSubs);
   let todayColor = view === "today" ? "warning" : "light";
   let historyColor = view === "history" ? "warning" : "light";
   let todayInfinityColor = infinityView === "today" ? "warning" : "light";
@@ -105,7 +104,7 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+
         return new Error(err);
       });
   }, [getDetails, view, paperurl1, paperurl2]);
@@ -139,7 +138,7 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+
         return new Error(err);
       });
   }
@@ -174,7 +173,7 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+
         return new Error(err);
       });
   }
@@ -207,7 +206,7 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+
         return new Error(err);
       });
   }
@@ -240,7 +239,7 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+
         return new Error(err);
       });
   }
@@ -271,7 +270,7 @@ function Header() {
           setIsLoading(false);
         })
         .catch((err) => {
-          console.log(err);
+
           return new Error(err);
         });
     } else if (getDetails.userDetails.role.roleName == InfinityTraderRole) {
@@ -295,7 +294,7 @@ function Header() {
           setIsLoading(false);
         })
         .catch((err) => {
-          console.log(err);
+
           return new Error(err);
         });
     }
@@ -325,7 +324,7 @@ function Header() {
           setIsLoading(false);
         })
         .catch((err) => {
-          console.log(err);
+
           return new Error(err);
         });
     }
@@ -359,7 +358,7 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+
         return new Error(err);
       });
   }
@@ -394,7 +393,7 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+
         return new Error(err);
       });
   }

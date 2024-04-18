@@ -233,7 +233,6 @@ export default function TenXSubsDetails() {
         setSaving(false);
         setEditing(false);
       }, 500);
-      console.log("entry succesfull");
     }
   }
 
@@ -815,7 +814,6 @@ export default function TenXSubsDetails() {
                     }
                     disabled={(isSubmitted || id) && (!editing || saving)}
                     onChange={(e) => {
-                      console.log("checkbox", e.target.checked, e.target.value);
                       setFormState((prevState) => ({
                         ...prevState,
                         tdsRelief: e.target.checked,

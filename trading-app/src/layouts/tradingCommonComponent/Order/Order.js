@@ -50,10 +50,8 @@ function Orders({ id, socket, updatePendingOrder, from }) {
               from === marginX && `marginxtrade/${id}/my/todayorders`
     useEffect(() => {
         setIsLoading(true)
-        console.log("Inside Use Effect")
         axios.get(`${apiUrl}${url}?skip=${skip}&limit=${limitSetting}`, { withCredentials: true })
             .then((res) => {
-                console.log(res.data)
                 setData(res.data.data);
                 setCount(res.data.count);
                 setIsLoading(false)
@@ -92,7 +90,6 @@ function Orders({ id, socket, updatePendingOrder, from }) {
             },
         })
             .then((res) => {
-                console.log("Orders:", res.data)
                 setData(res.data.data)
                 setCount(res.data.count)
                 setTimeout(() => {
@@ -107,10 +104,8 @@ function Orders({ id, socket, updatePendingOrder, from }) {
 
     function nextHandler() {
         if (skip + limitSetting >= count) {
-            console.log("inside skip", count, skip + limitSetting)
             return;
         }
-        console.log("inside next handler")
         setSkip(prev => prev + limitSetting);
         setData([]);
         setIsLoading(true)
@@ -123,7 +118,6 @@ function Orders({ id, socket, updatePendingOrder, from }) {
             },
         })
             .then((res) => {
-                console.log("orders", res.data)
                 setData(res.data.data)
                 setCount(res.data.count)
                 setTimeout(() => {

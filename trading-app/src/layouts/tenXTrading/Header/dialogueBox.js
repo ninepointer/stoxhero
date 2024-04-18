@@ -40,7 +40,7 @@ export default function Dialogue({
   checkPayment,
   allowRenewal,
 }) {
-  // console.log("props", amount, name, id, walletCash)
+
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
   const settingData = React.useContext(settingContext);
@@ -220,7 +220,7 @@ export default function Dialogue({
   const subs_actualAmount = (amount * setting.gstPercentage) / 100;
 
   const initiatePayment = async () => {
-    console.log("initiating");
+
     try {
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
@@ -232,11 +232,11 @@ export default function Dialogue({
         },
         { withCredentials: true }
       );
-      console.log(res?.data?.data?.instrumentResponse?.redirectInfo?.url);
+
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
     } catch (e) {
-      console.log(e);
+
     }
   };
 

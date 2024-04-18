@@ -36,7 +36,6 @@ const Courses = () => {
                 setTimeout((() => setIsLoading(false)), 500);
             })
             .catch((error) => {
-                console.error(error);
             });
     }
 
