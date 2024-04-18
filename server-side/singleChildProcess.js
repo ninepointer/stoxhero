@@ -136,8 +136,6 @@ async function singleProcess() {
             });
 
             socket.on('disconnect', () => {
-                console.log("disconnecting socket")
-
                 if (interval) clearInterval(interval);
                 client.expire(socket.id, 10);
             })
