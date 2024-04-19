@@ -6,7 +6,9 @@ const {createMarginX, getAllMarginXs, getCompletedMarginXs, todaysMarinX, getCan
     participateUsers, copyAndShare, purchaseIntent, deductMarginXAmount, findMarginXByName, getCompletedMarginXsForReport,
     getUserLiveMarginXs, getUserUpcomingMarginXs, getUserCompletedMarginXs, getMarginXAllUsers,getMarginXByIdUser} = require('../../controllers/marginX/marginxController');
 const restrictTo = require('../../authentication/authorization');
+const user = require('./marginxUserWeb');
 
+router.use('/user', user);
 router.route('/').post(Authenticate, restrictTo('Admin', 'SuperAdmin'), createMarginX).
     get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAllMarginXs);
 router.get('/upcoming', Authenticate, restrictTo('Admin', 'SuperAdmin'), getUpcomingMarginXs );

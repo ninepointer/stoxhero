@@ -36,7 +36,7 @@ export default function LabTabs({ setClicked }) {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(`${baseUrl}api/v1/dailycontest/contests/userupcoming`, {
+      .get(`${baseUrl}api/v1/dailycontest/user/upcoming`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",

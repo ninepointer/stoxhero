@@ -4,22 +4,15 @@ import { CircularProgress, Divider, Grid } from "@mui/material";
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import MDButton from "../../../components/MDButton";
-// import { Link } from "react-router-dom"
 import axios from "axios";
-// import SchoolIcon from '@mui/icons-material/School';
 import WinnerImage from "../../../assets/images/cup-image.png";
-// import SportsScoreIcon from '@mui/icons-material/SportsScore';
-// import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-// import { io } from 'socket.io-client';
 import { socketContext } from "../../../socketContext";
 import CompletedMarginXList from "../Header/completedMarginXList";
 import { userContext } from "../../../AuthContext";
+import { apiUrl } from "../../../constants/constants";
 
 export default function LabTabs({ setClicked }) {
   const [isLoading, setIsLoading] = useState(false);
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  // let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   const socket = useContext(socketContext);
   let [showPay, setShowPay] = useState(true);
   const [isInterested, setIsInterested] = useState(false);
@@ -33,7 +26,7 @@ export default function LabTabs({ setClicked }) {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(`${baseUrl}api/v1/marginx/usercompleted`, {
+      .get(`${apiUrl}marginxs/user/completed`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",

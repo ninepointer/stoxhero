@@ -37,7 +37,7 @@ export default function LabTabs({ setClicked }) {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(`${baseUrl}api/v1/marginx/userlive`, {
+      .get(`${baseUrl}api/v1/marginxs/user/live`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
