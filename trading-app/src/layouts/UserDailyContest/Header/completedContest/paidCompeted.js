@@ -10,45 +10,11 @@ import WinnerImage from "../../../../assets/images/cup-image.png";
 import { Link, useNavigate } from "react-router-dom";
 import RewardTable from "../rulesAndRewardTable";
 import { userContext } from "../../../../AuthContext";
+import { apiUrl } from "../../../../constants/constants";
 
 function Header({ contest }) {
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  const [serverTime, setServerTime] = useState();
-  const [loading, setIsLoading] = useState(true);
-  let [pnlData, setPnlData] = useState([]);
   const navigate = useNavigate();
   const getDetails = useContext(userContext);
-
-  useEffect(() => {
-    if (serverTime) {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
-    }
-  }, [serverTime]);
-
-  useEffect(() => {
-    axios.get(`${baseUrl}api/v1/servertime`).then((res) => {
-      setServerTime(res.data.data);
-    });
-
-    axios
-      .get(`${baseUrl}api/v1/dailycontest/trade/allcontestPnl`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      })
-      .then((res) => {
-        setPnlData(res.data.data);
-      })
-      .catch((err) => {
-        return new Error(err);
-      });
-  }, []);
 
   function changeDateFormat(givenDate) {
     const date = new Date(givenDate);
@@ -101,7 +67,7 @@ function Header({ contest }) {
       contestId: id,
     });
     axios
-      .get(`${baseUrl}api/v1/dailycontest/trade/${id}/my/todayorders`, {
+      .get(`${apiUrl}dailycontest/trade/${id}/my/todayorders`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
@@ -132,7 +98,7 @@ function Header({ contest }) {
       contestId: id,
     });
     axios
-      .get(`${baseUrl}api/v1/dailycontest/contestleaderboard/${id}`, {
+      .get(`${apiUrl}dailycontest/contestleaderboard/${id}`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
@@ -205,7 +171,7 @@ function Header({ contest }) {
           <MDBox display="flex" justifyContent="center" alignItems="center">
             <Grid container xs={12} md={12} lg={12}>
               {contest.map((elem) => {
-                if (elem?.entryFee !== 0) {
+               // if (elem?.entryFee !== 0) {
                   let contestOn = [];
                   if (elem.isNifty) {
                     contestOn.push("NIFTY");
@@ -222,12 +188,12 @@ function Header({ contest }) {
 
                   contestOn.push(elem.contestExpiry.toUpperCase());
 
-                  const pnl = pnlData.filter((subelem) => {
-                    return (
-                      subelem?.contestId?.toString() === elem?._id?.toString()
-                    );
-                  });
-                  if (pnl[0]?.contestId) {
+                  // const pnl = pnlData.filter((subelem) => {
+                  //   return (
+                  //     subelem?.contestId?.toString() === elem?._id?.toString()
+                  //   );
+                  // });
+                  // if (pnl[0]?.contestId) {
                     return (
                       <Grid
                         py={1}
@@ -456,7 +422,7 @@ function Header({ contest }) {
                                     fontWeight: 600,
                                   }}
                                 >
-                                  RANK: {pnl[0]?.rank}
+                                  RANK: {elem?.rank}
                                 </MDTypography>
                               </MDBox>
                             </Grid>
@@ -523,17 +489,17 @@ function Header({ contest }) {
                                     color="light"
                                   >
                                     NET P&L:{" "}
-                                    {pnl[0]?.npnl >= 0
+                                    {elem?.npnl >= 0
                                       ? "+₹" +
                                         new Intl.NumberFormat(undefined, {
                                           minimumFractionDigits: 0,
                                           maximumFractionDigits: 0,
-                                        }).format(pnl[0]?.npnl)
+                                        }).format(elem?.npnl)
                                       : "-₹" +
                                         new Intl.NumberFormat(undefined, {
                                           minimumFractionDigits: 0,
                                           maximumFractionDigits: 0,
-                                        }).format(-pnl[0]?.npnl)}
+                                        }).format(-elem?.npnl)}
                                   </MDTypography>
                                 </MDBox>
                               </MDBox>
@@ -560,12 +526,12 @@ function Header({ contest }) {
                                     color="light"
                                   >
                                     PAYOUT:{" "}
-                                    {pnl[0]?.payoutAmount > 0
+                                    {elem?.payout > 0
                                       ? "₹" +
                                         new Intl.NumberFormat(undefined, {
                                           minimumFractionDigits: 0,
                                           maximumFractionDigits: 2,
-                                        }).format(pnl[0]?.payoutAmount)
+                                        }).format(elem?.payout)
                                       : "₹0"}
                                   </MDTypography>
                                 </MDBox>
@@ -597,7 +563,7 @@ function Header({ contest }) {
                                       new Intl.NumberFormat(undefined, {
                                         minimumFractionDigits: 0,
                                         maximumFractionDigits: 0,
-                                      }).format(pnl[0]?.portfolioValue)}
+                                      }).format(elem?.portfolioValue)}
                                   </MDTypography>
                                 </MDBox>
                               </MDBox>
@@ -682,8 +648,8 @@ function Header({ contest }) {
                         </MDButton>
                       </Grid>
                     );
-                  }
-                }
+                  // }
+               // }
               })}
             </Grid>
           </MDBox>

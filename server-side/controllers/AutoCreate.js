@@ -23,6 +23,17 @@ const autoTestZoneCreate = async () => {
     const startOfDay = today.clone().startOf('day').add(1, 'day');
     const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const holidays = await Holiday.find({holidayDate: {$gte: new Date(firstDayOfMonth)}});
+
+    const checkStartDate = await holiday(holidays, startOfDay, 'next');
+    const checkLiveDate = await holiday(holidays, startOfDay.clone().subtract(1, 'day'), 'back');
+
+    const startDate = checkStartDate.clone().add(4, 'hours');
+    const endDate = checkStartDate.clone().add(9, 'hours').add(50, 'minutes');
+    const liveDate = checkLiveDate.clone().add(4, 'hours');
+    const increaseTime = ['StoxHero Dream', 'StoxHero Blaze', 'StoxHero Target'];
+
+    const dateObject = new Date(startDate);
+    const dayName = dateObject.toLocaleDateString("en-US", { weekday: "long" });
     const testzoneDetail = [
         {
             "contestName": "NIFTY Heroes (Free)",
@@ -33,7 +44,10 @@ const autoTestZoneCreate = async () => {
             "featured": false,
             "portfolio": new ObjectId("64e1dc4f67b51a10f9dd1aff"),
             "maxParticipants": 1000,
-            "payoutCapPercentage": 0.25
+            "payoutCapPercentage": 0.25,
+            'isNifty': true,
+            'isBankNifty': false,
+            'isFinNifty': false
         },
         {
             "contestName": "BANKNIFTY Heroes (Free)",
@@ -44,29 +58,38 @@ const autoTestZoneCreate = async () => {
             "featured": false,
             "portfolio": new ObjectId("64e1dc4f67b51a10f9dd1aff"),
             "maxParticipants": 1000,
-            "payoutCapPercentage": 0.25
+            "payoutCapPercentage": 0.25,
+            'isNifty': false,
+            'isBankNifty': true,
+            'isFinNifty': false
         },
         {
-            "contestName": "Monday Mania",
-            "slug": "monday-mania",
+            "contestName": `${dayName} Mania`,
+            "slug": `${dayName?.toLowerCase()}-mania`,
             "entryFee": 50,
             "initialFee": 100,
             "payoutPercentage": 0.5,
             "featured": false,
             "portfolio": new ObjectId("64e1dc4f67b51a10f9dd1aff"),
             "maxParticipants": 800,
-            "payoutCapPercentage": 250
+            "payoutCapPercentage": 250,
+            'isNifty': true,
+            'isBankNifty': true,
+            'isFinNifty': true
         },
         {
-            "contestName": "Monday Trident",
-            "slug": "monday-trident",
+            "contestName": `${dayName} Trident`,
+            "slug": `${dayName?.toLowerCase()}-trident`,
             "entryFee": 100,
             "initialFee": 300,
             "payoutPercentage": 0.75,
             "featured": false,
             "portfolio": new ObjectId("64e1dc4f67b51a10f9dd1aff"),
             "maxParticipants": 500,
-            "payoutCapPercentage": 250
+            "payoutCapPercentage": 250,
+            'isNifty': true,
+            'isBankNifty': true,
+            'isFinNifty': true
         },
         {
             "contestName": "StoxHero Thunder",
@@ -77,7 +100,10 @@ const autoTestZoneCreate = async () => {
             "featured": false,
             "portfolio": new ObjectId("64e1dc4f67b51a10f9dd1aff"),
             "maxParticipants": 100,
-            "payoutCapPercentage": 250
+            "payoutCapPercentage": 250,
+            'isNifty': true,
+            'isBankNifty': true,
+            'isFinNifty': true
         },
         {
             "contestName": "StoxHero Star",
@@ -88,7 +114,10 @@ const autoTestZoneCreate = async () => {
             "featured": false,
             "portfolio": new ObjectId("64e1dc4f67b51a10f9dd1aff"),
             "maxParticipants": 10,
-            "payoutCapPercentage": 250
+            "payoutCapPercentage": 250,
+            'isNifty': true,
+            'isBankNifty': true,
+            'isFinNifty': true
         },
         {
             "contestName": "StoxHero Target",
@@ -99,7 +128,10 @@ const autoTestZoneCreate = async () => {
             "featured": false,
             "portfolio": new ObjectId("64e1dc4f67b51a10f9dd1aff"),
             "maxParticipants": 10,
-            "payoutCapPercentage": 250
+            "payoutCapPercentage": 250,
+            'isNifty': true,
+            'isBankNifty': true,
+            'isFinNifty': true
         },
         {
             "contestName": "StoxHero Blaze",
@@ -110,7 +142,10 @@ const autoTestZoneCreate = async () => {
             "featured": true,
             "portfolio": new ObjectId("65fb40297ccc4ca35f3096f5"),
             "maxParticipants": 10,
-            "payoutCapPercentage": 250
+            "payoutCapPercentage": 250,
+            'isNifty': true,
+            'isBankNifty': true,
+            'isFinNifty': true
         },
         {
             "contestName": "StoxHero Dream",
@@ -121,17 +156,12 @@ const autoTestZoneCreate = async () => {
             "featured": true,
             "portfolio": new ObjectId("64d90cc4e6eb301d7f34fdd2"),
             "maxParticipants": 10,
-            "payoutCapPercentage": 250
+            "payoutCapPercentage": 250,
+            'isNifty': true,
+            'isBankNifty': true,
+            'isFinNifty': true
         }
     ];
-
-    const checkStartDate = await holiday(holidays, startOfDay, 'next');
-    const checkLiveDate = await holiday(holidays, startOfDay.clone().subtract(1, 'day'), 'back');
-
-    const startDate = checkStartDate.clone().add(4, 'hours');
-    const endDate = checkStartDate.clone().add(9, 'hours').add(50, 'minutes');
-    const liveDate = checkLiveDate.clone().add(4, 'hours');
-    const increaseTime = ['StoxHero Dream', 'StoxHero Blaze', 'StoxHero Target'];
 
     const checkAlreadyExist = await TestZone.find({contestStartTime: {$gte: new Date(startDate), $lt: new Date(endDate)}});
     if(checkAlreadyExist.length > 0){
@@ -166,9 +196,9 @@ const autoTestZoneCreate = async () => {
         elem.createdOn = new Date();
         elem.contestExpiry = "Day";
         elem.payoutPercentageType = "Daily";
-        elem.isNifty = true;
-        elem.isBankNifty = false;
-        elem.isFinNifty = false;
+        elem.isNifty = elem.isNifty;
+        elem.isBankNifty = elem.isBankNifty;
+        elem.isFinNifty = elem.isFinNifty;
         elem.visibleToInfluencerUser = true;
         elem.product = new ObjectId("6517d48d3aeb2bb27d650de5");
     }

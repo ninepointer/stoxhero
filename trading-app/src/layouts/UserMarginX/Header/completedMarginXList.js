@@ -2,34 +2,21 @@ import { React, useState, useEffect, useContext } from "react";
 import { userContext } from "../../../AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Grid from "@mui/material/Grid";
-// import ShareIcon from '@mui/icons-material/Share';
 import ReactGA from "react-ga";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import html2canvas from "html2canvas";
-// Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
-
-// Images
-// import ContestCarousel from '../../../assets/images/target.png'
 import WinnerImage from "../../../assets/images/roi.png";
 import Timer from "../timer";
-// import ProgressBar from "../progressBar";
-// import { HiUserGroup } from 'react-icons/hi';
 import { Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
-// import PopupMessage from "../data/popupMessage";
-// import PopupTrading from "../data/popupTrading";
-// import Payment from "../data/payment"
-// import InfoIcon from '@mui/icons-material/Info';
 import ScreenshotMonitorIcon from "@mui/icons-material/ScreenshotMonitor";
+import { apiUrl } from "../../../constants/constants";
 
 function Header({ marginX }) {
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  // const [timeDifference, setTimeDifference] = useState([]);
   const getDetails = useContext(userContext);
   const navigate = useNavigate();
   const [showDownloadButton, setShowDownloadButton] = useState(true);
@@ -45,7 +32,7 @@ function Header({ marginX }) {
       marginxId: id,
     });
     axios
-      .get(`${baseUrl}api/v1/marginxtrade/${id}/my/allorders`, {
+      .get(`${apiUrl}marginxtrade/${id}/my/allorders`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",

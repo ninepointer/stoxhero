@@ -11,12 +11,15 @@ import PaidContest from "../Header/completedContest/paidCompeted";
 // import { Link } from "react-router-dom"
 import axios from "axios";
 import { userContext } from "../../../AuthContext";
+import { apiUrl } from "../../../constants/constants";
 
 export default function LabTabs() {
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [isLoading, setIsLoading] = useState(false);
   const [contest, setContest] = useState([]);
+  const [paidTestzone, setPaidTestzone] = useState([]);
+  const [freeTestzone, setFreeTestzone] = useState([]);
   const getDetails = useContext(userContext);
 
   useEffect(() => {
@@ -24,26 +27,17 @@ export default function LabTabs() {
     window.webengage.track("completed_testzone_clicked", {
       user: getDetails?.userDetails?._id,
     });
-    axios
-      .get(`${baseUrl}api/v1/dailycontest/contests/completed`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      })
-      .then((res) => {
-        setContest(res.data.data);
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        return new Error(err);
-      });
+    fetchData();
+    setIsLoading(false);
   }, []);
+
+  async function fetchData(){
+    const data = await axios.get(`${apiUrl}dailycontest/user/paidcompleted`, {withCredentials: true});
+    setPaidTestzone(data?.data?.data);
+
+    const data1 = await axios.get(`${apiUrl}dailycontest/user/freecompleted`, {withCredentials: true});
+    setFreeTestzone(data1?.data?.data);
+  }
 
   return (
     <MDBox
@@ -77,7 +71,15 @@ export default function LabTabs() {
               >
                 Paid TestZone(s)
               </MDTypography>
-              <PaidContest contest={contest} />
+              {
+                paidTestzone?.length > 0 ?
+                <PaidContest contest={paidTestzone} />
+                :
+                <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center">
+                    <MDBox ml={1} display="flex" justifyContent="center" alignItems="center"><CircularProgress color="light" /></MDBox>
+                </MDBox>
+              }
+              
             </Grid>
 
             <Divider style={{ backgroundColor: "light" }} />
@@ -92,7 +94,14 @@ export default function LabTabs() {
                 >
                   Free TestZone(s)
                 </MDTypography>
-                <FreeContest contest={contest} />
+                {
+                freeTestzone?.length > 0 ?
+                <FreeContest contest={freeTestzone} />
+                :
+                <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center">
+                    <MDBox ml={1} display="flex" justifyContent="center" alignItems="center"><CircularProgress color="light" /></MDBox>
+                </MDBox>
+              }
               </MDBox>
             </Grid>
           </Grid>

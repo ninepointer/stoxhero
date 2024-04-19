@@ -201,27 +201,17 @@ function Header({
                 contestOn.push(elem.contestExpiry.toUpperCase());
 
                 let progressBar =
-                  (elem?.participants?.length * 100) / elem?.maxParticipants;
+                  (elem?.participants * 100) / elem?.maxParticipants;
                 // let timeDifference = new Date(elem?.contestStartTime) - new Date(serverTime);
-                let checkIsInterested = elem?.interestedUsers.some(
-                  (elem) =>
-                    elem?.userId?._id?.toString() ==
-                    getDetails?.userDetails?._id?.toString()
-                );
+                let checkIsInterested = elem?.isInterested;
 
                 // let isTradingEnable = new Date(elem?.contestEndTime) - serverTime;
                 let particularContestTime = timeDifference.filter((subelem) => {
                   return subelem?.id?.toString() === elem?._id?.toString();
                 });
 
-                let isParticipated = elem?.participants.some((elem) => {
-                  return (
-                    elem?.userId?._id?.toString() ===
-                    getDetails?.userDetails?._id?.toString()
-                  );
-                });
+                let isParticipated = elem?.isPaid
 
-                // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
                 return (
                   <Grid item xs={12} md={12} lg={6} borderRadius={3}>
                     <MDButton
@@ -491,7 +481,7 @@ function Header({
                                 {new Intl.NumberFormat(undefined, {
                                   minimumFractionDigits: 0,
                                   maximumFractionDigits: 0,
-                                }).format(elem?.portfolio?.portfolioValue)}
+                                }).format(elem?.portfolioValue)}
                               </MDTypography>
                             </MDBox>
                           </MDBox>

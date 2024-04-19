@@ -19,15 +19,10 @@ import Draggable from "react-draggable";
 import Button from "@mui/material/Button";
 
 // Images
-import ContestCarousel from "../../../assets/images/target.png";
 import WinnerImage from "../../../assets/images/roi.png";
 import Timer from "../timer";
-import ProgressBar from "../progressBar";
-import { HiUserGroup } from "react-icons/hi";
 import { Tooltip } from "@mui/material";
 import MDSnackbar from "../../../components/MDSnackbar";
-import PopupMessage from "../data/popupMessage";
-import PopupTrading from "../data/popupTrading";
 import Payment from "../data/payment";
 import InfoIcon from "@mui/icons-material/Info";
 
@@ -216,26 +211,12 @@ function Header({
                   // contestOn.push("FINNIFTY")
                 }
 
-                // contestOn.push(elem.contestExpiry.toUpperCase());
-
-                let progressBar =
-                  (elem?.participants?.length * 100) / elem?.maxParticipants;
-                // let timeDifference = new Date(elem?.contestStartTime) - new Date(serverTime);
-                // let checkIsInterested = elem?.interestedUsers.some(elem => elem?.userId?._id?.toString() == getDetails?.userDetails?._id?.toString())
-
-                // let isTradingEnable = new Date(elem?.contestEndTime) - serverTime;
                 let particularMarginXTime = timeDifference.filter((subelem) => {
                   return subelem?.id?.toString() === elem?._id?.toString();
                 });
 
-                let isParticipated = elem?.participants.some((subelem) => {
-                  return (
-                    subelem?.userId?.toString() ===
-                    getDetails?.userDetails?._id?.toString()
-                  );
-                });
+                let isParticipated = elem?.isPaid;
 
-                // console.log("timeDifference",timeDifference, isParticipated,  particularContestTime, checkIsInterested)
                 return (
                   <Grid item xs={12} md={6} lg={4} borderRadius={3}>
                     <MDBox
@@ -617,7 +598,7 @@ function Header({
                             fontSize={10}
                             fontWeight="bold"
                           >
-                            {elem?.maxParticipants - elem?.participants.length}
+                            {elem?.maxParticipants - elem?.participants}
                           </MDTypography>
                         </Grid>
                         <Grid
@@ -866,7 +847,7 @@ function Header({
                             fontSize={10}
                             fontWeight="bold"
                           >
-                            ₹{elem?.marginXTemplate?.entryFee}
+                            ₹{elem?.entryFee}
                           </MDTypography>
                         </Grid>
                         <Grid
@@ -887,7 +868,7 @@ function Header({
                             {new Intl.NumberFormat(undefined, {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
-                            }).format(elem?.marginXTemplate?.portfolioValue)}
+                            }).format(elem?.portfolioValue)}
                           </MDTypography>
                         </Grid>
                       </Grid>
@@ -996,9 +977,9 @@ function Header({
                                     timeDifference: timeDifference,
                                     name: elem?.marginXName,
                                     endTime: elem?.endTime,
-                                    entryFee: elem?.marginXTemplate?.entryFee,
+                                    entryFee: elem?.entryFee,
                                     portfolioValue:
-                                      elem?.marginXTemplate?.portfolioValue,
+                                      elem?.portfolioValue,
                                   },
                                 });
                               }}

@@ -61,7 +61,7 @@ export default function RewardTable({ data, paid }) {
     if(paid){
         cap = new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.entryFee * (data?.payoutCapPercentage??1000)/100);
     } else{
-        cap = new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.portfolio?.portfolioValue * (data?.payoutCapPercentage??10)/100);
+        cap = new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(data?.portfolioValue * (data?.payoutCapPercentage??10)/100);
     }
 
     return (

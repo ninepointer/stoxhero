@@ -6,15 +6,11 @@ import MDTypography from "../../../components/MDTypography";
 import FreeContest from "../Header/freeContest";
 import PaidContest from "../Header/paidContest";
 import MDButton from "../../../components/MDButton";
-// import { Link } from "react-router-dom"
 import axios from "axios";
-// import SchoolIcon from '@mui/icons-material/School';
 import WinnerImage from "../../../assets/images/cup-image.png";
-// import SportsScoreIcon from '@mui/icons-material/SportsScore';
-// import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-// import { io } from 'socket.io-client';
 import { socketContext } from "../../../socketContext";
 import { userContext } from "../../../AuthContext";
+import { apiUrl } from "../../../constants/constants";
 
 export default function LabTabs({ setClicked }) {
   // const [clicked, setClicked] = useState('live')
@@ -38,7 +34,7 @@ export default function LabTabs({ setClicked }) {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(`${baseUrl}api/v1/dailycontest/contests/userlive`, {
+      .get(`${apiUrl}dailycontest/user/live`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",

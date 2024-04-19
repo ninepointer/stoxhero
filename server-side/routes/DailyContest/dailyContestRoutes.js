@@ -5,6 +5,7 @@ const contestController = require('../../controllers/dailyContestController');
 const registrationController = require('../../controllers/dailyContest/dailyContestRegistrationController');
 const regularContestRegistrationController = require('../../controllers/dailyContest/regularContestRegistrationController');
 const restrictTo = require('../../authentication/authorization');
+const user = require('./userWeb');
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 const AWS = require("aws-sdk");
@@ -49,7 +50,7 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 
 
-
+router.use('/user', user);
 router.post('/contest', Authenticate, restrictTo('Admin', 'SuperAdmin'), upload.fields([
     { name: "image", maxCount: 1 },
   ]), contestController.createContest);

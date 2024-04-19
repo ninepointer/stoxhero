@@ -4,13 +4,8 @@ import { CircularProgress, Divider, Grid } from "@mui/material";
 import MDBox from "../../../components/MDBox";
 import MDTypography from "../../../components/MDTypography";
 import MDButton from "../../../components/MDButton";
-// import { Link } from "react-router-dom"
 import axios from "axios";
-// import SchoolIcon from '@mui/icons-material/School';
 import WinnerImage from "../../../assets/images/cup-image.png";
-// import SportsScoreIcon from '@mui/icons-material/SportsScore';
-// import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-// import { io } from 'socket.io-client';
 import { socketContext } from "../../../socketContext";
 import UpcomingMarginXList from "../Header/upcomingMarginXList";
 import { userContext } from "../../../AuthContext";
@@ -36,7 +31,7 @@ export default function LabTabs({ setClicked }) {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(`${baseUrl}api/v1/marginx/userupcoming`, {
+      .get(`${baseUrl}api/v1/marginxs/user/upcoming`, {
         withCredentials: true,
         headers: {
           Accept: "application/json",
