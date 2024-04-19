@@ -245,7 +245,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
     setValue(event.target.value);
   };
 
-  const amount = elem?.marginXTemplate?.entryFee;
+  const amount = elem?.entryFee;
   const redeemableBonus =
     Math.min(
       ((amount - discountAmount) * setting?.maxBonusRedemptionPercentage) / 100,
@@ -259,7 +259,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
       )
     : 0;
   const actualAmount =
-    ((elem?.marginXTemplate?.entryFee - discountAmount) *
+    ((elem?.entryFee - discountAmount) *
       setting.gstPercentage) /
     100;
 
@@ -321,7 +321,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
         {
           code,
           product: "6517d40e3aeb2bb27d650de1",
-          orderValue: elem?.marginXTemplate?.entryFee,
+          orderValue: elem?.entryFee,
           platform: "Web",
           paymentMode: value,
         },
