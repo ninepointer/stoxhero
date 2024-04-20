@@ -11,7 +11,7 @@ import MDButton from '../../../../components/MDButton';
 import Counter from './counter';
 
 
-export default function CalculatorCard({ assets, liabilities, assetSum, setAssetSum, liabilitiesSum, setLiabilitiesSum, futureInvestmentTime, isMobile }) {
+export default function CalculatorCard({ assets, pastStartTime, pastEndTime, liabilities, assetSum, setAssetSum, liabilitiesSum, setLiabilitiesSum, futureInvestmentTime, isMobile }) {
 
     const [formAsset, setFormAsset] = useState({});
     const [formLiabilities, setFormLiabilities] = useState({});

@@ -40,7 +40,7 @@ export default function CalculatorHome() {
                        color: "white",
                      }}
                      size="small"
-                     disabled={true}
+                    //  disabled={true}
                      onClick={()=>{navigate(`/calculators?value=past`)}}
                     >
                         Past Invested

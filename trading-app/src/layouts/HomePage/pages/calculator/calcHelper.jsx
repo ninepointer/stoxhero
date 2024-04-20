@@ -3,10 +3,16 @@ import MDTypography from '../../../../components/MDTypography';
 import { Grid, TextField, useMediaQuery } from '@mui/material';
 import CalculatorCard from './calcCard';
 import theme from "../../utils/theme/index";
+import FutureTime from './futureTimeperiod';
+import PastTime from './pastTimeperiod';
 
 
 export default function CalculatorHelper({ assets, liabilities, assetSum, setAssetSum, liabilitiesSum, setLiabilitiesSum, timePeriod }) {
+  const now = new Date();
   const [futureInvestmentTime, setFutureInvestmentTime] = useState(1);
+  const [pastStartTime, setPastStartTime] = useState(`${now?.getFullYear()}-${(now?.getMonth() + 1).toString().padStart(2, '0')}`);
+
+  const [pastEndTime, setPastEndTime] = useState(`${now?.getFullYear() + 1}-${(now?.getMonth()+1)?.toString()?.padStart(2, '0')}`);
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
     return (
@@ -20,28 +26,9 @@ export default function CalculatorHelper({ assets, liabilities, assetSum, setAss
 
 
           {(timePeriod === 'future') ?
-            <Grid item xs={12} md={12} lg={6} mb={2} display='flex' alignContent={'left'} justifyContent={'flex-start'} gap={1}>
-              <MDTypography style={{ fontSize: 15, fontWeight: 600 }}>
-                Investment Time(in years):
-              </MDTypography>
-
-              <TextField
-                id="outlined-required"
-                name="futureInvestmentTime"
-                fullWidth
-                type="number"
-                sx={{ width: isMobile ? '100px' : '150px' }}
-                InputProps={{
-                  style: { height: '25px' }, // Adjust the height value here
-                }}
-                value={futureInvestmentTime}
-                onChange={(e) => {
-                  setFutureInvestmentTime(e.target.value);
-                }}
-              />
-            </Grid>
+            <FutureTime futureInvestmentTime={futureInvestmentTime} setFutureInvestmentTime={setFutureInvestmentTime} isMobile={isMobile} />
             :
-            <></>}
+            <PastTime pastEndTime={pastEndTime} setPastEndTime={setPastEndTime} pastStartTime={pastStartTime} setPastStartTime={setPastStartTime} isMobile={isMobile} />}
 
           <CalculatorCard
             assets={assets}
@@ -51,6 +38,8 @@ export default function CalculatorHelper({ assets, liabilities, assetSum, setAss
             liabilitiesSum={liabilitiesSum}
             setLiabilitiesSum={setLiabilitiesSum}
             futureInvestmentTime={futureInvestmentTime}
+            pastEndTime={pastEndTime}
+            pastStartTime={pastStartTime}
             isMobile={isMobile}
           />
         </Grid>
