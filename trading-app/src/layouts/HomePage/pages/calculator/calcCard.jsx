@@ -11,8 +11,11 @@ import MDButton from '../../../../components/MDButton';
 import Counter from './counter';
 
 
-export default function CalculatorCard({ assets, pastStartTime, pastEndTime, liabilities, assetSum, setAssetSum, liabilitiesSum, setLiabilitiesSum, futureInvestmentTime, isMobile }) {
-
+export default function CalculatorCard({ assets, pastStartTime, pastEndTime, liabilities, assetSum, setAssetSum, liabilitiesSum, setLiabilitiesSum, futureInvestmentTime, setFutureInvestmentTime, isMobile }) {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const value = urlParams.get('value');
+  
     const [formAsset, setFormAsset] = useState({});
     const [formLiabilities, setFormLiabilities] = useState({});
     const [growthRate, setGrowthRate] = useState({});
@@ -38,6 +41,12 @@ export default function CalculatorCard({ assets, pastStartTime, pastEndTime, lia
         calculateAssetSum();
         calculateLiabilitiesSum();
     }, [futureInvestmentTime]);
+
+    useEffect(() => {
+        if(value==='past'){
+            getYearsDifference(pastEndTime, pastStartTime);
+        }
+    }, [pastEndTime, pastStartTime]);
 
     function calculateAssetSum() {
         let sum = 0;
@@ -80,6 +89,17 @@ export default function CalculatorCard({ assets, pastStartTime, pastEndTime, lia
                 [keyword]: definedROI[keyword]
             }));
         }
+    }
+
+    function getYearsDifference(endDate, startDate) {
+        const d1 = new Date(endDate);
+        const d2 = new Date(startDate);
+    
+        const diffMilliseconds = (d1 - d2);
+        const millisecondsInYear = 1000 * 60 * 60 * 24 * 365; // accounting for leap years
+        const years = diffMilliseconds / millisecondsInYear;
+    
+        setFutureInvestmentTime(years);
     }
 
     return (
@@ -288,6 +308,7 @@ export default function CalculatorCard({ assets, pastStartTime, pastEndTime, lia
                             color: "white",
                         }}
                         // size="small"
+                        disabled={new Date(pastStartTime) >= new Date(pastEndTime)}
                         onClick={() => { finalAmountFunc() }}
                     >
                         Calculate Net Worth

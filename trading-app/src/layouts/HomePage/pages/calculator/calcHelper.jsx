@@ -38,6 +38,7 @@ export default function CalculatorHelper({ assets, liabilities, assetSum, setAss
             liabilitiesSum={liabilitiesSum}
             setLiabilitiesSum={setLiabilitiesSum}
             futureInvestmentTime={futureInvestmentTime}
+            setFutureInvestmentTime={setFutureInvestmentTime}
             pastEndTime={pastEndTime}
             pastStartTime={pastStartTime}
             isMobile={isMobile}

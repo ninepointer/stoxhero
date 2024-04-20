@@ -1,13 +1,21 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Grid, TextField } from '@mui/material';
 import MDTypography from '../../../../components/MDTypography';
 
 export default function PastTime({ pastStartTime, setPastStartTime, pastEndTime, setPastEndTime, isMobile }) {
 
-  console.log(pastStartTime, pastEndTime)
+  
+  const [error, setError] = useState('');
+  useEffect(()=>{
+    setError('')
+    if(new Date(pastStartTime) >= new Date(pastEndTime)){
+      setError('please set a valid date range.')
+    }
+  }, [pastStartTime, pastEndTime])
+
   return (
     <>
-      <Grid item xs={12} md={12} lg={6} mb={2} display='flex' alignContent={'left'} justifyContent={'flex-start'} gap={1}>
+      <Grid item xs={12} md={12} lg={12} mb={2} display='flex' alignContent={'left'} justifyContent={'flex-start'} gap={1}>
         <MDTypography style={{ fontSize: 15, fontWeight: 600 }}>
           Investment From
         </MDTypography>
@@ -46,6 +54,12 @@ export default function PastTime({ pastStartTime, setPastStartTime, pastEndTime,
           }}
         />
       </Grid>
+
+      {error ? <Grid item xs={12} md={12} lg={12} mb={2} display='flex' alignContent={'left'} justifyContent={'flex-start'} gap={1}>
+        <MDTypography style={{ fontSize: 13, fontWeight: 700, color: 'red' }}>
+          {error}
+        </MDTypography>
+      </Grid> : <></>}
     </>
   )
 }
