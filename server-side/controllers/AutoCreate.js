@@ -176,6 +176,7 @@ const autoTestZoneCreate = async () => {
 
         if(increaseTime.includes(elem.contestName)){
             elem.contestStartTime = new Date(elem.contestStartTime).setHours(5, 0, 0, 0);
+            elem.contestLiveTime = new Date(elem.contestLiveTime).setHours(5, 0, 0, 0);
         }
 
         const slugCount = await TestZone.countDocuments({ contestName: elem.contestName });
