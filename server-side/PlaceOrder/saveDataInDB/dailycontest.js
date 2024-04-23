@@ -56,7 +56,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
             margin
         }
 
-        const mockTradeDetails = (order_type !== "LIMIT") && await DailyContestMockCompany.create([companyDoc], { session });
+        // const mockTradeDetails = (order_type !== "LIMIT") && await DailyContestMockCompany.create([companyDoc], { session });
         const algoTrader = (order_type !== "LIMIT") && await DailyContestMockUser.create([traderDoc], { session });
 
         let pnl = await client.get(`${req.user._id.toString()}${contestId.toString()} overallpnlDailyContest`)
@@ -114,7 +114,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         }
 
         // Commit the transaction
-        io?.emit("updatePnl", mockTradeDetails)
+        // io?.emit("updatePnl", mockTradeDetails)
        
         if(fromAdmin){
             io?.emit(`${trader.toString()}autoCut`, algoTrader)
