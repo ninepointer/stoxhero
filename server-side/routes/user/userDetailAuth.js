@@ -1,27 +1,14 @@
 const express = require("express");
-const otpGenerator = require("otp-generator");
-const emailService = require("../../utils/emailService");
 const router = express.Router();
 require("../../db/conn");
-const Settings = require('../../models/settings/setting');
 const UserDetail = require("../../models/User/userDetailSchema");
 const authController = require("../../controllers/authController");
 const multer = require("multer");
 const AWS = require("aws-sdk");
 const sharp = require("sharp");
 const Authenticate = require("../../authentication/authentication");
-const Wallet = require("../../models/UserWallet/userWalletSchema");
-const { ObjectId } = require("mongodb");
-const Role = require("../../models/User/everyoneRoleSchema");
-const sendMail = require("../../utils/emailService");
-const { sendMultiNotifications } = require("../../utils/fcmService");
 const restrictTo = require("../../authentication/authorization");
-const {
-  createUserNotification,
-} = require("../../controllers/notification/notificationController");
-const School = require("../../models/School/School");
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const userController = require('../../controllers/user/userController');
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
@@ -35,9 +22,6 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  // limits: {
-  // fileSize: 1024 * 1024 * 10,
-  // files: 1}
 }).single("profilePhoto");
 const uploadMultiple = multer({
   storage,
@@ -54,36 +38,6 @@ const uploadMultiple = multer({
   { name: "addressProofDocument", maxCount: 1 },
   { name: "incomeProofDocument", maxCount: 1 },
 ]);
-// const uploadMultiple = multer({
-//   storage: storage,
-//   fileFilter: (req, file, cb) => {
-//     console.log('file filter', file, file.size);
-//     if (file.mimetype.startsWith("image/")) {
-//       cb(null, true);
-//   } else {
-//       req.invalidFile = true;
-//       cb(new Error("Invalid file type"), false);
-//     }
-//     if (file.size > 2 * 1024 * 1024) {
-//       console.log('fileSize', file.size) // 2MB size check
-//       cb(null, true);
-//       req.tooLarge = true; // set a flag to indicate a file was too large
-//     } else {
-//       cb(null, false);
-//     }
-//   },
-//   limits: {
-//     fileSize: 10 * 1024 * 1024, // 10MB
-//   },
-// }).fields([
-//   { name: 'profilePhoto', maxCount: 1 },
-//   { name: 'aadhaarCardFrontImage', maxCount: 1 },
-//   { name: 'aadhaarCardBackImage', maxCount: 1 },
-//   { name: 'panCardFrontImage', maxCount: 1 },
-//   { name: 'passportPhoto', maxCount: 1 },
-//   { name: 'addressProofDocument', maxCount: 1 },
-//   { name: 'incomeProofDocument', maxCount: 1 }
-// ]);
 
 const checkFileError = async (req, res, next) => {
   const files = req.files;
@@ -378,1373 +332,156 @@ const uploadToS3 = async (req, res, next) => {
   }
 };
 
-router.post("/userdetail", authController.protect, (req, res) => {
-  const {
-    status,
-    uId,
-    createdOn,
-    lastModified,
-    createdBy,
-    name,
-    cohort,
-    designation,
-    email,
-    mobile,
-    degree,
-    dob,
-    gender,
-    trading_exp,
-    location,
-    last_occupation,
-    joining_date,
-    role,
-    userId,
-    password,
-    employeeId,
-  } = req.body;
-  if (
-    !status ||
-    !uId ||
-    !createdOn ||
-    !lastModified ||
-    !createdBy ||
-    !name ||
-    !cohort ||
-    !designation ||
-    !email ||
-    !mobile ||
-    !degree ||
-    !dob ||
-    !gender ||
-    !trading_exp ||
-    !location ||
-    !last_occupation ||
-    !joining_date ||
-    !role
-  ) {
-    return res.status(422).json({ error: "plz filled the field..." });
-  }
-
-  UserDetail.findOne({ email: email })
-    .then((dateExist) => {
-      if (dateExist) {
-        return res.status(422).json({ error: "data already exist..." });
-      }
-      const userDetail = new UserDetail({
-        status,
-        uId,
-        createdOn,
-        lastModified,
-        createdBy,
-        name,
-        cohort,
-        designation,
-        email,
-        mobile,
-        degree,
-        dob,
-        gender,
-        trading_exp,
-        location,
-        last_occupation,
-        joining_date,
-        role,
-        userId,
-        password,
-        employeeid: employeeId,
-      });
-      userDetail
-        .save()
-        .then(() => {
-          res.status(201).json({ massage: "data enter succesfully" });
-        })
-        .catch((err) =>
-          res.status(500).json({ error: "Failed to enter data" })
-        );
-    })
-    .catch((err) => {
-      console.log("failed in userAuth");
-    });
-});
-
-router.patch("/resetpassword", async (req, res) => {
-  const { email, resetPasswordOTP, confirm_password, password } = req.body;
-
-  const deactivatedUser = await UserDetail.findOne({
-    email: email,
-    status: "Inactive",
-  });
-
-  if (deactivatedUser) {
-    return res.status(422).json({
-      status: "error",
-      message:
-        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-      error: "deactivated",
-    });
-  }
-  let resetuser = await UserDetail.findOne({ email: email });
-  if (!resetuser) {
-    return res.status(404).json({ error: "User doesn't exist" });
-  }
-
-  if (resetPasswordOTP != resetuser.resetPasswordOTP) {
-    return res
-      .status(401)
-      .json({ message: "OTP doesn't match, please try again!" });
-  }
-
-  if (password != confirm_password) {
-    return res
-      .status(401)
-      .json({ message: "Password & Confirm Password didn't match." });
-  }
-
-  resetuser.password = password;
-  await resetuser.save({ validateBeforeSave: false });
-  return res.status(200).json({ message: "Password Reset Done" });
-});
-
-router.patch("/schoolresetpassword", async (req, res) => {
-  const { email, resetPasswordOTP, confirm_password, password } = req.body;
-
-  const deactivated = await School.findOne({
-    email: email,
-    status: "Inactive",
-  });
-
-  if (deactivated) {
-    return res.status(422).json({
-      status: "error",
-      message:
-        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-      error: "deactivated",
-    });
-  }
-  let reset = await School.findOne({ email: email });
-  if (!reset) {
-    return res.status(404).json({ error: "School doesn't exist" });
-  }
-
-  if (resetPasswordOTP != reset.resetPasswordOTP) {
-    return res
-      .status(401)
-      .json({ message: "OTP doesn't match, please try again!" });
-  }
-
-  if (password != confirm_password) {
-    return res
-      .status(401)
-      .json({ message: "Password & Confirm Password didn't match." });
-  }
-
-  reset.password = password;
-  await reset.save({ validateBeforeSave: false });
-  return res.status(200).json({ message: "Password Reset Done" });
-});
-
-router.patch("/studentresetpin", async (req, res) => {
-  const { mobile, resetPinOtp, confirm_pin, pin } = req.body;
-
-  if (pin.length !== 6) {
-    return res
-      .status(422)
-      .json({ status: "error", message: "Pin must be 6 digits long" });
-  }
-
-  if (!mobile || !resetPinOtp || !confirm_pin || !pin) {
-    return res
-      .status(422)
-      .json({ status: "error", message: "Insufficient request data." });
-  }
-
-  const deactivated = await UserDetail.findOne({
-    mobile: mobile,
-    status: "Inactive",
-  });
-
-  if (deactivated) {
-    return res.status(422).json({
-      status: "error",
-      message:
-        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-      error: "deactivated",
-    });
-  }
-  let reset = await UserDetail.findOne({ mobile: mobile });
-  if (!reset) {
-    return res.status(404).json({ error: "User doesn't exist" });
-  }
-
-  if (resetPinOtp != reset?.schoolDetails?.resetPinOtp) {
-    return res.status(401).json({
-      status: "error",
-      message: "OTP doesn't match, please try again!",
-    });
-  }
-
-  if (pin != confirm_pin) {
-    return res
-      .status(401)
-      .json({ status: "error", message: "Pin & Confirm Pin didn't match." });
-  }
-
-  reset.schoolDetails.pin = await bcrypt.hash(pin, 10);
-  await reset.save({ validateBeforeSave: false });
-  return res.status(200).json({ status: "success", message: "Pin Reset Done" });
-});
-
-router.patch("/generateOTP", async (req, res) => {
-  const { email } = req.body;
-
-  const deactivatedUser = await UserDetail.findOne({
-    email: email,
-    status: "Inactive",
-  });
-
-  if (deactivatedUser) {
-    return res.status(422).json({
-      status: "error",
-      message:
-        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-      error: "deactivated",
-    });
-  }
-
-  const resetuser = await UserDetail.findOne({ email: email });
-  if (!resetuser) {
-    return res.status(404).json({
-      message: "User with this email doesn't exist",
-    });
-  }
-  let email_otp = otpGenerator.generate(6, {
-    upperCaseAlphabets: true,
-    lowerCaseAlphabets: false,
-    specialChars: false,
-  });
-  let subject = "Password Reset StoxHero";
-  let message = `Your OTP for password reset is: ${email_otp}`;
-  resetuser.resetPasswordOTP = email_otp;
-  await resetuser.save({ validateBeforeSave: false });
-  res.status(200).json({
-    message: "Password Reset OTP Resent",
-  });
-  emailService(email, subject, message);
-});
-
-router.patch("/schoolgenerateotp", async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    const deactivatedSchool = await School.findOne({
-      email: email,
-      status: "Inactive",
-    });
-
-    if (deactivatedSchool) {
-      return res.status(422).json({
-        status: "error",
-        message:
-          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-        error: "deactivated",
-      });
-    }
-
-    const reset = await School.findOne({ email: email });
-    if (!reset) {
-      return res.status(404).json({
-        message: "User with this email doesn't exist",
-      });
-    }
-    let email_otp = otpGenerator.generate(6, {
-      upperCaseAlphabets: true,
-      lowerCaseAlphabets: false,
-      specialChars: false,
-    });
-    let subject = "Password Reset StoxHero";
-    let message = `Your OTP for password reset is: ${email_otp}`;
-    reset.resetPasswordOTP = email_otp;
-    await reset.save({ validateBeforeSave: false });
-    res.status(200).json({
-      message: "Password Reset OTP Sent",
-    });
-    emailService(email, subject, message);
-  } catch (err) {
-    console.log(err);
-  }
-});
-
-router.get(
-  "/readuserdetails",
-  Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    UserDetail.find({status: 'Active'})
-      .populate("role", "roleName") // Populate the "role" field
-      .sort({ joining_date: -1 })
-      .select('role joining_date first_name last_name email mobile')
-      .exec((err, data) => {
-        if (err) {
-          return res.status(500).send(err);
-        } else {
-          return res.status(200).send(data);
-        }
-      });
-  }
-);
-
-router.get("/readuserdetails/:id", Authenticate, (req, res) => {
-  const { id } = req.params;
-  UserDetail.findOne({ _id: id })
-    .then((data) => {
-      return res.status(200).send(data);
-    })
-    .catch((err) => {
-      return res.status(422).json({ error: "date not found" });
-    });
-});
-
-router.put("/readuserdetails/:id", Authenticate, async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const user = await UserDetail.findOne({ _id: id });
-
-    if (req.body.userPassword) {
-      (user.lastModified = req.body.lastModified),
-        (user.name = req.body.Name),
-        (user.cohort = req.body.Cohort),
-        (user.designation = req.body.Designation),
-        (user.degree = req.body.Degree),
-        (user.email = req.body.EmailID),
-        (user.mobile = req.body.MobileNo),
-        (user.dob = req.body.DOB),
-        (user.gender = req.body.Gender),
-        (user.trading_exp = req.body.TradingExp),
-        (user.location = req.body.Location),
-        (user.last_occupation = req.body.LastOccupation),
-        (user.joining_date = req.body.DateofJoining),
-        (user.role = req.body.Role),
-        (user.status = req.body.Status),
-        (user.password = req.body.userPassword),
-        (user.employeeid = req.body.employeeId),
-        (user.isAlgoTrader = req.body.isalgoTrader);
-    } else {
-      (user.lastModified = req.body.lastModified),
-        (user.name = req.body.Name),
-        (user.cohort = req.body.Cohort),
-        (user.designation = req.body.Designation),
-        (user.degree = req.body.Degree),
-        (user.email = req.body.EmailID),
-        (user.mobile = req.body.MobileNo),
-        (user.dob = req.body.DOB),
-        (user.gender = req.body.Gender),
-        (user.trading_exp = req.body.TradingExp),
-        (user.location = req.body.Location),
-        (user.last_occupation = req.body.LastOccupation),
-        (user.joining_date = req.body.DateofJoining),
-        (user.role = req.body.Role),
-        (user.status = req.body.Status),
-        (user.employeeid = req.body.employeeId),
-        (user.isAlgoTrader = req.body.isalgoTrader);
-    }
-
-    await user.save();
-    res.status(201).json({ massage: "data edit succesfully" });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ error: "Failed to edit data" });
-  }
-});
-
-router.delete("/readuserdetails/:id", Authenticate, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userDetail = await UserDetail.deleteOne({ _id: id });
-    res.status(201).json({ massage: "data delete succesfully" });
-  } catch (e) {
-    res.status(500).json({ error: "Failed to delete data" });
-  }
-});
-
-router.get("/readparticularuserdetails/:email", Authenticate, (req, res) => {
-  const { email } = req.params;
-  UserDetail.findOne({ email: email })
-    .then((data) => {
-      return res.status(200).send(data);
-    })
-    .catch((err) => {
-      return res.status(422).json({ error: "date not found" });
-    });
-});
-
-// admin id --> new ObjectId("6448f834446977851c23b3f5")
-router.get(
-  "/getAdmins/",
-  Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    UserDetail.find({ role: new ObjectId("6448f834446977851c23b3f5") })
-      .then((data) => {
-        return res.status(200).send(data);
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: "date not found" });
-      });
-  }
-);
-
-router.get(
-  "/getallbatch",
-  Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  async (req, res) => {
-    let batch = await UserDetail.aggregate([
-      {
-        $group: {
-          _id: "$cohort",
-        },
-      },
-      {
-        $sort: {
-          _id: -1,
-        },
-      },
-    ]);
-
-    res.status(201).json(batch);
-  }
-);
-
-const filterObj = (obj, ...allowedFields) => {
-  const newObj = {};
-  Object.keys(obj).forEach((el) => {
-    if (
-      allowedFields.includes(el) &&
-      obj[el] !== null &&
-      obj[el] !== undefined &&
-      obj[el] !== ""
-    ) {
-      newObj[el] = obj[el];
-    }
-  });
-  return newObj;
-};
-
 const currentUser = (req, res, next) => {
   req.params.id = req.user._id;
   next();
 };
 
-router.patch(
-  "/userdetail/me",
+router.patch("/resetpassword", userController.resetPassword);
+
+router.patch("/schoolresetpassword", userController.schoolResetPassword);
+
+router.patch("/studentresetpin", userController.studentResetPin);
+
+router.patch("/generateOTP", userController.generateOTP);
+
+router.patch("/schoolgenerateotp", userController.schoolGenerateOTP);
+
+router.get( "/readuserdetails", Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  userController.readUserDetails 
+);
+
+router.get( "/getAdmins/",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  userController.getAdmins 
+);
+
+
+
+router.patch( "/userdetail/me",
   authController.protect,
   currentUser,
   uploadMultiple,
   checkFileError,
   resizePhoto,
   uploadToS3,
-  async (req, res, next) => {
-    try {
-
-      if(req.body.isKycUpdate === 'true'){
-        const setting = await Settings.findOne();
-        const wallet = await Wallet.findOne({userId: new ObjectId(req?.user?._id)});
-        let walletBalance = 0;
-        for(let elem of wallet?.transactions){
-          if(elem?.transactionType === 'Cash'){
-            walletBalance += elem?.amount;
-          }
-        }
-
-        if(walletBalance < setting?.minWalletBalance){
-          return res.status(400).json({ status: 'error', message: `To proceed with KYC, your wallet balance needs to be greater than ₹${setting?.minWalletBalance || 0}.`});
-        }
-      }
-
-      const user = await UserDetail.findById(req.user._id);
-
-      if (!user)
-        return res.status(404).json({ message: "No such user found." });
-
-      const filteredBody = filterObj(
-        req.body,
-        "name",
-        "first_name",
-        "last_name",
-        "email",
-        "mobile",
-        "gender",
-        "schoolDetails",
-        "whatsApp_number",
-        "dob",
-        "address",
-        "city",
-        "state",
-        "country",
-        "last_occupation",
-        "family_yearly_income",
-        "employeed",
-        "upiId",
-        "googlePay_number",
-        "payTM_number",
-        "phonePe_number",
-        "bankName",
-        "nameAsPerBankAccount",
-        "accountNumber",
-        "ifscCode",
-        "bankState",
-        "aadhaarNumber",
-        "degree",
-        "panNumber",
-        "passportNumber",
-        "drivingLicenseNumber",
-        "pincode",
-        "KYCStatus"
-      );
-      if (filteredBody.KYCStatus == "Approved") {
-        filteredBody.KYCStatus = "Rejected";
-        filteredBody.rejectionReason = "API Abuse";
-        filteredBody.KYCActionDate = new Date();
-      }
-      if (filteredBody.KYCStatus == "Pending Approval") {
-        let aadhaarNumber, panNumber, dob;
-        aadhaarNumber = filteredBody.aadhaarNumber;
-        panNumber = filteredBody.panNumber;
-        dob = filteredBody.dob;
-        const users = await UserDetail.find({
-          KYCStatus: "Approved",
-          $or: [
-            { aadhaarNumber: aadhaarNumber },
-            { panNumber: panNumber },
-            { dob: dob },
-          ],
-        });
-        if (users.length > 1) {
-          filteredBody.KYCStatus = "Rejected";
-          filteredBody.rejectionReason =
-            "Aadhaar or PAN number is already in use.";
-        }
-        filteredBody.KYCActionDate = new Date();
-      }
-      if (
-        filteredBody.KYCStatus == "Pending Approval" &&
-        process.env.PROD == "true"
-      ) {
-        await sendMail(
-          user?.email,
-          "KYC Verification Request Received",
-          `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>KYC Request Received</title>
-                <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    font-size: 16px;
-                    line-height: 1.5;
-                    margin: 0;
-                    padding: 0;
-                }
-        
-                .container {
-                    max-width: 600px;
-                    margin: 0 auto;
-                    padding: 20px;
-                    border: 1px solid #ccc;
-                }
-        
-                h1 {
-                    font-size: 24px;
-                    margin-bottom: 20px;
-                }
-        
-                p {
-                    margin: 0 0 20px;
-                }
-        
-                .userid {
-                    display: inline-block;
-                    background-color: #f5f5f5;
-                    padding: 10px;
-                    font-size: 15px;
-                    font-weight: bold;
-                    border-radius: 5px;
-                    margin-right: 10px;
-                }
-        
-                .password {
-                    display: inline-block;
-                    background-color: #f5f5f5;
-                    padding: 10px;
-                    font-size: 15px;
-                    font-weight: bold;
-                    border-radius: 5px;
-                    margin-right: 10px;
-                }
-        
-                .login-button {
-                    display: inline-block;
-                    background-color: #007bff;
-                    color: #fff;
-                    padding: 10px 20px;
-                    font-size: 18px;
-                    font-weight: bold;
-                    text-decoration: none;
-                    border-radius: 5px;
-                }
-        
-                .login-button:hover {
-                    background-color: #0069d9;
-                }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                <h1>KYC Verification Request Received</h1>
-                <p>Hello ${user.first_name},</p>
-                <p>Your request for KYC verification is received by stoxhero team.</p>
-                <p>We will be verifying your documents and information in the next 24-48 working hours. The final KYC Status will be intimated to you via mail and it will also be reflected in your profile section.</p>
-                <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
-                <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
-                <br/><br/>
-                <p>Thanks,</p>
-                <p>StoxHero Team</p>
-        
-                </div>
-            </body>
-            </html>
-        
-        `
-        );
-        await createUserNotification({
-          title: "KYC Verification Request Received",
-          description: `Your KYC Verification request is received. It might take 3-5 business days to get processed.`,
-          notificationType: "Individual",
-          notificationCategory: "Informational",
-          productCategory: "General",
-          user: user?._id,
-          priority: "Low",
-          channels: ["App", "Email"],
-          createdBy: "63ecbc570302e7cf0153370c",
-          lastModifiedBy: "63ecbc570302e7cf0153370c",
-        });
-        if (user?.fcmTokens?.length > 0) {
-          await sendMultiNotifications(
-            "KYC Verification Request Received",
-            `Ypur KYC Verification request is received. It may take 3-5 business days for the process to be completed.`,
-            user?.fcmTokens?.map((item) => item.token),
-            null,
-            { route: "profile" }
-          );
-        }
-      }
-      filteredBody.lastModified = new Date();
-
-      if (req.profilePhotoUrl) {
-        if (!filteredBody.profilePhoto) {
-          filteredBody.profilePhoto = {};
-        }
-        filteredBody.profilePhoto.url = req.profilePhotoUrl;
-        filteredBody.profilePhoto.name = req.files.profilePhoto[0].originalname;
-      }
-
-      if (req.aadhaarCardFrontImageUrl) {
-        if (!filteredBody.aadhaarCardFrontImage) {
-          filteredBody.aadhaarCardFrontImage = {};
-        }
-        filteredBody.aadhaarCardFrontImage.url = req.aadhaarCardFrontImageUrl;
-        filteredBody.aadhaarCardFrontImage.name =
-          req.files.aadhaarCardFrontImage[0].originalname;
-      }
-
-      if (req.aadhaarCardBackImageUrl) {
-        if (!filteredBody.aadhaarCardBackImage) {
-          filteredBody.aadhaarCardBackImage = {};
-        }
-        filteredBody.aadhaarCardBackImage.url = req.aadhaarCardBackImageUrl;
-        filteredBody.aadhaarCardBackImage.name =
-          req.files.aadhaarCardBackImage[0].originalname;
-      }
-
-      if (req.panCardFrontImageUrl) {
-        if (!filteredBody.panCardFrontImage) {
-          filteredBody.panCardFrontImage = {};
-        }
-        filteredBody.panCardFrontImage.url = req.panCardFrontImageUrl;
-        filteredBody.panCardFrontImage.name =
-          req.files.panCardFrontImage[0].originalname;
-      }
-
-      if (req.passportPhotoUrl) {
-        if (!filteredBody.passportPhoto) {
-          filteredBody.passportPhoto = {};
-        }
-        filteredBody.passportPhoto.url = req.passportPhotoUrl;
-        filteredBody.passportPhoto.name =
-          req.files.passportPhoto[0].originalname;
-      }
-
-      if (req.addressProofDocumentUrl) {
-        if (!filteredBody.addressProofDocument) {
-          filteredBody.addressProofDocument = {};
-        }
-        filteredBody.addressProofDocument.url = req.addressProofDocumentUrl;
-        filteredBody.addressProofDocument.name =
-          req.files.addressProofDocument[0].originalname;
-      }
-      // if((req).addressProofDocumentUrl) filteredBody.addressProofDocument.name = (req.files).addressProofDocument[0].originalname;
-      if (req.incomeProofDocumentUrl)
-        filteredBody.incomeProofDocument = req.incomeProofDocumentUrl;
-      for (key of Object.keys(filteredBody)) {
-        if (filteredBody[key] == "undefined" || filteredBody[key] == "null") {
-          filteredBody[key] = "";
-        }
-      }
-
-      const userData = await UserDetail.findByIdAndUpdate(
-        user._id,
-        filteredBody,
-        { new: true }
-      );
-
-      res.status(200).json({
-        message: "Edit successful",
-        status: "success",
-        data: userData,
-      });
-    } catch (e) {
-      console.log(e);
-      res.status(500).json({
-        message: "Something went wrong. Try again.",
-      });
-    }
-  }
+  userController.editProfile
 );
 
-router.patch(
-  "/student/image",
+router.patch( "/student/image",
   authController.protect,
   currentUser,
   uploadMultiple,
   checkFileError,
   resizePhoto,
   uploadToS3,
-  async (req, res, next) => {
-    try {
-      // console.log(req.profilePhotoUrl);
-      if (!req.profilePhotoUrl) {
-        return res.status(404).json({ message: "Please upload a file" });
-      }
-
-      const user = await UserDetail.findById(req.user._id);
-
-      if (!user)
-        return res.status(404).json({ message: "No such user found." });
-      user.lastModified = new Date();
-
-      if (req.profilePhotoUrl) {
-        user.schoolDetails.profilePhoto = req.profilePhotoUrl;
-      }
-
-      const userData = await UserDetail.findByIdAndUpdate(user._id, user, {
-        new: true,
-      })
-        .populate("role", "roleName")
-        .populate("schoolDetails.city", "name")
-        .populate("schoolDetails.grade", "grade")
-        .select(
-          "student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState"
-        );
-
-      res.status(200).json({
-        message: "Edit successful",
-        status: "success",
-        data: userData,
-      });
-    } catch (e) {
-      console.log(e);
-      res.status(500).json({
-        message: "Something went wrong. Try again.",
-      });
-    }
-  }
+  userController.studentImageEdit
 );
 
-router.patch(
-  "/student/me",
+router.patch( "/student/me",
   authController.protect,
   currentUser,
   uploadMultiple,
   checkFileError,
   resizePhoto,
   uploadToS3,
-  async (req, res, next) => {
-    try {
-      let {
-        student_name,
-        grade,
-        city,
-        school,
-        dob,
-        state,
-        profilePhoto,
-        section,
-      } = req.body;
-
-      if (
-        !student_name ||
-        !grade ||
-        !city ||
-        !school ||
-        !dob ||
-        !state ||
-        !profilePhoto ||
-        !section
-      ) {
-        return res.status(404).json({ message: "Please fill all the feilds." });
-      }
-
-      if (
-        !mongoose.Types.ObjectId.isValid(grade) ||
-        !mongoose.Types.ObjectId.isValid(city) ||
-        !mongoose.Types.ObjectId.isValid(school)
-      ) {
-        return res.status(404).json({ message: "Please fill valid objectId" });
-      }
-
-      profilePhoto =
-        profilePhoto === "undefined" ||
-        profilePhoto === "null" ||
-        profilePhoto === "false" ||
-        profilePhoto === ""
-          ? null
-          : profilePhoto;
-
-      const user = await UserDetail.findById(req.user._id);
-
-      if (!user)
-        return res.status(404).json({ message: "No such user found." });
-      const schoolDetails = {
-        grade,
-        city,
-        school,
-        dob,
-        parents_name: user?.schoolDetails?.parents_name,
-        state,
-        profilePhoto,
-        section,
-      };
-      // const filteredBody = filterObj(req.body, 'student_name', 'schoolDetails');
-      user.schoolDetails = schoolDetails;
-      user.student_name = student_name;
-      // user.schoolDetails.profilePhoto = user.schoolDetails.profilePhoto || false;
-      user.lastModified = new Date();
-
-      if (req.profilePhotoUrl) {
-        user.schoolDetails.profilePhoto = req.profilePhotoUrl;
-      }
-
-      const userData = await UserDetail.findByIdAndUpdate(user._id, user, {
-        new: true,
-      })
-        .populate("role", "roleName")
-        .populate("schoolDetails.city", "name")
-        .populate("schoolDetails.grade", "grade")
-        .populate("schoolDetails.school", "school_name")
-        .select(
-          "student_name full_name schoolDetails city isAffiliate collegeDetails pincode KYCStatus aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch bankState"
-        );
-
-      res.status(200).json({
-        message: "Edit successful",
-        status: "success",
-        data: userData,
-      });
-    } catch (e) {
-      console.log(e);
-      res.status(500).json({
-        message: "Something went wrong. Try again.",
-      });
-    }
-  }
+  userController.studentProfileEdit
 );
 
-router.get("/myreferrals/:id", Authenticate, (req, res) => {
-  const { id } = req.params;
-  const referrals = UserDetail.find({ referredBy: id })
-    .sort({ joining_date: -1 })
-    .then((data) => {
-      return res.status(200).json({ data: data, count: data.length });
-    })
-    .catch((err) => {
-      return res.status(422).json({ error: err });
-    });
-});
+router.get("/myreferrals/:id", Authenticate, userController.myReferrals);
 
-router.get("/earnings", Authenticate, async (req, res, next) => {
-  const id = req.user._id;
-  try {
-    const userReferrals = await UserDetail.findById(id).select("referrals");
-    let earnings = 0;
-    userReferrals.referrals.forEach((ref) => {
-      earnings += ref.referralEarning;
-    });
+router.get("/earnings", Authenticate, userController.earnings);
 
-    res.status(200).json({
-      status: "success",
-      data: {
-        joined: userReferrals.referrals.length,
-        earnings: earnings,
-      },
-    });
-  } catch (e) {
-    console.log(e);
-    return res
-      .status(500)
-      .json({ status: "error", message: "Something went wrong" });
-  }
-});
-
-router.get(
-  "/newusertoday",
+router.get( "/newusertoday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    let date = new Date();
-    let todayDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);
-    const newuser = UserDetail.find({
-      joining_date: { $gte: today },
-      creationProcess: { $ne: "School SignUp" },
-    })
-      .populate("referredBy", "first_name last_name")
-      .populate("campaign", "campaignName campaignCode")
-      .select(
-        "joining_date referredBy campaign first_name last_name email mobile creationProcess myReferralCode"
-      )
-      .sort({ joining_date: -1 })
-      .then((data) => {
-        return res.status(200).json({ data: data, count: data.length });
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.newUserToday
 );
 
-router.get(
-  "/newuseryesterday",
+router.get( "/newuseryesterday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    let date = new Date();
-    let todayDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);
-    date.setDate(date.getDate() - 1);
-    let yesterdayDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    yesterdayDate = yesterdayDate + "T00:00:00.000Z";
-    const yesterday = new Date(yesterdayDate);
-    const newuser = UserDetail.countDocuments({
-      joining_date: { $gte: yesterday, $lte: today },
-    })
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.newUserYesterday
 );
 
-router.get(
-  "/newuserthismonth",
+router.get( "/newuserthismonth",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    let date = new Date();
-    let monthStartDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(1).padStart(2, "0")}`;
-    monthStartDate = monthStartDate + "T00:00:00.000Z";
-    const monthStart = new Date(monthStartDate);
-    const newuser = UserDetail.countDocuments({
-      joining_date: { $gte: monthStart },
-    })
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.newUserThisMonth
 );
 
-router.get(
-  "/allusers",
+router.get( "/allusers",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    const newuser = UserDetail.countDocuments()
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        console.log("Error:", err);
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.allUsers
 );
 
-router.get(
-  "/allusersNameAndId",
+router.get( "/allusersNameAndId",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    const newuser = UserDetail.find()
-      .select("_id first_name last_name")
-      .then((data) => {
-        return res.status(200).json({
-          message: "user name and id retreived",
-          data: data,
-          count: data.length,
-        });
-      })
-      .catch((err) => {
-        console.log("Error:", err);
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.allUsersNameAndId
 );
 
-router.get(
-  "/newuserreferralstoday",
+router.get( "/newuserreferralstoday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    let date = new Date();
-    let todayDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);
-    const newuser = UserDetail.countDocuments({
-      joining_date: { $gte: today },
-      referredBy: { $exists: true },
-    })
-      .then((data) => {
-        // console.log(data)
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.newuserreferralstoday
 );
 
-router.get(
-  "/newuserreferralsyesterday",
+router.get( "/newuserreferralsyesterday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    let date = new Date();
-    let todayDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);
-    date.setDate(date.getDate() - 1);
-    let yesterdayDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    yesterdayDate = yesterdayDate + "T00:00:00.000Z";
-    const yesterday = new Date(yesterdayDate);
-    const newuser = UserDetail.countDocuments({
-      joining_date: { $gte: yesterday, $lte: today },
-      referredBy: { $exists: true },
-    })
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.newuserreferralsyesterday
 );
 
-router.get(
-  "/newuserreferralsthismonth",
+router.get( "/newuserreferralsthismonth",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    let date = new Date();
-    let monthStartDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(1).padStart(2, "0")}`;
-    monthStartDate = monthStartDate + "T00:00:00.000Z";
-    const monthStart = new Date(monthStartDate);
-    const newuser = UserDetail.countDocuments({
-      joining_date: { $gte: monthStart },
-      referredBy: { $exists: true },
-    })
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.newuserreferralsthismonth
 );
 
-router.get(
-  "/allreferralsusers",
+router.get( "/allreferralsusers",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    const newuser = UserDetail.countDocuments({ referredBy: { $exists: true } })
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        console.log("Error:", err);
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.allreferralsusers
 );
 
-//-----
-
-router.get(
-  "/newusercampaigntoday",
+router.get( "/newusercampaigntoday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    let date = new Date();
-    let todayDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);
-    const newuser = UserDetail.countDocuments({
-      joining_date: { $gte: today },
-      campaign: { $exists: true },
-    })
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.newusercampaigntoday
 );
 
-router.get(
-  "/newusercampaignyesterday",
+router.get( "/newusercampaignyesterday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    let date = new Date();
-    let todayDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);
-    date.setDate(date.getDate() - 1);
-    let yesterdayDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    yesterdayDate = yesterdayDate + "T00:00:00.000Z";
-    const yesterday = new Date(yesterdayDate);
-    const newuser = UserDetail.countDocuments({
-      joining_date: { $gte: yesterday, $lte: today },
-      campaign: { $exists: true },
-    })
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.newusercampaignyesterday
 );
 
-router.get(
-  "/newusercampaignthismonth",
+router.get( "/newusercampaignthismonth",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    let date = new Date();
-    let monthStartDate = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${String(1).padStart(2, "0")}`;
-    monthStartDate = monthStartDate + "T00:00:00.000Z";
-    const monthStart = new Date(monthStartDate);
-    const newuser = UserDetail.countDocuments({
-      joining_date: { $gte: monthStart },
-      campaign: { $exists: true },
-    })
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.newusercampaignthismonth
 );
 
-router.get(
-  "/allcampaignusers",
+router.get( "/allcampaignusers",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  (req, res) => {
-    const newuser = UserDetail.countDocuments({ campaign: { $exists: true } })
-      .then((data) => {
-        return res.status(200).json({ count: data });
-      })
-      .catch((err) => {
-        console.log("Error:", err);
-        return res.status(422).json({ error: err });
-      });
-  }
+  userController.allcampaignusers
 );
 
-router.get(
-  "/infinityUsers",
+router.get( "/normalusers",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  async (req, res) => {
-    const role = await Role.findOne({ roleName: "Infinity Trader" });
-
-    const newuser = await UserDetail.find({ role: role._id }).select(
-      "first_name last_name email _id name"
-    );
-    return res.status(200).json({ data: newuser, count: newuser.length });
-  }
+  userController.normalusers 
 );
 
-router.get(
-  "/infinityTraders",
+router.get( "/influencer",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  async (req, res) => {
-    const role = await Role.findOne({ roleName: "Infinity Trader" });
-
-    const newuser = await UserDetail.find({
-      role: role._id,
-      designation: "Equity Trader",
-    })
-      .select(
-        "first_name last_name city gender dob joining_date employeeid designation referrals last_occupation location degree familyIncomePerMonth currentlyWorking latestSalaryPerMonth nonWorkingDurationInMonths email cohort profilePhoto _id stayingWith maritalStatus previouslyEmployeed"
-      )
-      .sort({ cohort: -1 });
-    return res.status(200).json({ data: newuser, count: newuser.length });
-  }
-);
-
-router.get(
-  "/normalusers",
-  Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  async (req, res) => {
-    const newuser = await UserDetail.find({ designation: "Trader" }).select(
-      "first_name last_name employeeid _id email mobile"
-    );
-    return res.status(200).json({ data: newuser, count: newuser.length });
-  }
-);
-
-router.get(
-  "/influencer",
-  Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  async (req, res) => {
-    const searchString = req.query.search;
-    let query = {
-      status: "Active",
-      role: new ObjectId("65dc6817586cba2182f05561"),
-    };
-
-    if (searchString) {
-      query.$and = [
-        {
-          $or: [
-            { email: { $regex: searchString, $options: "i" } },
-            { first_name: { $regex: searchString, $options: "i" } },
-            { last_name: { $regex: searchString, $options: "i" } },
-            { mobile: { $regex: searchString, $options: "i" } },
-          ],
-        },
-      ];
-    }
-
-    try {
-      const data = await UserDetail.find(query).select(
-        "first_name last_name email mobile _id myReferralCode influencerDetails"
-      );
-      res.status(200).json({
-        status: "success",
-        message: "Getting User successfully",
-        data: data,
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: "Something went wrong",
-        error: error.message,
-      });
-    }
-  }
-);
-
-router.get(
-  "/adminAndcr",
-  Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  async (req, res) => {
-    const newuser = await UserDetail.aggregate([
-      {
-        $lookup: {
-          from: "role-details",
-          localField: "role",
-          foreignField: "_id",
-          as: "roles",
-        },
-      },
-      {
-        $unwind: {
-          path: "$roles",
-        },
-      },
-      {
-        $match: {
-          "roles.roleName": {
-            $in: ["Admin", "Customer Relations"],
-          },
-        },
-      },
-      {
-        $project: {
-          first_name: 1,
-          last_name: 1,
-          employeeid: 1,
-          _id: 1,
-          email: 1,
-          mobile: 1,
-        },
-      },
-    ]);
-    return res.status(200).json({ data: newuser, count: newuser.length });
-  }
+  userController.influencer 
 );
 
 module.exports = router;
