@@ -7,29 +7,10 @@ import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import money from "../../../assets/images/money.png";
+import {apiUrl} from '../../../constants/constants.js'
 // import link from "../../../assets/images/link.png"
 
-const MyPortfolioCard = ({ subscriptionId }) => {
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
-  const [isLoading, setIsLoading] = useState(false);
-  const [tenXMarginDetails, setTenXMarginDetail] = useState([]);
-  useEffect(() => {
-    setIsLoading(true);
-    axios
-      .get(`${baseUrl}api/v1/tenX/${subscriptionId?._id}/trade/marginDetail`, {
-        withCredentials: true,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-      })
-      .then((res) => {
-
-        setTenXMarginDetail(res.data.data);
-      });
-  }, []);
+const MyPortfolioCard = ({ subscription }) => {
 
   return (
     <>
@@ -37,7 +18,7 @@ const MyPortfolioCard = ({ subscriptionId }) => {
         {/* <Grid container> */}
 
         <Grid
-          key={subscriptionId?._id}
+          key={subscription?._id}
           item
           xs={12}
           md={6}
@@ -70,7 +51,7 @@ const MyPortfolioCard = ({ subscriptionId }) => {
                         fontWeight: "bold",
                       }}
                     >
-                      {subscriptionId?.portfolio?.portfolioName}
+                      {subscription?.name}
                     </MDTypography>
                   </MDBox>
                 </Grid>
@@ -111,7 +92,7 @@ const MyPortfolioCard = ({ subscriptionId }) => {
                       {new Intl.NumberFormat(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
-                      }).format(subscriptionId?.portfolio.portfolioValue)}
+                      }).format(subscription.portfolioValue)}
                     </MDTypography>
                   </MDBox>
                 </Grid>
@@ -147,9 +128,7 @@ const MyPortfolioCard = ({ subscriptionId }) => {
                         maximumFractionDigits: 2,
                       }).format(
                         Math.abs(
-                          tenXMarginDetails?.openingBalance
-                            ? tenXMarginDetails?.openingBalance
-                            : subscriptionId?.portfolio.portfolioValue
+                          subscription?.openingBalance
                         )
                       )}
                     </MDTypography>
@@ -186,10 +165,7 @@ const MyPortfolioCard = ({ subscriptionId }) => {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       }).format(
-                        tenXMarginDetails?.npnl
-                          ? subscriptionId?.portfolio.portfolioValue +
-                              tenXMarginDetails?.npnl
-                          : subscriptionId?.portfolio.portfolioValue
+                        subscription?.availableBalance
                       )}
                     </MDTypography>
                   </MDBox>
@@ -207,7 +183,7 @@ const MyPortfolioCard = ({ subscriptionId }) => {
                   <MDTypography fontSize={9} style={{ color: "black" }}>
                     Portfolio Type{" "}
                     <span style={{ fontSize: 11, fontWeight: 700 }}>
-                      {subscriptionId?.portfolio.portfolioType}
+                      {subscription.type}
                     </span>
                   </MDTypography>
                 </Grid>
@@ -224,7 +200,7 @@ const MyPortfolioCard = ({ subscriptionId }) => {
                   <MDTypography fontSize={9} style={{ color: "black" }}>
                     Portfolio Account{" "}
                     <span style={{ fontSize: 11, fontWeight: 700 }}>
-                      {subscriptionId?.portfolio.portfolioAccount}
+                      {subscription.account}
                     </span>
                   </MDTypography>
                 </Grid>

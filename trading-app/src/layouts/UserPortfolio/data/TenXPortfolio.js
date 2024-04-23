@@ -24,7 +24,7 @@ const MyPortfolioCard = ({tenXSubscriptions, marginDetails}) => {
             return ( 
             
               <Grid item xs={12} md={3} lg={6}>
-                <TenXPortfolioCard subscriptionId={e?.subscriptionId}/>
+                <TenXPortfolioCard subscription={e}/>
               </Grid>
             )
           })}

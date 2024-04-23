@@ -19,14 +19,7 @@ export default function LabTabs() {
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const userPortfolio = getDetails?.userDetails?.portfolio;
-  const userTenXPortfolio = getDetails?.userDetails?.subscription;
-  // console.log(userTenXPortfolio)
-  const tenXSubscriptions = userTenXPortfolio?.filter((e) => {
-    return (
-      e?.subscriptionId?.portfolio?.portfolioType === "TenX Trading" &&
-      e?.subscriptionId?.portfolio?.portfolioAccount === "Paid"
-    );
-  });
+  
   const virtualPortfolio = userPortfolio?.filter((e) => {
     return (
       e?.portfolioId?.portfolioType === "Virtual Trading" &&
@@ -65,7 +58,6 @@ export default function LabTabs() {
       })
       .then((res) => {
         setMarginDetail(res.data.data);
-        setIsLoading(false);
       })
       .catch((err) => {
         return new Error(err);
@@ -122,7 +114,7 @@ export default function LabTabs() {
               TenX Trading Portfolio(s)
             </MDTypography>
             <MDBox style={{ minWidth: "100%" }}>
-              <TenXPortfolio tenXSubscriptions={tenXSubscriptions} />
+              <TenXPortfolio tenXSubscriptions={tenX} />
             </MDBox>
           </Grid>
         </Grid>
