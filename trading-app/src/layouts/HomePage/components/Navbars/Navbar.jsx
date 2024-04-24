@@ -86,11 +86,11 @@ const Navbar = () => {
             </LinkButton>
             </a> */}
 
-            <a href="/calculators">
+            {/* <a href="/calculators">
               <LinkButton>
                 <Typography fontWeight="bold" variant="body2">Whats your Net Worth?</Typography>
               </LinkButton>
-            </a>
+            </a> */}
 
             <a href="/tradingguru">
               <LinkButton>
@@ -156,11 +156,11 @@ const Navbar = () => {
             </LinkButton>
             </a> */}
 
-              <a href="/calculators">
+              {/* <a href="/calculators">
                 <LinkButton>
                   <Typography fontWeight="bold" variant="body2">Whats your Net Worth?</Typography>
                 </LinkButton>
-              </a>
+              </a> */}
 
               <a href="/tradingguru">
                 <LinkButton>

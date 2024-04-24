@@ -45,7 +45,7 @@ function Header({
   const initialInterestedCounts = contest.reduce((acc, elem) => {
     acc[elem._id] = {
       interested: false,
-      count: elem?.interestedUsers?.length || 0,
+      count: elem?.interestedUsers || 0,
     };
     return acc;
   }, {});
@@ -546,7 +546,7 @@ function Header({
                                 >
                                   SPOTS LEFT:{" "}
                                   {elem?.maxParticipants -
-                                    elem?.participants?.length}
+                                    elem?.participants}
                                 </MDBox>
                               </MDBox>
                             </MDBox>
@@ -569,7 +569,7 @@ function Header({
                                   }}
                                 >
                                   {elem?.maxParticipants -
-                                    elem?.participants?.length}{" "}
+                                    elem?.participants}{" "}
                                   SEATS UP FOR GRAB
                                 </MDBox>
                               </MDBox>
