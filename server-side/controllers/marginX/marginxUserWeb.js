@@ -142,7 +142,7 @@ exports.upcoming = async (req, res) => {
             },
             {
                 $sort: {
-                    startTime: -1
+                    entryFee: 1
                 }
             }
         ])
@@ -216,7 +216,7 @@ exports.live = async (req, res) => {
             },
             {
                 $sort: {
-                    startTime: -1
+                    entryFee: 1
                 }
             }
         ])

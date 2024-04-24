@@ -141,6 +141,7 @@ const {getInfluencerUsers} = require('../../controllers/influencer/influencerCon
 const { getIOValue } = require('../../marketData/socketio');
 const {autoCreate} = require('../../controllers/AutoCreate');
 const Calculator = require('../../models/calculator/calculatorSchema');
+const {cronjobs} = require('../../cronjobs');
 
 // client8.connect()
 // .then(async (res) => {
@@ -152,7 +153,8 @@ const Calculator = require('../../models/calculator/calculatorSchema');
 // })
 
 router.get("/date", async (req, res) => {
-  await autoCreate()
+  await cronjobs()
+  // autoCreate()
   res.send('ok');
 });
 // 1. Stocks

@@ -2295,7 +2295,7 @@ async function processContestQueue() {
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
 
-   if (currentTime >= startTime && currentTime <= endTime) {
+  if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -2314,7 +2314,7 @@ async function processContestQueue() {
             }
         }
 
-   }
+  }
 }
 
 exports.sendMyRankData = async () => {
@@ -2332,7 +2332,7 @@ exports.sendMyRankData = async () => {
                 const endTime = new Date(currentTime);
                 endTime.setHours(9, 48, 0, 0);
 
-               if (currentTime >= startTime && currentTime <= endTime) {
+              if (currentTime >= startTime && currentTime <= endTime) {
                     const contest = await DailyContest.find({ contestStatus: "Active", contestStartTime: { $lte: new Date() } });
 
                     for (let i = 0; i < contest?.length; i++) {
@@ -2353,7 +2353,7 @@ exports.sendMyRankData = async () => {
                             }
                         }
                     }
-                }
+               }
             };
             emitLeaderboardData();
             interval = setInterval(emitLeaderboardData, 5000);

@@ -42,7 +42,7 @@ function MyRank({ socket, id, data, setRank }) {
   // let myReward = pnl?.netPnl*data?.allData?.payoutPercentage/100>0?pnl?.netPnl*data?.allData?.payoutPercentage/100:0;
 
   let myReward;
-  if (data?.allData?.payoutType !== "Percentage") {
+  if (data?.allData?.payoutType === "Percentage") {
     let payoutCap;
     if (data?.allData?.entryFee > 0) {
       payoutCap =

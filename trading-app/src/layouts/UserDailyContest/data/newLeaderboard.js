@@ -215,7 +215,7 @@ function Leaderboard({ socket, name, id, data}) {
                                             // let myReward = elem?.npnl * data?.allData?.payoutPercentage/100>0?elem?.npnl * data?.allData?.payoutPercentage/100:0;
 
                                             let myReward;
-                                            if(data?.allData?.payoutType !== "Percentage"){
+                                            if(data?.allData?.payoutType === "Percentage"){
                                                 let payoutCap;
                                                 if(data?.allData?.entryFee > 0){
                                                     payoutCap = data?.allData?.entryFee * data?.allData?.payoutCapPercentage/100;
