@@ -1,5 +1,7 @@
 const DailyContest = require("../../models/DailyContest/dailyContest");
 const { ObjectId } = require('mongodb');
+const User = require("../../models/User/userDetailSchema");
+
 
 exports.userFreeCompleted = async (req, res) => {
     try {
