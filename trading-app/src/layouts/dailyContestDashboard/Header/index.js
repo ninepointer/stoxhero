@@ -88,14 +88,14 @@ export default function LabTabs({ socket }) {
         </MDTypography>
       </MDBox>
 
-      <Grid container xs={12} md={12} lg={12}>
+      {/* <Grid container xs={12} md={12} lg={12}>
         <MDBox minWidth="100%">
           <LiveContest socket={socket} />
         </MDBox>
-      </Grid>
+      </Grid> */}
 
-      <XTSOverview socket={socket} />
-      <PnlOverviewLive socket={socket} />
+      {/* <XTSOverview socket={socket} /> */}
+      {/* <PnlOverviewLive socket={socket} /> */}
       <PnlOverviewMock socket={socket} />
 
       <Grid

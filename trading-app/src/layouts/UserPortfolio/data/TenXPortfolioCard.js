@@ -1,14 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Grid from "@mui/material/Grid";
-import axios from "axios";
-// Material Dashboard 2 React components
 import MDBox from "../../../components/MDBox";
 import MDAvatar from "../../../components/MDAvatar";
 import MDButton from "../../../components/MDButton";
 import MDTypography from "../../../components/MDTypography";
 import money from "../../../assets/images/money.png";
-import {apiUrl} from '../../../constants/constants.js'
-// import link from "../../../assets/images/link.png"
 
 const MyPortfolioCard = ({ subscription }) => {
 

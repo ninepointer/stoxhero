@@ -198,7 +198,7 @@ export default function PnlOverviewMock({ socket }) {
               <Grid container xs={12} md={12} lg={12}>
                 <Grid item p={2} xs={12} md={12} lg={5.9}>
                   <MDTypography fontSize={16} fontWeight="bold" color="dark">
-                    Today's TestZone Position (Company Side)
+                    Today's TestZone Position (Trader Side)
                   </MDTypography>
                   <Grid container spacing={0.5} xs={12} md={12} lg={12} mt={1}>
                     <Grid item xs={4} md={4} lg={4}>
@@ -475,7 +475,7 @@ export default function PnlOverviewMock({ socket }) {
 
                 <Grid item p={2} xs={12} md={12} lg={5.9}>
                   <MDTypography fontSize={16} fontWeight="bold" color="dark">
-                    Last Trading Day TestZone Position (Company Side)
+                    Last Trading Day TestZone Position (Trader Side)
                   </MDTypography>
                   <Grid container spacing={0.5} xs={12} md={12} lg={12} mt={1}>
                     <Grid item xs={4} md={4} lg={4}>
@@ -798,7 +798,7 @@ export default function PnlOverviewMock({ socket }) {
               <Grid container xs={12} md={12} lg={12}>
                 <Grid item p={2} xs={12} md={12} lg={5.9}>
                   <MDTypography fontSize={16} fontWeight="bold" color="dark">
-                    MTD till Yesterday TestZone Position (Company Side)
+                    MTD till Yesterday TestZone Position (Trader Side)
                   </MDTypography>
                   <Grid container spacing={0.5} xs={12} md={12} lg={12} mt={1}>
                     <Grid item xs={4} md={4} lg={4}>
@@ -1083,7 +1083,7 @@ export default function PnlOverviewMock({ socket }) {
 
                 <Grid item p={2} xs={12} md={12} lg={5.9}>
                   <MDTypography fontSize={16} fontWeight="bold" color="dark">
-                    Lifetime till Yesterday TestZone Position (Company Side)
+                    Lifetime till Yesterday TestZone Position (Trader Side)
                   </MDTypography>
                   <Grid container spacing={0.5} xs={12} md={12} lg={12} mt={1}>
                     <Grid item xs={4} md={4} lg={4}>

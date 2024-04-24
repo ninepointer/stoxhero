@@ -60,7 +60,7 @@ exports.marginxTrade = async (req, res, otherData) => {
             margin
         }
 
-        const mockTradeDetails = (order_type !== "LIMIT") && await MarginXMockCompany.create([companyDoc], { session });
+        // const mockTradeDetails = (order_type !== "LIMIT") && await MarginXMockCompany.create([companyDoc], { session });
         const algoTrader = (order_type !== "LIMIT") && await MarginXMockUser.create([traderDoc], { session });
 
         let pnl = await client.get(`${req.user._id.toString()}${marginxId.toString()} overallpnlMarginX`)
@@ -120,7 +120,7 @@ exports.marginxTrade = async (req, res, otherData) => {
         }
         // Commit the transaction
 
-        io?.emit("updatePnl", mockTradeDetails)
+        // io?.emit("updatePnl", mockTradeDetails)
        
         if(fromAdmin){
             io?.emit(`${trader.toString()}autoCut`, algoTrader)

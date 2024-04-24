@@ -1,5 +1,7 @@
 const DailyContest = require("../../models/DailyContest/dailyContest");
 const { ObjectId } = require('mongodb');
+const User = require("../../models/User/userDetailSchema");
+
 
 exports.userFreeCompleted = async (req, res) => {
     try {
@@ -42,6 +44,7 @@ exports.userFreeCompleted = async (req, res) => {
                     contestStartTime: 1,
                     contestEndTime: 1,
                     isAllIndex: 1,
+                    payoutType: 1,
                     isNifty: 1,
                     isBankNifty: 1,
                     isFinNifty: 1,
@@ -123,6 +126,7 @@ exports.userPaidCompleted = async (req, res) => {
                     contestStartTime: 1,
                     contestEndTime: 1,
                     isAllIndex: 1,
+                    payoutType: 1,
                     isNifty: 1,
                     isBankNifty: 1,
                     isFinNifty: 1,
@@ -210,6 +214,7 @@ exports.userUpcoming = async (req, res) => {
                     contestStartTime: 1,
                     contestEndTime: 1,
                     isAllIndex: 1,
+                    payoutType: 1,
                     isNifty: 1,
                     isBankNifty: 1,
                     isFinNifty: 1,
@@ -335,6 +340,7 @@ exports.userLive = async (req, res) => {
                     contestStartTime: 1,
                     contestEndTime: 1,
                     isAllIndex: 1,
+                    payoutType: 1,
                     isNifty: 1,
                     isBankNifty: 1,
                     isFinNifty: 1,

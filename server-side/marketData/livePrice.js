@@ -52,7 +52,6 @@ router.get("/getliveprice", async (req, res)=>{
       try{
         const response = await axios.get(url, authOptions);
         
-        // console.log(response.data, response,response.data.data, )
         for (let instrument in response.data.data) {
             let obj = {};
             obj.last_price = response.data.data[instrument].last_price;
@@ -65,7 +64,7 @@ router.get("/getliveprice", async (req, res)=>{
         return res.status(201).send((arr));
   
       } catch (err){
-        console.log(err)
+        // console.log(err)
         return res.status(422).json({error : "Failed to send data"});
     }  
   });
@@ -104,7 +103,6 @@ router.get("/getstockliveprice", async (req, res)=>{
       try{
         const response = await axios.get(url, authOptions);
         
-        // console.log(response.data, response,response.data.data, )
         for (let instrument in response.data.data) {
             let obj = {};
             obj.last_price = response.data.data[instrument].last_price;
@@ -117,7 +115,7 @@ router.get("/getstockliveprice", async (req, res)=>{
         return res.status(201).send((arr));
   
       } catch (err){
-        console.log(err)
+        // console.log(err)
         return res.status(422).json({error : "Failed to send data"});
     }  
   });
@@ -165,7 +163,6 @@ router.get("/getIndexliveprice", async (req, res)=>{
       try{
         const response = await axios.get(url, authOptions);
         
-        // console.log(response.data, response,response.data.data, )
         for (let instrument in response.data.data) {
             let obj = {};
             obj.last_price = response.data.data[instrument].last_price;
@@ -179,7 +176,7 @@ router.get("/getIndexliveprice", async (req, res)=>{
         return res.status(201).send((arr));
   
       } catch (err){
-        console.log(err)
+        // console.log(err)
         return res.status(422).json({error : "Failed to send data"});
     }  
   });
