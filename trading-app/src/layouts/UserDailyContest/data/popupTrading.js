@@ -37,12 +37,7 @@ const PopupTrading = ({ elem, timeDifference }) => {
       user: getDetails?.userDetails?._id,
       contestId: elem?._id,
     });
-    let isParticipated = elem?.participants.some((elem) => {
-      return (
-        elem?.userId?._id?.toString() ===
-        getDetails?.userDetails?._id?.toString()
-      );
-    });
+    let isParticipated = elem?.isPaid;
     // console.log("isParticipated", isParticipated)
     if (isParticipated) {
       navigate(`/testzone/${elem.contestName}`, {

@@ -33,12 +33,7 @@ const PopupTrading = ({ elem, timeDifference }) => {
   };
 
   async function participateUserToMarginX(elem) {
-    let isParticipated = elem?.participants.some((elem) => {
-      return (
-        elem?.userId?._id?.toString() ===
-        getDetails?.userDetails?._id?.toString()
-      );
-    });
+    let isParticipated = elem?.isPaid;
     // console.log("isParticipated", isParticipated)
     if (isParticipated) {
       navigate(`/testzone/${elem.contestName}`, {
