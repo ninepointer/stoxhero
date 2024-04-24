@@ -1,5 +1,5 @@
 const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
-const DailyContestMockCompany = require("../models/DailyContest/dailyContestMockCompany");
+const DailyContestMockCompany = require("../models/DailyContest/dailyContestMockUser");
 // const InfinityTradeCompanyLive = require('../models/TradeDetails/liveTradeSchema')
 const { ObjectId } = require("mongodb");
 const { client, getValue } = require('../marketData/redisClient');
