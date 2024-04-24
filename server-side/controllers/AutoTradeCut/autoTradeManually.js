@@ -1092,7 +1092,7 @@ const takeDailyContestMockTrades = async(companyTradeObjects, userTradeObjects)=
   try {
     session.startTransaction();
     await DailyContestMockUser.insertMany(userTradeObjects, {session});
-    await DailyContestMockCompany.insertMany(companyTradeObjects, {session});
+    // await DailyContestMockCompany.insertMany(companyTradeObjects, {session});
     console.log('Documents inserted');
     for(trade of userTradeObjects){
       if (isRedisConnected && await client.exists(`${trade?.trader.toString()}${trade?.contestId.toString()} overallpnlDailyContest`)) {
@@ -1187,7 +1187,7 @@ const takeMarginXMockTrades = async(companyTradeObjects, userTradeObjects)=>{
   try {
     session.startTransaction();
     await MarginXMockUser.insertMany(userTradeObjects, {session});
-    await MarginXMockCompany.insertMany(companyTradeObjects, {session});
+    // await MarginXMockCompany.insertMany(companyTradeObjects, {session});
     console.log('Documents inserted');
     for(trade of userTradeObjects){
       if (isRedisConnected && await client.exists(`${trade?.trader.toString()}${trade?.marginxId.toString()} overallpnlMarginX`)) {

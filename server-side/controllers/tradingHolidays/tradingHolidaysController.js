@@ -171,32 +171,29 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
 exports.nextTradingDay = async (req, res, next) => {
 
     try {
-        const today = moment();
-        const startOfDay = today.clone().startOf('day');
-        const firstDayOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
-        const holidays = await TradingHoliday.find({holidayDate: {$gte: new Date(firstDayOfMonth)}});
-    
-        const checkStartDate = await holiday(holidays, startOfDay, 'next');
-    
-        res.status(200).send({ status: "success", data: new Date(checkStartDate) })
-        // for (let i = 1; i < 30; i++) {
-        //     let date = new Date();
-        //     date.setDate(date.getDate() + i);
-        //     const endOfTomorrow = new Date(date);
-        //     endOfTomorrow.setHours(23, 59, 59, 999);
-        //     const holiday = await TradingHoliday.find({
-        //         holidayDate: {
-        //             $gte: new Date(date.toISOString().split("T")[0]),
-        //             $lte: new Date(`${endOfTomorrow.toISOString().split("T")[0]}T23:59:00.000Z`)
-        //         }
-        //     });
-        //     if (isTradingDay(date, holiday)) {
-        //         // Set the remaining time state here
-        //         res.status(200).send({ status: "success", data: date })
-        //         break;
-        //     } else {
-        //     }
-        // }
+        for (let i = 1; i < 30; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() + i);
+
+            const startOfTomorrow = new Date(date);
+            startOfTomorrow.setHours(0, 0, 0, 0);
+
+            const endOfTomorrow = new Date(date);
+            endOfTomorrow.setHours(23, 59, 59, 999);
+
+            const holiday = await TradingHoliday.find({
+                holidayDate: {
+                    $gte: new Date(date.toISOString().split("T")[0]),
+                    $lte: new Date(`${endOfTomorrow.toISOString().split("T")[0]}T23:59:00.000Z`)
+                }
+            });
+            if (isTradingDay(date, holiday)) {
+                // Set the remaining time state here
+                res.status(200).send({ status: "success", data: date })
+                break;
+            } else {
+            }
+        }
     } catch (e) {
         console.log(e)
         res.status(500).json({ status: 'error', message: 'Something went wrong' });
@@ -215,30 +212,3 @@ function isTradingDay(date, holidays) {
     }
     return true;
 }
-
-const holiday = async (holidays, date, backOrForward) => {
-    let newDate = moment(date);
-    
-    while (isHoliday(newDate, holidays) || isWeekend(newDate)) {
-        if (backOrForward === 'back') {
-            newDate = newDate.subtract(1, 'days');
-        } else {
-            newDate = newDate.add(1, 'days');
-        }
-    }
-
-    return newDate;
-};
-
-const isHoliday = (date, holidays) => {
-
-    return holidays.some(elem => {
-        return moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'day') && 
-        moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'month') && 
-        moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'year')
-    });
-};
-
-const isWeekend = (date) => {
-    return date.day() === 0 || date.day() === 6; // Sunday or Saturday
-};

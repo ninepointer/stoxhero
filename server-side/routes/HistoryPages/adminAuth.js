@@ -91,7 +91,7 @@ const {
 } = require("../../utils/insertData");
 // const {autoCutMainManually, autoCutMainManuallyMock} = require("../../controllers/AutoTradeCut/mainManually");
 // const {creditAmountToWallet} = require("../../controllers/dailyContestController");
-// const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
+const DailyContestMockCompany = require("../../models/DailyContest/dailyContestMockCompany");
 const DailyContestMockUser = require("../../models/DailyContest/dailyContestMockUser");
 const MarginDetailMockCompany = require("../../models/marginUsed/infinityMockCompanyMargin");
 const MarginDetailLiveCompany = require("../../models/marginUsed/infinityLiveCompanyMargin");
@@ -153,9 +153,24 @@ const {cronjobs} = require('../../cronjobs');
 // })
 
 router.get("/date", async (req, res) => {
-  await cronjobs()
+  // await cronjobs()
   // autoCreate()
-  res.send('ok');
+  const data = await DailyContestMockUser.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
+    , {
+      $set: {
+        status: 'REJECTED'
+      }
+    }
+  )
+
+  const data1 = await DailyContestMockCompany.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
+  , {
+    $set: {
+      status: 'REJECTED'
+    }
+  }
+)
+res.status(200).json(data);
 });
 // 1. Stocks
 // 2. Mutual Funds

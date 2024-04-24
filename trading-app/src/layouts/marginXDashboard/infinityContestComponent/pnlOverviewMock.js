@@ -197,7 +197,7 @@ export default function PnlOverviewMock({ socket }) {
               <Grid container xs={12} md={12} lg={12}>
                 <Grid item p={2} xs={12} md={12} lg={5.9}>
                   <MDTypography fontSize={16} fontWeight="bold" color="dark">
-                    Today's MarginX Position (Company Side)
+                    Today's MarginX Position (Trader Side)
                   </MDTypography>
                   <Grid container spacing={0.5} xs={12} md={12} lg={12} mt={1}>
                     <Grid item xs={4} md={4} lg={4}>
@@ -478,7 +478,7 @@ export default function PnlOverviewMock({ socket }) {
 
                 <Grid item p={2} xs={12} md={12} lg={5.9}>
                   <MDTypography fontSize={16} fontWeight="bold" color="dark">
-                    Last Trading Day MarginX Position (Company Side)
+                    Last Trading Day MarginX Position (Trader Side)
                   </MDTypography>
                   <Grid container spacing={0.5} xs={12} md={12} lg={12} mt={1}>
                     <Grid item xs={4} md={4} lg={4}>
@@ -801,7 +801,7 @@ export default function PnlOverviewMock({ socket }) {
                 <Grid container xs={12} md={12} lg={12}>
                   <Grid item p={2} xs={12} md={12} lg={5.9}>
                     <MDTypography fontSize={16} fontWeight="bold" color="dark">
-                      MTD till Yesterday Contest Position (Company Side)
+                      MTD till Yesterday Contest Position (Trader Side)
                     </MDTypography>
                     <Grid
                       container
@@ -1114,7 +1114,7 @@ export default function PnlOverviewMock({ socket }) {
 
                   <Grid item p={2} xs={12} md={12} lg={5.9}>
                     <MDTypography fontSize={16} fontWeight="bold" color="dark">
-                      Lifetime till Yesterday Contest Position (Company Side)
+                      Lifetime till Yesterday Contest Position (Trader Side)
                     </MDTypography>
                     <Grid
                       container

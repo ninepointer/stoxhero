@@ -1,5 +1,5 @@
 const MarginxMockUser = require("../../models/marginX/marginXUserMock");
-const MarginxMockCompany = require("../../models/marginX/marginXCompanyMock");
+const MarginxMockCompany = require("../../models/marginX/marginXUserMock");
 // const InfinityTradeCompanyLive = require('../models/TradeDetails/liveTradeSchema')
 const { ObjectId } = require("mongodb");
 const { client, getValue } = require('../../marketData/redisClient');

@@ -11,8 +11,8 @@ const User = require("../../models/User/userDetailSchema");
 const {autoPlaceOrder} = require("../../services/xts/xtsInteractive")
 const { takeAutoTenxTrade, takeAutoPaperTrade, takeAutoInfinityTrade, takeAutoInternshipTrade, takeAutoDailyContestMockTrade, 
   takeInternshipTrades, takeDailyContestMockTrades, takeMarginXMockTrades, takeBattleTrades, takeStockTrades, takePaperTrades } = require("./autoTradeManually");
-const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
-const MarginXMock = require("../../models/marginX/marginXCompanyMock");
+const DailyContestMock = require("../../models/DailyContest/dailyContestMockUser");
+const MarginXMock = require("../../models/marginX/marginXUserMock");
 const singleLivePrice = require('../../marketData/sigleLivePrice');
 const getLivePrices = require('../../marketData/multipleLivePrices');
 const { ObjectId } = require("mongodb");
@@ -1335,10 +1335,15 @@ const dailyContestMockMod = async () => {
   });
   const userTradeObjects = data.map((item)=>{
     return {
-      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:(item?.runningLots), Product:"NRML", 
-      buyOrSell:item?.runningLots<0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
-      symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, isRealTrade:false,
-      instrumentToken: item?.instrumentToken,contestId: item?.contestId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
+      // status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product:"NRML", 
+      // buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
+      // symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, isRealTrade:false,
+      // instrumentToken: item?.instrumentToken,contestId: item?.contestId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
+      
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product:"NRML", 
+      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
+      symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, 
+      instrumentToken: item?.instrumentToken,contestId: item?.contestId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
   });
   // console.log('userTrades', userTradeObjects);
@@ -1606,10 +1611,15 @@ const marginXMockMod = async () => {
   });
   const userTradeObjects = data.map((item)=>{
     return {
-      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:(item?.runningLots), Product:"NRML", 
-      buyOrSell:item?.runningLots<0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
-      symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, isRealTrade:false,
-      instrumentToken: item?.instrumentToken,marginxId: item?.marginxId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
+      status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity: -(item?.runningLots), Product:"NRML", 
+      buyOrSell:item?.runningLots>0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
+      symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, 
+      instrumentToken: item?.instrumentToken,marginxId: item?.marginxId, algoBox: item?.algoBoxId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(-item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
+
+      // status: "COMPLETE", average_price: pricesByTokens[item?.instrumentToken.toString()], Quantity:(item?.runningLots), Product:"NRML", 
+      // buyOrSell:item?.runningLots<0?'SELL':'BUY',variety:"regular", validity: "DAY", exchange:item?.exchange, order_type:"MARKET", 
+      // symbol: item?.symbol, placed_by: "stoxhero",order_id: `${date.getFullYear() - 2000}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${Math.floor(100000000 + Math.random() * 900000000)}`, isRealTrade:false,
+      // instrumentToken: item?.instrumentToken,marginxId: item?.marginxId, exchangeInstrumentToken: item?.exchangeInstrumentToken,createdBy:system?._id, trader: item?.userId, amount: (Number(item?.runningLots) * pricesByTokens[item?.instrumentToken.toString()]), trade_time: new Date(new Date().getTime() + (5*60 + 30) * 60 * 1000),
     }
   });
   
