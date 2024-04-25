@@ -2,12 +2,12 @@ const { tenx, paperTrade, stockTradeMod, paperTradeMod, infinityTradeLive, conte
     dailyContestMock, internshipTradeMod, dailyContestMockMod, marginXMockMod, battleTradeMod } = require("./collectingTradeManually");
 const { creditAmountToWallet } = require("../../controllers/dailyContestController");
 const marginxController = require("../../controllers/marginX/marginxController");
-const DailyContestMock = require("../../models/DailyContest/dailyContestMockCompany");
+const DailyContestMock = require("../../models/DailyContest/dailyContestMockUser");
 const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
 const Contest = require('../../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
 // const InfinityLiveTradeCompany = require("../../models/TradeDetails/liveTradeSchema");
 const dailyContestLiveCompany = require("../../models/DailyContest/dailyContestLiveCompany")
-const MarginXMock = require("../../models/marginX/marginXCompanyMock");
+const MarginXMock = require("../../models/marginX/marginXUserMock");
 const MarginXMockUser = require("../../models/marginX/marginXUserMock");
 const MarginX = require("../../models/marginX/marginX");
 const BattleTrade = require("../../models/battle/battleTrade");
@@ -96,7 +96,7 @@ const autoCutMainManuallyMock = async () => {
         await dailyContestMockMod();
         await marginXMockMod();
         await stockTradeMod();
-        await saveLeaderboardData();
+        // await saveLeaderboardData();
         await changeStatus();
         await changeMarginXStatus();
         
@@ -231,6 +231,7 @@ const changeStatus = async () => {
         ]
     );
 
+    console.log("change status contest", data.length , dataUser.length)
     if (data.length === 0 && dataUser.length === 0) {
         await changeContestStatus();
         await creditAmount();

@@ -1585,6 +1585,8 @@ const marginXMockMod = async () => {
 
     ]
   );
+
+  console.log("marginx", data.length)
   if(data.length == 0) return;
   const system = await User.findOne({email:'system@ninepointer.in'}).select('_id');  
   //const uniqueInstrumentTokens = [...new Set(data.map(item => item.instrumentToken))];
