@@ -159,7 +159,7 @@ export default function CalculatorCard({ assets, pastStartTime, pastEndTime, lia
 
                                                     setFormAsset(prevFormData => ({
                                                         ...prevFormData,
-                                                        [elem?.keyword]: Number(newValue)
+                                                        [elem?.keyword]: Math.abs(Number(newValue))
                                                     }));
                                                 }}
                                                 
@@ -260,7 +260,7 @@ export default function CalculatorCard({ assets, pastStartTime, pastEndTime, lia
 
                                                     setFormLiabilities(prevFormData => ({
                                                         ...prevFormData,
-                                                        [elem?.keyword]: Number(newValue)
+                                                        [elem?.keyword]: Math.abs(Number(newValue))
                                                     }));
                                                 }}
                                             >
