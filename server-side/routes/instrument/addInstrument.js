@@ -31,12 +31,12 @@ router.post("/addInstrument", authentication, async (req, res) => {
         if (exchangeSegment === "NFO-OPT") {
             exchangeSegment = 2;
         }
-        if (!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken) {
+        // if (!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken) {
             if (!instrumentToken) {
                 return res.status(422).json({ error: "Please enter a valid Instrument." })
             }
-            return res.status(422).json({ error: "Any of one feild is incorrect..." })
-        }
+            // return res.status(422).json({ error: "Any of one feild is incorrect..." })
+        // }
 
         const dataExist = await Instrument.findOne({ instrumentToken: instrumentToken, status: "Active" });
         if (dataExist) {

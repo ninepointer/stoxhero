@@ -179,7 +179,6 @@ function InstrumentDetails({
         ? "rd"
         : "th"
     } ${month}`; // formats the date as "4th May"
-    //console.log(formattedDate);
 
     let instrumentDetailObj = {};
     const instrumentcolor = elem.symbol.slice(-2) == "CE" ? "success" : "error";

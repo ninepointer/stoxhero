@@ -656,16 +656,11 @@ router.post("/verifyphonelogin", async (req, res, next) => {
         }
       }
 
-      // if (!user.collegeDetails.college && college) {
-      //     user.collegeDetails.college = college;
-      //     user.collegeDetails.rollno = rollno;
-      //     await user.save({ validateBeforeSave: false });
-      // }
       res.cookie("jwtoken", token, {
         expires: new Date(Date.now() + 25892000000),
         // httpOnly: true
       });
-      // res.json(token);
+
       return res
         .status(200)
         .json({
