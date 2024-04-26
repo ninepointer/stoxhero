@@ -15,7 +15,7 @@ exports.stockTradeHelper = async (req, res, otherData) => {
 
   let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
   const session = await mongoose.startSession();
-  const lockKey = `${req.user._id}-${contestId}`
+  const lockKey = `${req.user._id}-${portfolioId}`
   const lockValue = Date.now().toString() + Math.random() * 1000;
 
   try{
