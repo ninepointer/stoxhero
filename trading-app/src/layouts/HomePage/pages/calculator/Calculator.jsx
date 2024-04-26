@@ -54,7 +54,7 @@ export default function Calculator() {
 }
 
   const metaDescription = 'Net worth is what you own minus what you owe. Know where you stand and what it takes to become an everyday millionaire with the Whats your Net Worth?.';
-  const metaTitle = 'Whats your Net Worth?: What is My Net Worth? - StoxHero';
+  const metaTitle = 'What\'s your Net Worth?: What is My Net Worth? - StoxHero';
   const metaKeyword = 'net worth, net worth calculator, brokerage caclulator, discount broker, discount brokerage, lowest brokerage commissions, lowest brokerage fees, indian discount brokerage, indian discount broker, cheap brokerage, discount brokerage bangalore, fixed brokerage bangalore, cheap trading, cheap commodity trading, trading terminal, futures trading, stock broker, fixed stock brokerage, cheapest brokerage, cheapest brokerage in india, online trading, online brokerage, cheap demat account, broker, commodities trading';
   return (
     <>

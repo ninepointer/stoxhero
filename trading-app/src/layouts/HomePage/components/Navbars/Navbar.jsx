@@ -88,7 +88,7 @@ const Navbar = () => {
 
             <a href="/calculators">
               <LinkButton>
-                <Typography fontWeight="bold" variant="body2">Whats your Net Worth?</Typography>
+                <Typography fontWeight="bold" variant="body2">What's your Net Worth?</Typography>
               </LinkButton>
             </a>
 
@@ -158,7 +158,7 @@ const Navbar = () => {
 
               <a href="/calculators">
                 <LinkButton>
-                  <Typography fontWeight="bold" variant="body2">Whats your Net Worth?</Typography>
+                  <Typography fontWeight="bold" variant="body2">What's your Net Worth?</Typography>
                 </LinkButton>
               </a>
 
