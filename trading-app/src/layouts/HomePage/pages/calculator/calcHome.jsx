@@ -43,7 +43,7 @@ export default function CalculatorHome() {
                     //  disabled={true}
                      onClick={()=>{navigate(`/calculators?value=past`)}}
                     >
-                        Past Invested
+                        Past Investments
                     </MDButton>
 
                     <MDButton
