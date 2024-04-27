@@ -26,15 +26,21 @@ async function commonProcess() {
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ limit: "10mb" }));
 
-  app.use(
-    cors({
-      credentials: true,
+  const allowedOrigins = ['http://localhost:3000', 'https://stoxhero.com', 'https://stoxhero-next-ts.vercel.app', 'http://43.204.7.180'];
 
-      // origin: "http://3.7.187.183/"  // staging
-      // origin: "http://3.108.76.71/"  // production
-      origin: "http://localhost:3000",
-    })
-  );
+const corsOptions = {
+  credentials: true,
+  origin: function (origin, callback) {
+    // Check if the incoming origin is in the allowedOrigins list
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+};
+
+app.use(cors(corsOptions));
   app.use(require("cookie-parser")());
 
   app.use(mongoSanitize());
