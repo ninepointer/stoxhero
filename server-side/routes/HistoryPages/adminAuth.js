@@ -154,6 +154,19 @@ const { removeInstrumentFromWatchlist } = require("../../controllers/instrument"
 //     console.log("redis not connected", err)
 // })
 
+router.get("/inactiveTradable", async (req, res) => {
+
+  const exipryFrom = '2024-04-26';
+
+  const tradable = await TradableInstrumentSchema.updateMany({expiry: {$lte: exipryFrom}, status: 'Active'}, {
+    $set: {
+      status: 'Inactive'
+    }
+  });
+
+  res.status(200).json(tradable);
+});
+
 router.get("/changeLotSize", async (req, res) => {
   const lotsize = 25;
   const name = 'NIFTY50';

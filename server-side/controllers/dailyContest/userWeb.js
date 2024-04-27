@@ -1,6 +1,7 @@
 const DailyContest = require("../../models/DailyContest/dailyContest");
 const { ObjectId } = require('mongodb');
 const User = require("../../models/User/userDetailSchema");
+const Course = require('../../models/courses/courseSchema');
 
 
 exports.userFreeCompleted = async (req, res) => {
@@ -49,6 +50,8 @@ exports.userFreeCompleted = async (req, res) => {
                     isBankNifty: 1,
                     isFinNifty: 1,
                     entryFee: 1,
+                    rewardType: 1,
+                    contestStatus: 1,
                     payoutPercentage: 1,
                     payoutCapPercentage: 1,
                     rewards: 1,
@@ -131,6 +134,8 @@ exports.userPaidCompleted = async (req, res) => {
                     isBankNifty: 1,
                     isFinNifty: 1,
                     entryFee: 1,
+                    rewardType: 1,
+                    contestStatus: 1,
                     payoutPercentage: 1,
                     payoutCapPercentage: 1,
                     rewards: 1,
@@ -178,10 +183,19 @@ exports.userUpcoming = async (req, res) => {
         const contests = await DailyContest.aggregate([
             {
                 $match: {
+                    contestStartTime: { $gte: new Date() },
+                    contestFor: "StoxHero",
                     contestStatus: "Active",
-                    contestStartTime: {
-                        $gt: new Date()
-                    }
+                    contestLiveTime: { $lte: new Date() },
+                    $or: [
+                        { visibility: true },
+                        {
+                            visibility: false,
+                            potentialParticipants: {
+                                $elemMatch: { $eq: new ObjectId(userId) },
+                            },
+                        },
+                    ],
                 },
             },
             {
@@ -219,12 +233,15 @@ exports.userUpcoming = async (req, res) => {
                     isBankNifty: 1,
                     isFinNifty: 1,
                     entryFee: 1,
+                    rewardType: 1,
+                    contestStatus: 1,
                     payoutPercentage: 1,
                     maxParticipants: 1,
                     featured: 1,
                     payoutCapPercentage: 1,
                     rewards: 1,
                     contestExpiry: 1,
+                    courseInstructors: 1,
                     participants: {
                         $size: '$participants'
                     },
@@ -304,11 +321,20 @@ exports.userLive = async (req, res) => {
         const contests = await DailyContest.aggregate([
             {
                 $match: {
+                    contestFor: "StoxHero",
                     contestStatus: "Active",
-                    contestStartTime: {
-                        $lte: new Date()
-                    }
-                },
+                    contestStartTime: { $lte: new Date() },
+                    contestEndTime: { $gte: new Date() },
+                    $or: [
+                      { visibility: true },
+                      {
+                        visibility: false,
+                        potentialParticipants: {
+                          $elemMatch: { $eq: new ObjectId(userId) },
+                        },
+                      },
+                    ],
+                  },
             },
             {
                 $lookup: {
@@ -345,12 +371,16 @@ exports.userLive = async (req, res) => {
                     isBankNifty: 1,
                     isFinNifty: 1,
                     entryFee: 1,
+                    rewardType: 1,
+                    contestStatus: 1,
                     payoutPercentage: 1,
                     maxParticipants: 1,
                     featured: 1,
                     payoutCapPercentage: 1,
                     rewards: 1,
                     contestExpiry: 1,
+                    courseInstructors: 1,
+                    visibleToInfluencerUser: 1,
                     participants: {
                         $size: '$participants'
                     },
