@@ -18,7 +18,9 @@ exports.tradableInstrument = async (req,res,next) => {
         const access_token = data.getAccessToken;
         let auth = 'token ' + api_key + ':' + access_token;
     
-
+        const niftyMaxLot = 1800;
+        const bankniftyMaxLot = 900;
+        const finniftyMaxLot = 1800;
         // Connection string for MongoDB
         // const connectionString = 'mongodb://localhost:27017/mydatabase';
     
@@ -60,11 +62,22 @@ exports.tradableInstrument = async (req,res,next) => {
 
                     row.chartInstrument = `${prefix}_${date}_${type}_${strike}`;
                     if(row.name === "NIFTY"){
-                        row.name = row.name+"50"
+                        row.name = row.name+"50";
+                        row.max_lot = niftyMaxLot;
                     }
+
+                    if(row.name === "BANKNIFTY"){
+                        row.max_lot = bankniftyMaxLot;
+                    }
+
+                    if(row.name === "FINNIFTY"){
+                        row.max_lot = finniftyMaxLot;
+                    }
+                    
 
                     try{
                         const x = await TradableInstrument.create([row]);
+                        console.log(x);
                     } catch(err){
                         console.log(err);
                     }

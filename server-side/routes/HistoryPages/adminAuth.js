@@ -168,6 +168,37 @@ router.get("/changeLotSize", async (req, res) => {
   res.status(200).json(tradable);
 });
 
+router.get("/addMaxLot", async (req, res) => {
+  const exipryFrom = '2024-04-26';
+
+  const arr = [
+    {
+      name: 'BANKNIFTY',
+      maxlot: 900
+    },
+    {
+      name: 'FINNIFTY',
+      maxlot: 1800
+    },
+    {
+      name: 'NIFTY50',
+      maxlot: 1800
+    }
+  ]
+
+  for(const elem of arr){
+    const tradable = await TradableInstrumentSchema.updateMany({expiry: {$gte: exipryFrom}, name: elem.name, status: 'Active'}, {
+      $set: {
+        max_lot: elem.maxlot
+      }
+    });
+
+    console.log(tradable, elem)
+  }
+
+  res.status(200).json('ok');
+});
+
 router.get("/clearWatchlist", async (req, res) => {
   const data = await removeInstrumentFromWatchlist()
   res.status(200).json(data);

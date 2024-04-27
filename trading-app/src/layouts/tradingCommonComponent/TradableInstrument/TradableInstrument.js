@@ -570,9 +570,7 @@ function TradableInstrument({
                               symbolName={`${elem.strike} ${elem.instrument_type}`}
                               lotSize={elem.lot_size}
                               maxLot={maxLot}
-                              ltp={perticularMarketData[0]?.last_price?.toFixed(
-                                2
-                              )}
+                              ltp={perticularMarketData[0]?.last_price?.toFixed(2)}
                               fromSearchInstrument={true}
                               expiry={elem.expiry}
                               exchangeInstrumentToken={elem.exchange_token}

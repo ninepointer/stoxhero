@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Instrument = require("../../models/Instruments/instrumentSchema");
+const TradableInstrument = require("../../models/Instruments/tradableInstrumentsSchema");
 const { unSubscribeTokens, } = require('../../marketData/kiteTicker');
 const authentication = require("../../authentication/authentication")
 const User = require("../../models/User/userDetailSchema")
@@ -82,7 +83,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
             } catch (err) {
                 console.log(err)
             }
-            res.status(200).json({ message: "Instrument Added" })
+            res.status(201).json({ message: "Instrument Added" })
             return;
         } else {
             try{
@@ -94,10 +95,11 @@ router.post("/addInstrument", authentication, async (req, res) => {
                 // const d = await subscribeSingleToken(instrumentToken);//TODO toggle
                 // await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                 // console.log("adding ins", d);
+                const tradable = await TradableInstrument.findOne({instrument_token: instrumentToken});
                 const addingInstruments = await Instrument.create({
-                    exchangeInstrumentToken, instrument, exchange, symbol, status, chartInstrument,
-                    uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken,
-                    contractDate, maxLot, accountType, exchangeSegment: Number(exchangeSegment),
+                    exchangeInstrumentToken: tradable.exchange_token, instrument: tradable.name, exchange: tradable.exchange, symbol: tradable.tradingsymbol, status: 'Active', chartInstrument: tradable.chartInstrument,
+                    uId: 'abcdef', createdBy: _id, lastModifiedBy: _id, lotSize: tradable.lot_size, instrumentToken,
+                    contractDate: tradable.expiry, maxLot: 1800 || tradable.max_lot, accountType, exchangeSegment: Number(exchangeSegment||2),
                     users: [_id?.toString()]
                 });
     

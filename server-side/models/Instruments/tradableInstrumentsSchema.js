@@ -93,7 +93,8 @@ const tradableInstrumentSchema = new mongoose.Schema({
     },
     isEquity: {
         type: Boolean
-    }
+    },
+    max_lot: Number
 })
 
 const TradableInstrumentDetail = mongoose.model("tradable-instrument", tradableInstrumentSchema);
