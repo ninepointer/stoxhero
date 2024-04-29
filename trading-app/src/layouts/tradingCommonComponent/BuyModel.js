@@ -33,7 +33,6 @@ import MDBox from "../../components/MDBox";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import RefreshIcon from "@mui/icons-material/Refresh";
-// import {internshipTrader, tenxTrader, dailyContest, marginX, paperTrader } from "../../variables";
 
 const BuyModel = ({
   fromTradable,
@@ -1089,7 +1088,6 @@ const BuyModel = ({
                   Market
                 </MDBox>
 
-                {/* <MDBox onClick={(from === tenxTrader || from === internshipTrader || from === dailyContest) ? () => { marketHandleChange("LIMIT") } : () => { notAvailable() }}  sx={{ backgroundColor: ordertype === "LIMIT" ? "#1A73E8" : "#FFFFFF", color: ordertype === "LIMIT" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "LIMIT" && ".5px solid #8D91A8" }}> */}
                 <MDBox
                   onClick={() => {
                     marketHandleChange("LIMIT");
@@ -1111,7 +1109,6 @@ const BuyModel = ({
                   Limit
                 </MDBox>
 
-                {/* <MDBox onClick={(from === tenxTrader || from === internshipTrader || from === dailyContest) ? () => { marketHandleChange("SL/SP-M") } : () => { notAvailable() }} sx={{ backgroundColor: ordertype === "SL/SP-M" ? "#1A73E8" : "#FFFFFF", color: ordertype === "SL/SP-M" ? "#FFFFFF" : "#8D91A8", minHeight: "2px", width: "150px", padding: "5px", borderRadius: "5px", cursor: "pointer", fontWeight: 600, fontSize: "13px", border: ordertype !== "SL/SP-M" && ".5px solid #8D91A8" }}> */}
                 <MDBox
                   onClick={() => {
                     marketHandleChange("SL/SP-M");
@@ -1290,4 +1287,3 @@ const BuyModel = ({
 
 export default memo(BuyModel);
 
-// (from !== tenxTrader && from !== internshipTrader && from !== dailyContest) ||

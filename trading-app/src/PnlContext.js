@@ -13,8 +13,7 @@ export const NetPnlProvider = ({ children }) => {
   const [contestNetPnl, setContestNetPnl] = useState(0);
   const [contestTotalRunningLots, setContestTotalRunningLots] = useState(0);
   const [pnlData, setPnlData] = useState([]);
-  // const [infinityNetPnl, setInfinityNetPnl] = useState(0);
-  // const [contestTotalRunningLots, setContestTotalRunningLots] = useState(0);
+
   const [pendingOrderQuantity, setPendingOrderQuantity] = useState([]);
 
   const updateNetPnl = (value,runninglots, grossPnl, brokerage, trades) => {
