@@ -48,6 +48,7 @@ exports.apiRoutes = async (app) => {
     app.use('/api/v1/pageview', require("./routes/pageView/pageView"));
     app.use('/api/v1/affiliate', require("./routes/affiliateProgramme/affiliateRoute"));
     app.use('/api/v1/influencer', require("./routes/influencerRoute/influencerRoute"));
+    app.use('/api/v1/leaderboard', require("./routes/leaderboard-parameter/leaderboard"));
 
     //  TODO toggle
     app.use('/api/v1/contestmaster', require("./routes/DailyContest/contestMaster"));

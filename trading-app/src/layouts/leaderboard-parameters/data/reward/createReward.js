@@ -5,25 +5,25 @@ import Grid from "@mui/material/Grid";
 import MDTypography from "../../../../components/MDTypography";
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
-// import { userContext } from "../../../../AuthContext";
-// import axios from "axios";
-import { CircularProgress, Typography } from "@mui/material";
+import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import MDSnackbar from "../../../../components/MDSnackbar";
 
 export default function CreateRewards({
   createRewardForm,
   setCreateRewardForm,
-  contest,
+  leaderboard,
   reward,
 }) {
+
+  const rewardId = reward._id;
+  const rewardRankStart = reward?.rankStart;
   const [isSubmitted, setIsSubmitted] = useState(false);
-  // const getDetails = useContext(userContext);
-  // const [rewardData, setRewardData] = useState([]);
   const [formState, setFormState] = useState({
     rankStart: "" || reward?.rankStart,
     rankEnd: "" || reward?.rankEnd,
-    prize: "" || reward?.prize,
-    prizeValue: "" || reward?.prizeValue,
+    reward: "" || reward?.reward,
+    rewardType: "" || reward?.rewardType,
+    rewardValue: "" || reward?.rewardValue,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -32,14 +32,13 @@ export default function CreateRewards({
 
   async function onNext(e, formState) {
     e.preventDefault();
-    // setCreating(true)
-    console.log("Reward Form State: ", formState);
 
     if (
       !formState?.rankStart ||
       !formState?.rankEnd ||
-      !formState?.prize ||
-      !formState?.prizeValue
+      !formState?.rewardType ||
+      !formState?.reward ||
+      !formState?.rewardValue
     ) {
       setTimeout(() => {
         setIsSubmitted(false);
@@ -50,10 +49,10 @@ export default function CreateRewards({
       );
     }
 
-    const { rankStart, rankEnd, prize, prizeValue } = formState;
-    if (reward?.rankStart) {
+    const { rankStart, rankEnd, rewardType, reward, rewardValue } = formState;
+    if (rewardRankStart) {
       const res = await fetch(
-        `${baseUrl}api/v1/dailycontest/${contest}/rewards/${reward?._id}`,
+        `${baseUrl}api/v1/leaderboard/${leaderboard}/rewards/${rewardId}`,
         {
           method: "PATCH",
           credentials: "include",
@@ -64,8 +63,7 @@ export default function CreateRewards({
           body: JSON.stringify({
             rankStart: parseInt(rankStart),
             rankEnd: parseInt(rankEnd),
-            prize,
-            prizeValue,
+            rewardType, reward, rewardValue
           }),
         }
       );
@@ -91,7 +89,7 @@ export default function CreateRewards({
       }
     } else {
       const res = await fetch(
-        `${baseUrl}api/v1/dailycontest/${contest}/rewards`,
+        `${baseUrl}api/v1/leaderboard/${leaderboard}/rewards`,
         {
           method: "PATCH",
           credentials: "include",
@@ -102,8 +100,7 @@ export default function CreateRewards({
           body: JSON.stringify({
             rankStart: parseInt(rankStart),
             rankEnd: parseInt(rankEnd),
-            prize,
-            prizeValue,
+            rewardType, reward, rewardValue
           }),
         }
       );
@@ -111,7 +108,6 @@ export default function CreateRewards({
       const data = await res.json();
       console.log(data.error, data);
       if (!data.error) {
-        // setNewObjectId(data.data?._id)
         setTimeout(() => {
           setIsSubmitted(true);
         }, 500);
@@ -128,11 +124,9 @@ export default function CreateRewards({
         return openErrorSB("Couldn't Add Reward", data.error);
       }
     }
+
+    setFormState({});
   }
-
-  // const date = new Date(rewardData.lastModifiedOn);
-
-  // const formattedLastModifiedOn = `${date.getUTCDate()}/${date.toLocaleString('default', { month: 'short' })}/${String(date.getUTCFullYear())} ${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}:${String(date.getUTCSeconds()).padStart(2, '0')}`;
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -144,7 +138,6 @@ export default function CreateRewards({
     setSuccessSB(true);
   };
   const closeSuccessSB = () => setSuccessSB(false);
-  // console.log("Title, Content, Time: ",title,content,time)
 
   const renderSuccessSB = (
     <MDSnackbar
@@ -210,7 +203,7 @@ export default function CreateRewards({
           </MDBox>
 
           <Grid container spacing={1} mt={0.5} alignItems="space-between">
-            <Grid item xs={12} md={5} xl={6}>
+            <Grid item xs={12} md={6} xl={3}>
               <TextField
                 disabled={isSubmitted}
                 id="outlined-required"
@@ -226,7 +219,7 @@ export default function CreateRewards({
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={5} xl={6}>
+            <Grid item xs={12} md={6} xl={3}>
               <TextField
                 disabled={isSubmitted}
                 id="outlined-required"
@@ -242,36 +235,60 @@ export default function CreateRewards({
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={5} xl={6}>
+            <Grid item xs={12} md={6} xl={3}>
               <TextField
                 disabled={isSubmitted}
                 id="outlined-required"
-                label="Prize*"
+                label="Reward*"
                 fullWidth
-                value={formState?.prize}
+                value={formState?.reward}
                 onChange={(e) => {
                   setFormState((prevState) => ({
                     ...prevState,
-                    prize: e.target.value,
+                    reward: e.target.value,
                   }));
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={5} xl={6}>
+            <Grid item xs={12} md={6} xl={3}>
               <TextField
                 disabled={isSubmitted}
                 id="outlined-required"
-                label="Prize Value*"
+                label="Reward Value*"
                 type="number"
                 fullWidth
-                value={formState?.prizeValue}
+                value={formState?.rewardValue}
                 onChange={(e) => {
                   setFormState((prevState) => ({
                     ...prevState,
-                    prizeValue: e.target.value,
+                    rewardValue: e.target.value,
                   }));
                 }}
               />
+            </Grid>
+            <Grid item xs={12} md={6} xl={3}>
+              <FormControl sx={{ width: "100%" }}>
+                <InputLabel id="demo-simple-select-autowidth-label">
+                  Reward Type *
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-autowidth-label"
+                  id="demo-simple-select-autowidth"
+                  name="rewardType"
+                  value={formState?.rewardType}
+                  onChange={(e) => {
+                    setFormState((prevState) => ({
+                      ...prevState,
+                      rewardType: e.target.value,
+                    }));
+                  }}
+                  label="Reward Type"
+                  sx={{ minHeight: 43 }}
+                >
+                  <MenuItem value="Cash">Cash</MenuItem>
+                  <MenuItem value="Goodies">Goodies</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
 
             {!isSubmitted && (
@@ -283,6 +300,7 @@ export default function CreateRewards({
                     color="success"
                     onClick={(e) => {
                       onNext(e, formState);
+                      setFormState({});
                     }}
                   >
                     Next
@@ -295,6 +313,7 @@ export default function CreateRewards({
                     color="warning"
                     onClick={(e) => {
                       setCreateRewardForm(!createRewardForm);
+                      setFormState({});
                     }}
                   >
                     Back
@@ -310,3 +329,4 @@ export default function CreateRewards({
     </>
   );
 }
+// maxReferralsPayoutCap

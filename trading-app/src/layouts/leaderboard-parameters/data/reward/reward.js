@@ -1,65 +1,63 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-// import Box from '@mui/material/Box';
 import DataTable from "../../../../examples/Tables/DataTable";
 import MDButton from "../../../../components/MDButton";
 import MDBox from "../../../../components/MDBox";
 import MDTypography from "../../../../components/MDTypography";
-import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import { AiOutlineEdit } from "react-icons/ai";
-// import { CircularProgress } from "@mui/material";
-// import TabContext from '@material-ui/lab/TabContext';
-
-// import battleRewardData from "../data/battleRewardData";
-// import CreateRewardForm from "./createReward"
 import CreateRewards from "./createReward";
+import { apiUrl } from "../../../../constants/constants";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-const ContestRewards = ({ contest }) => {
-  // const [reRender, setReRender] = useState(true);
+const Rewards = ({ leaderboard }) => {
   let columns = [
     { Header: "Edit", accessor: "edit", align: "center" },
+    { Header: "Delete", accessor: "delete", align: "center" },
     { Header: "Rank Start", accessor: "rankStart", align: "center" },
     { Header: "Rank End", accessor: "rankEnd", align: "center" },
-    { Header: "Prize", accessor: "prize", align: "center" },
-    { Header: "Prize Value", accessor: "prizeValue", align: "center" },
+    { Header: "Reward", accessor: "reward", align: "center" },
+    { Header: "Reward Type", accessor: "rewardType", align: "center" },
+    { Header: "Reward Value", accessor: "rewardValue", align: "center" },
   ];
 
   let rows = [];
   const [createRewardForm, setCreateRewardForm] = useState(false);
-  const [contestRewards, setContestRewards] = useState([]);
-  // const { columns, rows } = battleRewardData();
+  const [rewards, setRewards] = useState([]);
   const [id, setId] = useState();
-
-  let baseUrl =
-    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
   useEffect(() => {
     axios
-      .get(`${baseUrl}api/v1/dailycontest/${contest}/rewards`)
+      .get(`${apiUrl}leaderboard/${leaderboard}/rewards`)
       .then((res) => {
-        setContestRewards(res.data.data);
-        // console.log(res.data.data);
+        setRewards(res.data.data);
       })
       .catch((err) => {
         return new Error(err);
       });
   }, [createRewardForm]);
 
-  contestRewards?.map((elem) => {
-    let contestReward = {};
+  rewards?.map((elem) => {
+    let obj = {};
 
-    contestReward.edit = (
-      // <MDButton variant="text" color="info" size="small" sx={{fontSize:10}} fontWeight="medium">
+    obj.edit = (
       <AiOutlineEdit
         onClick={() => {
           setCreateRewardForm(true);
           setId(elem);
         }}
+        style={{ cursor: "pointer" }}
       />
-      // </MDButton>
     );
-    contestReward.rankStart = (
+    obj.delete = (
+      <DeleteIcon
+        onClick={() => {
+          deleteData(elem?._id);
+        }}
+        style={{ cursor: "pointer" }}
+      />
+    );
+    obj.rankStart = (
       <MDTypography
         component="a"
         variant="caption"
@@ -69,7 +67,7 @@ const ContestRewards = ({ contest }) => {
         {elem.rankStart}
       </MDTypography>
     );
-    contestReward.rankEnd = (
+    obj.rankEnd = (
       <MDTypography
         component="a"
         variant="caption"
@@ -79,30 +77,48 @@ const ContestRewards = ({ contest }) => {
         {elem.rankEnd}
       </MDTypography>
     );
-    contestReward.prize = (
+    obj.reward = (
       <MDTypography
         component="a"
         variant="caption"
         color="text"
         fontWeight="medium"
       >
-        {elem.prize}
+        {elem.reward}
       </MDTypography>
     );
-    contestReward.prizeValue = (
+    obj.rewardValue = (
       <MDTypography
         component="a"
         variant="caption"
         color="text"
         fontWeight="medium"
       >
-        {elem.prizeValue}
+        {elem.rewardValue}
       </MDTypography>
     );
 
-    rows.push(contestReward);
+    obj.rewardType = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {elem.rewardType}
+      </MDTypography>
+    );
+
+    rows.push(obj);
   });
 
+  async function deleteData(id) {
+    const del = await axios.delete(
+      `${apiUrl}leaderboard/${leaderboard}/rewards/${id}`,
+      { withCredentials: true }
+    );
+    setCreateRewardForm(del?.data?.data?.rewards);
+  }
   return (
     <Card>
       <MDBox display="flex" justifyContent="space-between" alignItems="left">
@@ -122,7 +138,7 @@ const ContestRewards = ({ contest }) => {
             alignItems="center"
             gutterBottom
           >
-            Contest Rewards
+            Rewards
           </MDTypography>
           <MDButton
             hidden={true}
@@ -131,7 +147,7 @@ const ContestRewards = ({ contest }) => {
             color="black"
             onClick={() => setCreateRewardForm(true)}
           >
-            Create Contest Reward
+            Create Reward
           </MDButton>
         </MDBox>
       </MDBox>
@@ -140,7 +156,7 @@ const ContestRewards = ({ contest }) => {
           <CreateRewards
             createRewardForm={createRewardForm}
             setCreateRewardForm={setCreateRewardForm}
-            contest={contest}
+            leaderboard={leaderboard}
             reward={id}
           />
         </>
@@ -158,4 +174,4 @@ const ContestRewards = ({ contest }) => {
   );
 };
 
-export default ContestRewards;
+export default Rewards;

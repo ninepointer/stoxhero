@@ -18,7 +18,8 @@ import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 
-
+const LeaderboardCreate = lazy(()=> import("./layouts/leaderboard-parameters/leaderboardDetails"));
+const LeaderboardData = lazy(()=> import("./layouts/leaderboard-parameters"));
 const Leaderboard = lazy(()=> import("./layouts/Leaderboard-Admin"));
 const CompanyPosition = lazy(()=> import("./layouts/companyposition"));
 const CompanyPositionRedis = lazy(()=> import("./layouts/companypositionRedis"));
@@ -189,6 +190,16 @@ const AllTransaction = lazy(()=> import('./layouts/allWalletTransaction'));
 // const UserOrders = React.lazy(() => import("./layouts/userorders"));
 
 const routes = [
+  {
+    key: "leaderboard-params",
+    route: "/leaderboard-params",
+    component: <LeaderboardData />,
+  },
+  {
+    key: "leaderboard-params-create",
+    route: "/leaderboard-params-create",
+    component: <LeaderboardCreate />,
+  },
   {
     key: "alltransactions",
     route: "/alltransactions",

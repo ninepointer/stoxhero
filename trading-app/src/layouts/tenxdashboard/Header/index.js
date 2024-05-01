@@ -1649,6 +1649,20 @@ export default function LabTabs({ socket }) {
                   TenX Orders
                 </MDButton>
               </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"error"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/leaderboard-params`,
+                  }}
+                >
+                  Leaderboard Parameters
+                </MDButton>
+              </Grid>
               <Grid item fullWidth>
                 <MDButton
                   variant="contained"
