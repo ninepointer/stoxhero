@@ -20,7 +20,7 @@ export default function CalculatorHome() {
             <Grid container xs={12} md={12} lg={12} mt={isMobile ? 35 : 22} p={5} display='flex' justifyContent={'center'} alignContent={'center'} alignItems={'center'}>
                 <Grid item xs={12} md={12} lg={12} display='flex' justifyContent={'center'} alignContent={'center'} alignItems={'center'} textAlign={'center'}>
                     <MDTypography style={{ fontSize: isMobile ? 30 : 40, fontWeight: 800 }} >
-                        Caclulate Your Net Worth
+                        Calculate Your Net Worth
                     </MDTypography>
                 </Grid>
 
@@ -43,7 +43,7 @@ export default function CalculatorHome() {
                     //  disabled={true}
                      onClick={()=>{navigate(`/calculators?value=past`)}}
                     >
-                        Past Invested
+                        Past Investments
                     </MDButton>
 
                     <MDButton

@@ -127,10 +127,21 @@ async function singleProcess() {
 
     app.use(express.json({ limit: "10mb" }));
     app.use(require("cookie-parser")());
-    app.use(cors({
-        credentials: true,
-        origin: 'http://localhost:3000'
-    }));
+    const allowedOrigins = ['http://localhost:3000', 'https://stoxhero.com', 'https://stoxhero-next-ts.vercel.app', 'http://43.204.7.180'];
+
+    const corsOptions = {
+      credentials: true,
+      origin: function (origin, callback) {
+        // Check if the incoming origin is in the allowedOrigins list
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      }
+    };
+    
+    app.use(cors(corsOptions));
     app.use(mongoSanitize());
     app.use(helmet());
     app.use(xssClean());

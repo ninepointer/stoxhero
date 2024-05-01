@@ -138,9 +138,7 @@ function Header() {
 
     let isParticipated;
     if(whichTab !== "Completed"){
-        isParticipated = state?.participants.some(subelem => {
-            return subelem?.userId?.toString() === getDetails?.userDetails?._id?.toString()
-        })
+        isParticipated = state?.isPaid
     }
     // console.log("isLoading",state?.return, state?.entryFee, state?.entryFee)
     return (
@@ -320,7 +318,7 @@ function Header() {
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.maxParticipants - state?.participants?.length : marginXDetails?.maxParticipants - marginXDetails?.participants?.length}</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? state?.maxParticipants - state?.participants : marginXDetails?.maxParticipants - marginXDetails?.participants}</MDTypography>
                                         </MDBox>
                                     </Grid>
                                 </Grid>
@@ -334,7 +332,7 @@ function Header() {
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? ((whichTab !== "Completed") ? state?.marginXTemplate?.portfolioValue : state?.portfolioValue) : marginXDetails?.marginXTemplate?.portfolioValue}</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? ((whichTab !== "Completed") ? state?.portfolioValue : state?.portfolioValue) : marginXDetails?.portfolioValue}</MDTypography>
                                         </MDBox>
                                     </Grid>
                                 </Grid>
@@ -348,7 +346,7 @@ function Header() {
                                     </Grid>
                                     <Grid item xs={6} md={6} lg={6} display='flex' justifyContent='center' border='2px solid grey'>
                                         <MDBox p={0.5} display='flex' justifyContent='flex-end' alignItems='center'>
-                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? ((whichTab !== "Completed") ? state?.marginXTemplate?.entryFee : state?.entryFee) : marginXDetails?.marginXTemplate?.entryFee}</MDTypography>
+                                            <MDTypography color='black' fontSize={15} fontWeight='bold'>{state ? ((whichTab !== "Completed") ? state?.entryFee : state?.entryFee) : marginXDetails?.entryFee}</MDTypography>
                                         </MDBox>
                                     </Grid>
                                 </Grid>

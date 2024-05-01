@@ -54,6 +54,7 @@ exports.completed = async (req, res) => {
                     npnl: '$participants.npnl',
                     gpnl: '$participants.gpnl',
                     return: '$participants.payout',
+                    tds: '$participants.tds',
                     entryFee: {
                         $arrayElemAt: ["$templates.entryFee", 0],
                     },

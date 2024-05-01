@@ -23,7 +23,7 @@ export default function FutureTime({futureInvestmentTime, setFutureInvestmentTim
                 }}
                 value={futureInvestmentTime}
                 onChange={(e) => {
-                  setFutureInvestmentTime(e.target.value);
+                  setFutureInvestmentTime(Math.abs(e.target.value));
                 }}
               />
             </Grid>

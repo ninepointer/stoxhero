@@ -110,6 +110,7 @@ const {
 const Battle = require("../../models/battle/battle");
 const MarginX = require("../../models/marginX/marginX");
 const MarginXUser = require("../../models/marginX/marginXUserMock");
+const MarginXCompany = require("../../models/marginX/marginXCompanyMock");
 
 const BattleMock = require("../../models/battle/battleTrade");
 const Holiday = require("../../models/TradingHolidays/tradingHolidays");
@@ -142,6 +143,7 @@ const { getIOValue } = require('../../marketData/socketio');
 const {autoCreate} = require('../../controllers/AutoCreate');
 const Calculator = require('../../models/calculator/calculatorSchema');
 const {cronjobs} = require('../../cronjobs');
+const { removeInstrumentFromWatchlist } = require("../../controllers/instrument");
 
 // client8.connect()
 // .then(async (res) => {
@@ -152,169 +154,105 @@ const {cronjobs} = require('../../cronjobs');
 //     console.log("redis not connected", err)
 // })
 
-router.get("/date", async (req, res) => {
-  // await cronjobs()
-  // autoCreate()
-  const data = await DailyContestMockUser.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
-    , {
-      $set: {
-        status: 'REJECTED'
-      }
-    }
-  )
+router.get("/inactiveInst", async (req, res) => {
 
-  const data1 = await DailyContestMockCompany.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
-  , {
+
+  const tradable = await Instrument.updateMany({instrument: 'FINNIFTY', status: 'Active', contractDate: {$lte: new Date('2024-04-29')}}, {
     $set: {
-      status: 'REJECTED'
+      status: 'Inactive'
     }
+  });
+
+  res.status(200).json(tradable);
+});
+
+router.get("/inactiveTradable", async (req, res) => {
+
+  const exipryFrom = '2024-04-26';
+
+  const tradable = await TradableInstrumentSchema.updateMany({expiry: {$lte: exipryFrom}, status: 'Active'}, {
+    $set: {
+      status: 'Inactive'
+    }
+  });
+
+  res.status(200).json(tradable);
+});
+
+router.get("/changeLotSize", async (req, res) => {
+  const lotsize = 25;
+  const name = 'NIFTY50';
+  const exipryFrom = '2024-05-02';
+
+  const tradable = await TradableInstrumentSchema.updateMany({expiry: {$gte: exipryFrom}, name: name, status: 'Active'}, {
+    $set: {
+      lot_size: lotsize
+    }
+  });
+
+  res.status(200).json(tradable);
+});
+
+router.get("/addMaxLot", async (req, res) => {
+  const exipryFrom = '2024-04-26';
+
+  const arr = [
+    {
+      name: 'BANKNIFTY',
+      maxlot: 900
+    },
+    {
+      name: 'FINNIFTY',
+      maxlot: 1800
+    },
+    {
+      name: 'NIFTY50',
+      maxlot: 1800
+    }
+  ]
+
+  for(const elem of arr){
+    const tradable = await TradableInstrumentSchema.updateMany({expiry: {$gte: exipryFrom}, name: elem.name, status: 'Active'}, {
+      $set: {
+        max_lot: elem.maxlot
+      }
+    });
+
+    console.log(tradable, elem)
   }
-)
+
+  res.status(200).json('ok');
+});
+
+router.get("/clearWatchlist", async (req, res) => {
+  const data = await removeInstrumentFromWatchlist()
+  res.status(200).json(data);
+});
+
+router.get("/date", async (req, res) => {
+  const data = await removeInstrumentFromWatchlist()
+  // autoCreate()
+//   const data = await MarginXCompany.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
+//     , {
+//       $set: {
+//         status: 'REJECTED'
+//       }
+//     }
+//   )
+
+//   const data1 = await DailyContestMockCompany.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
+//   , {
+//     $set: {
+//       status: 'REJECTED'
+//     }
+//   }
+// )
 res.status(200).json(data);
 });
-// 1. Stocks
-// 2. Mutual Funds
-// 3. ETFs
-// 4. Real Estate
-// 5. Gold and Other Precious Metals
-// 6. Derivatives
-// 7. Fixed Deposits
-// 8. Bonds
-// 9. Savings Account
-// 10. Cash in hand
+
 router.get("/createAssets", async (req, res) => {
-  // const assets = [
-  //   {
-  //     assetName: "Stocks",
-  //     expectedRoi: 17,
-  //     riskLevel: "High",
-  //     type: "Asset",
-  //     description: "Equity shares of companies traded on stock exchanges.",
-  //     status: "Active"
-  //   },
-  //   {
-  //     assetName: "Mutual Funds",
-  //     expectedRoi: 14.6,
-  //     riskLevel: "Medium",
-  //     type: "Asset",
-  //     description: "Pooled funds managed by professionals, investing in various securities.",
-  //     status: "Active"
-  //   },
-  //   {
-  //     assetName: "ETFs",
-  //     expectedRoi: 12,
-  //     riskLevel: "Medium",
-  //     type: "Asset",
-  //     description: "Exchange-traded funds representing a basket of assets.",
-  //     status: "Active"
-  //   },
-  //   {
-  //     assetName: "Real Estate",
-  //     expectedRoi: 11,
-  //     riskLevel: "Medium",
-  //     type: "Asset",
-  //     description: "Physical properties like land and buildings.",
-  //     status: "Active"
-  //   },
-  //   {
-  //     assetName: "Metals",
-  //     expectedRoi: 8,
-  //     riskLevel: "Medium",
-  //     type: "Asset",
-  //     description: "Valuable metals like gold, silver, and platinum.",
-  //     status: "Active"
-  //   },
-  //   {
-  //     assetName: "Derivatives",
-  //     expectedRoi: 10,
-  //     riskLevel: "High",
-  //     type: "Asset",
-  //     description: "Financial contracts whose value derives from an underlying asset.",
-  //     status: "Active"
-  //   },
-  //   {
-  //     assetName: "Fixed Deposits",
-  //     expectedRoi: 7.25,
-  //     riskLevel: "Low",
-  //     type: "Asset",
-  //     description: "Investments with fixed interest rates for a specified term.",
-  //     status: "Active"
-  //   },
-  //   {
-  //     assetName: "Bonds",
-  //     expectedRoi: 7,
-  //     riskLevel: "Low",
-  //     type: "Asset",
-  //     description: "Debt securities issued by governments or corporations.",
-  //     status: "Active"
-  //   },
-  //   {
-  //     assetName: "Savings Account",
-  //     expectedRoi: 2.5,
-  //     riskLevel: "Low",
-  //     type: "Asset",
-  //     description: "Bank accounts with interest rates for saving money.",
-  //     status: "Active"
-  //   },
-  //   {
-  //     assetName: "Cash in hand",
-  //     expectedRoi: 0,
-  //     riskLevel: "Low",
-  //     type: "Asset",
-  //     description: "Physical money held by an individual or organization.",
-  //     status: "Active"
-  //   }
-  // ]
 
   const liabilities = [
-    {
-      assetName: "Housing Loans",
-      expectedRoi: 9,
-      riskLevel: "High",
-      type: "Liability",
-      description: "Loans taken to purchase or renovate residential properties.",
-      status: "Active"
-    },
-    {
-      assetName: "Education Loans",
-      expectedRoi: 10,
-      riskLevel: "Medium",
-      type: "Liability",
-      description: "Loans taken for educational expenses like tuition fees and books.",
-      status: "Active"
-    },
-    {
-      assetName: "Car Loans",
-      expectedRoi: 11,
-      riskLevel: "Medium",
-      type: "Liability",
-      description: "Loans taken for purchasing vehicles.",
-      status: "Active"
-    },
-    {
-      assetName: "Personal Loans",
-      expectedRoi: 15,
-      riskLevel: "High",
-      type: "Liability",
-      description: "Loans taken for personal expenses like medical emergencies or vacations.",
-      status: "Active"
-    },
-    {
-      assetName: "Credit Card Debt",
-      expectedRoi: 30,
-      riskLevel: "High",
-      type: "Liability",
-      description: "Unpaid balances on credit cards.",
-      status: "Active"
-    },
-    {
-      assetName: "Business Loans",
-      expectedRoi: 15,
-      riskLevel: "High",
-      type: "Liability",
-      description: "Loans taken for business purposes.",
-      status: "Active"
-    },
     {
       assetName: "Others",
       expectedRoi: 0,
@@ -324,8 +262,6 @@ router.get("/createAssets", async (req, res) => {
       status: "Active"
     }
   ];
-
-
   const save = await Calculator.create(liabilities);
 
   res.send('ok');
@@ -4726,7 +4662,7 @@ router.get("/updateInstrumentStatusRebuild", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2024-04-11T20:00:00.000+00:00"
+  let expiryDate = "2024-05-02T20:00:00.000+00:00"
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(

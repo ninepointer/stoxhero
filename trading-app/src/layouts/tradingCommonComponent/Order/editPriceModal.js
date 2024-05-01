@@ -221,7 +221,8 @@ function ModifyPopUp({id, lots, symbol, type, buyOrSell, ltp, setMsg}) {
 
                 <TextField
                   id="outlined-basic" label={<Typography sx={{ fontSize: "12px" }} >{type === "StopProfit" ? "SP Price" : type === "StopLoss" ? "SL Price" : "Limit"}</Typography>}
-                  variant="outlined" onChange={(e) => { { stopSLSP(e) } }}
+                  variant="outlined" 
+                  onChange={(e) => { { stopSLSP(e) } }}
                   sx={{
                     marginTop: 1,
                     width: "100px"

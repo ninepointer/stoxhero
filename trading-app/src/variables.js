@@ -21,5 +21,5 @@ export const maxLot_Nifty = 1800;
 export const maxLot_FinNifty = 1800;
 export const maxLot_Nifty_DailyContest = 1800;
 export const lotSize_BankNifty = 15;
-export const lotSize_Nifty = 50;
+export const lotSize_Nifty = 25;
 export const lotSize_FinNifty = 40;

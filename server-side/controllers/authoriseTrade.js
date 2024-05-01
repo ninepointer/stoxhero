@@ -727,7 +727,9 @@ const takeRejectedTrade = async(req, res, from)=>{
 
     if(from === virtual) {
         let { exchange, symbol, buyOrSell, Quantity, Product, order_type, validity, variety, createdBy,
-            instrumentToken, trader, exchangeInstrumentToken, portfolioId } = req.body;
+            instrumentToken, exchangeInstrumentToken, portfolioId } = req.body;
+
+            const trader = req?.user?._id;
 
         try {
 
@@ -897,8 +899,8 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             todayPnlData = JSON.parse(todayPnlData);
         }
 
-        if(!todayPnlData){
-            return;
+        if (!todayPnlData) {
+            return res.status(401).send({ message: `something went wrong.` });
         }
 
         if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMarginPaper`)) {
@@ -906,34 +908,35 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             fundDetail = JSON.parse(fundDetail);
             req.body.portfolioId = fundDetail?.portfolioId;
         }
+
+
+        const data = await getKiteCred.getAccess();
+        const netPnl = await calculateNetPnl(req, todayPnlData, data);
+        const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
+        const marginAndCase = getLastTradeMarginAndCaseNumber(req, todayPnlData, virtual);
+        const caseNumber = (await marginAndCase).caseNumber;
+        const margin = (await marginAndCase).margin;
+        const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
+
+        switch (caseNumber) {
+            case 0:
+                await marginZeroCase(req, res, next, availableMargin, virtual, data)
+                break;
+            case 1:
+                await marginFirstCase(req, res, next, availableMargin, margin, virtual, data)
+                break;
+            case 2:
+                await marginSecondCase(req, res, next, margin, runningLotForSymbol)
+                break;
+            case 3:
+                await marginThirdCase(req, res, next, netPnl)
+                break;
+            case 4:
+                await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, virtual, data)
+                break;
+        }
     } catch (e) {
         console.log("errro fetching pnl 2", e);
-    }
-
-    const data = await getKiteCred.getAccess();
-    const netPnl = await calculateNetPnl(req, todayPnlData, data );
-    const availableMargin = await availableMarginFunc(fundDetail, todayPnlData, netPnl);
-    const marginAndCase = getLastTradeMarginAndCaseNumber(req, todayPnlData, virtual);
-    const caseNumber = (await marginAndCase).caseNumber;
-    const margin = (await marginAndCase).margin; 
-    const runningLotForSymbol = (await marginAndCase).runningLotForSymbol;
-
-    switch (caseNumber) {
-        case 0:
-            await marginZeroCase(req, res, next, availableMargin, virtual, data)
-            break;
-        case 1:
-            await marginFirstCase(req, res, next, availableMargin, margin, virtual, data)
-            break;
-        case 2:
-            await marginSecondCase(req, res, next, margin, runningLotForSymbol)
-            break;
-        case 3:
-            await marginThirdCase(req, res, next, netPnl)
-            break;
-        case 4:
-            await marginFourthCase(req, res, next, availableMargin, runningLotForSymbol, virtual, data)
-            break;
     }
 
 }

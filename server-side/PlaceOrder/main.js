@@ -73,7 +73,6 @@ router.post("/placingOrderMarginx", isAppLive, tradeChecks, authentication, marg
 })
 
 router.post("/paperTrade", isAppLive, tradeChecks, authentication, authoizeTrade.fundCheckPaperTrade,  async (req, res)=>{
-
     MockTradeFunc.mockTrade(req, res)
     
 })

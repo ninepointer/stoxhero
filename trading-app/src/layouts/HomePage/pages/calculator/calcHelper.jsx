@@ -20,7 +20,7 @@ export default function CalculatorHelper({ assets, liabilities, assetSum, setAss
         <Grid container xs={12} md={12} lg={12} mt={10} p={isMobile ? 2 : 5}>
           <Grid item xs={12} md={12} lg={12} mb={isMobile ? 2 : 5}>
             <MDTypography style={{ fontSize: isMobile ? 25 : 35, fontWeight: 800 }}>
-              <span style={{ borderBottom: '4px solid green' }}>Whats</span>  your Net Worth?
+              <span style={{ borderBottom: '4px solid green' }}>What's</span>  your Net Worth?
             </MDTypography>
           </Grid>
 

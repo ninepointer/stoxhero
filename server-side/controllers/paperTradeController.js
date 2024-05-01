@@ -12,8 +12,6 @@ const moment = require('moment');
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
   const userId = req.user._id;
-  // "646497d2a09e4677cb550906"
-  //
   let date = new Date();
   let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
     2,

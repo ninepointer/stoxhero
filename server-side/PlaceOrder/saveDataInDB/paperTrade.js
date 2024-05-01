@@ -9,9 +9,10 @@ const {clientForIORedis} = require('../../marketData/redisClient');
 exports.virtualTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken,
     validity, variety, order_id, instrumentToken, portfolioId,
-    trader, deviceDetails, margin, price, stopProfitPrice, stopLossPrice,
+    deviceDetails, margin, price, stopProfitPrice, stopLossPrice,
     originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body 
 
+    const trader = req?.user?._id;
   let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
   const session = await mongoose.startSession();
   const lockKey = `${req.user._id}-${portfolioId}`
@@ -19,7 +20,6 @@ exports.virtualTrade = async (req, res, otherData) => {
 
   try{
     const lockAcquired = await acquireLock(lockKey, lockValue);
-    // console.log('lockAcquired', lockAcquired, lockKey)
     if (!lockAcquired) {
         return res.status(400).json({ status: 'error', message: 'Your previous request is still being processed. Please try again later.' });
     }
@@ -73,16 +73,17 @@ exports.virtualTrade = async (req, res, otherData) => {
     if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
       await session.commitTransaction();
       await releaseLock(lockKey);
-      res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
+      res.status(201).json({ status: 'Complete', message: 'COMPLETE', data: `Traded ${Math.abs(Quantity)} quantity of ${symbol}` });
     }
 
   } catch(err){
+    console.log('Transaction failed, documents not saved:', err);
+
     await client.del('stoploss-stopprofit');
     await client.del(`${req.user._id.toString()}: overallpnlPaperTrade`);
     await releaseLock(lockKey);
     await session.abortTransaction();
-    console.error('Transaction failed, documents not saved:', err);
-    res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
+    res.status(401).json({status: 'error', message: 'Something went wrong. Please try again.'});
   } finally {
     await releaseLock(lockKey);
     session.endSession();
