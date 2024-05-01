@@ -154,6 +154,18 @@ const { removeInstrumentFromWatchlist } = require("../../controllers/instrument"
 //     console.log("redis not connected", err)
 // })
 
+router.get("/inactiveInst", async (req, res) => {
+
+
+  const tradable = await Instrument.updateMany({instrument: 'FINNIFTY', status: 'Active', contractDate: {$lte: new Date('2024-04-29')}}, {
+    $set: {
+      status: 'Inactive'
+    }
+  });
+
+  res.status(200).json(tradable);
+});
+
 router.get("/inactiveTradable", async (req, res) => {
 
   const exipryFrom = '2024-04-26';

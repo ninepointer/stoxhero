@@ -350,7 +350,8 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
 
                 <TextField
                   id="outlined-basic" label={<Typography sx={{ fontSize: "12px" }} >SP Price</Typography>}
-                  variant="outlined" onChange={(e) => { { stopProfit(e) } }}
+                  variant="outlined"
+                  onChange={(e) => { { stopProfit(e) } }}
                   disabled={!Math.abs(lots - spPendingQuantity)}
                   value={Math.abs(modifyData?.stopProfitPrice) === 0 ? "" : Math.abs(modifyData?.stopProfitPrice)}
                   sx={{
@@ -398,7 +399,9 @@ function ModifyPopUp({ data, id, handleCloseMenu, setMsg, from }) {
                   :
                   (modifyData.stopLossPrice && (newLtp > modifyData.stopLossPrice)) || (modifyData.stopProfitPrice && (newLtp < modifyData.stopProfitPrice))
               }
-              autoFocus variant="contained" color="warning" onClick={modifyOrder} sx={{ fontSize: "10px" }}>
+              autoFocus variant="contained" color="warning"
+               onClick={modifyOrder} 
+               sx={{ fontSize: "10px" }}>
               MODIFY
             </MDButton>
 

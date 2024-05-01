@@ -95,7 +95,7 @@ router.post("/addInstrument", authentication, async (req, res) => {
                 // const d = await subscribeSingleToken(instrumentToken);//TODO toggle
                 // await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
                 // console.log("adding ins", d);
-                const tradable = await TradableInstrument.findOne({instrument_token: instrumentToken});
+                const tradable = await TradableInstrument.findOne({instrument_token: instrumentToken, status: 'Active'}).sort({_id: -1});
                 const addingInstruments = await Instrument.create({
                     exchangeInstrumentToken: tradable.exchange_token, instrument: tradable.name, exchange: tradable.exchange, symbol: tradable.tradingsymbol, status: 'Active', chartInstrument: tradable.chartInstrument,
                     uId: 'abcdef', createdBy: _id, lastModifiedBy: _id, lotSize: tradable.lot_size, instrumentToken,
