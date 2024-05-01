@@ -168,15 +168,15 @@ function Index() {
           withCredentials: true
         })
 
-      const res = await fetch(`${apiUrl}dailycontest/contest/${contest?._id}`, {
-        method: "PUT",
-        credentials: "include",
-        headers: {
-          // "content-type": "application/json",
-          "Access-Control-Allow-Credentials": true,
-        },
-        body: formData,
-      });
+      // const res = await fetch(`${apiUrl}dailycontest/contest/${contest?._id}`, {
+      //   method: "PUT",
+      //   credentials: "include",
+      //   headers: {
+      //     // "content-type": "application/json",
+      //     "Access-Control-Allow-Credentials": true,
+      //   },
+      //   body: formData,
+      // });
 
       const data = await res.json();
       // console.log(data);
