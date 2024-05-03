@@ -26,7 +26,7 @@ async function commonProcess() {
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ limit: "10mb" }));
 
-  const allowedOrigins = ['http://localhost:3000', 'https://stoxhero.com', 'https://stoxhero-next-ts.vercel.app', 'http://43.204.7.180'];
+  const allowedOrigins = ['http://localhost:3000', 'https://stoxhero.com', 'https://www.stoxhero.com', 'https://stoxhero-next-ts.vercel.app', 'https://www.stoxhero-next-ts.vercel.app', 'http://43.204.7.180'];
 
 const corsOptions = {
   credentials: true,

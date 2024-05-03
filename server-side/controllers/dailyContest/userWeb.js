@@ -461,3 +461,141 @@ exports.userLive = async (req, res) => {
         });
     }
 };
+
+exports.userLiveById = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const {id} = req.params;
+        const referredBy = req.user.referredBy;
+
+        const contests = await DailyContest.aggregate([
+            {
+                $match: {
+                    _id: new ObjectId(id)
+                  },
+            },
+            {
+                $lookup: {
+                    from: "user-portfolios",
+                    localField: "portfolio",
+                    foreignField: "_id",
+                    as: "portfolio",
+                },
+            },
+            {
+                $addFields: {
+                    isInterested: {
+                        $in: [new ObjectId(userId), "$interestedUsers.userId"],
+                    },
+                },
+            },
+            {
+                $addFields: {
+                    isPaid: {
+                        $in: [new ObjectId(userId), "$participants.userId"],
+                    },
+                },
+            },
+            {
+                $project: {
+                    isInterested: 1,
+                    isPaid: 1,
+                    contestName: 1,
+                    contestStartTime: 1,
+                    contestEndTime: 1,
+                    isAllIndex: 1,
+                    payoutType: 1,
+                    isNifty: 1,
+                    isBankNifty: 1,
+                    isFinNifty: 1,
+                    entryFee: 1,
+                    rewardType: 1,
+                    contestStatus: 1,
+                    payoutPercentage: 1,
+                    maxParticipants: 1,
+                    featured: 1,
+                    payoutCapPercentage: 1,
+                    rewards: 1,
+                    contestExpiry: 1,
+                    courseInstructors: 1,
+                    visibleToInfluencerUser: 1,
+                    participants: {
+                        $size: '$participants'
+                    },
+                    interestedUsers: {
+                        $size: '$interestedUsers'
+                    },
+                    portfolioValue: {
+                        $arrayElemAt: [
+                            "$portfolio.portfolioValue",
+                            0,
+                        ],
+                    },
+                },
+            },
+            {
+                $sort: {
+                    contestEndTime: -1,
+                },
+            },
+        ])
+
+        if (!contests) {
+            return res.status(404).json({ message: "Contest not found" });
+        }
+        
+        const newContest = [];
+        const influencerTestzone = [];
+        let isInfluencerReferred = await User.findOne({_id: referredBy, role: new ObjectId('65dc6817586cba2182f05561')})
+        for(const elem of contests){
+          if(elem?.courseInstructors?.length > 0){
+            for(const subelem of elem?.courseInstructors){
+              if(subelem?.id?.toString() === (referredBy)?.toString()){
+                // isInfluencerReferred = true;         
+                if(subelem?.fee !== undefined || subelem?.fee !== null){
+                  
+                  const checkCoursePurchased = await Course.aggregate([
+                    {
+                      $match: {
+                        "courseInstructors.id": new ObjectId(
+                          referredBy
+                        ),
+                        "enrollments.userId": new ObjectId(userId)
+                      },
+                    }
+                  ])
+                  if(checkCoursePurchased[0]){
+                    elem.entryFee = subelem?.fee
+                    influencerTestzone.push(elem);
+                    newContest.push(elem);
+                  } else{
+                    influencerTestzone.push(elem);
+                    newContest.push(elem);
+                  }
+                } else{
+                  influencerTestzone.push(elem);
+                  newContest.push(elem);
+                }
+              }
+            }
+          } else{
+            newContest.push(elem);
+            if(elem?.visibleToInfluencerUser && isInfluencerReferred){
+              influencerTestzone.push(elem);
+            }
+          }
+        }
+    
+        res.status(200).json({
+          status: "success",
+          message: "Live TestZones fetched successfully",
+          data: isInfluencerReferred ? influencerTestzone : newContest,
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: error.message,
+        });
+    }
+};
