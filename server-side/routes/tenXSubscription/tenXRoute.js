@@ -5,7 +5,7 @@ const {createTenXSubscription, editTanx, getActiveTenXSubs, renewSubscription, g
     getProSubscription, removeFeature, getAdminActiveTenXSubs, getInactiveTenXSubs, getDraftTenXSubs, 
     createTenXPurchaseIntent, getAllTenXSubs, getTenXSubscriptionPurchaseIntent, myActiveSubsciption, 
     myExpiredSubsciption, myActiveSubs, SubsUserCount, createTenXTutorialView, getTenXTutorialVideoView
-    ,TenXLeaderboard, liveTenXSubscribers, expiredTenXSubscribers, downloadLiveTenXSubscribers, 
+    ,TenXLeaderboard, liveTenXSubscribers, expiredTenXSubscribers, downloadLiveTenXSubscribers, userTenxPlan,
     downloadExpiredTenXSubscribers, tenXPurchaseToday, tenXExpiredToday, tenXExpiredYesterday, tenXPurchaseYesterday} = require("../../controllers/tenXSubscriptionController");
 const Authenticate = require('../../authentication/authentication');
 const tenXTradeRoute = require("../mockTrade/tenXTradeRoute")
@@ -43,6 +43,7 @@ router.route('/myactivesubscription').get(Authenticate, myActiveSubsciption)
 router.route('/myactivesubs').get(Authenticate, myActiveSubs)
 router.route('/myexpiredsubscription').get(Authenticate, myExpiredSubsciption)
 
+router.route('/user/:id').get(Authenticate, userTenxPlan);
 router.route('/subscriptionpurchaseintent/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getTenXSubscriptionPurchaseIntent);
 router.route('/tutorialvideoview/:id').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getTenXTutorialVideoView);
 router.route('/draft').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getDraftTenXSubs);

@@ -23,10 +23,10 @@ exports.overallPnl = async (req, res, next) => {
   const subscriptionId = req.params.id;
 
   const subs = await Subscription.findById(new ObjectId(subscriptionId));
-  let timeElem = subs.users.filter((elem)=>{
-    return (elem.userId.toString() === userId.toString() && elem.status === "Live");
+  let timeElem = subs?.users?.filter((elem)=>{
+    return (elem?.userId?.toString() === userId?.toString() && elem?.status === "Live");
   })
-  const time = timeElem[0]?.subscribedOn;
+  const time = timeElem?.[0]?.subscribedOn;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
