@@ -7826,6 +7826,14 @@ function getDates(period) {
       endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
       break;
 
+    // case 'March':
+    //   const firstDayOfMarch = today.clone().month(2).startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+    //   const lastDayOfMarch = today.clone().month(2).endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+
+    //   startDate = today.clone().startOf('day').subtract(180, 'days').subtract(5, 'hours').subtract(30, 'minutes');
+    //   endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    //   break;
+
     default:
       break;
   }
