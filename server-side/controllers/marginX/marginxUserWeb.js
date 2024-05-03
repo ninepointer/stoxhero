@@ -90,7 +90,7 @@ exports.completed = async (req, res) => {
 exports.upcoming = async (req, res) => {
     const userId = req.user._id;
     try {
-        const complete = await MarginX.aggregate([
+        const upcoming = await MarginX.aggregate([
             {
                 $match: {
                     startTime: { $gt: new Date() },
@@ -150,7 +150,7 @@ exports.upcoming = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            data: complete,
+            data: upcoming,
         });
     } catch (error) {
         console.log(error);
@@ -165,7 +165,7 @@ exports.upcoming = async (req, res) => {
 exports.live = async (req, res) => {
     const userId = req.user._id;
     try {
-        const complete = await MarginX.aggregate([
+        const live = await MarginX.aggregate([
             {
                 $match: {
                     startTime: { $lte: new Date() },
@@ -224,7 +224,81 @@ exports.live = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            data: complete,
+            data: live,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: "error",
+            message: "Error fetching ongoing MarginXs",
+            error: error.message,
+        });
+    }
+};
+
+exports.getLiveById = async (req, res) => {
+    const userId = req.user._id;
+    const {id} = req.params;
+    try {
+        const live = await MarginX.aggregate([
+            {
+                $match: {
+                    status: "Active",
+                    _id: new ObjectId(id)
+                },
+            },
+            {
+                $lookup: {
+                    from: "marginx-templates",
+                    localField: "marginXTemplate",
+                    foreignField: "_id",
+                    as: "templates",
+                },
+            },
+            {
+                $addFields: {
+                    isPaid: {
+                        $in: [new ObjectId(userId), "$participants.userId"],
+                    },
+                },
+            },
+            {
+                $project: {
+                    marginxId: '$_id',
+                    isPaid: 1,
+                    marginXName: "$marginXName",
+                    startTime: 1,
+                    endTime: 1,
+                    isBankNifty: 1,
+                    isNifty: 1,
+                    isFinNifty: 1,
+                    maxParticipants: 1,
+                    liveTime: 1,
+                    marginXExpiry: 1,
+                    participants: {
+                        $size: '$participants'
+                    },
+                    entryFee: {
+                        $arrayElemAt: ["$templates.entryFee", 0],
+                    },
+                    portfolioValue: {
+                        $arrayElemAt: [
+                            "$templates.portfolioValue",
+                            0,
+                        ],
+                    },
+                },
+            },
+            {
+                $sort: {
+                    entryFee: 1
+                }
+            }
+        ])
+
+        res.status(200).json({
+            status: "success",
+            data: live,
         });
     } catch (error) {
         console.log(error);

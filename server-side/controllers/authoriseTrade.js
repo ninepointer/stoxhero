@@ -433,7 +433,6 @@ exports.contestFundCheck = async (req, res, next) => {
 }
 
 const calculateNetPnl = async (req, pnlData, data) => {
-    // console.log("pnlData", pnlData)
     let addUrl = 'i=' + req.body.exchange + ':' + req.body.symbol;
     pnlData.forEach((elem) => {
         if(elem?.lots > 0){
@@ -768,8 +767,9 @@ const takeRejectedTrade = async(req, res, from)=>{
     }
     if(from === tenx){
         let { exchange, symbol, buyOrSell, Quantity, Product, order_type, validity, variety, createdBy,
-            instrumentToken, trader, exchangeInstrumentToken, subscriptionId } = req.body;
-
+            instrumentToken, exchangeInstrumentToken, subscriptionId } = req.body;
+            
+            const trader = req?.user?._id;
         try {
 
             const tenXTrade = new TenXTrader({
@@ -788,8 +788,9 @@ const takeRejectedTrade = async(req, res, from)=>{
     }
     if(from === internship){
         let { exchange, symbol, buyOrSell, Quantity, Product, order_type, validity, variety, createdBy,
-            instrumentToken, trader, exchangeInstrumentToken } = req.body;
+            instrumentToken, exchangeInstrumentToken } = req.body;
 
+            const trader = req?.user?._id;
         try {
 
             const internshipTrade = new InternshipTrade({
@@ -809,8 +810,9 @@ const takeRejectedTrade = async(req, res, from)=>{
     if(from === marginx){
         let { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type,
             TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, 
-            realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, marginxId, exchangeInstrumentToken } = req.body;
+            realBuyOrSell, realQuantity, real_instrument_token, realSymbol, marginxId, exchangeInstrumentToken } = req.body;
             
+            const trader = req?.user?._id;
         try {
 
             const mockTradeCompany = new MarginXMockCompany({
@@ -839,8 +841,9 @@ const takeRejectedTrade = async(req, res, from)=>{
     if(from === dailyContest){
         let { exchange, symbol, buyOrSell, Quantity, Price, Product, order_type,
             TriggerPrice, validity, variety, createdBy, algoBoxId, instrumentToken, 
-            realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, contestId, exchangeInstrumentToken } = req.body;
+            realBuyOrSell, realQuantity, real_instrument_token, realSymbol, contestId, exchangeInstrumentToken } = req.body;
             
+            const trader = req?.user?._id;
         try {
 
             const mockTradeCompany = new DailyContestMockCompany({
@@ -945,6 +948,8 @@ exports.fundCheckTenxTrader = async (req, res, next) => {
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
+    req.body.subscriptionId = req.body.subscriptionId || req.body.subProductId;
+
     try {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.subscriptionId.toString()}: overallpnlTenXTrader`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.subscriptionId.toString()}: overallpnlTenXTrader`)
@@ -1046,6 +1051,7 @@ exports.fundCheckMarginX = async (req, res, next) => {
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
+    req.body.marginxId = req.body.marginxId || req.body.subProductId
     try {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.marginxId.toString()} overallpnlMarginX`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.marginxId.toString()} overallpnlMarginX`)
@@ -1095,6 +1101,8 @@ exports.fundCheckDailyContest = async (req, res, next) => {
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
+    req.body.contestId = req.body.contestId || req.body.subProductId
+
     try {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.contestId.toString()} overallpnlDailyContest`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.contestId.toString()} overallpnlDailyContest`)
@@ -1144,6 +1152,8 @@ exports.fundCheckBattle = async (req, res, next) => {
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;
+    req.body.battleId = req.body.battleId || req.body.subProductId
+
     try {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}${req.body.battleId.toString()} overallpnlBattle`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}${req.body.battleId.toString()} overallpnlBattle`)

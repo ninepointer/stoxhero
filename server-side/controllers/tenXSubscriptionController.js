@@ -126,6 +126,81 @@ exports.getActiveTenXSubs = async(req, res, next)=>{
     }
 };
 
+exports.userTenxPlan = async(req, res, next)=>{
+  const userId = req.user._id;
+  const {id} = req.params;
+  try{
+    const tenXSubs = await TenXSubscription.aggregate(
+      [
+        {
+          $match: {
+            _id: new ObjectId(id)
+          }
+        },
+        {
+          $addFields: {
+            userCount: {
+              $size: '$users'
+            }
+          }
+        },
+        {
+          $unwind: {
+            path: "$users",
+          },
+        },
+        {
+          $lookup: {
+            from: "user-portfolios",
+            localField: "portfolio",
+            foreignField: "_id",
+            as: "portfolio_details",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            plan_name: 1,
+            expiryDays:1,
+            features: 1,
+            discounted_price:1,
+            payoutPercentage: 1,
+            validity:1,
+            portfolioValue: {
+              $arrayElemAt: [
+                "$portfolio_details.portfolioValue",
+                0,
+              ],
+            },
+            user: "$users.userId",
+            fee: "$users.fee",
+            status: "$users.status",
+            subscribedOn: "$users.subscribedOn",
+            allowRenewal:1,
+            userCount: 1
+          },
+        },
+        {
+          $match: {
+            user: new ObjectId(userId),
+            status: "Live",
+          },
+        },
+        {
+          $sort: {
+            subscribedOn: -1,
+            validity:1
+          },
+        },
+      ]
+    )
+    res.status(200).json({status: 'success', data: tenXSubs});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }    
+};
+
 exports.getLiveUserTenxSubs = async(req, res, next)=>{
   try{
       const tenXSubs = await TenXSubscription.find().select('_id users actual_price discounted_price plan_name portfolio profitCap status validity validityPeriod features allowPurchase allowRenewal expiryDays payoutPercentage')

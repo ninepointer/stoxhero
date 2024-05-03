@@ -6,6 +6,7 @@ const MarginxUser = require('../../controllers/marginX/marginxUserWeb');
 router.get('/upcoming', Authenticate, MarginxUser.upcoming );
 router.get('/live', Authenticate, MarginxUser.live);
 router.get('/completed', Authenticate, MarginxUser.completed);
+router.get('/live/:id', Authenticate, MarginxUser.getLiveById);
 
 
 module.exports=router;

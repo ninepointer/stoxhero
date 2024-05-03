@@ -13,10 +13,11 @@ exports.dailyContestTrade = async (req, res, otherData) => {
     const io = getIOValue();
     let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken, fromAdmin,
         validity, variety, algoBoxId, order_id, instrumentToken, contestId, stopProfitPrice, stopLossPrice, price,
-        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, deviceDetails, margin ,
+        realBuyOrSell, realQuantity, real_instrument_token, realSymbol, deviceDetails, margin ,
         originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body 
 
         let {secondsRemaining, isRedisConnected, brokerageCompany, brokerageUser} = otherData;
+        const trader = req?.user?._id;
 
     const session = await mongoose.startSession();
     const lockKey = `${req.user._id}-${contestId}`
@@ -130,7 +131,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         if (pendingOrderRedis==="OK" && pipelineForSet._result[0][1] === "OK" && pipelineForSet._result[1][1] === "OK" && pipelineForSet._result[2][1] === "OK" && pipelineForSet._result[3][1] === "OK") {     
             await session.commitTransaction();
             await releaseLock(lockKey);
-            return res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
+            return res.status(201).json({ status: 'Complete', message: 'COMPLETE', data: `Traded ${Math.abs(Quantity)} quantity of ${symbol}` });
         } else {
             // await session.commitTransaction();
             throw new Error();
@@ -148,7 +149,7 @@ exports.dailyContestTrade = async (req, res, otherData) => {
         await releaseLock(lockKey);
         await session.abortTransaction();
         console.error('Transaction failed, documents not saved:', err);
-        res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
+        res.status(401).json({status: 'error', message: 'Something went wrong. Please try again.'});
     } finally {
         // End the session
         await releaseLock(lockKey);

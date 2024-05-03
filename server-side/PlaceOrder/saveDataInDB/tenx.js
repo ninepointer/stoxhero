@@ -10,9 +10,9 @@ const {clientForIORedis} = require('../../marketData/redisClient');
 exports.tenxTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, trade_time,  
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, originalLastPriceUser,
-      portfolioId, trader, stopProfitPrice, stopLossPrice, deviceDetails, margin, price } = req.body 
+      portfolioId, stopProfitPrice, stopLossPrice, deviceDetails, margin, price } = req.body 
 
-      
+      const trader = req?.user?._id;
   let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
   // console.log(req.body, otherData)
   const session = await mongoose.startSession();
@@ -78,15 +78,16 @@ exports.tenxTrade = async (req, res, otherData) => {
     if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
       await session.commitTransaction();
       await releaseLock(lockKey);
-      res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
+      res.status(201).json({ status: 'Complete', message: 'COMPLETE', data: `Traded ${Math.abs(Quantity)} quantity of ${symbol}` });
     }
   } catch (err) {
+    console.log(err);
     await client.del('stoploss-stopprofit');
     await client.del(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)
     await session.abortTransaction();
     await releaseLock(lockKey);
     // console.error('Transaction failed, documents not saved:', err);
-    res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
+    res.status(401).json({status: 'error', message: 'Something went wrong. Please try again.'});
   } finally {
     await releaseLock(lockKey);
     session.endSession();
