@@ -44,7 +44,7 @@ async function singleProcess() {
         await createNewTicker(data.getApiKey, data.getAccessToken);
         io.on("connection", async (socket) => {
             socket.on('userId', async (data) => {
-                socket.join(`${data}`)
+                socket.join(`${data}`);
                 await client.set(socket.id, data);
                 // await getDummyTicks(data)
             })
@@ -60,7 +60,8 @@ async function singleProcess() {
             socket.on('dailyContestLeaderboard', async (data) => {
                 let { id, userId } = data;
                 socket.join(`${id}`)
-                socket.join(`${id}${userId}`)
+                socket.join(`${id}${userId}`);
+
                 await client.set(`dailyContestData:${userId}${id}`, JSON.stringify(data));
             })
 
@@ -118,10 +119,10 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
-    if (process.env.PROD === "true") {
+    // if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
-    }
+    // }
 
     emitServerTime().then(() => { });
 

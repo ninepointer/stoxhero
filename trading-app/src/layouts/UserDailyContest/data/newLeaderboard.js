@@ -268,8 +268,8 @@ function Leaderboard({ socket, name, id, data}) {
                                                             <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>{elem?.userName}</MDTypography></MDBox>
                                                         </Grid>
 
-                                                        <Grid item xs={12} md={6} lg={goodies ? 3 : 2.4} display='flex' justifyContent='center'>
-                                                            <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'>{(elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.npnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.npnl)))}</MDTypography></MDBox>
+                                                        <Grid item xs={12} md={6} lg={goodies ? 3 : 2.4} display='flex' justifyContent='center'>{(elem?.npnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.npnl))) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(elem?.npnl)))}
+                                                            <MDBox><MDTypography fontSize={15} color='black' fontWeight='bold'></MDTypography></MDBox>
                                                         </Grid>
                                                         {!goodies &&
                                                             <Grid item xs={12} md={6} lg={goodies ? 3 : 2.4} display='flex' justifyContent='center'>

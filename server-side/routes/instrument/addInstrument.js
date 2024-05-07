@@ -484,14 +484,14 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
                     if(instrumentJSONs.length > 0 && isRedisConnected){
                         await client.LPUSH(`${req.user._id.toString()}: contestInstrument`, [...instrumentJSONs])
                     }
-                    res.status(201).json({message: "instruments received", data: instrument});
+                    res.status(200).json({message: "instruments received", data: instrument});
     
                 // }
             } else{
                 if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
                     let instrument = await client.LRANGE(`${req.user._id.toString()}: instrument`, 0, -1)
                     const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
-                    res.status(201).json({message: "redis instrument received", data: instrumentJSONs}); 
+                    res.status(200).json({message: "redis instrument received", data: instrumentJSONs}); 
     
                 } else{
           
@@ -507,7 +507,7 @@ router.get("/instrumentDetails", authentication, async (req, res)=>{
                         await client.LPUSH(`${req.user._id.toString()}: instrument`, [...instrumentJSONs])
                     }
                     // console.log("instruments", instruments)
-                    res.status(201).json({message: "instruments received", data: instrument});
+                    res.status(200).json({message: "instruments received", data: instrument});
 
                 }
             }

@@ -1109,6 +1109,7 @@ exports.myActiveSubs = async(req, res, next)=>{
             discounted_price:1,
             payoutPercentage: 1,
             validity:1,
+            profitCap: 1,
             portfolioValue: {
               $arrayElemAt: [
                 "$portfolio_details.portfolioValue",

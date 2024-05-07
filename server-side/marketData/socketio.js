@@ -5,9 +5,11 @@ let io;
 
 async function setIOValue() {
   try{
+    const allowedOrigins = ['http://localhost:3000', 'https://stoxhero.com', 'https://www.stoxhero.com', 'https://stoxhero-next-ts.vercel.app', 'https://www.stoxhero-next-ts.vercel.app', 'http://43.204.7.180'];
+
     io = new Server(9000, {
       cors: {
-        origin: 'http://localhost:3000',
+        origin: allowedOrigins,
         //  origin: "http://3.110.187.5/",
         methods: ['GET', 'POST', 'PATCH'],
       }
