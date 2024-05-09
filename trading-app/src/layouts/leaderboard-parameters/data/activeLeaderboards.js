@@ -102,7 +102,7 @@ const Active = ({ type }) => {
                             item
                             xs={12}
                             md={6}
-                            lg={2}
+                            lg={4}
                             mb={1}
                             display="flex"
                             justifyContent="center"
@@ -122,7 +122,7 @@ const Active = ({ type }) => {
                             item
                             xs={12}
                             md={6}
-                            lg={2}
+                            lg={4}
                             mb={1}
                             display="flex"
                             justifyContent="center"
@@ -137,6 +137,28 @@ const Active = ({ type }) => {
                               </span>
                             </MDTypography>
                           </Grid>
+
+                          <Grid
+                            item
+                            xs={12}
+                            md={6}
+                            lg={4}
+                            mb={1}
+                            display="flex"
+                            justifyContent="center"
+                          >
+                            <MDTypography
+                              fontSize={12}
+                              style={{ color: "black" }}
+                            >
+                              Margin Money Interest:{" "}
+                              <span style={{ fontSize: 14, fontWeight: 700 }}>
+                                {e?.marginMoneyInterest}
+                              </span>
+                            </MDTypography>
+                          </Grid>
+
+                          
                         </Grid>
                       </Grid>
                     </MDButton>

@@ -45,11 +45,15 @@ function Index() {
   const [newObjectId, setNewObjectId] = useState("");
   const [updatedDocument, setUpdatedDocument] = useState([]);
   const [leaderboardData, setLeaderboardData] = useState([]);
+  const [isFocused, setIsFocused] = useState(false);
 
   const [formState, setFormState] = useState({
     frequency: "" || leaderboard?.frequency,
     status: "" || leaderboard?.status,
     usersPerTable: "" || leaderboard?.usersPerTable,
+    marginMoneyInterest: "" || leaderboard?.marginMoneyInterest,
+    quarterStartDate: "" || leaderboard?.quarterStartDate,
+    quarterEndDate: "" || leaderboard?.quarterEndDate,
   });
 
   useEffect(() => {
@@ -61,11 +65,15 @@ function Index() {
 
   async function onSubmit(e, formState) {
     e.preventDefault();
-    const { frequency, status, usersPerTable } = formState;
+    const { frequency, status, usersPerTable, marginMoneyInterest, quarterStartDate, quarterEndDate } = formState;
 
     try {
-      if (!frequency || !status || !usersPerTable) {
+      if (!frequency || !status || !usersPerTable || !marginMoneyInterest) {
         return openErrorSB("Error", "Please fill all detail");
+      }
+
+      if ((frequency==='Quarter') && (new Date(quarterStartDate) > new Date(quarterEndDate))) {
+        return openErrorSB("Error", "Start date is greater then end date");
       }
 
       setTimeout(() => {
@@ -74,7 +82,7 @@ function Index() {
       }, 500);
 
       const res = await axios.post(`${apiUrl}leaderboard`, {
-        frequency, status, usersPerTable
+        frequency, status, usersPerTable, quarterStartDate, quarterEndDate, marginMoneyInterest
       }, {
         withCredentials: true
       })
@@ -104,14 +112,19 @@ function Index() {
       e.preventDefault();
       setSaving(true);
 
-      const { frequency, status, usersPerTable } = formState;
+      const { frequency, status, usersPerTable, marginMoneyInterest, quarterStartDate, quarterEndDate } = formState;
 
-      if (!frequency || !status || !usersPerTable) {
+
+      if (!frequency || !status || !usersPerTable || !marginMoneyInterest) {
         return openErrorSB("Error", "Please fill all detail");
       }
 
+      if ((frequency==='Quarter') && (new Date(quarterStartDate) > new Date(quarterEndDate))) {
+        return openErrorSB("Error", "Start date is greater then end date");
+      }
+
       const res = await axios.patch(`${apiUrl}leaderboard/${leaderboard?._id}`, {
-        frequency, status, usersPerTable
+        frequency, status, usersPerTable, quarterStartDate, quarterEndDate, marginMoneyInterest
       }, {
         withCredentials: true
       })
@@ -130,7 +143,7 @@ function Index() {
           setEditing(true);
         }, 500);
       } else if (res?.data.status == "success") {
-        openSuccessSB("TestZone Edited", "Edited Successfully");
+        openSuccessSB("Leaderboard Edited", "Edited Successfully");
         setTimeout(() => {
           setSaving(false);
           setEditing(false);
@@ -190,6 +203,13 @@ function Index() {
     />
   );
 
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => {
+    if (!formState?.quarterStartDate) {
+      setIsFocused(false);
+    }
+  };
+
   return (
     <>
       {isLoading ? (
@@ -247,6 +267,26 @@ function Index() {
               </Grid>
 
               <Grid item xs={12} md={6} xl={4}>
+                <TextField
+                  disabled={(isSubmitted || leaderboard) && (!editing || saving)}
+                  id="outlined-required"
+                  label="Margin Money Interest *"
+                  type='number'
+                  name="marginMoneyInterest"
+                  fullWidth
+                  defaultValue={
+                    editing ? formState?.marginMoneyInterest : leaderboard?.marginMoneyInterest
+                  }
+                  onChange={(e) => {
+                    setFormState((prevState) => ({
+                      ...prevState,
+                      marginMoneyInterest: e.target.value,
+                    }));
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={4}>
                 <FormControl sx={{ width: "100%" }}>
                   <InputLabel id="demo-multiple-name-label">
                     Frequency
@@ -270,9 +310,60 @@ function Index() {
                     <MenuItem value="Daily">Daily</MenuItem>
                     <MenuItem value="Weekly">Weekly</MenuItem>
                     <MenuItem value="Monthly">Monthly</MenuItem>
+                    <MenuItem value="Quarter">Quarter</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
+
+              {formState?.frequency === 'Quarter' &&
+                <>
+                  <Grid item xs={12} md={6} xl={4}>
+                    <TextField
+                      disabled={(isSubmitted || leaderboard) && (!editing || saving)}
+                      id="outlined-required"
+                      label="Quarter Start Date *"
+                      name="quarterStartDate"
+                      fullWidth
+                      value={
+                       new Date(formState?.quarterStartDate).toISOString().slice(0, 10)
+                      }
+                      onChange={(e) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          quarterStartDate: e.target.value,
+                        }));
+                      }}
+                      type={isFocused || formState?.quarterStartDate ? 'date' : 'text'}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                      InputLabelProps={isFocused || formState?.quarterStartDate ? { shrink: true } : {}}
+
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6} xl={4}>
+                    <TextField
+                      disabled={(isSubmitted || leaderboard) && (!editing || saving)}
+                      id="outlined-required"
+                      label="Quarter End Date *"
+                      name="quarterEndDate"
+                      fullWidth
+                      value={
+                        new Date(formState?.quarterEndDate).toISOString().slice(0, 10)
+                      }
+                      onChange={(e) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          quarterEndDate: e.target.value,
+                        }));
+                      }}
+                      type={isFocused || formState?.quarterEndDate ? 'date' : 'text'}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                      InputLabelProps={isFocused || formState?.quarterEndDate ? { shrink: true } : {}}
+                    />
+                  </Grid>
+                </>
+              }
 
               <Grid item xs={12} md={6} xl={4}>
                 <FormControl sx={{ width: "100%" }}>
@@ -291,7 +382,7 @@ function Index() {
                         status: e.target.value,
                       }));
                     }}
-                    label="TestZone Status"
+                    label="Leaderboard Status"
                     sx={{ minHeight: 43 }}
                   >
                     <MenuItem value="Active">Active</MenuItem>
@@ -336,7 +427,7 @@ function Index() {
                     size="small"
                     disabled={creating}
                     onClick={() => {
-                      navigate("/contestdashboard/dailycontest");
+                      navigate("/leaderboard-params");
                     }}
                   >
                     Cancel
@@ -363,7 +454,7 @@ function Index() {
                     color="info"
                     size="small"
                     onClick={() => {
-                      navigate("/contestdashboard/dailycontest");
+                      navigate("/leaderboard-params");
                     }}
                   >
                     Back
