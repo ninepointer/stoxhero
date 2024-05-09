@@ -20,6 +20,10 @@ const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const { apiRoutes } = require('./apiRoutes');
 const { cronjobs } = require('./cronjobs');
+const {sendVirtualLeaderboardData} = require('./controllers/paperTradeController');
+const {virtualPortfolioId} = require('./constant');
+
+
 
 async function singleProcess() {
     await setIOValue()
@@ -58,14 +62,21 @@ async function singleProcess() {
             })
 
             socket.on('dailyContestLeaderboard', async (data) => {
-                let { id, userId } = data;
+                const { id, userId } = data;
                 socket.join(`${id}`)
                 socket.join(`${id}${userId}`)
                 await client.set(`dailyContestData:${userId}${id}`, JSON.stringify(data));
             })
 
+            socket.on('paperTradeLeaderboard', async (data) => {
+                const { id, userId } = data;
+                socket.join(`${virtualPortfolioId}`);
+                socket.join(`${virtualPortfolioId}${userId}`);
+                await client.set(`paperTradeData:${userId}${id}`, JSON.stringify(data));
+            })
+
             socket.on('battleLeaderboard', async (data) => {
-                let { id, userId } = data;
+                const { id, userId } = data;
                 socket.join(`${id}`)
                 socket.join(`${id}${userId}`)
                 await client.set(`battleData:${userId}${id}`, JSON.stringify(data));
@@ -118,6 +129,7 @@ async function singleProcess() {
     });
 
     //emitting leaderboard for contest.
+    sendVirtualLeaderboardData().then(()=>{});
     if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });

@@ -144,7 +144,7 @@ const {autoCreate} = require('../../controllers/AutoCreate');
 const Calculator = require('../../models/calculator/calculatorSchema');
 const {cronjobs} = require('../../cronjobs');
 const { removeInstrumentFromWatchlist } = require("../../controllers/instrument");
-
+const {dailyPayout} = require('../../controllers/paperTradePayoutController');
 // client8.connect()
 // .then(async (res) => {
     
@@ -153,6 +153,46 @@ const { removeInstrumentFromWatchlist } = require("../../controllers/instrument"
 // .catch((err) => {
 //     console.log("redis not connected", err)
 // })
+
+
+router.get("/removeduplicate", async (req, res) => {
+  const tradable = await TradableInstrumentSchema.aggregate([
+    {
+      $match: {status: 'Active'}
+    },
+      {
+        $group: {
+          _id: '$tradingsymbol',
+          count: { $sum: 1 },
+          ids: { $push: "$_id" }
+        }
+      },
+      {
+        $match: {
+          count: { $gt: 1 }
+        }
+      }
+    ])
+
+    const bulkOps = [];
+    tradable.forEach(group => {
+      // Keep the first document and delete the rest
+      const keepId = group.ids.shift();
+      bulkOps.push({
+        deleteOne: {
+          filter: { _id: { $in: group.ids } }
+        }
+      });
+    });
+
+    await TradableInstrumentSchema.updateMany({_id: {$in: bulkOps}})
+  res.send("ok");
+});
+
+router.get("/virtualreward", async (req, res) => {
+  await dailyPayout();
+  res.send("ok");
+});
 
 router.get("/inactiveInst", async (req, res) => {
 

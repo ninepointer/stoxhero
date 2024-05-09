@@ -15,5 +15,6 @@ exports.stock = "Stock";
 exports.maxLot_BankNifty = 900;
 exports.maxLot_Nifty = 1800;
 exports.maxLot_FinNifty = 1800;
+exports.virtualPortfolioId = '6433e2e5500dc2f2d20d686d';
 
 

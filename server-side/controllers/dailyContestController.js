@@ -3509,7 +3509,7 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, contest) => {
     });
   }
   await wallet.save();
-  const user = await User.findById(pnuserId).select(
+  const user = await User.findById(pnlObj?.userId).select(
     "first_name last_name email"
   );
 

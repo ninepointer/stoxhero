@@ -35,6 +35,10 @@ const paperTrade = new mongoose.Schema({
         type: Number,
         required: true
     },
+    portfolioValue:{
+        type: Number,
+        required: true
+    },
     createdOn:{
         type: Date,
         default: ()=>new Date(),

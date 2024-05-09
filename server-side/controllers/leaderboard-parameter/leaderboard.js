@@ -1,19 +1,17 @@
 const Leaderboard = require('../../models/LeaderboardParams/leaderboardSchema');
 const {ObjectId} = require('mongodb');
-
+const mongoose = require('mongoose');
 
 exports.createLeaderboard = async (req, res) => {
     try {
         let {
-            status,
-            frequency,
-            usersPerTable,
+            status, frequency, usersPerTable,
+            quarterStartDate, quarterEndDate, marginMoneyInterest
         } = req.body;
 
         const leaderboard = await Leaderboard.create({
-            status,
-            frequency,
-            usersPerTable
+            status, frequency, usersPerTable,
+            quarterStartDate, quarterEndDate, marginMoneyInterest
         });
 
         res.status(201).json({
