@@ -185,8 +185,13 @@ router.get("/removeduplicate", async (req, res) => {
       });
     });
 
-    await TradableInstrumentSchema.updateMany({_id: {$in: bulkOps}})
-  res.send("ok");
+    const update = await TradableInstrumentSchema.bulkWrite(bulkOps);
+    // await TradableInstrumentSchema.updateMany({_id: {$in: bulkOps}}, {
+    //   $set: {
+    //     status: 'Inactive'
+    //   }
+    // })
+  res.send(update);
 });
 
 router.get("/virtualreward", async (req, res) => {

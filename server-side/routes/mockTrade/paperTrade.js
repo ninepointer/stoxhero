@@ -12,7 +12,7 @@ const {
   getDailyVirtualUsers,
   findOpenLots,
   treaderWiseMockTrader, weeklyLeaderboardData, monthlyLeaderboardData,
-  influencerTraderWiseMockTrader, todayLeaderboardData
+  influencerTraderWiseMockTrader, todayLeaderboardData, quarterlyLeaderboardData
 } = require("../../controllers/paperTradeController");
 const Authenticate = require("../../authentication/authentication");
 const restrictTo = require("../../authentication/authorization");
@@ -35,6 +35,7 @@ router.route("/traderWisePnl").get(Authenticate, treaderWiseMockTrader);
 router.route("/todayleaderboard").get(Authenticate, todayLeaderboardData);
 router.route("/weekleaderboard").get(Authenticate, weeklyLeaderboardData);
 router.route("/monthleaderboard").get(Authenticate, monthlyLeaderboardData);
+router.route("/quarterleaderboard").get(Authenticate, monthlyLeaderboardData);
 
 router.route("/influencer/traderwisepnl/").get(Authenticate, influencerTraderWiseMockTrader);
 

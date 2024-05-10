@@ -1165,7 +1165,8 @@ exports.weeklyLeaderboardData = async (req, res) => {
     const startOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
     const endOfWeek = today.endOf('week').subtract(5, 'hours').subtract(30, 'minutes');
 
-    const data = await leaderboardDataHelper(startOfWeek, endOfWeek);
+    const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Weekly'})
+    const data = await leaderboardDataHelper(startOfWeek, endOfWeek, leaderboardParams);
 
     res.status(200).json({
       status: "success",
@@ -1187,7 +1188,8 @@ exports.monthlyLeaderboardData = async (req, res) => {
     const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
 
-    const data = await leaderboardDataHelper(startOfMonth, endOfMonth);
+    const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Monthly'})
+    const data = await leaderboardDataHelper(startOfMonth, endOfMonth, leaderboardParams);
 
     res.status(200).json({
       status: "success",
@@ -1203,7 +1205,26 @@ exports.monthlyLeaderboardData = async (req, res) => {
   }
 };
 
-const leaderboardDataHelper = async (startDate, endDate) => {
+exports.quarterlyLeaderboardData = async (req, res) => {
+  try {
+    const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Quarter'})
+    const data = await leaderboardDataHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams);
+
+    res.status(200).json({
+      status: "success",
+      data: data,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: err.message,
+    });
+  }
+};
+
+const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
 
   const pipeline = [
     {
@@ -1246,6 +1267,9 @@ const leaderboardDataHelper = async (startDate, endDate) => {
           portfolioValue: "$portfolioValue",
           joining_date: {
             $arrayElemAt: ["$user.joining_date", 0],
+          },
+          employeeid: {
+            $arrayElemAt: ["$user.employeeid", 0],
           },
         },
         margin: {
@@ -1307,7 +1331,7 @@ const leaderboardDataHelper = async (startDate, endDate) => {
           $multiply: [
             {
               $divide: [
-                20,
+                leaderboardParams?.marginMoneyInterest,
                 36600
               ]
             },
@@ -1319,10 +1343,11 @@ const leaderboardDataHelper = async (startDate, endDate) => {
     },
     {
       $project: {
+        employeeid: '$_id.employeeid',
         daysOfInterest: 1,
         weekDays: 1,
         monthDays: 1,
-        interestCost: 1,
+        moneyCost: '$interestCost',
         pnlAfterCost: {
           $subtract: ['$netPnl', "$interestCost"]
         },
@@ -1331,7 +1356,7 @@ const leaderboardDataHelper = async (startDate, endDate) => {
         margin: 1,
         portfolioValue: "$_id.portfolioValue",
         grossPnl: 1,
-        netPnl: 1,
+        npnl: '$netPnl',
         brokerage: 1,
         trades: 1,
         roi: {
@@ -1351,6 +1376,9 @@ const leaderboardDataHelper = async (startDate, endDate) => {
         grossPnl: -1,
       },
     },
+    {
+      $limit: (Number(leaderboardParams?.usersPerTable) || 10)
+    }
   ];
 
   const data = await PaperTradeLeaderboard.aggregate(pipeline)
@@ -1435,8 +1463,8 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  const interest = leaderboardParams?.marginMoneyInterest;
-  const usersPerTable = leaderboardParams?.usersPerTable;
+  const interest = leaderboardParams?.marginMoneyInterest || 10;
+  const usersPerTable = leaderboardParams?.usersPerTable || 10;
   const portfolioValue = virtualMargin?.portfolioValue;
 
   const allParticipants = await PaperTrade.aggregate([
@@ -1646,6 +1674,7 @@ async function formatData(arr, interest, portfolioValue) {
     obj.userName = data.userName;
     obj.photo = data.photo;
     obj.brokerage = data.brokerage;
+    obj.employeeid = obj.name;
     obj.moneyCost = (Number(interest) / (daysInYear * 100)) * Number(portfolioValue);
     // Add the object to the formattedLeaderboard array
     formattedLeaderboard.push(obj);

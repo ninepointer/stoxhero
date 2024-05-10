@@ -69,10 +69,10 @@ async function singleProcess() {
             })
 
             socket.on('paperTradeLeaderboard', async (data) => {
-                const { id, userId } = data;
+                const { userId } = data;
                 socket.join(`${virtualPortfolioId}`);
                 socket.join(`${virtualPortfolioId}${userId}`);
-                await client.set(`paperTradeData:${userId}${id}`, JSON.stringify(data));
+                await client.set(`paperTradeData:${userId}${virtualPortfolioId}`, JSON.stringify(data));
             })
 
             socket.on('battleLeaderboard', async (data) => {

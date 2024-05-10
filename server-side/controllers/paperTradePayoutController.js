@@ -191,3 +191,27 @@ exports.dailyPayout = async () => {
     }
   }
 };
+
+exports.monthPayout = async () => {
+  const setting = await Setting.find();
+  const leaderboardParams = await LeaderboardParams.findOne({ frequency: 'Monthly', status: 'Active' });
+  let date = new Date();
+  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  const leaderBoardData = await PaperTradeLeaderboard.find({ createdOn: { $gte: today } })
+    .sort({ npnl: -1, gpnl: -1 });
+
+  const rewards = leaderboardParams?.rewards;
+  for (const elem of leaderBoardData) {
+    for (let obj of rewards) {
+      for (let i = obj?.rankStart - 1; i <= obj?.rankEnd - 1; i++) {
+        if (obj?.rewardType === 'Cash') {
+          await addRewardToWallet(obj?.reward, elem, setting);
+        }
+      }
+    }
+  }
+};
