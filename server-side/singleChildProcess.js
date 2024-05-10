@@ -48,7 +48,7 @@ async function singleProcess() {
         await createNewTicker(data.getApiKey, data.getAccessToken);
         io.on("connection", async (socket) => {
             socket.on('userId', async (data) => {
-                socket.join(`${data}`)
+                socket.join(`${data}`);
                 await client.set(socket.id, data);
                 // await getDummyTicks(data)
             })
@@ -64,7 +64,8 @@ async function singleProcess() {
             socket.on('dailyContestLeaderboard', async (data) => {
                 const { id, userId } = data;
                 socket.join(`${id}`)
-                socket.join(`${id}${userId}`)
+                socket.join(`${id}${userId}`);
+
                 await client.set(`dailyContestData:${userId}${id}`, JSON.stringify(data));
             })
 
@@ -130,6 +131,7 @@ async function singleProcess() {
 
     //emitting leaderboard for contest.
     sendVirtualLeaderboardData().then(()=>{});
+
     if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
         sendMyRankData().then(() => { });
@@ -139,7 +141,7 @@ async function singleProcess() {
 
     app.use(express.json({ limit: "10mb" }));
     app.use(require("cookie-parser")());
-    const allowedOrigins = ['http://localhost:3000', 'https://stoxhero.com', 'https://stoxhero-next-ts.vercel.app', 'http://43.204.7.180'];
+    const allowedOrigins = ['http://localhost:3000', 'https://stoxhero.com', 'https://www.stoxhero.com', 'https://stoxhero-next-ts.vercel.app', 'https://www.stoxhero-next-ts.vercel.app', 'http://43.204.7.180'];
 
     const corsOptions = {
       credentials: true,

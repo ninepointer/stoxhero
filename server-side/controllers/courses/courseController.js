@@ -2065,6 +2065,147 @@ exports.getUserCourses = async (req, res) => {
   }
 };
 
+exports.getCollegeCourses = async (req, res) => {
+  try {
+    // const userId = req.user._id;
+    // const user = await User.findById(new ObjectId(userId)).populate(
+    //   "referredBy",
+    //   "role"
+    // );
+    const skip = Number(Number(req.query.skip) || 0);
+    const limit = Number(Number(req.query.limit) || 10);
+
+    const pipeline = [
+      {
+        $match: {
+          status: "Published",
+          isCollege: true
+        },
+      },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "courseInstructors.id",
+          foreignField: "_id",
+          as: "instructor",
+        },
+      },
+      {
+        $addFields: {
+          averageRating: { $ifNull: [{ $avg: "$ratings.rating" }, 0] }, // Calculate the average rating or set it to 0 if null
+        },
+      },
+      {
+        $project: {
+          courseName: 1,
+          _id: -1,
+          courseImage: 1,
+          courseSlug: 1,
+          meetLink: 1,
+          instructorImage: {
+            $arrayElemAt: ["$courseInstructors.image", 0],
+          },
+          courseOverview: 1,
+          coursePrice: 1,
+          discountedPrice: 1,
+          averageRating: 1,
+          courseDurationInMinutes: 1,
+          courseLanguages: 1,
+          registrationStartTime: 1,
+          registrationEndTime: 1,
+          courseStartTime: 1,
+          courseEndTime: 1,
+          courseType: 1,
+          type: 1,
+          category: 1,
+          level: 1,
+          lectures: {
+            $sum: {
+              $map: {
+                input: "$courseContent",
+                as: "content",
+                in: {
+                  $size: "$$content.subtopics",
+                },
+              },
+            },
+          },
+          userEnrolled: {
+            $size: "$enrollments",
+          },
+          maxEnrolments: 1,
+          instructorName: {
+            $map: {
+              input: "$instructor",
+              as: "inst",
+              in: {
+                $concat: ["$$inst.first_name", " ", "$$inst.last_name"],
+              },
+            },
+          },
+          // isPaid: {
+          //   $in: [new ObjectId(userId), "$enrollments.userId"],
+          // },
+        },
+      },
+      {
+        $sort: {
+          courseStartTime: -1,
+          _id: -1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ];
+
+    const count = await Course.countDocuments({
+      status: "Published",
+      type: "Course",
+      isCollege: true
+    });
+
+    const course = await Course.aggregate(pipeline);
+
+    const newCourse = course
+      .filter((elem) => elem?.type === "Course")
+      .filter((elem, index) => {
+        // console.log('name', elem?.courseName, index);
+        if (
+          elem?.courseType === "Live" &&
+          elem?.registrationStartTime &&
+          elem?.courseEndTime
+        ) {
+          // console.log('name', elem?.courseName, index);
+          return (
+            elem?.registrationStartTime &&
+            new Date(elem?.registrationStartTime) <= new Date() &&
+            ((elem?.courseEndTime &&
+              elem?.isPaid &&
+              new Date(elem?.courseEndTime) >= new Date()) ||
+              (elem?.registrationEndTime &&
+                new Date(elem?.registrationEndTime) >= new Date()))
+          );
+        } else {
+          return elem;
+        }
+      });
+
+    res.status(200).json({
+      status: "success",
+      // data: course.filter((elem)=> elem?.type==='Course'),
+      data: newCourse,
+      count: count,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: "error", message: "something went wrong" });
+  }
+};
+
 exports.getCourseByIdUser = async (req, res) => {
   try {
     const courseId = req.params.id;

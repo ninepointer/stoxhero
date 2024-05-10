@@ -478,10 +478,10 @@ exports.getResultPagePnl = async (req, res, next) => {
 
     try {
 
-        const contest = await DailyContest.findOne({_id: new ObjectId(id), contestStatus: "Completed"});
+        const contest = await DailyContest.findOne({ _id: new ObjectId(id), contestStatus: "Completed" });
         // console.log(contest?.contestName)
         let data = {};
-        if(contest){
+        if (contest) {
             const result = await DailyContestMockUser.aggregate([
                 {
                     $match:
@@ -552,10 +552,10 @@ exports.getResultPagePnl = async (req, res, next) => {
                     },
                 },
             ])
-    
-            for(let i = 0; i < result.length; i++){
-                if(result[i]?.user?.toString() === userId?.toString()){
-                    result[i].rank = i+1;
+
+            for (let i = 0; i < result.length; i++) {
+                if (result[i]?.user?.toString() === userId?.toString()) {
+                    result[i].rank = i + 1;
                     data = JSON.parse(JSON.stringify(result[i]));
                 }
             }
@@ -2040,9 +2040,9 @@ const dailyContestLeaderBoard = async (contestData) => {
     const id = contestData._id?.toString();
     //finding data for new participates
     const contest = await DailyContest.findOne({ _id: new ObjectId(id) })
-    .populate('participants.userId', 'first_name last_name employeeid profilePhoto');
+        .populate('participants.userId', 'first_name last_name employeeid profilePhoto');
 
-    
+
     try {
         const startDate = new Date(contest.contestStartTime);
         const endDate = new Date(contest.contestEndTime);
@@ -2050,6 +2050,7 @@ const dailyContestLeaderBoard = async (contestData) => {
         const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
 
         const allParticipants = contest.participants;
+
         let obj = {};
         for (let i = 0; i < allParticipants.length; i++) {
             let data = {
@@ -2140,6 +2141,8 @@ const dailyContestLeaderBoard = async (contestData) => {
         }
 
         const result = await aggregateRanks(ranks, id);
+
+        // console.log('result', result);
 
         for (let rank of result) {
             try {
@@ -2267,8 +2270,8 @@ const contestQueue = [];
 exports.sendLeaderboardData = async () => {
     try {
         const activeContest = await DailyContest.find({ contestStatus: "Active" })
-        .select('_id contestStatus contestStartTime');
-            // .populate('participants.userId', 'first_name last_name employeeid profilePhoto');
+            .select('_id contestStatus contestStartTime');
+        // .populate('participants.userId', 'first_name last_name employeeid profilePhoto');
 
         if (activeContest.length) {
             contestQueue.push(...activeContest);
@@ -2294,8 +2297,7 @@ async function processContestQueue() {
 
     const endTime = new Date(currentTime);
     endTime.setHours(9, 48, 0, 0);
-
-  if (currentTime >= startTime && currentTime <= endTime) {
+    if (currentTime >= startTime && currentTime <= endTime) {
 
         // If the queue is empty, reset the processing flag and return
         if (contestQueue.length === 0) {
@@ -2307,14 +2309,13 @@ async function processContestQueue() {
         for (const contest of contestQueue) {
             if (contest.contestStatus === "Active" && contest.contestStartTime <= new Date()) {
                 const leaderBoard = await dailyContestLeaderBoard(contest);
-
-                // console.log("leaderBoard", leaderBoard)
+                // console.log('leaderBoard', leaderBoard)
                 if (leaderBoard?.length > 0)
                     io.to(`${contest._id?.toString()}`).emit(`contest-leaderboardData${contest._id?.toString()}`, leaderBoard);
             }
         }
 
-  }
+    }
 }
 
 exports.sendMyRankData = async () => {
@@ -2322,7 +2323,7 @@ exports.sendMyRankData = async () => {
     try {
         const activeContest = await DailyContest.find({ contestStatus: "Active" });
 
-
+        // console.log('activeContest', activeContest?.length)
         if (activeContest.length) {
             const emitLeaderboardData = async () => {
                 const currentTime = new Date();
@@ -2331,13 +2332,14 @@ exports.sendMyRankData = async () => {
                 startTime.setHours(3, 0, 0, 0);
                 const endTime = new Date(currentTime);
                 endTime.setHours(9, 48, 0, 0);
-
-              if (currentTime >= startTime && currentTime <= endTime) {
+                if (currentTime >= startTime && currentTime <= endTime) {
                     const contest = await DailyContest.find({ contestStatus: "Active", contestStartTime: { $lte: new Date() } });
-
+                    // console.log('contest', contest?.length);
                     for (let i = 0; i < contest?.length; i++) {
+
                         const room = io.sockets.adapter.rooms.get(contest[i]?._id?.toString());
                         const socketIds = Array.from(room ?? []);
+                        // console.log('socketIds', socketIds, room, io.sockets.adapter.rooms)
                         for (let j = 0; j < socketIds?.length; j++) {
                             let userId = await client.get(socketIds[j]);
                             // console.log("userId", userId)
@@ -2353,7 +2355,7 @@ exports.sendMyRankData = async () => {
                             }
                         }
                     }
-               }
+                }
             };
             emitLeaderboardData();
             interval = setInterval(emitLeaderboardData, 5000);

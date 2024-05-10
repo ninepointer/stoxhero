@@ -689,70 +689,72 @@ exports.verifyOTP = async (req, res) => {
             );
     
             if (referrerCode) {
-              const saveReferrals = await User.findOneAndUpdate(
-                { myReferralCode: referrerCode },
-                {
-                  $push: {
-                    referrals: {
-                      referredUserId: newuser.upsertedId,
-                      joiningDate: populatedUser?.createdOn,
-                      referralProgram: referralProgramme._id,
-                      referralEarning: referralProgramme.rewardPerReferral,
-                      referralCurrency: referralProgramme.currency,
-                    },
-                  },
-                }
-              );
-    
-              if (referralProgramme?.referralSignupBonus?.amount) {
-                await addSignupBonus(
-                  newuser?.upsertedId,
-                  referralProgramme?.referralSignupBonus?.amount,
-                  referralProgramme?.referralSignupBonus?.currency
+                const saveReferrals = await User.findOne({ myReferralCode: referrerCode })
+                    .select('referrals');
+                await User.findOneAndUpdate(
+                    { myReferralCode: referrerCode },
+                    {
+                        $push: {
+                            referrals: {
+                                referredUserId: newuser.upsertedId,
+                                joiningDate: populatedUser?.createdOn,
+                                referralProgram: referralProgramme._id,
+                                referralEarning: saveReferrals?.referrals?.length <= (referralProgramme?.maxReferralsPayoutCap ?? 3000) ? referralProgramme.rewardPerReferral : 0,
+                                referralCurrency: referralProgramme.currency,
+                            },
+                        },
+                    }
                 );
-              }
 
-              if(saveReferrals?.referrals?.length <= (referralProgramme?.maxReferralsPayoutCap??3000) ){
-                const wallet = await UserWallet.findOneAndUpdate(
-                  { userId: new ObjectId(saveReferrals._id) },
-                  {
-                    $push: {
-                      transactions: {
-                        title: "Referral Credit",
-                        description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
-                        amount: referralProgramme.rewardPerReferral,
-                        transactionId: uuid.v4(),
-                        transactionDate: new Date(),
-                        transactionType:
-                          referralProgramme.currency == "INR" ? "Cash" : "Bonus",
-                      },
-                    },
-                  },
-                  { new: true, validateBeforeSave: false }
-                );
-                await createUserNotification({
-                  title: "Referral Signup Credit",
-                  description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
-                  notificationType: "Individual",
-                  notificationCategory: "Informational",
-                  productCategory: "SignUp",
-                  user: saveReferrals?._id,
-                  priority: "Medium",
-                  channels: ["App", "Email"],
-                  createdBy: "63ecbc570302e7cf0153370c",
-                  lastModifiedBy: "63ecbc570302e7cf0153370c",
-                });
-                if (user?.fcmTokens?.length > 0) {
-                  await sendMultiNotifications(
-                    "Referral Signup Credit",
-                    `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
-                    saveReferrals?.fcmTokens?.map((item) => item.token),
-                    null,
-                    { route: "wallet" }
-                  );
+                if (referralProgramme?.referralSignupBonus?.amount) {
+                    await addSignupBonus(
+                        newuser?.upsertedId,
+                        referralProgramme?.referralSignupBonus?.amount,
+                        referralProgramme?.referralSignupBonus?.currency
+                    );
                 }
-              }
-    
+                // await referrerCodeMatch.save({ validateBeforeSave: false });
+                if (saveReferrals?.referrals?.length <= (referralProgramme?.maxReferralsPayoutCap ?? 3000)) {
+                    const wallet = await UserWallet.findOneAndUpdate(
+                        { userId: new ObjectId(saveReferrals._id) },
+                        {
+                            $push: {
+                                transactions: {
+                                    title: "Referral Credit",
+                                    description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
+                                    amount: referralProgramme.rewardPerReferral,
+                                    transactionId: uuid.v4(),
+                                    transactionDate: new Date(),
+                                    transactionType:
+                                        referralProgramme.currency == "INR" ? "Cash" : "Bonus",
+                                },
+                            },
+                        },
+                        { new: true, validateBeforeSave: false }
+                    );
+                    await createUserNotification({
+                        title: "Referral Signup Credit",
+                        description: `Amount credited for referral of ${populatedUser?.first_name} ${populatedUser?.last_name}`,
+                        notificationType: "Individual",
+                        notificationCategory: "Informational",
+                        productCategory: "SignUp",
+                        user: saveReferrals?._id,
+                        priority: "Medium",
+                        channels: ["App", "Email"],
+                        createdBy: "63ecbc570302e7cf0153370c",
+                        lastModifiedBy: "63ecbc570302e7cf0153370c",
+                    });
+                    if (user?.fcmTokens?.length > 0) {
+                        await sendMultiNotifications(
+                            "Referral Signup Credit",
+                            ``,
+                            saveReferrals?.fcmTokens?.map((item) => item.token),
+                            null,
+                            { route: "wallet" }
+                        );
+                    }
+                }
+
             }
           }
         }

@@ -202,6 +202,12 @@ router.get(
 );
 
 router.get(
+  "/college",
+  Authenticate,
+  courseController.getCollegeCourses
+);
+
+router.get(
   "/:id",
   Authenticate,
   // restrictTo("Admin", "SuperAdmin"), todo-vijay
