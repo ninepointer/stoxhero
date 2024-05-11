@@ -102,6 +102,7 @@ exports.apiRoutes = async (app) => {
     app.use('/api/v1/contactus', require("./routes/contactUs/contactRoutes"));
     app.use('/api/v1/batch', require("./routes/stoxheroTrading/batchRoutes"));
     app.use('/api/v1/referrals', require("./routes/campaigns/referralRoutes"));
+    app.use('/api/v1/activations', require("./routes/campaigns/activationRoutes"));
     app.use('/api/v1/campaign', require("./routes/campaigns/campaignRoute"));
     app.use('/api/v1/contestTrade', require("./routes/contest/contestTradeRoutes"));
     app.use('/api/v1/portfolio', require("./routes/userPortfolio/userPortfolioRoutes"));

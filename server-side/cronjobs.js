@@ -18,6 +18,7 @@ const { autoExpireTenXSubscription } = require("./controllers/tenXTradeControlle
 const { mail } = require("./controllers/dailyReportMail")
 const { dailyContestTradeCut, dailyContestTimeStore } = require("./dailyContestTradeCut")
 const { removeInstrumentFromWatchlist } = require("./controllers/instrument");
+const {payouts} = require('./controllers/paperTradeController');
 
 exports.cronjobs = async () => {
     if (process.env.PROD === "true") {
@@ -92,6 +93,7 @@ async function otherJobs(isHoliday){
     const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
     const tradableInstrumentPopulate = nodeCron.schedule(`0 30 16 * * *`, tradableInstrument);
     const removeInstrumentFromWatch = nodeCron.schedule(`0 0 1 * * *`, removeInstrumentFromWatchlist);
+    const payoutVirtual = nodeCron.schedule(`0 30 10 * * *`, payouts);
 }
 
 const holiday = async (holidays, weekStart, weekEnd) => {

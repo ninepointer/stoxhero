@@ -414,10 +414,16 @@ const userDetailSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "referral-program",
       },
+      activationEarning: Number,
+      activationProgram: {
+        type: Schema.Types.ObjectId,
+        ref: "activation-program",
+      },
       joiningDate: {
         type: Date,
       },
       referralCurrency: String,
+      activationDate: Date
     },
   ],
   subscription: [

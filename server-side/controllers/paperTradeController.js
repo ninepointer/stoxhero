@@ -14,6 +14,9 @@ const getKiteCred = require('../marketData/getKiteCred');
 const axios = require('axios');
 const UserPortfolio = require('../models/userPortfolio/UserPortfolio');
 const { virtualPortfolioId } = require('../constant');
+const {
+  dailyPayout, weekPayout, monthPayout, quarterPayout
+} = require('./paperTradePayoutController')
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -570,6 +573,7 @@ async function fetchReferredUsersByInfluencer(influencerId) {
   }
   return referredUserIds;
 }
+
 async function fetchOrCacheUserDetail(userId) {
   let userDetails = await client.get(`userDetail:${userId}`);
   if (!userDetails) {
@@ -594,6 +598,7 @@ async function fetchOrCacheUserDetail(userId) {
   }
   return userDetails;
 }
+
 exports.influencerTraderWiseMockTrader = async (req, res, next) => {
   let date = new Date();
   let influencerId = req?.user?._id;
@@ -1419,7 +1424,7 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
   // }
 }
 
-exports.sendMyRankData = async () => {
+exports.sendVirtualMyRankData = async () => {
   const io = getIOValue();
   try {
     const emitLeaderboardData = async () => {
@@ -1435,14 +1440,12 @@ exports.sendMyRankData = async () => {
       const socketIds = Array.from(room ?? []);
       for (let j = 0; j < socketIds?.length; j++) {
         let userId = await client.get(socketIds[j]);
-        // console.log("userId", userId)
         let data = await client.get(`paperTradeData:${userId}${virtualPortfolioId?.toString()}`);
         data = JSON.parse(data);
-        // console.log("data", data);
         if (data) {
           let { employeeId } = data;
           const myRank = await getRedisMyRank(employeeId);
-          io.to(`${virtualPortfolioId?.toString()}${userId?.toString()}`).emit(`virtual-myrank${userId}`, myRank);
+          io.to(`${virtualPortfolioId?.toString()}`).emit(`virtual-myrank${userId}`, myRank);
         }
       }
       //  }
@@ -1615,7 +1618,7 @@ const getRedisMyRank = async (employeeId) => {
     if (await client.exists(`leaderboard-paper`)) {
 
       const leaderBoardRank = await client.ZREVRANK(`leaderboard-paper`, JSON.stringify({ name: employeeId }));
-      // console.log("leaderBoardRank", leaderBoardRank)
+      console.log("leaderBoardRank", leaderBoardRank)
       // await client.del(`leaderboard-paper`)
       if (leaderBoardRank == null) return null
       return leaderBoardRank + 1
@@ -1682,3 +1685,24 @@ async function formatData(arr, interest, portfolioValue) {
 
   return formattedLeaderboard;
 }
+
+exports.payouts = async () => {
+  const today = new Date();
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const getMonthDate = today.getDate();
+  
+  await dailyPayout();
+
+  if (today.getDay() === 5)
+  await weekPayout();
+
+  if(lastDayOfMonth === getMonthDate)
+  await monthPayout();
+
+  const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Quarter'});
+  const startOfDay = moment(leaderboardParams?.quarterEndDate).clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+  const endOfDay = moment(leaderboardParams?.quarterEndDate).clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+  const check = (new Date(startOfDay) <= new Date()) && (new Date(endOfDay) >= new Date());
+  if(check)
+  await quarterPayout();
+};

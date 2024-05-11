@@ -18,6 +18,7 @@ const MarginX = require("../models/marginX/marginX");
 const TenxSubscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
 const { equityBrokerage } = require("./equity/brokerageEquity");
 const Authenticate = require("../authentication/authentication");
+const {activationBonus} = require('./activationBonus')
 
 exports.mockTrade = async (req, res) => {
   const setting = await Setting.find().select("toggle");
@@ -324,6 +325,7 @@ exports.mockTrade = async (req, res) => {
           },
         }
       );
+      await activationBonus(req?.user?._id);
       await client.del(`${req?.user?._id.toString()}authenticatedUser`);
     }
   }

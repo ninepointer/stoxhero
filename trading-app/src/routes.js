@@ -61,6 +61,8 @@ const FullCollegeDetail = lazy(()=> import('./layouts/createCollege/collegeDetai
 const SendNotificationDetails = lazy(()=> import('./layouts/sendNotification/sendNotificationDetails'));
 const CampaignDetails = lazy(()=> import('./layouts/campaign/campaignDetails'));
 const ReferralProgramDetails = lazy(()=> import('./layouts/referral-program/ReferralProgramDetails'));
+const ActivationProgramDetails = lazy(()=> import('./layouts/activation-program/programDetails'));
+
 const ContestPage = lazy(()=> import('./layouts/UserContest/contestPage'));
 const ContestRegisterPage = lazy(()=> import('./layouts/UserContest/contestRegistrationPage'));
 const ContestTradePage = lazy(()=> import('./layouts/UserContest/ContestTrade'));
@@ -99,6 +101,7 @@ const ModuleChapterDetails = lazy(()=> import('./layouts/learningModule/moduleCh
 const AffiliateProgram = lazy(()=> import('./layouts/affiliateProgram'));
 const AffiliateProgramDetails = lazy(()=> import('./layouts/affiliateProgram/AffiliateProgramDetails'));
 const Referral = lazy(()=> import("./layouts/referral-program"));
+const Activation = lazy(()=> import("./layouts/activation-program"));
 // const Batch = lazy(()=> import("./layouts/batch"));
 const InfinityTrader = lazy(()=> import("./layouts/InfinityTrading"));
 const UserAnalytics = lazy(()=> import("./layouts/userAnalytics"));
@@ -520,6 +523,14 @@ const routes = [
     // icon: <DashboardIcon/>,
     route: "/referralprogramdetails",
     component: <ReferralProgramDetails />,
+  },
+  {
+    // type: "collapse",
+    // name: "Company Dashboard",
+    key: "activationprogramdetails",
+    // icon: <DashboardIcon/>,
+    route: "/activationprogramdetails",
+    component: <ActivationProgramDetails />,
   },
   {
     route: "/arena/:name",
@@ -964,6 +975,14 @@ const routes = [
     // icon: <FolderSharedIcon/>,
     route: "/referralprogram",
     component: <Referral />,
+  },
+  {
+    // type: "collapse",
+    // name: "Referral Program",
+    key: "activationprogram",
+    // icon: <FolderSharedIcon/>,
+    route: "/activationprogram",
+    component: <Activation />,
   },
   {
     // type: "collapse",

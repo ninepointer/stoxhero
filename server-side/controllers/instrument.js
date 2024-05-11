@@ -1,6 +1,7 @@
 const User = require("../models/User/userDetailSchema");
 const {client, getValue} = require('../marketData/redisClient');
 const Instrument = require("../models/Instruments/instrumentSchema");
+const TradableInstrument = require('../models/Instruments/tradableInstrumentsSchema');
 
 exports.removeInstrumentFromWatchlist = async () => {
   try{
@@ -42,6 +43,11 @@ exports.removeInstrumentFromWatchlist = async () => {
   
     await Instrument.updateMany(
       { contractDate: { $lte: date }, status: "Active" },
+      { $set: { status: "Inactive" } }
+    )
+
+    await TradableInstrument.updateMany(
+      { expiry: { $lte: date }, status: "Active" },
       { $set: { status: "Inactive" } }
     )
 

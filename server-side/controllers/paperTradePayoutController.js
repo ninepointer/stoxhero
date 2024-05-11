@@ -195,17 +195,14 @@ exports.dailyPayout = async () => {
 exports.monthPayout = async () => {
   const setting = await Setting.find();
   const leaderboardParams = await LeaderboardParams.findOne({ frequency: 'Monthly', status: 'Active' });
-  let date = new Date();
-  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  todayDate = todayDate + "T00:00:00.000Z";
-  const today = new Date(todayDate);
 
-  const leaderBoardData = await PaperTradeLeaderboard.find({ createdOn: { $gte: today } })
-    .sort({ npnl: -1, gpnl: -1 });
+  const today = moment();
+  const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+  const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+  const data = await payoutHelper(startOfMonth, endOfMonth, leaderboardParams);
 
   const rewards = leaderboardParams?.rewards;
-  for (const elem of leaderBoardData) {
+  for (const elem of data) {
     for (let obj of rewards) {
       for (let i = obj?.rankStart - 1; i <= obj?.rankEnd - 1; i++) {
         if (obj?.rewardType === 'Cash') {
@@ -215,3 +212,199 @@ exports.monthPayout = async () => {
     }
   }
 };
+
+exports.weekPayout = async () => {
+  const setting = await Setting.find();
+  const today = moment();
+  const startOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
+  const endOfWeek = today.endOf('week').subtract(5, 'hours').subtract(30, 'minutes');
+
+  const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Weekly'})
+  const data = await payoutHelper(startOfWeek, endOfWeek, leaderboardParams);
+
+  const rewards = leaderboardParams?.rewards;
+  for (const elem of data) {
+    for (let obj of rewards) {
+      for (let i = obj?.rankStart - 1; i <= obj?.rankEnd - 1; i++) {
+        if (obj?.rewardType === 'Cash') {
+          await addRewardToWallet(obj?.reward, elem, setting);
+        }
+      }
+    }
+  }
+};
+
+exports.quarterPayout = async () => {
+  const setting = await Setting.find();
+  const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Quarter'})
+  const data = await payoutHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams);
+
+  const rewards = leaderboardParams?.rewards;
+  for (const elem of data) {
+    for (let obj of rewards) {
+      for (let i = obj?.rankStart - 1; i <= obj?.rankEnd - 1; i++) {
+        if (obj?.rewardType === 'Cash') {
+          await addRewardToWallet(obj?.reward, elem, setting);
+        }
+      }
+    }
+  }
+};
+
+const payoutHelper = async (startDate, endDate, leaderboardParams) => {
+
+  const pipeline = [
+    {
+      $match: {
+        createdOn: {
+          $gt: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      },
+    },
+    // {
+    //   $lookup: {
+    //     from: "user-personal-details",
+    //     localField: "trader",
+    //     foreignField: "_id",
+    //     as: "user",
+    //   },
+    // },
+    {
+      $group: {
+        _id: {
+          trader: "$trader",
+          name: {
+            $concat: [
+              {
+                $arrayElemAt: [
+                  "$user.first_name",
+                  0,
+                ],
+              },
+              " ",
+              {
+                $arrayElemAt: [
+                  "$user.last_name",
+                  0,
+                ],
+              },
+            ],
+          },
+          portfolioValue: "$portfolioValue",
+          joining_date: {
+            $arrayElemAt: ["$user.joining_date", 0],
+          },
+          employeeid: {
+            $arrayElemAt: ["$user.employeeid", 0],
+          },
+        },
+        margin: {
+          $max: "$margin",
+        },
+        grossPnl: {
+          $sum: "$grossPnl",
+        },
+        netPnl: {
+          $sum: "$netPnl",
+        },
+        brokerage: {
+          $sum: "$brokerage",
+        },
+        trades: {
+          $sum: "$trades",
+        },
+      },
+    },
+    {
+      $addFields: {
+        daysOfInterest: {
+          $cond: {
+            if: {
+              $gte: [
+                new Date(startDate),
+                "$_id.joining_date",
+              ],
+            },
+            then: {
+                $divide: [
+                  {
+                    $subtract: [
+                      new Date(),
+                      new Date(startDate),
+                    ], // Replace "endDate" and "startDate" with your date fields
+                  },
+                  86400000, // milliseconds in a day
+                ],
+              },
+            else: {
+                $divide: [
+                  {
+                    $subtract: [
+                      new Date(),
+                      "$_id.joining_date",
+                    ], // Replace "endDate" and "startDate" with your date fields
+                  },
+                  86400000, // milliseconds in a day
+                ],
+              },
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        interestCost: {
+          $multiply: [
+            {
+              $divide: [
+                leaderboardParams?.marginMoneyInterest,
+                36600
+              ]
+            },
+            "$_id.portfolioValue",
+            {$ceil: '$daysOfInterest'}
+          ]
+        }
+      }
+    },
+    {
+      $project: {
+        employeeid: '$_id.employeeid',
+        daysOfInterest: 1,
+        weekDays: 1,
+        monthDays: 1,
+        moneyCost: '$interestCost',
+        pnlAfterCost: {
+          $subtract: ['$netPnl', "$interestCost"]
+        },
+        name: "$_id.name",
+        _id: 0,
+        margin: 1,
+        portfolioValue: "$_id.portfolioValue",
+        grossPnl: 1,
+        npnl: '$netPnl',
+        brokerage: 1,
+        trades: 1,
+        roi: {
+          $divide: [
+            {
+              $multiply: ["$netPnl", 100],
+            },
+            "$margin",
+          ],
+        },
+      },
+    },
+    {
+      $sort: {
+        pnlAfterCost: -1,
+        netPnl: -1,
+        grossPnl: -1,
+      },
+    }
+  ];
+
+  const data = await PaperTradeLeaderboard.aggregate(pipeline)
+  return data;
+}

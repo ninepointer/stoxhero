@@ -1722,6 +1722,19 @@ export default function LabTabs({ socket }) {
                   size="small"
                   component={Link}
                   to={{
+                    pathname: `/activationprogram`,
+                  }}
+                >
+                  Activation Program
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"warning"}
+                  size="small"
+                  component={Link}
+                  to={{
                     pathname: `/affiliateprograms`,
                   }}
                 >

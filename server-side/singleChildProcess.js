@@ -20,7 +20,7 @@ const xssClean = require("xss-clean");
 const hpp = require("hpp")
 const { apiRoutes } = require('./apiRoutes');
 const { cronjobs } = require('./cronjobs');
-const {sendVirtualLeaderboardData} = require('./controllers/paperTradeController');
+const {sendVirtualLeaderboardData, sendVirtualMyRankData} = require('./controllers/paperTradeController');
 const {virtualPortfolioId} = require('./constant');
 
 
@@ -131,6 +131,7 @@ async function singleProcess() {
 
     //emitting leaderboard for contest.
     sendVirtualLeaderboardData().then(()=>{});
+    sendVirtualMyRankData().then(()=>{});
 
     if (process.env.PROD === "true") {
         sendLeaderboardData().then(() => { });
