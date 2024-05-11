@@ -1,180 +1,180 @@
 const StockTrade = require("../models/mock-trade/stockSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
-const {client, getValue} = require('../marketData/redisClient');
+const { client, getValue } = require('../marketData/redisClient');
 const { ObjectId } = require("mongodb");
 const PendingOrder = require("../models/PendingOrder/pendingOrderSchema");
 
 
 exports.pnlPosition = async (req, res, next) => {
-    let isRedisConnected = getValue();
-    const userId = req.user._id;
-    // "646497d2a09e4677cb550906"
-    // 
-    let date = new Date();
-    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);
+  let isRedisConnected = getValue();
+  const userId = req.user._id;
+  // "646497d2a09e4677cb550906"
+  // 
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
 
-    let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    tempTodayDate = tempTodayDate + "T23:59:59.999Z";
-    const tempDate = new Date(tempTodayDate);
-    const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
 
-    try{
+  try {
 
-      if(isRedisConnected && await client.exists(`${req.user._id.toString()}: overallpnlIntraday`)){
-        let pnl = await client.get(`${req.user._id.toString()}: overallpnlIntraday`)
-        pnl = JSON.parse(pnl);
-        // console.log("pnl redis", pnl)
-        
-        res.status(201).json({message: "position received", data: pnl});
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()}: overallpnlIntraday`)) {
+      let pnl = await client.get(`${req.user._id.toString()}: overallpnlIntraday`)
+      pnl = JSON.parse(pnl);
+      // console.log("pnl redis", pnl)
 
-      } else{
+      res.status(201).json({ message: "position received", data: pnl });
 
-        let pnlDetails = await StockTrade.aggregate([
-          {
-              $match: {
-                  trade_time:{
-                      $gte: today
-                  },
-                  Product: "MIS",
-                  status: "COMPLETE",
-                  trader: new ObjectId(userId)
-              },
-          },
-          {
-            $sort: {
-              trade_time: 1,
+    } else {
+
+      let pnlDetails = await StockTrade.aggregate([
+        {
+          $match: {
+            trade_time: {
+              $gte: today
             },
+            Product: "MIS",
+            status: "COMPLETE",
+            trader: new ObjectId(userId)
           },
-          {
-            $group: {
-              _id: {
-                symbol: "$symbol",
-                product: "$Product",
-                instrumentToken: "$instrumentToken",
-                exchangeInstrumentToken: "$exchangeInstrumentToken",
-                // exchangeInstrumentToken: "$exchangeInstrumentToken",
-                exchange: "$exchange",
-                validity: "$validity",
-                variety: "$variety",
-              },
-              amount: {
-                $sum: {$multiply : ["$amount",-1]},
-              },
-              brokerage: {
-                $sum: {
-                  $toDouble: "$brokerage",
-                },
-              },
-              lots: {
-                $sum: {
-                  $toInt: "$Quantity",
-                },
-              },
-              lastaverageprice: {
-                $last: "$average_price",
-              },
-              margin: {
-                $last: "$margin",
-              },
-            },
+        },
+        {
+          $sort: {
+            trade_time: 1,
           },
-          {
-            $sort: {
-              _id: -1,
-            },
-          },
-        ])
-
-        const limitMargin = await PendingOrder.aggregate([
-          {
-            $match: {
-              createdBy: new ObjectId(
-                userId
-              ),
-              type: "Limit",
-              status: "Pending",
-              Product: "MIS",
-              createdOn: {
-                $gte: today,
-              },
-              product_type: new ObjectId("65449ee06932ba3a403a681a")
-            },
-          },
-          {
-            $sort: {
-              createdOn: 1,
-            },
-          },
-          {
-            $group:
-            {
-              _id: {
-                symbol: "$symbol",
-                product: "$Product",
-                instrumentToken: "$instrumentToken",
-                exchangeInstrumentToken: "$exchangeInstrumentToken",
-                exchange: "$exchange",
-                validity: "$validity",
-                variety: "$variety",
-                // order_type: "$order_type"
-              },
-              amount: {
-                $sum: { $multiply: ["$amount", -1] },
-              },
-              brokerage: {
-                $sum: {
-                  $toDouble: "$brokerage",
-                },
-              },
-              lots: {
-                $sum: {
-                  $toInt: "$Quantity",
-                },
-              },
-              margin: {
-                $last: "$margin",
-              },
-            }
-          }
-        ])
-  
-        const arr = [];
-        for(let elem of limitMargin){
-          arr.push({
+        },
+        {
+          $group: {
             _id: {
-              symbol: elem._id.symbol,
-              product: elem._id.product,
-              instrumentToken: elem._id.instrumentToken,
-              exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
-              exchange: elem._id.exchange,
-              validity: elem._id.validity,
-              variety: elem._id.variety,
-              isLimit: true
+              symbol: "$symbol",
+              product: "$Product",
+              instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
+              // exchangeInstrumentToken: "$exchangeInstrumentToken",
+              exchange: "$exchange",
+              validity: "$validity",
+              variety: "$variety",
             },
-            // amount: (tenxDoc.amount * -1),
-            // brokerage: Number(tenxDoc.brokerage),
-            lots: Number(elem.lots),
-            // lastaverageprice: tenxDoc.average_price,
-            margin: elem.margin
-          });
-        }
-  
-        const newPnl = pnlDetails.concat(arr);
+            amount: {
+              $sum: { $multiply: ["$amount", -1] },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            lastaverageprice: {
+              $last: "$average_price",
+            },
+            margin: {
+              $last: "$margin",
+            },
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ])
 
-        if(isRedisConnected){
-          await client.set(`${req.user._id.toString()}: overallpnlIntraday`, JSON.stringify(newPnl))
-          await client.expire(`${req.user._id.toString()}: overallpnlIntraday`, secondsRemaining);
+      const limitMargin = await PendingOrder.aggregate([
+        {
+          $match: {
+            createdBy: new ObjectId(
+              userId
+            ),
+            type: "Limit",
+            status: "Pending",
+            Product: "MIS",
+            createdOn: {
+              $gte: today,
+            },
+            product_type: new ObjectId("65449ee06932ba3a403a681a")
+          },
+        },
+        {
+          $sort: {
+            createdOn: 1,
+          },
+        },
+        {
+          $group:
+          {
+            _id: {
+              symbol: "$symbol",
+              product: "$Product",
+              instrumentToken: "$instrumentToken",
+              exchangeInstrumentToken: "$exchangeInstrumentToken",
+              exchange: "$exchange",
+              validity: "$validity",
+              variety: "$variety",
+              // order_type: "$order_type"
+            },
+            amount: {
+              $sum: { $multiply: ["$amount", -1] },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+            lots: {
+              $sum: {
+                $toInt: "$Quantity",
+              },
+            },
+            margin: {
+              $last: "$margin",
+            },
+          }
         }
-        res.status(201).json({message: "position received", data: newPnl});
+      ])
+
+      const arr = [];
+      for (let elem of limitMargin) {
+        arr.push({
+          _id: {
+            symbol: elem._id.symbol,
+            product: elem._id.product,
+            instrumentToken: elem._id.instrumentToken,
+            exchangeInstrumentToken: elem._id.exchangeInstrumentToken,
+            exchange: elem._id.exchange,
+            validity: elem._id.validity,
+            variety: elem._id.variety,
+            isLimit: true
+          },
+          // amount: (tenxDoc.amount * -1),
+          // brokerage: Number(tenxDoc.brokerage),
+          lots: Number(elem.lots),
+          // lastaverageprice: tenxDoc.average_price,
+          margin: elem.margin
+        });
       }
 
-    }catch(e){
-        console.log(e);
-        return res.status(500).json({status:'error', message: 'something went wrong.'})
+      const newPnl = pnlDetails.concat(arr);
+
+      if (isRedisConnected) {
+        await client.set(`${req.user._id.toString()}: overallpnlIntraday`, JSON.stringify(newPnl))
+        await client.expire(`${req.user._id.toString()}: overallpnlIntraday`, secondsRemaining);
+      }
+      res.status(201).json({ message: "position received", data: newPnl });
     }
+
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: 'error', message: 'something went wrong.' })
+  }
 
 
 }
@@ -195,30 +195,30 @@ exports.pnlHolding = async (req, res, next) => {
   const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
 
-  try{
+  try {
 
-    if(isRedisConnected && await client.exists(`${req.user._id.toString()}: overallpnlDelivery`)){
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()}: overallpnlDelivery`)) {
       let pnl = await client.get(`${req.user._id.toString()}: overallpnlDelivery`)
       pnl = JSON.parse(pnl);
       // console.log("pnl redis", pnl)
-      
-      res.status(201).json({message: "Holding received", data: pnl});
 
-    } else{
+      res.status(201).json({ message: "Holding received", data: pnl });
+
+    } else {
 
       const pnlData = await StockTrade.aggregate([
         {
           $facet: {
             "today": [
               {
-                  $match: {
-                      trade_time:{
-                          $gte: new Date("2024-01-05")
-                      },
-                      Product: "CNC",
-                      status: "COMPLETE",
-                      trader: new ObjectId(userId)
+                $match: {
+                  trade_time: {
+                    $gte: new Date("2024-01-05")
                   },
+                  Product: "CNC",
+                  status: "COMPLETE",
+                  trader: new ObjectId(userId)
+                },
               },
               {
                 $sort: {
@@ -238,7 +238,7 @@ exports.pnlHolding = async (req, res, next) => {
                     variety: "$variety",
                   },
                   amount: {
-                    $sum: {$multiply : ["$amount",-1]},
+                    $sum: { $multiply: ["$amount", -1] },
                   },
                   brokerage: {
                     $sum: {
@@ -271,14 +271,14 @@ exports.pnlHolding = async (req, res, next) => {
             ],
             "all": [
               {
-                  $match: {
-                      // trade_time:{
-                      //     $gte: today
-                      // },
-                      Product: "CNC",
-                      status: "COMPLETE",
-                      trader: new ObjectId(userId)
-                  },
+                $match: {
+                  // trade_time:{
+                  //     $gte: today
+                  // },
+                  Product: "CNC",
+                  status: "COMPLETE",
+                  trader: new ObjectId(userId)
+                },
               },
               {
                 $sort: {
@@ -298,7 +298,7 @@ exports.pnlHolding = async (req, res, next) => {
                     variety: "$variety",
                   },
                   amount: {
-                    $sum: {$multiply : ["$amount",-1]},
+                    $sum: { $multiply: ["$amount", -1] },
                   },
                   brokerage: {
                     $sum: {
@@ -318,11 +318,11 @@ exports.pnlHolding = async (req, res, next) => {
                   },
                 },
               },
-        {
-          $match: {
-            lots: {$gt: 0}
-          }
-        },
+              {
+                $match: {
+                  lots: { $gt: 0 }
+                }
+              },
               {
                 $sort: {
                   _id: -1,
@@ -389,7 +389,7 @@ exports.pnlHolding = async (req, res, next) => {
       ])
 
       const arr = [];
-      for(let elem of limitMargin){
+      for (let elem of limitMargin) {
         arr.push({
           _id: {
             symbol: elem._id.symbol,
@@ -411,22 +411,22 @@ exports.pnlHolding = async (req, res, next) => {
 
       const newPnl = pnlDetails.concat(arr);
 
-      if(isRedisConnected){
+      if (isRedisConnected) {
         await client.set(`${req.user._id.toString()}: overallpnlDelivery`, JSON.stringify(newPnl))
         await client.expire(`${req.user._id.toString()}: overallpnlDelivery`, secondsRemaining);
       }
-      res.status(201).json({message: "Holding received", data: newPnl});
+      res.status(201).json({ message: "Holding received", data: newPnl });
     }
 
-  }catch(e){
-      console.log(e);
-      return res.status(500).json({status:'error', message: 'something went wrong.'})
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: 'error', message: 'something went wrong.' })
   }
 
 
 }
 
-exports.pnlPositionDatabase = async (userId ) => {
+exports.pnlPositionDatabase = async (userId) => {
 
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -437,18 +437,18 @@ exports.pnlPositionDatabase = async (userId ) => {
   tempTodayDate = tempTodayDate + "T23:59:59.999Z";
   const tempDate = new Date(tempTodayDate);
 
-  try{
+  try {
 
     let pnlDetails = await StockTrade.aggregate([
       {
-          $match: {
-              trade_time:{
-                  $gte: today
-              },
-              Product: "MIS",
-              status: "COMPLETE",
-              trader: new ObjectId(userId)
+        $match: {
+          trade_time: {
+            $gte: today
           },
+          Product: "MIS",
+          status: "COMPLETE",
+          trader: new ObjectId(userId)
+        },
       },
       {
         $sort: {
@@ -468,7 +468,7 @@ exports.pnlPositionDatabase = async (userId ) => {
             variety: "$variety",
           },
           amount: {
-            $sum: {$multiply : ["$amount",-1]},
+            $sum: { $multiply: ["$amount", -1] },
           },
           brokerage: {
             $sum: {
@@ -549,7 +549,7 @@ exports.pnlPositionDatabase = async (userId ) => {
     ])
 
     const arr = [];
-    for(let elem of limitMargin){
+    for (let elem of limitMargin) {
       arr.push({
         _id: {
           symbol: elem._id.symbol,
@@ -575,34 +575,34 @@ exports.pnlPositionDatabase = async (userId ) => {
 
     return newPnl
 
-  }catch(e){
+  } catch (e) {
   }
 }
 
 exports.pnlHoldingDatabase = async (userId) => {
-let date = new Date();
-let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-todayDate = todayDate + "T00:00:00.000Z";
-const today = new Date(todayDate);
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
 
-let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-tempTodayDate = tempTodayDate + "T23:59:59.999Z";
-const tempDate = new Date(tempTodayDate);
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
 
 
-try{
+  try {
 
 
     let pnlDetails = await StockTrade.aggregate([
       {
-          $match: {
-              // trade_time:{
-              //     $gte: today
-              // },
-              Product: "CNC",
-              status: "COMPLETE",
-              trader: new ObjectId(userId)
-          },
+        $match: {
+          // trade_time:{
+          //     $gte: today
+          // },
+          Product: "CNC",
+          status: "COMPLETE",
+          trader: new ObjectId(userId)
+        },
       },
       {
         $sort: {
@@ -622,7 +622,7 @@ try{
             variety: "$variety",
           },
           amount: {
-            $sum: {$multiply : ["$amount",-1]},
+            $sum: { $multiply: ["$amount", -1] },
           },
           brokerage: {
             $sum: {
@@ -703,7 +703,7 @@ try{
     ])
 
     const arr = [];
-    for(let elem of limitMargin){
+    for (let elem of limitMargin) {
       arr.push({
         _id: {
           symbol: elem._id.symbol,
@@ -726,14 +726,14 @@ try{
     const newPnl = pnlDetails.concat(arr);
     await client.set(`${userId.toString()}: overallpnlDelivery`, JSON.stringify(newPnl))
     return newPnl
-  
 
-}catch(e){
-}
+
+  } catch (e) {
+  }
 }
 
 exports.myTodaysTrade = async (req, res, next) => {
-  
+
   // const id = req.params.id
   const userId = req.user._id;
   let date = new Date();
@@ -742,23 +742,23 @@ exports.myTodaysTrade = async (req, res, next) => {
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await StockTrade.countDocuments({trader: userId, trade_time: {$gte:today}})
+  const count = await StockTrade.countDocuments({ trader: userId, trade_time: { $gte: today } })
   // console.log("Under my today orders",userId, today)
   try {
-    const myTodaysTrade = await StockTrade.find({trader: userId, trade_time: {$gte:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
-      .sort({trade_time: -1})
+    const myTodaysTrade = await StockTrade.find({ trader: userId, trade_time: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
+      .sort({ trade_time: -1 })
       .skip(skip)
       .limit(limit);
     // console.log(myTodaysTrade)
-    res.status(200).json({status: 'success', data: myTodaysTrade, count:count});
+    res.status(200).json({ status: 'success', data: myTodaysTrade, count: count });
   } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message: 'Something went wrong'});
+    res.status(500).json({ status: 'error', message: 'Something went wrong' });
   }
 }
 
 exports.myHistoryTrade = async (req, res, next) => {
-  
+
   const userId = req.user._id;
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -766,18 +766,18 @@ exports.myHistoryTrade = async (req, res, next) => {
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await StockTrade.countDocuments({trader: userId, trade_time: {$lt:today}})
+  const count = await StockTrade.countDocuments({ trader: userId, trade_time: { $lt: today } })
   // console.log("Under my today orders",userId, today)
   try {
-    const myHistoryTrade = await StockTrade.find({trader: userId, trade_time: {$lt:today}}, {'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
-      .sort({trade_time: -1})
+    const myHistoryTrade = await StockTrade.find({ trader: userId, trade_time: { $lt: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
+      .sort({ trade_time: -1 })
       .skip(skip)
       .limit(limit);
     // console.log(myHistoryTrade)
-    res.status(200).json({status: 'success', data: myHistoryTrade, count:count});
+    res.status(200).json({ status: 'success', data: myHistoryTrade, count: count });
   } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message: 'Something went wrong'});
+    res.status(500).json({ status: 'error', message: 'Something went wrong' });
   }
 }
 
@@ -808,37 +808,37 @@ exports.marginDetail = async (req, res, next) => {
       const portfoliosFund = await Portfolio.aggregate([
         {
           $match:
-            {
-              status: "Active",
-              portfolioType: "Virtual Trading",
-            },
+          {
+            status: "Active",
+            portfolioType: "Virtual Trading",
+          },
         },
         {
           $lookup:
-            {
-              from: "stock-trades",
-              localField: "_id",
-              foreignField: "portfolioId",
-              as: "trades",
-            },
+          {
+            from: "stock-trades",
+            localField: "_id",
+            foreignField: "portfolioId",
+            as: "trades",
+          },
         },
         {
           $unwind:
-            {
-              path: "$trades",
-            },
+          {
+            path: "$trades",
+          },
         },
         {
           $match:
-            {
-              "trades.trade_time": {
-                $lt: today,
-              },
-              "trades.status": "COMPLETE",
-              "trades.trader": new ObjectId(
-                req.user._id
-              ),
+          {
+            "trades.trade_time": {
+              $lt: today,
             },
+            "trades.status": "COMPLETE",
+            "trades.trader": new ObjectId(
+              req.user._id
+            ),
+          },
         },
         {
           $group: {
@@ -894,10 +894,10 @@ exports.marginDetail = async (req, res, next) => {
         const portfoliosFund = await Portfolio.aggregate([
           {
             $match:
-              {
-                status: "Active",
-                portfolioType: "Virtual Trading",
-              },
+            {
+              status: "Active",
+              portfolioType: "Virtual Trading",
+            },
           },
           {
             $group: {
@@ -1065,7 +1065,7 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  const {product} = req.query;
+  const { product } = req.query;
 
   const pipeline = [
     {
@@ -1095,7 +1095,7 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
           "traderName": {
             $arrayElemAt: ["$user.name", 0]
           },
-                    "symbol": "$instrumentToken",
+          "symbol": "$instrumentToken",
           "exchangeInstrumentToken": "$exchangeInstrumentToken",
           "traderEmail": {
             $arrayElemAt: ["$user.email", 0]
@@ -1134,7 +1134,7 @@ exports.overallTraderPnl = async (req, res, next) => {
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
-  const today = new Date(todayDate);    
+  const today = new Date(todayDate);
   // console.log(today)
   let pnlDetails = await StockTrade.aggregate([
     {
@@ -1146,56 +1146,56 @@ exports.overallTraderPnl = async (req, res, next) => {
         status: "COMPLETE",
       },
     },
-      {
-        $group: {
-          _id: {
-            symbol: "$symbol",
-            product: "$Product",
-            instrumentToken: "$instrumentToken",
-            exchangeInstrumentToken: "$exchangeInstrumentToken",
-          },
-          amount: {
-            $sum: {$multiply : ["$amount",-1]},
-          },
-          turnover: {
-            $sum: {
-              $toInt: { $abs : "$amount"},
-            },
-          },
-          brokerage: {
-            $sum: {
-              $toDouble: "$brokerage",
-            },
-          },
-          lots: {
-            $sum: {
-              $toInt: "$Quantity",
-            },
-          },
-          totallots: {
-            $sum: {
-              $toInt: { $abs : "$Quantity"},
-            },
-          },
-          trades: {
-            $count:{}
+    {
+      $group: {
+        _id: {
+          symbol: "$symbol",
+          product: "$Product",
+          instrumentToken: "$instrumentToken",
+          exchangeInstrumentToken: "$exchangeInstrumentToken",
+        },
+        amount: {
+          $sum: { $multiply: ["$amount", -1] },
+        },
+        turnover: {
+          $sum: {
+            $toInt: { $abs: "$amount" },
           },
         },
-      },
-      {
-        $sort: {
-          _id: -1,
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        lots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+        totallots: {
+          $sum: {
+            $toInt: { $abs: "$Quantity" },
+          },
+        },
+        trades: {
+          $count: {}
         },
       },
-    ])
-    res.status(201).json({ message: "pnl received", data: pnlDetails });
+    },
+    {
+      $sort: {
+        _id: -1,
+      },
+    },
+  ])
+  res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
 exports.liveTotalTradersCount = async (req, res, next) => {
-let date = new Date();
+  let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
-  const today = new Date(todayDate);    
+  const today = new Date(todayDate);
   let pnlDetails = await StockTrade.aggregate([
     {
       $match: {
@@ -1238,8 +1238,8 @@ let date = new Date();
         nonZeroLotsTraderCount: 1
       }
     }
-    ])
-    res.status(201).json({ message: "pnl received", data: pnlDetails });
+  ])
+  res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
 exports.overallPnlYesterday = async (req, res, next) => {
@@ -1254,7 +1254,7 @@ exports.overallPnlYesterday = async (req, res, next) => {
     let startTime = new Date(day.setHours(0, 0, 0, 0));
     let endTime = new Date(day.setHours(23, 59, 59, 999));
     date = startTime;
-    
+
     pnlDetailsData = await StockTrade.aggregate([
       {
         $match: {
@@ -1320,7 +1320,7 @@ exports.overallPnlYesterday = async (req, res, next) => {
           turnover: {
             $sum: "$turnover",
           },
-                "brokerageMIS": {
+          "brokerageMIS": {
             "$sum": {
               "$cond": [{ "$eq": ["$_id.product", "MIS"] }, "$brokerage", 0]
             }
@@ -1336,7 +1336,7 @@ exports.overallPnlYesterday = async (req, res, next) => {
           totallots: {
             $sum: "$totallots",
           },
-           "lotsMIS": {
+          "lotsMIS": {
             "$sum": {
               "$cond": [{ "$eq": ["$_id.product", "MIS"] }, "$lots", 0]
             }
@@ -1348,7 +1348,7 @@ exports.overallPnlYesterday = async (req, res, next) => {
           }
         },
       },
-    {
+      {
         $sort: {
           _id: -1,
         },
@@ -1362,9 +1362,9 @@ exports.overallPnlYesterday = async (req, res, next) => {
   }
 
   res.status(201).json({
-    message: "pnl received", 
-    data: pnlDetailsData, 
-    results: pnlDetailsData ? pnlDetailsData.length : 0, 
+    message: "pnl received",
+    data: pnlDetailsData,
+    results: pnlDetailsData ? pnlDetailsData.length : 0,
     date: date
   });
 }
@@ -1377,8 +1377,8 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
   yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
   let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
   yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
-  const startTime = new Date(yesterdayStartTime); 
-  const endTime = new Date(yesterdayEndTime); 
+  const startTime = new Date(yesterdayStartTime);
+  const endTime = new Date(yesterdayEndTime);
   // console.log("Query Timing: ", startTime, endTime)  
   let pnlDetails = await StockTrade.aggregate([
     {
@@ -1422,8 +1422,8 @@ exports.liveTotalTradersCountYesterday = async (req, res, next) => {
         nonZeroLotsTraderCount: 1
       }
     }
-    ])
-    res.status(201).json({ message: "pnl received", data: pnlDetails });
+  ])
+  res.status(201).json({ message: "pnl received", data: pnlDetails });
 }
 
 exports.getDailyUsers = async (req, res) => {
@@ -1497,23 +1497,23 @@ exports.getDailyUsers = async (req, res) => {
   }
 };
 
-exports.getAllAdminOrders = async(req, res, next)=>{
+exports.getAllAdminOrders = async (req, res, next) => {
   // console.log("Inside Internship all orders API")
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10;
-  const {product} = req.query;
-  const count = await StockTrade.countDocuments({Product: product})
-  try{
-      const allinternshiporders = await StockTrade.find({Product: product})
-      .populate('trader','employeeid first_name last_name')
-      .sort({_id: -1})
+  const { product } = req.query;
+  const count = await StockTrade.countDocuments({ Product: product })
+  try {
+    const allinternshiporders = await StockTrade.find({ Product: product })
+      .populate('trader', 'employeeid first_name last_name')
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
-      // console.log("All Internship Orders",allinternshiporders)
-      res.status(201).json({status: 'success', data: allinternshiporders, count: count});    
-  }catch(e){
-      console.log(e);
-      res.status(500).json({status: 'error', message: 'Something went wrong'});
+    // console.log("All Internship Orders",allinternshiporders)
+    res.status(201).json({ status: 'success', data: allinternshiporders, count: count });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ status: 'error', message: 'Something went wrong' });
   }
 };
 
@@ -1522,22 +1522,22 @@ exports.getTodaysAdminOrders = async (req, res, next) => {
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
-  const {product} = req.query;
+  const { product } = req.query;
   const today = new Date(todayDate);
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
-  const count = await StockTrade.countDocuments({trade_time: {$gte:today}, Product: product})
+  const count = await StockTrade.countDocuments({ trade_time: { $gte: today }, Product: product })
   // console.log("Under today orders", today)
   try {
-    const todaysinternshiporders = await StockTrade.find({trade_time: {$gte:today}, Product: product}, {'trader':1,'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time':1,'order_id':1})
-      .populate('trader','employeeid first_name last_name')
-      .sort({_id: -1})
+    const todaysinternshiporders = await StockTrade.find({ trade_time: { $gte: today }, Product: product }, { 'trader': 1, 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
+      .populate('trader', 'employeeid first_name last_name')
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
     // console.log(todaysinternshiporders)
-    res.status(200).json({status: 'success', data: todaysinternshiporders, count:count});
+    res.status(200).json({ status: 'success', data: todaysinternshiporders, count: count });
   } catch (e) {
     console.log(e);
-    res.status(500).json({status:'error', message: 'Something went wrong'});
+    res.status(500).json({ status: 'error', message: 'Something went wrong' });
   }
 }
