@@ -810,7 +810,7 @@ exports.marginDetail = async (req, res, next) => {
           $match:
             {
               status: "Active",
-              portfolioType: "Stock Trading",
+              portfolioType: "Virtual Trading",
             },
         },
         {
@@ -896,7 +896,7 @@ exports.marginDetail = async (req, res, next) => {
             $match:
               {
                 status: "Active",
-                portfolioType: "Stock Trading",
+                portfolioType: "Virtual Trading",
               },
           },
           {
@@ -947,7 +947,7 @@ exports.marginDetailDataBase = async (userId) => {
         $match:
         {
           status: "Active",
-          portfolioType: "Stock Trading",
+          portfolioType: "Virtual Trading",
         },
       },
       {
@@ -1030,7 +1030,7 @@ exports.marginDetailDataBase = async (userId) => {
           $match:
           {
             status: "Active",
-            portfolioType: "Stock Trading",
+            portfolioType: "Virtual Trading",
           },
         },
         {

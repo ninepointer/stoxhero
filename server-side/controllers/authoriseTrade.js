@@ -16,7 +16,7 @@ const { client, getValue } = require('../marketData/redisClient');
 const MarginXMockUser = require("../models/marginX/marginXUserMock");
 const MarginXMockCompany = require("../models/marginX/marginXCompanyMock");
 const BattleMockUser = require("../models/battle/battleTrade");
-const {virtual, internship, dailyContest, marginx, tenx, battle, stock} = require("../constant")
+const {virtual, internship, dailyContest, marginx, tenx, battle, stock, virtualPortfolioId} = require("../constant")
 const StockTrade = require("../models/mock-trade/stockSchema");
 const {marginDetailDataBase, pnlPositionDatabase, pnlHoldingDatabase} = require("../controllers/stockTradeController");
 const singleLivePrice = require('../marketData/sigleLivePrice');
@@ -1201,7 +1201,7 @@ exports.fundCheckBattle = async (req, res, next) => {
 
 exports.fundCheckStock = async (req, res, next) => {
     const {Product, instrumentToken, exchangeInstrumentToken, Quantity, buyOrSell} = req.body;
-    req.body.portfolioId = "658fa372557e6ee9182e91aa";
+    req.body.portfolioId = virtualPortfolioId;
     const isRedisConnected = getValue();
     let todayPnlData;
     let fundDetail;

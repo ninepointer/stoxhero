@@ -5,6 +5,8 @@ require("../../db/conn");
 const RetreiveOrder = require("../../models/TradeDetails/retreiveOrder");
 const LiveCompany = require("../../models/TradeDetails/liveTradeSchema");
 const MockCompany = require("../../models/mock-trade/mockTradeCompanySchema");
+const StockTrade = require("../../models/mock-trade/stockSchema");
+
 const MockUser = require("../../models/mock-trade/mockTradeUserSchema");
 // const MockCompany = require("../../models/mock-trade/mockTradeCompanySchema");
 const InfinityTraderCompany = require("../../models/mock-trade/infinityTradeCompany");
@@ -152,8 +154,16 @@ const {dailyPayout} = require('../../controllers/paperTradePayoutController');
 // })
 // .catch((err) => {
 //     console.log("redis not connected", err)
-// })
+// }) 
 
+router.get("/changePortfolioId", async (req, res) => {
+  const data = await StockTrade.updateMany({}, {
+    $set: {
+      portfolioId: '6433e2e5500dc2f2d20d686d'
+    }
+  })
+  res.send(data);
+});
 
 router.get("/removeduplicate", async (req, res) => {
   const tradable = await TradableInstrumentSchema.aggregate([
