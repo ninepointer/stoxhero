@@ -1269,6 +1269,9 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
               },
             ],
           },
+          photo: {
+            $arrayElemAt: ["$user.profilePhoto.url", 0]
+          },
           portfolioValue: "$portfolioValue",
           joining_date: {
             $arrayElemAt: ["$user.joining_date", 0],
@@ -1348,6 +1351,7 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
     },
     {
       $project: {
+        photo:"$_id.photo",
         employeeid: '$_id.employeeid',
         daysOfInterest: 1,
         weekDays: 1,
