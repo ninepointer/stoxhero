@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({mergeParams: true});
-const {pnlPosition, pnlHolding,myTodaysTrade,overallTraderPnl,liveTotalTradersCount,liveTotalTradersCountYesterday,
+const {pnlPosition, pnlHolding,myTodaysTrade,overallTraderPnl,liveTotalTradersCount,liveTotalTradersCountYesterday, getCombinedPnl,
     overallPnlYesterday,myHistoryTrade, marginDetail, getDailyUsers, getAllAdminOrders, getTodaysAdminOrders, treaderWiseMockTrader} = require('../../controllers/stockTradeController');
 const Authenticate = require('../../authentication/authentication');
 const restrictTo = require('../../authentication/authorization');
@@ -20,6 +20,7 @@ router.route('/liveandtotaltradercountyesterday').get(Authenticate, restrictTo('
 router.route('/traderWisePnl').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), treaderWiseMockTrader);
 router.route('/allorders').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getAllAdminOrders);
 router.route('/todaysorders').get(Authenticate, restrictTo('Admin', 'SuperAdmin'), getTodaysAdminOrders)
+router.route('/combinedpnl').get(Authenticate, getCombinedPnl)
 
 
 module.exports = router;

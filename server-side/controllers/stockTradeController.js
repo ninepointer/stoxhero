@@ -3,7 +3,8 @@ const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const { client, getValue } = require('../marketData/redisClient');
 const { ObjectId } = require("mongodb");
 const PendingOrder = require("../models/PendingOrder/pendingOrderSchema");
-
+const getKiteCred = require('../marketData/getKiteCred');
+const axios = require('axios');
 
 exports.pnlPosition = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -1564,6 +1565,99 @@ exports.getTodaysAdminOrders = async (req, res, next) => {
       .limit(limit);
     // console.log(todaysinternshiporders)
     res.status(200).json({ status: 'success', data: todaysinternshiporders, count: count });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ status: 'error', message: 'Something went wrong' });
+  }
+}
+
+exports.getCombinedPnl = async (req, res, next) => {
+
+  try {
+    let intradayPnl;
+    let deliveryPnl;
+    if ((await client.exists(`${req.user._id.toString()}: overallpnlIntraday`))) {
+      intradayPnl = await client.get(`${req.user._id.toString()}: overallpnlIntraday`);
+      intradayPnl = JSON.parse(intradayPnl);
+    } else {
+      intradayPnl = await pnlPositionDatabase(req?.user?._id)
+    }
+
+    if ((await client.exists(`${req.user._id.toString()}: overallpnlDelivery`))) {
+      deliveryPnl = await client.get(`${req.user._id.toString()}: overallpnlDelivery`);
+      deliveryPnl = JSON.parse(deliveryPnl);
+    } else {
+      deliveryPnl = await pnlHoldingDatabase(req?.user?._id)
+    }
+
+    const pnlData = [];
+
+    if (Array.isArray(intradayPnl)) {
+      pnlData.push(...intradayPnl);
+    }
+
+    if (Array.isArray(deliveryPnl)) {
+      pnlData.push(...deliveryPnl);
+    }
+
+
+    let addUrl;
+    let livePrices = {};
+
+    const data = await getKiteCred.getAccess();
+    pnlData.forEach((elem, index) => {
+      // if (elem.lots > 0) {
+      if (index === 0) {
+        addUrl = ('i=' + elem?._id?.exchange + ':' + elem?._id?.symbol);
+      } else {
+        addUrl += ('&i=' + elem?._id?.exchange + ':' + elem?._id?.symbol);
+      }
+      // }
+    });
+    const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
+    let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
+
+    let authOptions = {
+      headers: {
+        'X-Kite-Version': '3',
+        Authorization: auth,
+      },
+    };
+
+    const response = await axios.get(ltpBaseUrl, authOptions);
+    for (let instrument in response.data.data) {
+      livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
+    }
+
+    let totalRunningLots = 0;
+    let totalTrades = 0;
+    let totalGrossPnl = 0;
+    let totalTransactionCost = 0;
+
+    pnlData.map((elem) => {
+      if (!elem?._id?.isLimit) {
+        totalRunningLots += Number(elem.lots);
+        totalTrades += Number(elem.trades);
+        let updatedValue =
+          elem.lots !== 0
+            ? elem.amount + elem.lots * livePrices[elem._id.instrumentToken]
+            : elem.amount;
+        let netupdatedValue = updatedValue - Number(elem.brokerage);
+        totalGrossPnl += updatedValue;
+
+        totalTransactionCost += Number(elem.brokerage);
+      }
+    })
+
+    res.status(200).json({
+      status: 'success', data: {
+        npnl: totalGrossPnl - totalTransactionCost,
+        brokerage: totalTransactionCost,
+        gpnl: totalGrossPnl,
+        runningLots: totalRunningLots,
+        trades: totalTrades
+      }
+    });
   } catch (e) {
     console.log(e);
     res.status(500).json({ status: 'error', message: 'Something went wrong' });

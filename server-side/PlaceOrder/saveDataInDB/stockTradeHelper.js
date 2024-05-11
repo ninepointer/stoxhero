@@ -89,7 +89,7 @@ exports.stockTradeHelper = async (req, res, otherData) => {
     await session.abortTransaction();
     await releaseLock(lockKey);
     console.error('Transaction failed, documents not saved:', err);
-    res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
+    res.status(400).json({status: 'error', message: 'Something went wrong. Please try again.'});
   } finally {
     await releaseLock(lockKey);
     session.endSession();
