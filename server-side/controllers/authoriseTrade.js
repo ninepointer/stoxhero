@@ -894,13 +894,35 @@ const takeRejectedTrade = async(req, res, from)=>{
 
 exports.fundCheckPaperTrade = async (req, res, next) => {
     const isRedisConnected = getValue();
+    const {Product, instrumentToken, exchangeInstrumentToken, Quantity, buyOrSell} = req.body;
     let todayPnlData;
+    let stockPnlData;
     let fundDetail;
     try {
         if (isRedisConnected && await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)) {
             todayPnlData = await client.get(`${req.user._id.toString()}: overallpnlPaperTrade`)
             todayPnlData = JSON.parse(todayPnlData);
         }
+
+        if(Product === "MIS"){
+            if(isRedisConnected && (await client.exists(`${req.user._id.toString()}: overallpnlIntraday`))){
+                stockPnlData = await client.get(`${req.user._id.toString()}: overallpnlIntraday`);
+                stockPnlData = JSON.parse(stockPnlData);
+            } else{
+                stockPnlData = await pnlPositionDatabase(req?.user?._id)
+            }
+        }
+
+        if(Product === "CNC"){
+            if(isRedisConnected && (await client.exists(`${req.user._id.toString()}: overallpnlDelivery`))){
+                stockPnlData = await client.get(`${req.user._id.toString()}: overallpnlDelivery`);
+                stockPnlData = JSON.parse(stockPnlData);
+            } else{
+                stockPnlData = await pnlHoldingDatabase(req?.user?._id)
+            }
+        }
+
+        todayPnlData = todayPnlData.concat(stockPnlData);
 
         if (!todayPnlData) {
             return res.status(401).send({ message: `something went wrong.` });
@@ -1250,6 +1272,14 @@ exports.fundCheckStock = async (req, res, next) => {
             fundDetail = await marginDetailDataBase(req?.user?._id);
             req.body.portfolioId = fundDetail?.portfolioId;
         }
+
+        let virtualPnl;
+        if (isRedisConnected && await client.exists(`${req.user._id.toString()}: overallpnlPaperTrade`)) {
+            virtualPnl = await client.get(`${req.user._id.toString()}: overallpnlPaperTrade`)
+            virtualPnl = JSON.parse(virtualPnl);
+        }
+
+        todayPnlData = todayPnlData.concat(virtualPnl);
     } catch (e) {
         console.log("errro fetching pnl 2", e);
     }

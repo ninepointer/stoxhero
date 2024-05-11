@@ -814,14 +814,28 @@ exports.marginDetail = async (req, res, next) => {
           },
         },
         {
-          $lookup:
+          $lookup: {
+            from: "paper-trades",
+            localField: "_id",
+            foreignField: "portfolioId",
+            as: "paperTrades",
+          },
+        },
           {
+          $lookup: {
             from: "stock-trades",
             localField: "_id",
             foreignField: "portfolioId",
-            as: "trades",
+            as: "stockTrades",
           },
         },
+  {
+    $addFields: {
+       trades: {
+        $concatArrays: ["$paperTrades", "$stockTrades"]
+      }
+    }
+  },
         {
           $unwind:
           {
@@ -951,14 +965,28 @@ exports.marginDetailDataBase = async (userId) => {
         },
       },
       {
-        $lookup:
+        $lookup: {
+          from: "paper-trades",
+          localField: "_id",
+          foreignField: "portfolioId",
+          as: "paperTrades",
+        },
+      },
         {
+        $lookup: {
           from: "stock-trades",
           localField: "_id",
           foreignField: "portfolioId",
-          as: "trades",
+          as: "stockTrades",
         },
       },
+{
+  $addFields: {
+     trades: {
+      $concatArrays: ["$paperTrades", "$stockTrades"]
+    }
+  }
+},
       {
         $unwind:
         {
