@@ -8,7 +8,7 @@ const uuid = require("uuid");
 
 exports.activationBonus = async(userId) => {
     try{
-        const programeStartDate = '2024-05-09T18:30:00.000+00:00';
+        const programeStartDate = '2024-05-12T18:30:00.000+00:00';
         const user = await User.findOne({_id: new ObjectId(userId)});
 
         if(new Date(programeStartDate) < new Date(user?.joining_date)){
