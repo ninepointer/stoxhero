@@ -336,7 +336,7 @@ exports.marginDetail = async (req, res, next) => {
             as: "paperTrades",
           },
         },
-          {
+        {
           $lookup: {
             from: "stock-trades",
             localField: "_id",
@@ -344,13 +344,13 @@ exports.marginDetail = async (req, res, next) => {
             as: "stockTrades",
           },
         },
-  {
-    $addFields: {
-       trades: {
-        $concatArrays: ["$paperTrades", "$stockTrades"]
-      }
-    }
-  },
+        {
+          $addFields: {
+            trades: {
+              $concatArrays: ["$paperTrades", "$stockTrades"]
+            }
+          }
+        },
         {
           $unwind: {
             path: "$trades",

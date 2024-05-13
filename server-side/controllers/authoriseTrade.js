@@ -922,7 +922,9 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
             }
         }
 
-        todayPnlData = todayPnlData.concat(stockPnlData);
+        todayPnlData = (todayPnlData || []).concat(stockPnlData || []);
+
+        console.log('todayPnlData', todayPnlData)
 
         if (!todayPnlData) {
             return res.status(401).send({ message: `something went wrong.` });
@@ -1279,7 +1281,7 @@ exports.fundCheckStock = async (req, res, next) => {
             virtualPnl = JSON.parse(virtualPnl);
         }
 
-        todayPnlData = todayPnlData.concat(virtualPnl);
+        todayPnlData = (todayPnlData || []).concat(virtualPnl || []);
     } catch (e) {
         console.log("errro fetching pnl 2", e);
     }
