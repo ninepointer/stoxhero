@@ -1574,11 +1574,11 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
 
     const data = await getKiteCred.getAccess();
     uniqueDataArray.forEach((elem, index) => {
-      if (elem.lots > 0) {
+      if (elem.lots !== 0) {
         if (index === 0) {
-          addUrl = ('i=' + elem.exchange + ':' + elem.symbol);
+          addUrl = ('i=' + elem?.exchange + ':' + elem?.symbol);
         } else {
-          addUrl += ('&i=' + elem.exchange + ':' + elem.symbol);
+          addUrl += ('&i=' + elem?.exchange + ':' + elem?.symbol);
         }
       }
 
@@ -1600,12 +1600,18 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
 
     for (doc of ranks) {
       if (doc) {
-        doc.rpnl = doc?.lots > 0 ? doc?.lots * livePrices[doc?._id?.instrumentToken] : 0;
-        doc.npnl = doc?.amount + doc?.rpnl - doc?.brokerage;
+        doc.rpnl = doc?.lots !== 0
+        ? doc?.amount + doc?.lots * livePrices[doc?._id?.instrumentToken]
+        : doc?.amount;
+        // ((Math.abs(doc?.lots)*livePrices[doc?._id?.instrumentToken]) || 0) -  doc?.amount;
+        // doc?.lots > 0 ? doc?.lots * livePrices[doc?._id?.instrumentToken] : 0; doc?.amount +
+        doc.npnl = doc?.rpnl - doc?.brokerage;
         doc.portfolioValue = portfolioValue;
         doc.interest = interest;
       }
     }
+
+    console.log('ranks', ranks);
 
     const result = await aggregateRanks(ranks);
 
@@ -1632,7 +1638,6 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
 
 const getRedisMyRank = async (employeeId) => {
 
-  // console.log(id, employeeId, await client.exists(`leaderboard-paper`))
   try {
     if (await client.exists(`leaderboard-paper`)) {
 

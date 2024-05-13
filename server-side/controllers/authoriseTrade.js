@@ -924,8 +924,6 @@ exports.fundCheckPaperTrade = async (req, res, next) => {
 
         todayPnlData = (todayPnlData || []).concat(stockPnlData || []);
 
-        console.log('todayPnlData', todayPnlData)
-
         if (!todayPnlData) {
             return res.status(401).send({ message: `something went wrong.` });
         }

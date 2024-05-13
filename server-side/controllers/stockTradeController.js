@@ -428,6 +428,15 @@ exports.pnlHolding = async (req, res, next) => {
 }
 
 exports.pnlPositionDatabase = async (userId) => {
+  return await pnlPositionHelper(userId);
+}
+
+exports.pnlHoldingDatabase = async (userId) => {
+  return await pnlHoldingHelper(userId);
+}
+
+
+const pnlPositionHelper = async (userId) => {
 
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -580,7 +589,7 @@ exports.pnlPositionDatabase = async (userId) => {
   }
 }
 
-exports.pnlHoldingDatabase = async (userId) => {
+const pnlHoldingHelper = async (userId) => {
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
@@ -1580,14 +1589,14 @@ exports.getCombinedPnl = async (req, res, next) => {
       intradayPnl = await client.get(`${req.user._id.toString()}: overallpnlIntraday`);
       intradayPnl = JSON.parse(intradayPnl);
     } else {
-      intradayPnl = await pnlPositionDatabase(req?.user?._id)
+      intradayPnl = await pnlPositionHelper(req?.user?._id)
     }
 
     if ((await client.exists(`${req.user._id.toString()}: overallpnlDelivery`))) {
       deliveryPnl = await client.get(`${req.user._id.toString()}: overallpnlDelivery`);
       deliveryPnl = JSON.parse(deliveryPnl);
     } else {
-      deliveryPnl = await pnlHoldingDatabase(req?.user?._id)
+      deliveryPnl = await pnlHoldingHelper(req?.user?._id)
     }
 
     const pnlData = [];
