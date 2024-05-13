@@ -7,8 +7,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const xssClean = require("xss-clean");
 const hpp = require("hpp");
 const { pendingOrderMain } = require("./PlaceStopLossOrder");
-const { apiRoutes } = require('./apiRoutes');
-
+const { apiRoutes } = require("./apiRoutes");
 
 async function commonProcess() {
   client
@@ -26,21 +25,30 @@ async function commonProcess() {
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ limit: "10mb" }));
 
-  const allowedOrigins = ['http://localhost:3000', 'https://stoxhero.com', 'https://www.stoxhero.com', 'https://stoxhero-next-ts.vercel.app', 'https://www.stoxhero-next-ts.vercel.app', 'http://43.204.7.180'];
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://staging.stoxhero.com",
+    "http://staging.stoxhero.com",
+    "https://stoxhero.com",
+    "https://www.stoxhero.com",
+    "https://stoxhero-next-ts.vercel.app",
+    "https://www.stoxhero-next-ts.vercel.app",
+    "http://43.204.7.180",
+  ];
 
-const corsOptions = {
-  credentials: true,
-  origin: function (origin, callback) {
-    // Check if the incoming origin is in the allowedOrigins list
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-};
+  const corsOptions = {
+    credentials: true,
+    origin: function (origin, callback) {
+      // Check if the incoming origin is in the allowedOrigins list
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  };
 
-app.use(cors(corsOptions));
+  app.use(cors(corsOptions));
   app.use(require("cookie-parser")());
 
   app.use(mongoSanitize());
@@ -48,7 +56,7 @@ app.use(cors(corsOptions));
   app.use(xssClean());
   app.use(hpp());
 
-  apiRoutes(app).then(()=>{});
+  apiRoutes(app).then(() => {});
 
   await pendingOrderMain();
 }

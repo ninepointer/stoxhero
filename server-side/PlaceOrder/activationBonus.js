@@ -11,40 +11,43 @@ exports.activationBonus = async(userId) => {
         const programeStartDate = '2024-05-12T18:30:00.000+00:00';
         const user = await User.findOne({_id: new ObjectId(userId)});
 
-        if(new Date(programeStartDate) < new Date(user?.joining_date)){
-            const activation = await ActivationData.findOne({status: 'Active'});
+        if (new Date(programeStartDate) < new Date(user?.joining_date)) {
+            const activation = await ActivationData.findOne({ status: 'Active' });
 
-            const referredUser = await User.findOneAndUpdate(
-                
-                {_id: new ObjectId(user?.referredBy), "referrals.referredUserId": new ObjectId(userId) }, // Match the referredUserId
-                {
-                    $set: {
-                        "referrals.$.activationDate": new Date(),
-                        "referrals.$.activationEarning": activation?.rewardPeractivation,
-                        "referrals.$.activationProgram": activation?._id
+            if (activation) {
+
+                const referredUser = await User.findOneAndUpdate(
+
+                    { _id: new ObjectId(user?.referredBy), "referrals.referredUserId": new ObjectId(userId) }, // Match the referredUserId
+                    {
+                        $set: {
+                            "referrals.$.activationDate": new Date(),
+                            "referrals.$.activationEarning": activation?.rewardPeractivation,
+                            "referrals.$.activationProgram": activation?._id
+                        },
                     },
-                },
-                {new : true}
-            );
+                    { new: true }
+                );
 
-            if(activation?.activationSignupBonus?.amount){
-                await addBonus(
-                    user, 
-                    activation?.activationSignupBonus?.amount, 
-                    activation?.activationSignupBonus?.currency,
-                    'Activation Bonus',
-                    `Amount credited for activation`
-                )
-            }
+                if (activation?.activationSignupBonus?.amount) {
+                    await addBonus(
+                        user,
+                        activation?.activationSignupBonus?.amount,
+                        activation?.activationSignupBonus?.currency,
+                        'Activation Bonus',
+                        `Amount credited for activation`
+                    )
+                }
 
-            if(activation?.rewardPeractivation){
-                await addBonus(
-                    referredUser, 
-                    activation?.rewardPeractivation, 
-                    activation?.currency,
-                    'Activation Bonus',
-                    `Amount credited for activation of ${user?.first_name} ${user?.last_name}`
-                )
+                if (activation?.rewardPeractivation) {
+                    await addBonus(
+                        referredUser,
+                        activation?.rewardPeractivation,
+                        activation?.currency,
+                        'Activation Bonus',
+                        `Amount credited for activation of ${user?.first_name} ${user?.last_name}`
+                    )
+                }
             }
         }
     }catch(e){
