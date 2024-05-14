@@ -1,4 +1,5 @@
 const PaperTrade = require("../models/mock-trade/paperTrade");
+const Stock = require("../models/mock-trade/stockSchema");
 const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const { client, getValue } = require("../marketData/redisClient");
 const { ObjectId } = require("mongodb");
@@ -321,6 +322,9 @@ exports.marginDetail = async (req, res, next) => {
 
       res.status(201).json({ message: "pnl received", data: marginDetail });
     } else {
+      const papertrade = await PaperTrade.find({trader: new ObjectId(req?.user?._id), portfolioId: new ObjectId('6433e2e5500dc2f2d20d686d')});
+      const stocktrade = await Stock.find({trader: new ObjectId(req?.user?._id), portfolioId: new ObjectId('6433e2e5500dc2f2d20d686d')})
+
       const portfoliosFund = await Portfolio.aggregate([
         {
           $match: {
@@ -328,26 +332,26 @@ exports.marginDetail = async (req, res, next) => {
             portfolioType: "Virtual Trading",
           },
         },
-        {
-          $lookup: {
-            from: "paper-trades",
-            localField: "_id",
-            foreignField: "portfolioId",
-            as: "paperTrades",
-          },
-        },
-        {
-          $lookup: {
-            from: "stock-trades",
-            localField: "_id",
-            foreignField: "portfolioId",
-            as: "stockTrades",
-          },
-        },
+        // {
+        //   $lookup: {
+        //     from: "paper-trades",
+        //     localField: "_id",
+        //     foreignField: "portfolioId",
+        //     as: "paperTrades",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "stock-trades",
+        //     localField: "_id",
+        //     foreignField: "portfolioId",
+        //     as: "stockTrades",
+        //   },
+        // },
         {
           $addFields: {
             trades: {
-              $concatArrays: ["$paperTrades", "$stockTrades"]
+              $concatArrays: [papertrade, stocktrade]
             }
           }
         },
