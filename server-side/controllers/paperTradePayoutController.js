@@ -50,17 +50,16 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
       "first_name last_name email"
     ).session(session);
   
-      //todo-vijay
-    // if (process.env.PROD == "true") {
-    try {
-      if (!existingTransaction) {
-        console.log(user?.email, "sent");
-        await email(user, payoutAmount);
+    if (process.env.PROD == "true") {
+      try {
+        if (!existingTransaction) {
+          console.log(user?.email, "sent");
+          await email(user, payoutAmount);
+        }
+      } catch (e) {
+        console.log("error sending mail");
       }
-    } catch (e) {
-      console.log("error sending mail");
     }
-    // }
     if (!existingTransaction) {
       await createUserNotification({
         title: "Virtual Trade Reward Credited",
@@ -79,7 +78,7 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
     }
 
     if (!existingTransaction) {
-      const {npnl, netPnl, grossPnl, brokerage, trades, portfolioValue, moneyCost, daysOfInterest, trader
+      const {pnlAfterCost, npnl, netPnl, grossPnl, brokerage, trades, portfolioValue, moneyCost, daysOfInterest, trader
       } = pnlObj;
       await savePayout({
         npnl: npnl || netPnl,
@@ -93,7 +92,8 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
         tds: tdsAmount,
         daysOfInterest: daysOfInterest || 1,
         trader,
-        frequency
+        frequency,
+        pnlAfterCost
       }, session);
     }
   
@@ -109,21 +109,27 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
 exports.dailyPayout = async () => {
   const setting = await Setting.find();
   const leaderboardParams = await LeaderboardParams.findOne({ frequency: 'Daily', status: 'Active' });
-  let date = new Date();
-  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  todayDate = todayDate + "T00:00:00.000Z";
-  const today = new Date(todayDate);
+  // let date = new Date();
+  // let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+  //   2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  // todayDate = todayDate + "T00:00:00.000Z";
+  // const today = new Date(todayDate);
 
-  const leaderBoardData = await PaperTradeLeaderboard.find({ createdOn: { $gte: today } })
-    .sort({ npnl: -1, gpnl: -1 });
+  const today = moment();
+  const startOfDay = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+  const endOfDay = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+
+  // const leaderBoardData = await PaperTradeLeaderboard.find({ createdOn: { $gte: today } })
+  //   .sort({ npnl: -1, gpnl: -1 });
+  const data = await payoutHelper(startOfDay, endOfDay, leaderboardParams);
+
 
   const rewards = leaderboardParams?.rewards;
-  for (const [index, user] of leaderBoardData.entries()) {
+  for (const [index, user] of data.entries()) {
     const userRank = index+1; // Assuming you have a 'rank' field in your user object
     for (const rewarddata of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewarddata;
-      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd) {
+      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
         console.log('daily', reward)
         await addRewardToWallet(reward, user, setting, 'Daily');
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here
@@ -148,7 +154,7 @@ exports.monthPayout = async () => {
     const userRank = index+1; // Assuming you have a 'rank' field in your user object
     for (const rewardobj of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewardobj;
-      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd) {
+      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
         console.log('month', reward)
         await addRewardToWallet(reward, user, setting, 'Monthly');
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here
@@ -178,7 +184,7 @@ exports.weekPayout = async () => {
       console.log('rewardobj', rewardobj);
 
       console.log('consition', (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd), rankStart, rankEnd, rewardType, reward)
-      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd) {
+      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
         console.log('week', reward)
         await addRewardToWallet(reward, user, setting, 'Weekly');
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here
@@ -198,7 +204,7 @@ exports.quarterPayout = async () => {
     const userRank = index+1; // Assuming you have a 'rank' field in your user object
     for (const rewardobj of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewardobj;
-      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd) {
+      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
         console.log('quarter', reward)
         await addRewardToWallet(reward, user, setting, 'Quarter');
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here

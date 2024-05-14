@@ -46,6 +46,10 @@ const payout = new mongoose.Schema({
         type: String,
         required: true
     },
+    pnlAfterCost: {
+        type: Number,
+        required: true
+    },
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
