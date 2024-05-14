@@ -1606,13 +1606,13 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
   const endTime = new Date(currentTime);
   endTime.setHours(9, 48, 0, 0);
 
-  if (currentTime >= startTime && currentTime <= endTime) {
+  // if (currentTime >= startTime && currentTime <= endTime) {
     const leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
 
     if (leaderBoard?.length > 0) {
       io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
     }
-  }
+  // }
 }
 
 exports.sendVirtualMyRankData = async () => {
@@ -1625,7 +1625,7 @@ exports.sendVirtualMyRankData = async () => {
       const endTime = new Date(currentTime);
       endTime.setHours(9, 48, 0, 0);
 
-      if (currentTime >= startTime && currentTime <= endTime) {
+      // if (currentTime >= startTime && currentTime <= endTime) {
         const room = io.sockets.adapter.rooms.get(virtualPortfolioId?.toString());
         const socketIds = Array.from(room ?? []);
         for (let j = 0; j < socketIds?.length; j++) {
@@ -1638,7 +1638,7 @@ exports.sendVirtualMyRankData = async () => {
             io.to(`${virtualPortfolioId?.toString()}`).emit(`virtual-myrank${userId}`, myRank);
           }
         }
-      }
+      // }
     };
     emitLeaderboardData();
     interval = setInterval(emitLeaderboardData, 5000);
