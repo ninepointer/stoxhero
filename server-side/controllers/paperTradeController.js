@@ -1185,7 +1185,7 @@ exports.weeklyLeaderboardData = async (req, res) => {
     const startOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
     const endOfWeek = today.endOf('week').subtract(5, 'hours').subtract(30, 'minutes');
 
-    const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Weekly'})
+    const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Weekly' })
     const data = await leaderboardDataHelper(startOfWeek, endOfWeek, leaderboardParams);
 
     res.status(200).json({
@@ -1208,7 +1208,7 @@ exports.monthlyLeaderboardData = async (req, res) => {
     const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
 
-    const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Monthly'})
+    const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Monthly' })
     const data = await leaderboardDataHelper(startOfMonth, endOfMonth, leaderboardParams);
 
     res.status(200).json({
@@ -1227,7 +1227,7 @@ exports.monthlyLeaderboardData = async (req, res) => {
 
 exports.quarterlyLeaderboardData = async (req, res) => {
   try {
-    const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Quarter'})
+    const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' })
     const data = await leaderboardDataHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams);
 
     res.status(200).json({
@@ -1323,27 +1323,27 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
               ],
             },
             then: {
-                $divide: [
-                  {
-                    $subtract: [
-                      new Date(),
-                      new Date(startDate),
-                    ], // Replace "endDate" and "startDate" with your date fields
-                  },
-                  86400000, // milliseconds in a day
-                ],
-              },
+              $divide: [
+                {
+                  $subtract: [
+                    new Date(),
+                    new Date(startDate),
+                  ], // Replace "endDate" and "startDate" with your date fields
+                },
+                86400000, // milliseconds in a day
+              ],
+            },
             else: {
-                $divide: [
-                  {
-                    $subtract: [
-                      new Date(),
-                      "$_id.joining_date",
-                    ], // Replace "endDate" and "startDate" with your date fields
-                  },
-                  86400000, // milliseconds in a day
-                ],
-              },
+              $divide: [
+                {
+                  $subtract: [
+                    new Date(),
+                    "$_id.joining_date",
+                  ], // Replace "endDate" and "startDate" with your date fields
+                },
+                86400000, // milliseconds in a day
+              ],
+            },
           },
         },
       },
@@ -1359,14 +1359,14 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
               ]
             },
             "$_id.portfolioValue",
-            {$ceil: '$daysOfInterest'}
+            { $ceil: '$daysOfInterest' }
           ]
         }
       }
     },
     {
       $project: {
-        photo:"$_id.photo",
+        photo: "$_id.photo",
         employeeid: '$_id.employeeid',
         daysOfInterest: 1,
         weekDays: 1,
@@ -1433,14 +1433,13 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
   const endTime = new Date(currentTime);
   endTime.setHours(9, 48, 0, 0);
 
-  //todo-vijay
-  // if (currentTime >= startTime && currentTime <= endTime) {
-  const leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
+  if (currentTime >= startTime && currentTime <= endTime) {
+    const leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
 
-  if (leaderBoard?.length > 0) {
-    io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
+    if (leaderBoard?.length > 0) {
+      io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
+    }
   }
-  // }
 }
 
 exports.sendVirtualMyRankData = async () => {
@@ -1453,21 +1452,20 @@ exports.sendVirtualMyRankData = async () => {
       const endTime = new Date(currentTime);
       endTime.setHours(9, 48, 0, 0);
 
-      //todo-vijay
-      // if (currentTime >= startTime && currentTime <= endTime) {
-      const room = io.sockets.adapter.rooms.get(virtualPortfolioId?.toString());
-      const socketIds = Array.from(room ?? []);
-      for (let j = 0; j < socketIds?.length; j++) {
-        let userId = await client.get(socketIds[j]);
-        let data = await client.get(`paperTradeData:${userId}${virtualPortfolioId?.toString()}`);
-        data = JSON.parse(data);
-        if (data) {
-          let { employeeId } = data;
-          const myRank = await getRedisMyRank(employeeId);
-          io.to(`${virtualPortfolioId?.toString()}`).emit(`virtual-myrank${userId}`, myRank);
+      if (currentTime >= startTime && currentTime <= endTime) {
+        const room = io.sockets.adapter.rooms.get(virtualPortfolioId?.toString());
+        const socketIds = Array.from(room ?? []);
+        for (let j = 0; j < socketIds?.length; j++) {
+          let userId = await client.get(socketIds[j]);
+          let data = await client.get(`paperTradeData:${userId}${virtualPortfolioId?.toString()}`);
+          data = JSON.parse(data);
+          if (data) {
+            let { employeeId } = data;
+            const myRank = await getRedisMyRank(employeeId);
+            io.to(`${virtualPortfolioId?.toString()}`).emit(`virtual-myrank${userId}`, myRank);
+          }
         }
       }
-      //  }
     };
     emitLeaderboardData();
     interval = setInterval(emitLeaderboardData, 5000);
@@ -1601,8 +1599,8 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
     for (doc of ranks) {
       if (doc) {
         doc.rpnl = doc?.lots !== 0
-        ? doc?.amount + doc?.lots * livePrices[doc?._id?.instrumentToken]
-        : doc?.amount;
+          ? doc?.amount + doc?.lots * livePrices[doc?._id?.instrumentToken]
+          : doc?.amount;
         // ((Math.abs(doc?.lots)*livePrices[doc?._id?.instrumentToken]) || 0) -  doc?.amount;
         // doc?.lots > 0 ? doc?.lots * livePrices[doc?._id?.instrumentToken] : 0; doc?.amount +
         doc.npnl = doc?.rpnl - doc?.brokerage;
@@ -1611,7 +1609,7 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
       }
     }
 
-    console.log('ranks', ranks);
+    // console.log('ranks', ranks);
 
     const result = await aggregateRanks(ranks);
 
@@ -1711,22 +1709,23 @@ async function formatData(arr, interest, portfolioValue) {
 }
 
 exports.payouts = async () => {
+  console.log('running')
   const today = new Date();
   const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const getMonthDate = today.getDate();
-  
+
   await dailyPayout();
 
-  if (today.getDay() === 5)
-  await weekPayout();
+  // if (today.getDay() === 5)
+    await weekPayout();
 
-  if(lastDayOfMonth === getMonthDate)
-  await monthPayout();
+  // if (lastDayOfMonth === getMonthDate)
+    await monthPayout();
 
-  const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Quarter'});
+  const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' });
   const startOfDay = moment(leaderboardParams?.quarterEndDate).clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
   const endOfDay = moment(leaderboardParams?.quarterEndDate).clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
   const check = (new Date(startOfDay) <= new Date()) && (new Date(endOfDay) >= new Date());
-  if(check)
-  await quarterPayout();
+  // if (check)
+    await quarterPayout();
 };

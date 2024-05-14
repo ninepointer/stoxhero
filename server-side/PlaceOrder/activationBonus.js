@@ -64,7 +64,7 @@ const addBonus = async (user, amount, currency, title, description) => {
             amount: amount,
             transactionId: uuid.v4(),
             transactionDate: new Date(),
-            transactionType: currency,
+            transactionType: currency==='INR' ? 'Cash' : currency,
         });
         await wallet?.save({ validateBeforeSave: false });
 

@@ -145,7 +145,11 @@ const Rewards = ({ leaderboard }) => {
             variant="outlined"
             size="small"
             color="black"
-            onClick={() => setCreateRewardForm(true)}
+            onClick={
+              ()=>{
+                setCreateRewardForm(true); setId()
+              }
+            }
           >
             Create Reward
           </MDButton>

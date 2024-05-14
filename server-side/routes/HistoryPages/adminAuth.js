@@ -146,7 +146,7 @@ const {autoCreate} = require('../../controllers/AutoCreate');
 const Calculator = require('../../models/calculator/calculatorSchema');
 const {cronjobs} = require('../../cronjobs');
 const { removeInstrumentFromWatchlist } = require("../../controllers/instrument");
-const {dailyPayout} = require('../../controllers/paperTradePayoutController');
+const {payouts} = require('../../controllers/paperTradeController');
 // client8.connect()
 // .then(async (res) => {
     
@@ -155,6 +155,15 @@ const {dailyPayout} = require('../../controllers/paperTradePayoutController');
 // .catch((err) => {
 //     console.log("redis not connected", err)
 // }) 
+
+router.get("/portfolioUpdate", async (req, res) => {
+  const data = await PortFolio.findOneAndUpdate({status: 'Active', }, {
+    $set: {
+      portfolioId: '6433e2e5500dc2f2d20d686d'
+    }
+  })
+  res.send(data);
+});
 
 router.get("/changePortfolioId", async (req, res) => {
   const data = await StockTrade.updateMany({}, {
@@ -205,7 +214,7 @@ router.get("/removeduplicate", async (req, res) => {
 });
 
 router.get("/virtualreward", async (req, res) => {
-  await dailyPayout();
+  await payouts();
   res.send("ok");
 });
 

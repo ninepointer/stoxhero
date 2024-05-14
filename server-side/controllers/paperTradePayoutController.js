@@ -37,6 +37,7 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting) => {
       transactionType: "Cash",
     });
   }
+
   await wallet.save();
   const user = await User.findById(pnlObj?.trader).select(
     "first_name last_name email"
@@ -181,15 +182,19 @@ exports.dailyPayout = async () => {
     .sort({ npnl: -1, gpnl: -1 });
 
   const rewards = leaderboardParams?.rewards;
-  for (const elem of leaderBoardData) {
-    for (let obj of rewards) {
-      for (let i = obj?.rankStart - 1; i <= obj?.rankEnd - 1; i++) {
-        if (obj?.rewardType === 'Cash') {
-          await addRewardToWallet(obj?.reward, elem, setting);
-        }
+  for (const [user, index] of leaderBoardData.entries()) {
+    const userRank = index+1; // Assuming you have a 'rank' field in your user object
+    for (const rewarddata of rewards) {
+      const { rankStart, rankEnd, rewardType, reward } = rewarddata;
+      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd) {
+        console.log('daily', reward)
+        await addRewardToWallet(reward, user, setting);
+        // Assuming each user qualifies for only one reward, if not, you might need additional logic here
+        break; // Break the loop once the reward for this user is processed
       }
     }
   }
+
 };
 
 exports.monthPayout = async () => {
@@ -202,12 +207,15 @@ exports.monthPayout = async () => {
   const data = await payoutHelper(startOfMonth, endOfMonth, leaderboardParams);
 
   const rewards = leaderboardParams?.rewards;
-  for (const elem of data) {
-    for (let obj of rewards) {
-      for (let i = obj?.rankStart - 1; i <= obj?.rankEnd - 1; i++) {
-        if (obj?.rewardType === 'Cash') {
-          await addRewardToWallet(obj?.reward, elem, setting);
-        }
+  for (const [user, index] of data.entries()) {
+    const userRank = index+1; // Assuming you have a 'rank' field in your user object
+    for (const rewardobj of rewards) {
+      const { rankStart, rankEnd, rewardType, reward } = rewardobj;
+      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd) {
+        console.log('month', reward)
+        await addRewardToWallet(reward, user, setting);
+        // Assuming each user qualifies for only one reward, if not, you might need additional logic here
+        break; // Break the loop once the reward for this user is processed
       }
     }
   }
@@ -223,12 +231,15 @@ exports.weekPayout = async () => {
   const data = await payoutHelper(startOfWeek, endOfWeek, leaderboardParams);
 
   const rewards = leaderboardParams?.rewards;
-  for (const elem of data) {
-    for (let obj of rewards) {
-      for (let i = obj?.rankStart - 1; i <= obj?.rankEnd - 1; i++) {
-        if (obj?.rewardType === 'Cash') {
-          await addRewardToWallet(obj?.reward, elem, setting);
-        }
+  for (const [user, index] of data.entries()) {
+    const userRank = index+1; // Assuming you have a 'rank' field in your user object
+    for (const rewardobj of rewards) {
+      const { rankStart, rankEnd, rewardType, reward } = rewardobj;
+      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd) {
+        console.log('week', reward)
+        await addRewardToWallet(reward, user, setting);
+        // Assuming each user qualifies for only one reward, if not, you might need additional logic here
+        break; // Break the loop once the reward for this user is processed
       }
     }
   }
@@ -240,12 +251,15 @@ exports.quarterPayout = async () => {
   const data = await payoutHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams);
 
   const rewards = leaderboardParams?.rewards;
-  for (const elem of data) {
-    for (let obj of rewards) {
-      for (let i = obj?.rankStart - 1; i <= obj?.rankEnd - 1; i++) {
-        if (obj?.rewardType === 'Cash') {
-          await addRewardToWallet(obj?.reward, elem, setting);
-        }
+  for (const [user, index] of data.entries()) {
+    const userRank = index+1; // Assuming you have a 'rank' field in your user object
+    for (const rewardobj of rewards) {
+      const { rankStart, rankEnd, rewardType, reward } = rewardobj;
+      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd) {
+        console.log('quarter', reward)
+        await addRewardToWallet(reward, user, setting);
+        // Assuming each user qualifies for only one reward, if not, you might need additional logic here
+        break; // Break the loop once the reward for this user is processed
       }
     }
   }

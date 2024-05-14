@@ -15,7 +15,7 @@ export default function CreateRewards({
   reward,
 }) {
 
-  const rewardId = reward._id;
+  const rewardId = reward?._id || reward;
   const rewardRankStart = reward?.rankStart;
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formState, setFormState] = useState({

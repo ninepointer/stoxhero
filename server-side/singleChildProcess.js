@@ -130,13 +130,13 @@ async function singleProcess() {
     });
 
 
-    // if (process.env.PROD === "true") {
+    if (process.env.PROD === "true") {
       //emitting leaderboard for contest.
       sendVirtualLeaderboardData().then(() => { });
       sendVirtualMyRankData().then(() => { });
       sendLeaderboardData().then(() => { });
       sendMyRankData().then(() => { });
-    // }
+    }
 
     emitServerTime().then(() => { });
 
