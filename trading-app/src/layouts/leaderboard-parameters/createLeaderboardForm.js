@@ -52,8 +52,8 @@ function Index() {
     status: "" || leaderboard?.status,
     usersPerTable: "" || leaderboard?.usersPerTable,
     marginMoneyInterest: "" || leaderboard?.marginMoneyInterest,
-    quarterStartDate: "" || leaderboard?.quarterStartDate,
-    quarterEndDate: "" || leaderboard?.quarterEndDate,
+    quarterStartDate: leaderboard?.quarterStartDate || new Date(),
+    quarterEndDate: leaderboard?.quarterEndDate || new Date(),
   });
 
   useEffect(() => {

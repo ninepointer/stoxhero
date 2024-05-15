@@ -157,9 +157,17 @@ const {payouts} = require('../../controllers/paperTradeController');
 // }) 
 
 router.get("/portfolioUpdate", async (req, res) => {
-  const data = await PortFolio.findOneAndUpdate({status: 'Active', }, {
+  const data = await PortFolio.findOneAndUpdate({ status: 'Active', portfolioName: 'Virtual Trading Portfolio' }, {
     $set: {
-      portfolioId: '6433e2e5500dc2f2d20d686d'
+      portfolioUpdate: [{
+        date: new Date('2024-01-29'),
+        value: 2000000
+      },
+      {
+        date: new Date('2024-05-14'),
+        value: 10000000
+      }
+      ]
     }
   })
   res.send(data);

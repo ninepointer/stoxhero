@@ -19,6 +19,10 @@ const PortfolioSchema = new mongoose.Schema({
         type: Number,
         required : true
     }, 
+    portfolioUpdate:[{
+        date: Date,
+        value: Number
+    }], 
     createdOn:{
         type: Date,
         required : true,

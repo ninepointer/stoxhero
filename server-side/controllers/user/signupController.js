@@ -17,7 +17,6 @@ const { signupMail, resendOTPMail } = require("./mails");
 
 const SignedUpUser = require("../../models/User/signedUpUser");
 const User = require("../../models/User/userDetailSchema");
-const UserDetail = require("../../models/User/userDetailSchema");
 const Referral = require("../../models/campaigns/referralProgram");
 const PortFolio = require("../../models/userPortfolio/UserPortfolio");
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
@@ -1788,7 +1787,7 @@ exports.createUserMobile = async (req, res) => {
     });
   }
 
-  const checkUser = await User.findOne({ mobile: user?.mobile });
+  const checkUser = await UserDetail.findOne({ mobile: user?.mobile });
   if (checkUser && !checkUser?.collegeDetails?.college && collegeDetails) {
     checkUser.collegeDetails = collegeDetails;
     const newuser = await checkUser.save({
@@ -1812,7 +1811,7 @@ exports.createUserMobile = async (req, res) => {
   let referredBy;
   let campaign;
   if (referrerCode) {
-    const referrerCodeMatch = await User.findOne({
+    const referrerCodeMatch = await UserDetail.findOne({
       myReferralCode: referrerCode,
     });
     const campaignCodeMatch = await Campaign.findOne({

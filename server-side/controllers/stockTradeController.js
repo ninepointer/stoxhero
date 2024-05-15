@@ -5,6 +5,7 @@ const { ObjectId } = require("mongodb");
 const PendingOrder = require("../models/PendingOrder/pendingOrderSchema");
 const getKiteCred = require('../marketData/getKiteCred');
 const axios = require('axios');
+const PaperTrade = require("../models/mock-trade/paperTrade");
 
 exports.pnlPosition = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -814,6 +815,8 @@ exports.marginDetail = async (req, res, next) => {
       res.status(201).json({ message: "Margin received", data: marginDetail });
 
     } else {
+      const papertrade = await PaperTrade.find({trader: new ObjectId(req?.user?._id), portfolioId: new ObjectId('6433e2e5500dc2f2d20d686d')});
+      const stocktrade = await StockTrade.find({trader: new ObjectId(req?.user?._id), portfolioId: new ObjectId('6433e2e5500dc2f2d20d686d')})
 
       const portfoliosFund = await Portfolio.aggregate([
         {
@@ -823,26 +826,26 @@ exports.marginDetail = async (req, res, next) => {
             portfolioType: "Virtual Trading",
           },
         },
-        {
-          $lookup: {
-            from: "paper-trades",
-            localField: "_id",
-            foreignField: "portfolioId",
-            as: "paperTrades",
-          },
-        },
-          {
-          $lookup: {
-            from: "stock-trades",
-            localField: "_id",
-            foreignField: "portfolioId",
-            as: "stockTrades",
-          },
-        },
+        // {
+        //   $lookup: {
+        //     from: "paper-trades",
+        //     localField: "_id",
+        //     foreignField: "portfolioId",
+        //     as: "paperTrades",
+        //   },
+        // },
+        //   {
+        //   $lookup: {
+        //     from: "stock-trades",
+        //     localField: "_id",
+        //     foreignField: "portfolioId",
+        //     as: "stockTrades",
+        //   },
+        // },
   {
     $addFields: {
        trades: {
-        $concatArrays: ["$paperTrades", "$stockTrades"]
+        $concatArrays: [papertrade, stocktrade]
       }
     }
   },
@@ -965,6 +968,8 @@ exports.marginDetailDataBase = async (userId) => {
 
 
   try {
+    const papertrade = await PaperTrade.find({trader: new ObjectId(req?.user?._id), portfolioId: new ObjectId('6433e2e5500dc2f2d20d686d')});
+    const stocktrade = await StockTrade.find({trader: new ObjectId(req?.user?._id), portfolioId: new ObjectId('6433e2e5500dc2f2d20d686d')})
 
     const portfoliosFund = await Portfolio.aggregate([
       {
@@ -974,26 +979,26 @@ exports.marginDetailDataBase = async (userId) => {
           portfolioType: "Virtual Trading",
         },
       },
-      {
-        $lookup: {
-          from: "paper-trades",
-          localField: "_id",
-          foreignField: "portfolioId",
-          as: "paperTrades",
-        },
-      },
-        {
-        $lookup: {
-          from: "stock-trades",
-          localField: "_id",
-          foreignField: "portfolioId",
-          as: "stockTrades",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "paper-trades",
+      //     localField: "_id",
+      //     foreignField: "portfolioId",
+      //     as: "paperTrades",
+      //   },
+      // },
+      //   {
+      //   $lookup: {
+      //     from: "stock-trades",
+      //     localField: "_id",
+      //     foreignField: "portfolioId",
+      //     as: "stockTrades",
+      //   },
+      // },
 {
   $addFields: {
      trades: {
-      $concatArrays: ["$paperTrades", "$stockTrades"]
+      $concatArrays: [papertrade, stocktrade]
     }
   }
 },

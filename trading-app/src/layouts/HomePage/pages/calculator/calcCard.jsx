@@ -5,8 +5,6 @@ import { Grid, Box } from '@mui/material';
 import { FormControl } from '@mui/base/FormControl';
 import { Input, inputClasses } from '@mui/base/Input';
 import { styled } from '@mui/system';
-import AnimationNumber from "./animationNumber";
-import { AnimatedCounter } from "react-animated-counter";
 import MDButton from '../../../../components/MDButton';
 import Counter from './counter';
 
@@ -347,7 +345,6 @@ export default function CalculatorCard({ assets, pastStartTime, pastEndTime, lia
                             </Grid>
                             <Grid item xs={12} md={12} lg={12}>
                                 <MDTypography style={{ fontSize: 45, fontWeight: 800, padding: 3, color: 'black' }}>
-                                    {/* {finalAmount} */}
                                     <Counter initialCount={finalAmount} fontSize={30} color={'black'} />
                                 </MDTypography>
                             </Grid>
@@ -414,13 +411,6 @@ const StyledInput = styled(Input)(
   }
 `,
 );
-
-const OkMark = styled('span')`
-  margin-left: 8px;
-  margin-top: 10px;
-  position: absolute;
-  color: rgb(125 200 0 / 1);
-`;
 
 const blue = {
     100: '#DAECFF',
