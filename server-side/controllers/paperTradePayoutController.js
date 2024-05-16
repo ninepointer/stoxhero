@@ -174,16 +174,11 @@ exports.weekPayout = async () => {
   const data = await payoutHelper(startOfWeek, endOfWeek, leaderboardParams);
 
   const rewards = leaderboardParams?.rewards;
-  console.log('data', data?.length);
   for (const [index, user] of data.entries()) {
     const userRank = index+1; 
-    console.log('userRank', userRank, user);
     for (const rewardobj of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewardobj;
 
-      console.log('rewardobj', rewardobj);
-
-      console.log('consition', (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd), rankStart, rankEnd, rewardType, reward)
       if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
         console.log('week', reward)
         await addRewardToWallet(reward, user, setting, 'Weekly');
@@ -205,7 +200,6 @@ exports.quarterPayout = async () => {
     for (const rewardobj of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewardobj;
       if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
-        console.log('quarter', reward)
         await addRewardToWallet(reward, user, setting, 'Quarter');
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here
         break; // Break the loop once the reward for this user is processed
@@ -293,7 +287,7 @@ const payoutHelper = async (startDate, endDate, leaderboardParams) => {
                 $divide: [
                   {
                     $subtract: [
-                      new Date(),
+                      new Date(endDate),
                       new Date(startDate),
                     ], // Replace "endDate" and "startDate" with your date fields
                   },
@@ -376,14 +370,14 @@ const payoutHelper = async (startDate, endDate, leaderboardParams) => {
 const savePayout = async (data, session) => {
   try{
     const {npnl, gpnl, brokerage, trades, portfolioValue, moneyCost, rewardAmount, 
-      rewardCurrency, tds, daysOfInterest, trader} = data;
+      rewardCurrency, tds, daysOfInterest, trader, frequency, pnlAfterCost} = data;
   
     const saveInfo = await PaperTradePayout.create([{
       npnl, gpnl, brokerage, trades, portfolioValue, moneyCost, rewardAmount, 
-      rewardCurrency, tds, daysOfInterest, trader
+      rewardCurrency, tds, daysOfInterest, trader, frequency, pnlAfterCost, date: new Date()
     }], {session: session});
   } catch(err){
-
+    console.log(err);
   }
 }
 

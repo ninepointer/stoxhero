@@ -1288,6 +1288,7 @@ exports.todayLeaderboardData = async (req, res) => {
         {
           $project: {
             photo: "$_id.photo",
+            joining_date: '$_id.joining_date',
             employeeid: '$_id.employeeid',
             daysOfInterest: 1,
             weekDays: 1,
@@ -1500,7 +1501,7 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
               $divide: [
                 {
                   $subtract: [
-                    new Date(),
+                    new Date(endDate),
                     new Date(startDate),
                   ], // Replace "endDate" and "startDate" with your date fields
                 },

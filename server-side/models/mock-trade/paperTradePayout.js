@@ -54,6 +54,10 @@ const payout = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
         required : true
+    },
+    date: {
+        type: Date,
+        required: true
     }
 })
 
