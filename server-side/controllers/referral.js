@@ -199,6 +199,25 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
                 totalReferralCount: {
                   $count : {}
                 },
+                totalActivationCount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $ifNull: [
+                          "$referrals.activationDate",
+                          false,
+                        ],
+                      },
+                      // Check if activationDate exists
+                      then: 1,
+                      // If exists, increment count by 1
+                      else: 0, // If not exists, don't increment count
+                    },
+                  },
+                },
+                totalActivationEarning: {
+                  $sum: "$referrals.activationEarning",
+                },
               }
             },
             {
@@ -206,7 +225,9 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
                 _id: 0,
                 user: '$_id',
                 totalReferralEarning: 1,
-                totalReferralCount: 1,                 
+                totalReferralCount: 1,   
+                totalActivationCount: 1,
+                totalActivationEarning: 1,              
               }
             }
         ]);
@@ -214,7 +235,10 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
         for (item of leaderboard){
             const { employeeid, first_name, last_name } = item.user;
             const score = item.totalReferralEarning;
-            const member = `${employeeid}:${first_name}:${last_name}:${item.totalReferralCount}`;
+            const activationEarning = item?.totalActivationEarning;
+            const activationCount = item?.totalActivationCount;
+
+            const member = `${employeeid}:${first_name}:${last_name}:${item.totalReferralCount}:${activationEarning}:${activationCount}`;
             await client.ZADD(`referralLeaderboard:${process.env.PROD}`, {
                 score: score,
                 value: member
@@ -240,8 +264,11 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
           const first_name = inputArray[i].split(":")[1];
           const last_name = inputArray[i].split(":")[2];
           const referralCount = inputArray[i].split(":")[3];
+
+          const activationCount = inputArray[i].split(":")[5];
+          const activationEarning = inputArray[i].split(":")[4];
           const earnings = parseInt(inputArray[i + 1]);
-          const obj = { user,first_name, last_name, referralCount, earnings };
+          const obj = { user,first_name, last_name, referralCount, earnings, activationCount, activationEarning };
           outputArray.push(obj);
         }
         return outputArray;

@@ -1331,7 +1331,8 @@ exports.todayLeaderboardData = async (req, res) => {
     res.status(200).json({
       status: "success",
       data: create,
-      startDate: new Date()
+      startDate: new Date(),
+      leaderboardSetting: {usersPerTable: leaderboardParams?.usersPerTable}
     });
   } catch (err) {
     console.log(err);
@@ -1357,8 +1358,8 @@ exports.weeklyLeaderboardData = async (req, res) => {
       data: data,
       reward: leaderboardParams?.rewards,
       startDate: new Date(startOfWeek),
-      endDate : new Date(endOfWeek)
-    });
+      endDate : new Date(endOfWeek),
+      leaderboardSetting: {usersPerTable: leaderboardParams?.usersPerTable}    });
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -1383,8 +1384,8 @@ exports.monthlyLeaderboardData = async (req, res) => {
       data: data,
       reward: leaderboardParams?.rewards,
       startDate: startOfMonth,
-      endDate : endOfMonth
-    });
+      endDate : endOfMonth,
+      leaderboardSetting: {usersPerTable: leaderboardParams?.usersPerTable}    });
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -1405,8 +1406,8 @@ exports.quarterlyLeaderboardData = async (req, res) => {
       data: data,
       reward: leaderboardParams?.rewards,
       startDate: leaderboardParams?.quarterStartDate,
-      endDate : leaderboardParams?.quarterEndDate
-    });
+      endDate : leaderboardParams?.quarterEndDate,
+      leaderboardSetting: {usersPerTable: leaderboardParams?.usersPerTable}    });
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -1540,6 +1541,7 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
     {
       $project: {
         photo: "$_id.photo",
+        joining_date: "$_id.joining_date",
         employeeid: '$_id.employeeid',
         daysOfInterest: 1,
         weekDays: 1,
@@ -1606,13 +1608,12 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
   const endTime = new Date(currentTime);
   endTime.setHours(9, 48, 0, 0);
 
-  if (currentTime >= startTime && currentTime <= endTime) {
-    const leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
+  let leaderBoard = [];
+  // if (currentTime >= startTime && currentTime <= endTime) {
+    leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
+  // }
 
-    if (leaderBoard?.length > 0) {
-      io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
-    }
-  }
+  io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
 }
 
 exports.sendVirtualMyRankData = async () => {
@@ -1690,6 +1691,9 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
           employeeid: {
             $arrayElemAt: ["$user.employeeid", 0],
           },
+          joining_date: {
+            $arrayElemAt: ["$user.joining_date", 0],
+          },
           profilePhoto: {
             $arrayElemAt: ["$user.profilePhoto", 0],
           },
@@ -1698,6 +1702,7 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
     },
     {
       $project: {
+        joining_date: '$_id.joining_date',
         trader: "$_id.traderId",
         first_name: "$_id.first_name",
         last_name: "$_id.last_name",
@@ -1830,7 +1835,7 @@ async function aggregateRanks(ranks) {
   const result = {};
   for (const curr of ranks) {
     if (curr) {
-      const { npnl, trader, name, userName, photo, brokerage, portfolioValue, interest } = curr;
+      const { npnl, trader, name, userName, photo, brokerage, portfolioValue, interest, joining_date } = curr;
       const traderId = trader;
       // let employeeidObj = await client.get(`${(id).toString()}employeeid`);
       // employeeidObj = JSON.parse(employeeidObj);
@@ -1845,6 +1850,7 @@ async function aggregateRanks(ranks) {
           userName,
           // : employeeidObj[traderId.toString()]?.name,
           photo,
+          joining_date
           // : employeeidObj[traderId.toString()]?.photo,
         };
       }
@@ -1870,6 +1876,7 @@ async function formatData(arr, interest, portfolioValue) {
     obj.portfolioValue = Number(portfolioValue);
     obj.userName = data.userName;
     obj.photo = data.photo;
+    obj.joining_date = data.joining_date;
     obj.brokerage = data.brokerage;
     obj.employeeid = obj.name;
     obj.moneyCost = (Number(interest) / (daysInYear * 100)) * Number(portfolioValue);
