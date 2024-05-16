@@ -1609,9 +1609,9 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
   endTime.setHours(9, 48, 0, 0);
 
   let leaderBoard = [];
-  // if (currentTime >= startTime && currentTime <= endTime) {
+  if (currentTime >= startTime && currentTime <= endTime) {
     leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
-  // }
+  }
 
   io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
 }
