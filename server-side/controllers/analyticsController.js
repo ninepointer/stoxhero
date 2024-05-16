@@ -231,6 +231,12 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
     "Saturday",
   ];
 
+  // let dayCounts = {};
+  // for (let d = fromDate; d <= toDate; d.setDate(d.getDate() + 1)) {
+  //   const day = d.getDay(); // 0 for Sunday, 1 for Monday, ..., 6 for Saturday
+  //   dayCounts[day] = (dayCounts[day] || 0) + 1;
+  // }
+
   let pnlDetails = await PaperTrade.aggregate([
     {
       $match: {
@@ -263,6 +269,26 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         totalTrades: { $sum: "$totalTrades" },
         totalLots: { $sum: "$totalLots" },
         distinctDays: { $addToSet: "$_id.date" },
+        profitDaysNpnl: {
+          $sum: {
+            $cond: [{ $gt: ["$totalNpnl", 0] }, "$totalNpnl", 0],
+          },
+        },
+        lossDaysNpnl: {
+          $sum: {
+            $cond: [{ $lt: ["$totalNpnl", 0] }, "$totalNpnl", 0],
+          },
+        },
+        profitDaysCount: {
+          $sum: {
+            $cond: [{ $gt: ["$totalNpnl", 0] }, 1, 0],
+          },
+        },
+        lossDaysCount: {
+          $sum: {
+            $cond: [{ $lt: ["$totalNpnl", 0] }, 1, 0],
+          },
+        },
       },
     },
     {
@@ -272,14 +298,31 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         totalGpnl: 1,
         totalBrokerage: 1,
         totalNpnl: 1,
+        profitDaysCount: 1,
+        lossDaysCount: 1,
+        totalTrades: 1,
         weekDayNo: "$_id",
+        // noOfWeekDays: { $arrayElemAt: [dayCounts, { $subtract: ["$_id", 1] }] },
         avgGpnl: { $divide: ["$totalGpnl", { $size: "$distinctDays" }] },
         avgBrokerage: {
           $divide: ["$totalBrokerage", { $size: "$distinctDays" }],
         },
         avgNpnl: { $divide: ["$totalNpnl", { $size: "$distinctDays" }] },
-        totalTrades: 1,
         avgLots: { $divide: ["$totalLots", { $size: "$distinctDays" }] },
+        averageProfit: {
+          $cond: [
+            { $gt: ["$profitDaysCount", 0] },
+            { $divide: ["$profitDaysNpnl", "$profitDaysCount"] },
+            0,
+          ],
+        },
+        averageLoss: {
+          $cond: [
+            { $gt: ["$lossDaysCount", 0] },
+            { $divide: ["$lossDaysNpnl", "$lossDaysCount"] },
+            0,
+          ],
+        },
       },
     },
     {
