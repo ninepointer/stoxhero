@@ -90,14 +90,14 @@ const autoCutMainManuallyMock = async () => {
     ]);
 
     if (data.length === 0) {
-        // await tenx();
-        // await paperTradeMod();
-        // await internshipTradeMod();
-        // await dailyContestMockMod();
-        // await marginXMockMod();
-        // await stockTradeMod();
-        // await saveLeaderboardData();
-        // await changeStatus();
+        await tenx();
+        await paperTradeMod();
+        await internshipTradeMod();
+        await dailyContestMockMod();
+        await marginXMockMod();
+        await stockTradeMod();
+        await saveLeaderboardData();
+        await changeStatus();
         await changeMarginXStatus();
         
         await PendingOrder.updateMany({ status:'Pending'},{ $set: {status: "Cancelled" }})

@@ -1288,6 +1288,7 @@ exports.todayLeaderboardData = async (req, res) => {
         {
           $project: {
             photo: "$_id.photo",
+            joining_date: '$_id.joining_date',
             employeeid: '$_id.employeeid',
             daysOfInterest: 1,
             weekDays: 1,
@@ -1500,7 +1501,7 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
               $divide: [
                 {
                   $subtract: [
-                    new Date(),
+                    new Date(endDate),
                     new Date(startDate),
                   ], // Replace "endDate" and "startDate" with your date fields
                 },
@@ -1609,9 +1610,9 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
   endTime.setHours(9, 48, 0, 0);
 
   let leaderBoard = [];
-  // if (currentTime >= startTime && currentTime <= endTime) {
+  if (currentTime >= startTime && currentTime <= endTime) {
     leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
-  // }
+  }
 
   io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
 }
@@ -1715,6 +1716,7 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
   try {
     let ranks = [];
 
+
     for (let i = 0; i < allParticipants.length; i++) {
       let pnl;
       pnl = await client.get(`${allParticipants[i].trader.toString()}: overallpnlPaperTrade`)
@@ -1729,10 +1731,12 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
           elem.name = allParticipants[i]?.employeeid;
           elem.userName = allParticipants[i]?.first_name + " " + allParticipants[i]?.last_name;
           elem.photo = allParticipants[i]?.profilePhoto?.url;
+          elem.joining_date = allParticipants[i]?.joining_date;
         }
       }
       ranks = ranks.concat(pnl)
     }
+
 
     const uniqueData = new Set();
 
@@ -1757,7 +1761,6 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
           addUrl += ('&i=' + elem?.exchange + ':' + elem?.symbol);
         }
       }
-
     });
     const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
     let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
@@ -1786,8 +1789,6 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
         doc.interest = interest;
       }
     }
-
-    // console.log('ranks', ranks);
 
     const result = await aggregateRanks(ranks);
 
