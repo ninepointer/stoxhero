@@ -1715,6 +1715,7 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
   try {
     let ranks = [];
 
+
     for (let i = 0; i < allParticipants.length; i++) {
       let pnl;
       pnl = await client.get(`${allParticipants[i].trader.toString()}: overallpnlPaperTrade`)
@@ -1729,10 +1730,12 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
           elem.name = allParticipants[i]?.employeeid;
           elem.userName = allParticipants[i]?.first_name + " " + allParticipants[i]?.last_name;
           elem.photo = allParticipants[i]?.profilePhoto?.url;
+          elem.joining_date = allParticipants[i]?.joining_date;
         }
       }
       ranks = ranks.concat(pnl)
     }
+
 
     const uniqueData = new Set();
 
@@ -1757,7 +1760,6 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
           addUrl += ('&i=' + elem?.exchange + ':' + elem?.symbol);
         }
       }
-
     });
     const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
     let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
@@ -1786,8 +1788,6 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
         doc.interest = interest;
       }
     }
-
-    // console.log('ranks', ranks);
 
     const result = await aggregateRanks(ranks);
 
