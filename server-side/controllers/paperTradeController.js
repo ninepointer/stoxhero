@@ -1601,6 +1601,8 @@ exports.lastWeekChampion = async(req, res)=>{
     res.status(200).json({
       status: "success",
       data: getData,
+      startDate: lastWeekStartDate,
+      endDate: lastWeekEndDate
     });
   } catch (err) {
     console.log(err);
