@@ -12,9 +12,9 @@ exports.removeInstrumentFromWatchlist = async () => {
       { contractDate: { $lt: date }, status: "Active" },
     ).select('_id');
   
-    // if(instrument.length === 0){
-    //   return;
-    // }
+    if(instrument.length === 0){
+      return;
+    }
   
     const userWatchlist = await User.find({ 'watchlistInstruments': { $exists: true, $not: { $size: 0 } } }).select('watchlistInstruments');
   
