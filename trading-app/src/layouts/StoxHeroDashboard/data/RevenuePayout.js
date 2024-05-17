@@ -1118,6 +1118,151 @@ const withdrawalData = {
                         </MDBox>
                     </MDBox>
                 </Grid>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Virtual Payout (Today)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={overallRevenue["Virtual Trade Credit"]?.revenueToday > overallRevenue["Virtual Trade Credit"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Virtual Trade Credit"]?.revenueToday)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Virtual Trade Credit"]?.revenueYesterday)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Virtual Trade Credit"]?.revenueToday > overallRevenue["Virtual Trade Credit"]?.revenueYesterday ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Virtual Trade Credit"]?.revenueToday-overallRevenue["Virtual Trade Credit"]?.revenueYesterday))/(overallRevenue["Virtual Trade Credit"]?.revenueYesterday === 0 ? overallRevenue["Virtual Trade Credit"]?.revenueToday : overallRevenue["Virtual Trade Credit"]?.revenueYesterday)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Virtual Trade Credit"]?.revenueToday > overallRevenue["Virtual Trade Credit"]?.revenueYesterday ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from yesterday</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Virtual Payout (Week)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={overallRevenue["Virtual Trade Credit"]?.revenueThisWeek > overallRevenue["Virtual Trade Credit"]?.revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Virtual Trade Credit"]?.revenueThisWeek)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Virtual Trade Credit"]?.revenueLastWeek)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Virtual Trade Credit"]?.revenueThisWeek > overallRevenue["Virtual Trade Credit"]?.revenueLastWeek ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Virtual Trade Credit"]?.revenueThisWeek-overallRevenue["Virtual Trade Credit"]?.revenueLastWeek))/(overallRevenue["Virtual Trade Credit"]?.revenueLastWeek === 0 ? overallRevenue["Virtual Trade Credit"]?.revenueThisWeek : overallRevenue["Virtual Trade Credit"]?.revenueLastWeek)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Virtual Trade Credit"]?.revenueThisWeek > overallRevenue["Virtual Trade Credit"]?.revenueLastWeek ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last week</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Virtual Payout (Month)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={overallRevenue["Virtual Trade Credit"]?.revenueThisMonth > overallRevenue["Virtual Trade Credit"]?.revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Virtual Trade Credit"]?.revenueThisMonth)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Virtual Trade Credit"]?.revenueLastMonth)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Virtual Trade Credit"]?.revenueThisMonth > overallRevenue["Virtual Trade Credit"]?.revenueLastMonth ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Virtual Trade Credit"]?.revenueThisMonth-overallRevenue["Virtual Trade Credit"]?.revenueLastMonth))/(overallRevenue["Virtual Trade Credit"]?.revenueLastMonth === 0 ? overallRevenue["Virtual Trade Credit"]?.revenueThisMonth : overallRevenue["Virtual Trade Credit"]?.revenueLastMonth)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Virtual Trade Credit"]?.revenueThisMonth > overallRevenue["Virtual Trade Credit"]?.revenueLastMonth ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last month</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                              Virtual Payout (Year)
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color={overallRevenue["Virtual Trade Credit"]?.revenueThisYear > overallRevenue["Virtual Trade Credit"]?.revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Virtual Trade Credit"]?.revenueThisYear)} || ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Virtual Trade Credit"]?.revenueLastYear)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color={overallRevenue["Virtual Trade Credit"]?.revenueThisYear > overallRevenue["Virtual Trade Credit"]?.revenueLastYear ? 'success' : 'error'} fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{((Math.abs(overallRevenue["Virtual Trade Credit"]?.revenueThisYear-overallRevenue["Virtual Trade Credit"]?.revenueLastYear))/(overallRevenue["Virtual Trade Credit"]?.revenueLastYear === 0 ? overallRevenue["Virtual Trade Credit"]?.revenueThisYear : overallRevenue["Virtual Trade Credit"]?.revenueLastYear)*100).toFixed(0)}%</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{overallRevenue["Virtual Trade Credit"]?.revenueThisYear > overallRevenue["Virtual Trade Credit"]?.revenueLastYear ? <ArrowUpwardIcon alignItems='center'/> : <ArrowDownwardIcon alignItems='center'/>}</span>&nbsp;
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>from last year</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+                <Grid item xs={12} md={3} lg={2.4}>
+                    <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
+                        <MDBox>
+                            <MDTypography fontSize={13} fontWeight="bold" style={{textAlign:'center'}}>
+                                Total Virtual Payout
+                            </MDTypography>
+                        </MDBox>
+                        <MDBox>
+                            <MDTypography fontSize={13} color='success' fontWeight="bold" style={{textAlign:'center'}}>
+                             ₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(overallRevenue["Virtual Trade Credit"]?.totalRevenue)}
+                            </MDTypography>
+                            <MDTypography display='flex' justifyContent='center' alignItems='center' fontSize={10} color='success' fontWeight="bold" style={{textAlign:'center'}}>
+                                <span style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>and growing</span>
+                            </MDTypography>
+                        </MDBox>
+                    </MDBox>
+                </Grid>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <Grid item xs={12} md={3} lg={2.4}>
                     <MDBox bgColor='light' p={1} borderRadius={5} display='flex' justifyContent='center' flexDirection='column' minWidth='100%'>
                         <MDBox>

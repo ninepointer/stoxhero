@@ -242,9 +242,15 @@ router.get("/inactiveTradable", async (req, res) => {
 
   const exipryFrom = '2024-04-26';
 
-  const tradable = await TradableInstrumentSchema.updateMany({expiry: {$lte: exipryFrom}, status: 'Active'}, {
+  // const tradable = await TradableInstrumentSchema.updateMany({expiry: {$lte: exipryFrom}, status: 'Active'}, {
+  //   $set: {
+  //     status: 'Inactive'
+  //   }
+  // });
+
+  const tradable = await TradableInstrumentSchema.updateMany({ status: 'Inactive'}, {
     $set: {
-      status: 'Inactive'
+      status: 'Active'
     }
   });
 

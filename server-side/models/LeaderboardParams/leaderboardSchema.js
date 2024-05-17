@@ -16,6 +16,9 @@ const LeaderboardSchema = new Schema({
   marginMoneyInterest: {
     type: Number,
   },
+  tradingDaysAttendance: {
+    type: Number
+  },
   quarterStartDate: {
     type: Date,
   },

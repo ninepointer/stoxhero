@@ -12,9 +12,9 @@ exports.removeInstrumentFromWatchlist = async () => {
       { contractDate: { $lt: date }, status: "Active" },
     ).select('_id');
   
-    if(instrument.length === 0){
-      return;
-    }
+    // if(instrument.length === 0){
+    //   return;
+    // }
   
     const userWatchlist = await User.find({ 'watchlistInstruments': { $exists: true, $not: { $size: 0 } } }).select('watchlistInstruments');
   
@@ -46,8 +46,9 @@ exports.removeInstrumentFromWatchlist = async () => {
       { $set: { status: "Inactive" } }
     )
 
+    const newDate = new Date(date).toISOString().split('T')[0];
     await TradableInstrument.updateMany(
-      { expiry: { $lte: date }, status: "Active" },
+      { expiry: { $lte: newDate }, status: "Active" },
       { $set: { status: "Inactive" } }
     )
 

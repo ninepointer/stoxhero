@@ -10,7 +10,7 @@ const {
   myHistoryTrade,
   marginDetail,
   getDailyVirtualUsers,
-  findOpenLots,
+  findOpenLots, lastWeekChampion,
   treaderWiseMockTrader, weeklyLeaderboardData, monthlyLeaderboardData,
   influencerTraderWiseMockTrader, todayLeaderboardData, quarterlyLeaderboardData, todayLeaderboardReward
 } = require("../../controllers/paperTradeController");
@@ -37,6 +37,7 @@ router.route("/weekleaderboard").get(Authenticate, weeklyLeaderboardData);
 router.route("/monthleaderboard").get(Authenticate, monthlyLeaderboardData);
 router.route("/quarterleaderboard").get(Authenticate, quarterlyLeaderboardData);
 router.route("/todayreward").get(Authenticate, todayLeaderboardReward);
+router.route("/lastweekhero").get(Authenticate, lastWeekChampion);
 
 router.route("/influencer/traderwisepnl/").get(Authenticate, influencerTraderWiseMockTrader);
 

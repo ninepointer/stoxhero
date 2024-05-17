@@ -811,6 +811,8 @@ exports.creditAmountToWallet = async () => {
               transaction.transactionDate >= today
           );
 
+          console.log('existingTransaction', existingTransaction)
+
           if (!existingTransaction && wallet) {
             wallet.transactions = [
               ...wallet?.transactions,

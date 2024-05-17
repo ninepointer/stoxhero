@@ -2049,6 +2049,10 @@ exports.getOverallRevenue = async (req, res) => {
             },
             {
               "transactions.title":
+                "Virtual Trade Credit",
+            },
+            {
+              "transactions.title":
                 "Marginx Credit",
             },
             {

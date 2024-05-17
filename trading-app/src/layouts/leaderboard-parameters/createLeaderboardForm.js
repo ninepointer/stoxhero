@@ -51,6 +51,7 @@ function Index() {
     frequency: "" || leaderboard?.frequency,
     status: "" || leaderboard?.status,
     usersPerTable: "" || leaderboard?.usersPerTable,
+    tradingDaysAttendance: "" || leaderboard?.tradingDaysAttendance,
     marginMoneyInterest: "" || leaderboard?.marginMoneyInterest,
     quarterStartDate: leaderboard?.quarterStartDate || new Date(),
     quarterEndDate: leaderboard?.quarterEndDate || new Date(),
@@ -65,7 +66,7 @@ function Index() {
 
   async function onSubmit(e, formState) {
     e.preventDefault();
-    const { frequency, status, usersPerTable, marginMoneyInterest, quarterStartDate, quarterEndDate } = formState;
+    const { tradingDaysAttendance, frequency, status, usersPerTable, marginMoneyInterest, quarterStartDate, quarterEndDate } = formState;
 
     try {
       if (!frequency || !status || !usersPerTable || !marginMoneyInterest) {
@@ -82,7 +83,7 @@ function Index() {
       }, 500);
 
       const res = await axios.post(`${apiUrl}leaderboard`, {
-        frequency, status, usersPerTable, quarterStartDate, quarterEndDate, marginMoneyInterest
+        tradingDaysAttendance, frequency, status, usersPerTable, quarterStartDate, quarterEndDate, marginMoneyInterest
       }, {
         withCredentials: true
       })
@@ -112,7 +113,7 @@ function Index() {
       e.preventDefault();
       setSaving(true);
 
-      const { frequency, status, usersPerTable, marginMoneyInterest, quarterStartDate, quarterEndDate } = formState;
+      const { tradingDaysAttendance, frequency, status, usersPerTable, marginMoneyInterest, quarterStartDate, quarterEndDate } = formState;
 
 
       if (!frequency || !status || !usersPerTable || !marginMoneyInterest) {
@@ -124,7 +125,7 @@ function Index() {
       }
 
       const res = await axios.patch(`${apiUrl}leaderboard/${leaderboard?._id}`, {
-        frequency, status, usersPerTable, quarterStartDate, quarterEndDate, marginMoneyInterest
+        tradingDaysAttendance, frequency, status, usersPerTable, quarterStartDate, quarterEndDate, marginMoneyInterest
       }, {
         withCredentials: true
       })
@@ -261,6 +262,26 @@ function Index() {
                     setFormState((prevState) => ({
                       ...prevState,
                       usersPerTable: e.target.value,
+                    }));
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={4}>
+                <TextField
+                  disabled={(isSubmitted || leaderboard) && (!editing || saving)}
+                  id="outlined-required"
+                  label="TradingDays Attendance *"
+                  type='number'
+                  name="tradingDaysAttendance"
+                  fullWidth
+                  defaultValue={
+                    editing ? formState?.tradingDaysAttendance : leaderboard?.tradingDaysAttendance
+                  }
+                  onChange={(e) => {
+                    setFormState((prevState) => ({
+                      ...prevState,
+                      tradingDaysAttendance: e.target.value,
                     }));
                   }}
                 />

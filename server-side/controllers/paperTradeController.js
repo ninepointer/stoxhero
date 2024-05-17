@@ -18,6 +18,8 @@ const { virtualPortfolioId } = require('../constant');
 const {
   dailyPayout, weekPayout, monthPayout, quarterPayout
 } = require('./paperTradePayoutController')
+const PaperTradePayout = require("../models/mock-trade/paperTradePayout");
+
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -1583,6 +1585,32 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
 
   const data = await PaperTradeLeaderboard.aggregate(pipeline)
   return data;
+}
+
+exports.lastWeekChampion = async(req, res)=>{
+
+  try {
+    const today = moment();
+    const lastWeekStartDate = today.clone().startOf('week').subtract(1, 'week');
+    const lastWeekEndDate = today.clone().endOf('week').subtract(1, 'week');
+    console.log(new Date(lastWeekStartDate), new Date(lastWeekEndDate))
+    const getData = await PaperTradePayout.find({date: {$gt: new Date(lastWeekStartDate), $lt: new Date(lastWeekEndDate)}, frequency: 'Weekly'})
+    .populate('trader', 'first_name last_name')
+    .sort({rewardAmount: -1}).limit(3);
+  
+    res.status(200).json({
+      status: "success",
+      data: getData,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: err.message,
+    });
+  }
+
 }
 
 let isProcessingQueue = false;

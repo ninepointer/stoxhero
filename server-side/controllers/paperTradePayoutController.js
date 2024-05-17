@@ -1,6 +1,7 @@
 const PaperTradeLeaderboard = require("../models/mock-trade/paperTradeLeaderboard");
 const PaperTradePayout = require("../models/mock-trade/paperTradePayout");
 const mongoose = require('mongoose');
+const TradingHoliday = require('../models/TradingHolidays/tradingHolidays');
 const User = require("../models/User/userDetailSchema");
 const LeaderboardParams = require('../models/LeaderboardParams/leaderboardSchema');
 const Wallet = require('../models/UserWallet/userWalletSchema');
@@ -23,8 +24,11 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
     const endToday = current.clone().endOf('day');
     console.log("payout amount", payoutAmount);
     const wallet = await Wallet.findOne({ userId: pnlObj?.trader });
-    const transactionDescription = `Amount credited for Virtual Trading`;
-  
+    const transactionDescription = `Amount credited for Virtual Trading ${frequency} Reward`;
+    const user = await User.findById(pnlObj?.trader).select(
+      "first_name last_name email"
+    ).session(session);
+
     // Check if a transaction with this description already exists
     const existingTransaction = wallet?.transactions?.some(
       (transaction) => (
@@ -46,9 +50,6 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
     }
   
     await wallet.save({session});
-    const user = await User.findById(pnlObj?.trader).select(
-      "first_name last_name email"
-    ).session(session);
   
     if (process.env.PROD == "true") {
       try {
@@ -473,3 +474,60 @@ const email = async(user, payoutAmount) =>{
     `
   );
 }
+
+// const getWorkingTradingDays = async (startDate, endDate) => {
+//   try {
+//     const holidays = await TradingHoliday.find({
+//       holidayDate: {
+//         $gte: new Date(startDate),
+//         $lte: new Date(endDate)
+//       },
+//       $expr: {
+//         $and: [
+//           { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+//           { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+//         ]
+//       }
+//     });
+
+//     let workingDaysCount = 0;
+//     let currentDate = new Date(startDate);
+
+//     while (currentDate <= new Date(endDate)) {
+//       const holidayWithinDate = holidays.filter((elem)=>{
+//         return 
+//       })
+//       if (isTradingDay(currentDate, holidays)) {
+//         workingDaysCount++;
+//       }
+//       currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+//     }
+
+//     return workingDaysCount;
+//   } catch (e) {
+//     console.log(e);
+//     throw e; // Rethrow the error to the caller
+//   }
+// }
+
+const getWorkingTradingDays = async (holidays, weekStart, weekEnd) => {
+  let newDate = moment();
+  
+  while (isHoliday(newDate, holidays) || isWeekend(newDate, weekStart, weekEnd)) {
+      return true;
+  }
+
+  return false;
+};
+
+const isHoliday = (date, holidays) => {
+  return holidays.some(elem => {
+      return moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'day') && 
+      moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'month') && 
+      moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'year')
+  });
+};
+
+const isWeekend = (date, weekStart, weekEnd) => {
+  return date.day() === weekStart || date.day() === weekEnd; // Sunday or Saturday
+};
