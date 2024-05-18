@@ -102,6 +102,9 @@ const stockTrade = new mongoose.Schema({
         type: Number,
         required: true,
         default: 0
+    },
+    requiredMargin: {
+        type: Number
     }
 })
 

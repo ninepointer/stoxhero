@@ -80,6 +80,11 @@ const pendingOrderSchema = new Schema({
         required : true,
         default: 0
     },
+    requiredMargin:{
+        type: Number,
+        required : true,
+        default: 0
+    },
     execution_time:{
         type: Date,
         required: true

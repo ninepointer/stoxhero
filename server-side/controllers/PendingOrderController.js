@@ -86,6 +86,7 @@ exports.myTodaysProcessedTrade = async (req, res, next) => {
           type: 1,
           status: 1,
           symbol: 1,
+          requiredMargin: 1,
           time: "$createdOn",
         },
       },

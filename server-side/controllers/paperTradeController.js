@@ -231,6 +231,7 @@ exports.myTodaysTrade = async (req, res, next) => {
         average_price: 1,
         trade_time: 1,
         order_id: 1,
+        requiredMargin: 1
       }
     )
       .sort({ _id: -1 })
@@ -275,6 +276,7 @@ exports.myHistoryTrade = async (req, res, next) => {
         average_price: 1,
         trade_time: 1,
         order_id: 1,
+        requiredMargin: 1
       }
     )
       .sort({ _id: -1 })

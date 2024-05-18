@@ -145,7 +145,7 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
     const fullStartDate = new Date(startDateDateComponent);
     const fullEndDate = new Date(endDateDateComponent);
 
-    console.log(fullStartDate, fullEndDate)
+    // console.log(fullStartDate, fullEndDate)
     try {
         const holiday = await TradingHoliday.find({
             holidayDate: {

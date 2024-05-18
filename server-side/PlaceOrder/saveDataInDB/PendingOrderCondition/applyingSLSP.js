@@ -27,7 +27,7 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
     let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
         exchangeInstrumentToken, validity, variety, order_id, instrumentToken, last_price,
         stopProfitPrice, stopLossPrice, createdBy, deviceDetails, id, margin, price,
-        marginxId, contestId, portfolioId, stopLossQuantity, stopProfitQuantity } = req.body ? req.body : req ;
+        marginxId, contestId, portfolioId, stopLossQuantity, stopProfitQuantity, requiredMargin } = req.body ? req.body : req ;
 
 
     last_price = last_price && String(last_price)?.includes("₹") && last_price?.slice(1);
@@ -50,14 +50,14 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
         order_referance_id: docId, status: "Pending", product_type: product_type, execution_price: stopLossPrice,
         Quantity: Math.abs(stopLossQuantity) || Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopLossPrice,
-        createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopLoss", sub_product_id: id, margin, deviceDetails
+        createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopLoss", sub_product_id: id, margin, deviceDetails, requiredMargin
       }
 
       const pendingOrderStopProfit = {
         order_referance_id: docId, status: "Pending", product_type: product_type, execution_price: stopProfitPrice,
         Quantity: Math.abs(stopProfitQuantity) || Math.abs(Quantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, price: stopProfitPrice,
-        createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopProfit", sub_product_id: id, margin, deviceDetails
+        createdBy: req?.user?._id ? req?.user?._id : createdBy, type: "StopProfit", sub_product_id: id, margin, deviceDetails, requiredMargin
       }
 
       pendingOrder.push(pendingOrderStopLoss);
@@ -72,7 +72,7 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
         Quantity: Math.abs(Quantity) || Math.abs(newQuantity), Product, buyOrSell: pendingBuyOrSell, variety, validity, exchange, 
         order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
-        createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id, deviceDetails
+        createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id, deviceDetails, requiredMargin
       }]
     } else if(price){
       let executionPrice = price;
@@ -83,7 +83,7 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
         order_referance_id: docId, status: "Pending", product_type: product_type,  price: executionPrice,
         Quantity: Math.abs(Quantity), Product, buyOrSell: buyOrSell, variety, validity, exchange, order_type: order_type ? order_type : order_type, symbol,
         execution_time: new Date(), instrumentToken, exchangeInstrumentToken, last_price: last_price, margin,
-        createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id, deviceDetails
+        createdBy: req?.user?._id ? req?.user?._id : createdBy, type, sub_product_id: id, deviceDetails, requiredMargin
       }]
     }
 
@@ -106,7 +106,7 @@ exports.applyingSLSP = async (req, otherData, session, docId, from) => {
         exchange: elem?.exchange, order_type: elem?.order_type, symbol: elem?.symbol, execution_time: elem?.execution_time,
         instrumentToken: elem?.instrumentToken, exchangeInstrumentToken: elem?.exchangeInstrumentToken,
         last_price: elem?.last_price, createdBy: elem?.createdBy, type: elem?.type, sub_product_id: id, order_id, _id: elem?._id,
-        margin: elem?.margin, deviceDetails
+        margin: elem?.margin, deviceDetails, requiredMargin
       })
     }
 

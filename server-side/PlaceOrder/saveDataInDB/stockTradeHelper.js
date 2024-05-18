@@ -10,7 +10,7 @@ exports.stockTradeHelper = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, 
       exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
       portfolioId, trader, deviceDetails, margin, price, stopProfitPrice, stopLossPrice,
-      originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body;
+      originalLastPriceUser, originalLastPriceCompany, trade_time, requiredMargin} = req.body;
       trader = req.user._id;
 
   let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
@@ -37,7 +37,7 @@ exports.stockTradeHelper = async (req, res, otherData) => {
       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
       createdBy: req.user._id, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
       deviceDetails: { deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType },
-      margin
+      margin, requiredMargin
     }
 
     const save = (order_type !== "LIMIT") && await EquityTrade.create([equityDoc], { session }); 

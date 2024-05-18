@@ -1,6 +1,5 @@
 
 const PendingOrder = require("../../../models/PendingOrder/pendingOrderSchema")
-// const mongoose = require('mongoose')
 const {applyingSLSP} = require("./applyingSLSP")
 const { ObjectId } = require("mongodb");
 const { client } = require('../../../marketData/redisClient');
@@ -121,23 +120,6 @@ exports.reverseTradeCondition = async (userId, id, doc, stopLossPrice, stopProfi
             let symbolArray = data[`${doc.instrumentToken}`];
 
             await processOrder(symbolArray, newQuantity, data, doc, ltp)
-
-            /*
-            550 and ltp is 10 = 300
-
-            stoplosses
-            50   50   50   50   100 250
-            9    8    9.5  7    6   5
-
-            stoptargets
-            50    50   100  250
-            10.5  10   11   11.5
-
-            if exit 250
-
-            1. loop lgake quantity calaculate krni hogi both side sl and sp
-            2. if quantity greater aati h then 
-            */
         }
 
         return 0;
@@ -169,10 +151,6 @@ async function adjustPendingOrders(symbolArr, quantity, stopOrderType, sortOrder
 
                     // Update the status of the pending order in the database to 'cancelled'
                     await PendingOrder.findOneAndUpdate({
-                        // userId,
-                        // instrument,
-                        // orderType: stopOrderType,
-                        // price: symbolArr[i].price
                         _id: new ObjectId(symbolArr[i]?._id)
                     }, {
                         status: 'Cancelled',
@@ -189,10 +167,6 @@ async function adjustPendingOrders(symbolArr, quantity, stopOrderType, sortOrder
 
                     // Update the quantity of the pending order in the database
                     await PendingOrder.findOneAndUpdate({
-                        // userId,
-                        // instrument,
-                        // orderType: stopOrderType,
-                        // price: symbolArr[i].price
                         _id: new ObjectId(symbolArr[i]?._id)
                     }, {
                         Quantity: symbolArr[i].Quantity

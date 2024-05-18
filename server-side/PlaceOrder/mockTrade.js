@@ -58,6 +58,7 @@ exports.mockTrade = async (req, res) => {
     dailyContest,
     marginx,
     deviceDetails,
+    requiredMargin
   } = req.body;
 
   if (
