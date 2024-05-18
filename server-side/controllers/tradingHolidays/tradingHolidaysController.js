@@ -136,15 +136,16 @@ exports.deleteTradingHoliday = async(req, res, next) => {
 
 exports.getTradingHolidayBetweenDates = async(req, res, next) => {
     let {startDate, endDate} = req.params;
-    startDate = new Date(startDate);
-    endDate = new Date(endDate)
+    startDate = moment(startDate);
+    endDate = moment(endDate)
 
-    let startDateDateComponent = startDate.toISOString().split('T')[0];
-    let endDateDateComponent = endDate.toISOString().split('T')[0];
+    let startDateDateComponent = startDate.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    let endDateDateComponent = endDate.clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
-    const fullStartDate = new Date(`${startDateDateComponent}T00:00:00.000Z`);
-    const fullEndDate = new Date(`${endDateDateComponent}T23:59:59.000Z`);
+    const fullStartDate = new Date(startDateDateComponent);
+    const fullEndDate = new Date(endDateDateComponent);
 
+    console.log(fullStartDate, fullEndDate)
     try {
         const holiday = await TradingHoliday.find({
             holidayDate: {
