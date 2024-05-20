@@ -2,7 +2,8 @@ const axios = require("axios");
 const getKiteCred = require("../marketData/getKiteCred");
 
 exports.getHistoricalData = async (req, res) => {
-  const { instrumentToken, from, to, interval, continuous } = req.body;
+  const { instrumentToken, from, to, interval, continuous } = req.query;
+  console.log(req.query);
   const data = await getKiteCred.getAccess();
   // Validate input
   if (!instrumentToken || !from || !to || !interval) {
@@ -22,14 +23,21 @@ exports.getHistoricalData = async (req, res) => {
       },
       headers: {
         "X-Kite-Version": "3",
-        Authorization: `token ${data.getApiKey}:ExRl4t26Z496GUMP1RE4tbl8quSYY9dD`,
+        Authorization: `token ${data.getApiKey}:${data.getAccessToken}`,
       },
     });
+    const formattedData = response.data.data.candles.map((candle) => ({
+      time: new Date(candle[0]).getTime() / 1000 + 19800,
+      open: candle[1],
+      high: candle[2],
+      low: candle[3],
+      close: candle[4],
+    }));
 
     // Send the data back to the client
-    res.status(200).json({ status: "success", data: response.data });
+    res.status(200).json({ status: "success", data: formattedData });
   } catch (error) {
-    console.error("Error fetching historical data:", error);
+    console.error("Error fetching historical data:", error.message);
     res
       .status(500)
       .json({ error: "An error occurred while fetching historical data" });
