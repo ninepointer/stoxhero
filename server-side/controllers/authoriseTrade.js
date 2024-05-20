@@ -553,6 +553,7 @@ const marginZeroCase = async (req, res, next, availableMargin, from, data) => {
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin;
+        req.body.requiredMargin = requiredMargin;
         return next();
     } else{
         await takeRejectedTrade(req, res, from);
@@ -565,8 +566,10 @@ const marginFirstCase = async (req, res, next, availableMargin, prevMargin, from
     if((availableMargin-requiredMargin) > 0){
         if(req.body.order_type === 'LIMIT'){
             req.body.margin = requiredMargin;
+            req.body.requiredMargin = requiredMargin;
         } else{
             req.body.margin = requiredMargin+prevMargin;
+            req.body.requiredMargin = requiredMargin;
         }
         
         return next();
@@ -579,6 +582,7 @@ const marginSecondCase = async (req, res, next, prevMargin, prevQuantity) => {
     const quantityPer = Math.abs(req.body.Quantity) * 100 / Math.abs(prevQuantity);
     const marginReleased = prevMargin*quantityPer/100;
     req.body.margin = prevMargin-marginReleased;
+    req.body.requiredMargin = 0;
     // console.log("2nd case", quantityPer, marginReleased);
 
     return next();
@@ -586,6 +590,7 @@ const marginSecondCase = async (req, res, next, prevMargin, prevQuantity) => {
 
 const marginThirdCase = async (req, res, next, netPnl) => {
     req.body.margin = 0;
+    req.body.requiredMargin = 0;
 
     return next();
 }
@@ -596,6 +601,7 @@ const marginFourthCase = async (req, res, next, availableMargin, prevQuantity, f
 
     if((availableMargin-requiredMargin) > 0){
         req.body.margin = requiredMargin;
+        req.body.requiredMargin = requiredMargin;
         return next();
     } else{
         await takeRejectedTrade(req, res, from);

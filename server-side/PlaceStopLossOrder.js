@@ -267,6 +267,7 @@ const paperTradeStopLoss = async (message, brokerageDetailBuyUser, brokerageDeta
             order_id, instrumentToken, brokerage: brokerageUser, portfolioId: sub_product_id, exchangeInstrumentToken,
             createdBy: "63ecbc570302e7cf0153370c", trader: createdBy, amount: (Number(Quantity) * last_price), trade_time: trade_time_zerodha,
             margin: message.data.margin, deviceDetails: { deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType },
+            requiredMargin: message.data.requiredMargin
         });
 
         tradeDoc.save().then(async () => {
@@ -419,6 +420,7 @@ const stockStopLoss = async (message) => {
             order_id, instrumentToken, brokerage: brokerageUser, portfolioId: sub_product_id, exchangeInstrumentToken,
             createdBy: "63ecbc570302e7cf0153370c", trader: createdBy, amount: (Number(Quantity) * last_price), trade_time: trade_time_zerodha,
             margin: message.data.margin, deviceDetails: { deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType },
+            requiredMargin: message.data.requiredMargin
         });
 
         tradeDoc.save().then(async () => {
@@ -1471,6 +1473,7 @@ const marginZeroCase = async (tradeData, availableMargin, from, data) => {
 
     if (((availableMargin+prevLimitMargin) - requiredMargin) > 0) {
         tradeData.margin = requiredMargin;
+        tradeData.requiredMargin = requiredMargin;
         return;
     } else {
         return "No Margin";
@@ -1486,6 +1489,7 @@ const marginFirstCase = async (tradeData, availableMargin, prevMargin, from, dat
 
     if (((availableMargin+prevLimitMargin) - requiredMargin) > 0) {
         tradeData.margin = requiredMargin + prevMargin;
+        tradeData.requiredMargin = requiredMargin;
         return;
     } else {
         return "No Margin";
@@ -1498,6 +1502,7 @@ const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
 
     
     tradeData.margin = prevMargin - marginReleased;
+    tradeData.requiredMargin = 0;
 
     return;
 }
@@ -1505,6 +1510,7 @@ const marginSecondCase = async (tradeData, prevMargin, prevQuantity) => {
 const marginThirdCase = async (tradeData, netPnl) => {
 
     tradeData.margin = 0;
+    tradeData.requiredMargin = 0;
 
     return;
 }
@@ -1520,6 +1526,7 @@ const marginFourthCase = async (tradeData, availableMargin, prevQuantity, from, 
 
     if (((availableMargin+prevLimitMargin) - requiredMargin) > 0) {
         tradeData.margin = requiredMargin;
+        tradeData.requiredMargin = requiredMargin;
         return;
     } else {
         return "No Margin";

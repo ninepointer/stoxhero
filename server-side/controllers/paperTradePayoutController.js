@@ -14,10 +14,10 @@ const moment = require('moment');
 const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
   const session = await mongoose.startSession();
 
-  try{
+  try {
     session.startTransaction();
     const payoutAmountWithoutTDS = Number(rewardAmount);
-    const tdsAmount = payoutAmountWithoutTDS * setting[0]?.tdsPercentage/100;
+    const tdsAmount = payoutAmountWithoutTDS * setting[0]?.tdsPercentage / 100;
     let payoutAmount = payoutAmountWithoutTDS - tdsAmount;
     const current = moment();
     const startToday = current.clone().startOf('day');
@@ -37,7 +37,7 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
         transaction?.transactionDate < new Date(endToday)
       )
     );
-  
+
     if (wallet?.transactions?.length == 0 || !existingTransaction) {
       wallet.transactions.push({
         title: "Virtual Trade Credit",
@@ -48,9 +48,9 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
         transactionType: "Cash",
       });
     }
-  
-    await wallet.save({session});
-  
+
+    await wallet.save({ session });
+
     if (process.env.PROD == "true") {
       try {
         if (!existingTransaction) {
@@ -79,7 +79,7 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
     }
 
     if (!existingTransaction) {
-      const {pnlAfterCost, npnl, netPnl, grossPnl, brokerage, trades, portfolioValue, moneyCost, daysOfInterest, trader
+      const { pnlAfterCost, npnl, netPnl, grossPnl, brokerage, trades, portfolioValue, moneyCost, daysOfInterest, trader
       } = pnlObj;
       await savePayout({
         npnl: npnl || netPnl,
@@ -97,7 +97,7 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
         pnlAfterCost
       }, session);
     }
-  
+
     await session.commitTransaction();
   } catch (e) {
     console.log(e);
@@ -110,24 +110,17 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
 exports.dailyPayout = async () => {
   const setting = await Setting.find();
   const leaderboardParams = await LeaderboardParams.findOne({ frequency: 'Daily', status: 'Active' });
-  // let date = new Date();
-  // let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-  //   2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  // todayDate = todayDate + "T00:00:00.000Z";
-  // const today = new Date(todayDate);
 
   const today = moment();
   const startOfDay = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
   const endOfDay = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
-  // const leaderBoardData = await PaperTradeLeaderboard.find({ createdOn: { $gte: today } })
-  //   .sort({ npnl: -1, gpnl: -1 });
-  const data = await payoutHelper(startOfDay, endOfDay, leaderboardParams);
+  const data = await payoutHelper(startOfDay, endOfDay, leaderboardParams, setting[0]);
 
 
   const rewards = leaderboardParams?.rewards;
   for (const [index, user] of data.entries()) {
-    const userRank = index+1; // Assuming you have a 'rank' field in your user object
+    const userRank = index + 1; // Assuming you have a 'rank' field in your user object
     for (const rewarddata of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewarddata;
       if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
@@ -148,14 +141,14 @@ exports.monthPayout = async () => {
   const today = moment();
   const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
   const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
-  const data = await payoutHelper(startOfMonth, endOfMonth, leaderboardParams);
+  const data = await payoutHelper(startOfMonth, endOfMonth, leaderboardParams, setting[0]);
 
   const rewards = leaderboardParams?.rewards;
   for (const [index, user] of data.entries()) {
-    const userRank = index+1; // Assuming you have a 'rank' field in your user object
+    const userRank = index + 1; // Assuming you have a 'rank' field in your user object
     for (const rewardobj of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewardobj;
-      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
+      if ((rewardType === 'Cash') && (userRank >= rankStart) && (userRank <= rankEnd) && (user?.pnlAfterCost > 0) && (user?.attendancePer >= leaderboardParams?.tradingDaysAttendance)) {
         console.log('month', reward)
         await addRewardToWallet(reward, user, setting, 'Monthly');
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here
@@ -171,20 +164,19 @@ exports.weekPayout = async () => {
   const startOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
   const endOfWeek = today.endOf('week').subtract(5, 'hours').subtract(30, 'minutes');
 
-  const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Weekly'})
-  const data = await payoutHelper(startOfWeek, endOfWeek, leaderboardParams);
+  const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Weekly' })
+  const data = await payoutHelper(startOfWeek, endOfWeek, leaderboardParams, setting[0]);
 
   const rewards = leaderboardParams?.rewards;
   for (const [index, user] of data.entries()) {
-    const userRank = index+1; 
+    const userRank = index + 1;
     for (const rewardobj of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewardobj;
 
-      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
+      if ((rewardType === 'Cash') && (userRank >= rankStart) && (userRank <= rankEnd) && (user?.pnlAfterCost > 0) && (user?.attendancePer >= leaderboardParams?.tradingDaysAttendance)) {
         console.log('week', reward)
         await addRewardToWallet(reward, user, setting, 'Weekly');
-        // Assuming each user qualifies for only one reward, if not, you might need additional logic here
-        break; // Break the loop once the reward for this user is processed
+        break;
       }
     }
   }
@@ -192,15 +184,15 @@ exports.weekPayout = async () => {
 
 exports.quarterPayout = async () => {
   const setting = await Setting.find();
-  const leaderboardParams = await LeaderboardParams.findOne({status: 'Active', frequency: 'Quarter'})
-  const data = await payoutHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams);
+  const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' })
+  const data = await payoutHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams, setting[0]);
 
   const rewards = leaderboardParams?.rewards;
   for (const [index, user] of data.entries()) {
-    const userRank = index+1; // Assuming you have a 'rank' field in your user object
+    const userRank = index + 1; // Assuming you have a 'rank' field in your user object
     for (const rewardobj of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewardobj;
-      if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
+      if ((rewardType === 'Cash') && (userRank >= rankStart) && (userRank <= rankEnd) && (user?.pnlAfterCost > 0) && (user?.attendancePer >= leaderboardParams?.tradingDaysAttendance)) {
         await addRewardToWallet(reward, user, setting, 'Quarter');
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here
         break; // Break the loop once the reward for this user is processed
@@ -209,8 +201,21 @@ exports.quarterPayout = async () => {
   }
 };
 
-const payoutHelper = async (startDate, endDate, leaderboardParams) => {
+const payoutHelper = async (startDate, endDate, leaderboardParams, setting) => {
 
+  const holidays = await TradingHoliday.find({
+    holidayDate: {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    },
+    $expr: {
+      $and: [
+        { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+        { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+      ]
+    }
+  });
+  const workingDays = await getWorkingTradingDays(startDate, endDate, holidays, setting?.weekStart, setting?.weekEnd);
   const pipeline = [
     {
       $match: {
@@ -220,14 +225,6 @@ const payoutHelper = async (startDate, endDate, leaderboardParams) => {
         },
       },
     },
-    // {
-    //   $lookup: {
-    //     from: "user-personal-details",
-    //     localField: "trader",
-    //     foreignField: "_id",
-    //     as: "user",
-    //   },
-    // },
     {
       $group: {
         _id: {
@@ -272,6 +269,14 @@ const payoutHelper = async (startDate, endDate, leaderboardParams) => {
         trades: {
           $sum: "$trades",
         },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdOn",
+            },
+          },
+        },
       },
     },
     {
@@ -285,27 +290,27 @@ const payoutHelper = async (startDate, endDate, leaderboardParams) => {
               ],
             },
             then: {
-                $divide: [
-                  {
-                    $subtract: [
-                      new Date(endDate),
-                      new Date(startDate),
-                    ], // Replace "endDate" and "startDate" with your date fields
-                  },
-                  86400000, // milliseconds in a day
-                ],
-              },
+              $divide: [
+                {
+                  $subtract: [
+                    new Date(endDate),
+                    new Date(startDate),
+                  ], // Replace "endDate" and "startDate" with your date fields
+                },
+                86400000, // milliseconds in a day
+              ],
+            },
             else: {
-                $divide: [
-                  {
-                    $subtract: [
-                      new Date(),
-                      "$_id.joining_date",
-                    ], // Replace "endDate" and "startDate" with your date fields
-                  },
-                  86400000, // milliseconds in a day
-                ],
-              },
+              $divide: [
+                {
+                  $subtract: [
+                    new Date(),
+                    "$_id.joining_date",
+                  ], // Replace "endDate" and "startDate" with your date fields
+                },
+                86400000, // milliseconds in a day
+              ],
+            },
           },
         },
       },
@@ -321,7 +326,7 @@ const payoutHelper = async (startDate, endDate, leaderboardParams) => {
               ]
             },
             "$_id.portfolioValue",
-            {$ceil: '$daysOfInterest'}
+            { $ceil: '$daysOfInterest' }
           ]
         }
       }
@@ -353,6 +358,25 @@ const payoutHelper = async (startDate, endDate, leaderboardParams) => {
             "$margin",
           ],
         },
+        tradingDays: {
+          $size: '$tradingDays'
+        },
+        attendancePer: {
+          $multiply: [
+            {
+              $divide: [
+                {
+                  $size: '$tradingDays'
+                }, workingDays
+              ]
+            }, 100
+          ]
+        }
+      },
+    },
+    {
+      $addFields: {
+        workingDays: workingDays,
       },
     },
     {
@@ -369,20 +393,20 @@ const payoutHelper = async (startDate, endDate, leaderboardParams) => {
 }
 
 const savePayout = async (data, session) => {
-  try{
-    const {npnl, gpnl, brokerage, trades, portfolioValue, moneyCost, rewardAmount, 
-      rewardCurrency, tds, daysOfInterest, trader, frequency, pnlAfterCost} = data;
-  
+  try {
+    const { npnl, gpnl, brokerage, trades, portfolioValue, moneyCost, rewardAmount,
+      rewardCurrency, tds, daysOfInterest, trader, frequency, pnlAfterCost } = data;
+
     const saveInfo = await PaperTradePayout.create([{
-      npnl, gpnl, brokerage, trades, portfolioValue, moneyCost, rewardAmount, 
+      npnl, gpnl, brokerage, trades, portfolioValue, moneyCost, rewardAmount,
       rewardCurrency, tds, daysOfInterest, trader, frequency, pnlAfterCost, date: new Date()
-    }], {session: session});
-  } catch(err){
+    }], { session: session });
+  } catch (err) {
     console.log(err);
   }
 }
 
-const email = async(user, payoutAmount) =>{
+const email = async (user, payoutAmount) => {
   await emailService(
     user?.email,
     "Virtual Payout Credited - StoxHero",
@@ -475,55 +499,24 @@ const email = async(user, payoutAmount) =>{
   );
 }
 
-// const getWorkingTradingDays = async (startDate, endDate) => {
-//   try {
-//     const holidays = await TradingHoliday.find({
-//       holidayDate: {
-//         $gte: new Date(startDate),
-//         $lte: new Date(endDate)
-//       },
-//       $expr: {
-//         $and: [
-//           { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
-//           { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
-//         ]
-//       }
-//     });
+const getWorkingTradingDays = async (startDate, endDate, holidays, weekStart, weekEnd) => {
+  let newDate = moment(startDate);
+  let dayCount = 0;
 
-//     let workingDaysCount = 0;
-//     let currentDate = new Date(startDate);
-
-//     while (currentDate <= new Date(endDate)) {
-//       const holidayWithinDate = holidays.filter((elem)=>{
-//         return 
-//       })
-//       if (isTradingDay(currentDate, holidays)) {
-//         workingDaysCount++;
-//       }
-//       currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
-//     }
-
-//     return workingDaysCount;
-//   } catch (e) {
-//     console.log(e);
-//     throw e; // Rethrow the error to the caller
-//   }
-// }
-
-const getWorkingTradingDays = async (holidays, weekStart, weekEnd) => {
-  let newDate = moment();
-  
-  while (isHoliday(newDate, holidays) || isWeekend(newDate, weekStart, weekEnd)) {
-      return true;
+  while (newDate <= moment(endDate)) {
+    if (!isHoliday(newDate, holidays) && !isWeekend(newDate, weekStart, weekEnd)) {
+      dayCount++;
+    }
+    newDate.add(1, 'day'); // Increment the date
   }
 
-  return false;
+  return dayCount;
 };
 
 const isHoliday = (date, holidays) => {
   return holidays.some(elem => {
-      return moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'day') && 
-      moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'month') && 
+    return moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'day') &&
+      moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'month') &&
       moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'year')
   });
 };

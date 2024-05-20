@@ -10,7 +10,7 @@ exports.virtualTrade = async (req, res, otherData) => {
   let {exchange, symbol, buyOrSell, Quantity, Product, order_type, exchangeInstrumentToken,
     validity, variety, order_id, instrumentToken, portfolioId,
     deviceDetails, margin, price, stopProfitPrice, stopLossPrice,
-    originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body 
+    originalLastPriceUser, originalLastPriceCompany, trade_time, requiredMargin} = req.body 
 
     const trader = req?.user?._id;
   let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
@@ -36,7 +36,7 @@ exports.virtualTrade = async (req, res, otherData) => {
       order_id, instrumentToken, brokerage: brokerageUser, portfolioId, exchangeInstrumentToken,
       createdBy: req.user._id, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
       deviceDetails: { deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType },
-      margin, college: req?.user?.collegeDetails?.college
+      margin, college: req?.user?.collegeDetails?.college, requiredMargin
     }
 
     const save = (order_type !== "LIMIT") && await PaperTrade.create([paperDoc], { session }); 

@@ -281,7 +281,7 @@ const Timer = ({ socket }) => {
               ? `You can place trades in`
               : `Open trades will be auto squared off in`}{" "}
           </p>
-          {/* <span style={{ color: color, backgroundColor: "#D3D3D3", borderRadius: "5px", padding: "2px" }}>{remainingTime}</span></p> */}
+
           <p
             style={{
               color: color,
