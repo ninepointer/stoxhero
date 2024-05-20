@@ -19,6 +19,10 @@ const {
   dailyPayout, weekPayout, monthPayout, quarterPayout
 } = require('./paperTradePayoutController')
 const PaperTradePayout = require("../models/mock-trade/paperTradePayout");
+const Setting = require('../models/settings/setting');
+const TradingHoliday = require('../models/TradingHolidays/tradingHolidays');
+
+
 
 
 exports.overallPnl = async (req, res, next) => {
@@ -1163,181 +1167,21 @@ exports.saveLeaderboardData = async () => {
 
 exports.todayLeaderboardData = async (req, res) => {
   try {
-    const date = new Date();
-    let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0"
-    )}-${String(date.getDate()).padStart(2, "0")}`;
-    todayDate = todayDate + "T00:00:00.000Z";
-    const today = new Date(todayDate);
     const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Daily' })
-
-    // const create = await PaperTradeLeaderboard.find({ createdOn: { $gte: new Date(today) } })
-    //   .populate('trader', 'first_name last_name profilePhoto')
-    //   .sort({ roi: -1 });
-
-      const pipeline = [
-        {
-          $match: {
-            createdOn: { $gte: new Date(today) }
-          },
-        },
-        {
-          $lookup: {
-            from: "user-personal-details",
-            localField: "trader",
-            foreignField: "_id",
-            as: "user",
-          },
-        },
-        {
-          $group: {
-            _id: {
-              trader: "$trader",
-              name: {
-                $concat: [
-                  {
-                    $arrayElemAt: [
-                      "$user.first_name",
-                      0,
-                    ],
-                  },
-                  " ",
-                  {
-                    $arrayElemAt: [
-                      "$user.last_name",
-                      0,
-                    ],
-                  },
-                ],
-              },
-              photo: {
-                $arrayElemAt: ["$user.profilePhoto.url", 0]
-              },
-              portfolioValue: "$portfolioValue",
-              joining_date: {
-                $arrayElemAt: ["$user.joining_date", 0],
-              },
-              employeeid: {
-                $arrayElemAt: ["$user.employeeid", 0],
-              },
-            },
-            margin: {
-              $max: "$margin",
-            },
-            grossPnl: {
-              $sum: "$grossPnl",
-            },
-            netPnl: {
-              $sum: "$netPnl",
-            },
-            brokerage: {
-              $sum: "$brokerage",
-            },
-            trades: {
-              $sum: "$trades",
-            },
-          },
-        },
-        {
-          $addFields: {
-            daysOfInterest: {
-              $cond: {
-                if: {
-                  $gte: [
-                    new Date(today),
-                    "$_id.joining_date",
-                  ],
-                },
-                then: {
-                  $divide: [
-                    {
-                      $subtract: [
-                        new Date(),
-                        new Date(today),
-                      ], // Replace "endDate" and "startDate" with your date fields
-                    },
-                    86400000, // milliseconds in a day
-                  ],
-                },
-                else: {
-                  $divide: [
-                    {
-                      $subtract: [
-                        new Date(),
-                        "$_id.joining_date",
-                      ], // Replace "endDate" and "startDate" with your date fields
-                    },
-                    86400000, // milliseconds in a day
-                  ],
-                },
-              },
-            },
-          },
-        },
-        {
-          $addFields: {
-            interestCost: {
-              $multiply: [
-                {
-                  $divide: [
-                    leaderboardParams?.marginMoneyInterest,
-                    36600
-                  ]
-                },
-                "$_id.portfolioValue",
-                { $ceil: '$daysOfInterest' }
-              ]
-            }
-          }
-        },
-        {
-          $project: {
-            photo: "$_id.photo",
-            joining_date: '$_id.joining_date',
-            employeeid: '$_id.employeeid',
-            daysOfInterest: 1,
-            weekDays: 1,
-            monthDays: 1,
-            moneyCost: '$interestCost',
-            pnlAfterCost: {
-              $subtract: ['$netPnl', "$interestCost"]
-            },
-            name: "$_id.name",
-            _id: 0,
-            margin: 1,
-            portfolioValue: "$_id.portfolioValue",
-            grossPnl: 1,
-            npnl: '$netPnl',
-            brokerage: 1,
-            trades: 1,
-            roi: {
-              $divide: [
-                {
-                  $multiply: ["$netPnl", 100],
-                },
-                "$margin",
-              ],
-            },
-          },
-        },
-        {
-          $sort: {
-            pnlAfterCost: -1,
-            netPnl: -1,
-            grossPnl: -1,
-          },
-        },
-        {
-          $limit: (Number(leaderboardParams?.usersPerTable) || 10)
-        }
-      ]
-
-      const create = await PaperTradeLeaderboard.aggregate(pipeline);
+    const today = moment();
+    const startOfDay = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const endOfDay = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const workingDays = await calculateWorkingDay(startOfDay, endOfDay);
+    const data = await leaderboardDataHelper(startOfDay, endOfDay, leaderboardParams, workingDays);
 
     res.status(200).json({
       status: "success",
-      data: create,
+      data: data,
       startDate: new Date(),
-      leaderboardSetting: {usersPerTable: leaderboardParams?.usersPerTable}
+      leaderboardSetting: {
+        usersPerTable: leaderboardParams?.usersPerTable,
+        workingDays: workingDays
+      }
     });
   } catch (err) {
     console.log(err);
@@ -1355,8 +1199,10 @@ exports.weeklyLeaderboardData = async (req, res) => {
     const startOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
     const endOfWeek = today.endOf('week').subtract(5, 'hours').subtract(30, 'minutes');
 
+    const workingDays = await calculateWorkingDay(startOfWeek, endOfWeek);
+
     const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Weekly' })
-    const data = await leaderboardDataHelper(startOfWeek, endOfWeek, leaderboardParams);
+    const data = await leaderboardDataHelper(startOfWeek, endOfWeek, leaderboardParams, workingDays);
 
     res.status(200).json({
       status: "success",
@@ -1364,7 +1210,12 @@ exports.weeklyLeaderboardData = async (req, res) => {
       reward: leaderboardParams?.rewards,
       startDate: new Date(startOfWeek),
       endDate : new Date(endOfWeek),
-      leaderboardSetting: {usersPerTable: leaderboardParams?.usersPerTable}    });
+      leaderboardSetting: {
+        usersPerTable: leaderboardParams?.usersPerTable,
+        tradingDaysAttendance: leaderboardParams?.tradingDaysAttendance || 80,
+        workingDays: workingDays
+      }
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -1380,9 +1231,10 @@ exports.monthlyLeaderboardData = async (req, res) => {
     const today = moment();
     const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+    const workingDays = await calculateWorkingDay(startOfMonth, endOfMonth);
 
     const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Monthly' })
-    const data = await leaderboardDataHelper(startOfMonth, endOfMonth, leaderboardParams);
+    const data = await leaderboardDataHelper(startOfMonth, endOfMonth, leaderboardParams, workingDays);
 
     res.status(200).json({
       status: "success",
@@ -1390,7 +1242,12 @@ exports.monthlyLeaderboardData = async (req, res) => {
       reward: leaderboardParams?.rewards,
       startDate: startOfMonth,
       endDate : endOfMonth,
-      leaderboardSetting: {usersPerTable: leaderboardParams?.usersPerTable}    });
+      leaderboardSetting: {
+        usersPerTable: leaderboardParams?.usersPerTable,
+        tradingDaysAttendance: leaderboardParams?.tradingDaysAttendance || 80,
+        workingDays: workingDays
+      }
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -1403,8 +1260,11 @@ exports.monthlyLeaderboardData = async (req, res) => {
 
 exports.quarterlyLeaderboardData = async (req, res) => {
   try {
-    const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' })
-    const data = await leaderboardDataHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams);
+    
+    const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' });
+    const workingDays = await calculateWorkingDay(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate);
+
+    const data = await leaderboardDataHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams, workingDays);
 
     res.status(200).json({
       status: "success",
@@ -1412,7 +1272,12 @@ exports.quarterlyLeaderboardData = async (req, res) => {
       reward: leaderboardParams?.rewards,
       startDate: leaderboardParams?.quarterStartDate,
       endDate : leaderboardParams?.quarterEndDate,
-      leaderboardSetting: {usersPerTable: leaderboardParams?.usersPerTable}    });
+      leaderboardSetting: {
+        usersPerTable: leaderboardParams?.usersPerTable,
+        tradingDaysAttendance: leaderboardParams?.tradingDaysAttendance || 80,
+        workingDays: workingDays
+      }
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -1423,7 +1288,26 @@ exports.quarterlyLeaderboardData = async (req, res) => {
   }
 };
 
-const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
+const calculateWorkingDay = async(startDate, endDate)=>{
+  const holidays = await TradingHoliday.find({
+    holidayDate: {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    },
+    $expr: {
+      $and: [
+        { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
+        { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
+      ]
+    }
+  });
+  const setting = await Setting.findOne();
+  const workingDays = await getWorkingTradingDays(startDate, endDate, holidays, setting?.weekStart, setting?.weekEnd);
+
+  return workingDays;
+}
+
+const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, workingDays) => {
 
   const pipeline = [
     {
@@ -1489,6 +1373,14 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
         trades: {
           $sum: "$trades",
         },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdOn",
+            },
+          },
+        }
       },
     },
     {
@@ -1571,6 +1463,25 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams) => {
             "$margin",
           ],
         },
+        tradingDays: {
+          $size: '$tradingDays'
+        },
+        // attendancePer: {
+        //   $multiply: [
+        //     {
+        //       $divide: [
+        //         {
+        //           $size: '$tradingDays'
+        //         }, workingDays
+        //       ]
+        //     }, 100
+        //   ]
+        // }
+      },
+    },
+    {
+      $addFields: {
+        workingDays: workingDays,
       },
     },
     {
@@ -1642,7 +1553,11 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
   endTime.setHours(9, 48, 0, 0);
 
   let leaderBoard = [];
-  if (currentTime >= startTime && currentTime <= endTime) {
+  if ((currentTime >= startTime) && (currentTime <= endTime)) {
+    leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
+  }
+
+  if (process.env.STAGING === 'true') {
     leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
   }
 
@@ -1768,8 +1683,6 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
       }
       ranks = ranks.concat(pnl)
     }
-
-
     const uniqueData = new Set();
 
     ranks.forEach(item => {
@@ -1912,6 +1825,7 @@ async function formatData(arr, interest, portfolioValue) {
     obj.joining_date = data.joining_date;
     obj.brokerage = data.brokerage;
     obj.employeeid = obj.name;
+    obj.tradingDays = 1;
     obj.moneyCost = (Number(interest) / (daysInYear * 100)) * Number(portfolioValue);
     // Add the object to the formattedLeaderboard array
     formattedLeaderboard.push(obj);
@@ -1957,3 +1871,29 @@ exports.todayLeaderboardReward = async (req, res) => {
     });
   }
 }
+
+const getWorkingTradingDays = async (startDate, endDate, holidays, weekStart, weekEnd) => {
+  let newDate = moment(startDate);
+  let dayCount = 0;
+
+  while (newDate <= moment(endDate)) {
+    if (!isHoliday(newDate, holidays) && !isWeekend(newDate, weekStart, weekEnd)) {
+      dayCount++;
+    }
+    newDate.add(1, 'day'); // Increment the date
+  }
+
+  return dayCount;
+};
+
+const isHoliday = (date, holidays) => {
+  return holidays.some(elem => {
+    return moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'day') &&
+      moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'month') &&
+      moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'year')
+  });
+};
+
+const isWeekend = (date, weekStart, weekEnd) => {
+  return date.day() === weekStart || date.day() === weekEnd; // Sunday or Saturday
+};
