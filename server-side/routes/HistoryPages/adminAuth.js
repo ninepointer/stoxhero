@@ -146,7 +146,7 @@ const {autoCreate} = require('../../controllers/AutoCreate');
 const Calculator = require('../../models/calculator/calculatorSchema');
 const {cronjobs} = require('../../cronjobs');
 const { removeInstrumentFromWatchlist } = require("../../controllers/instrument");
-const {payouts} = require('../../controllers/paperTradeController');
+const {payouts, saveLeaderboardData} = require('../../controllers/paperTradeController');
 // client8.connect()
 // .then(async (res) => {
     
@@ -223,6 +223,11 @@ router.get("/removeduplicate", async (req, res) => {
 
 router.get("/virtualreward", async (req, res) => {
   await payouts();
+  res.send("ok");
+});
+
+router.get("/leaderboardData", async (req, res) => {
+  await saveLeaderboardData();
   res.send("ok");
 });
 

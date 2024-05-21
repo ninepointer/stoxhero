@@ -21,6 +21,7 @@ const {
 const PaperTradePayout = require("../models/mock-trade/paperTradePayout");
 const Setting = require('../models/settings/setting');
 const TradingHoliday = require('../models/TradingHolidays/tradingHolidays');
+const {pnlPositionDatabase, pnlHoldingDatabase} = require("../controllers/stockTradeController");
 
 
 
@@ -1023,7 +1024,7 @@ exports.saveLeaderboardData = async () => {
     )}-${String(date.getDate()).padStart(2, "0")}`;
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
-
+    
     const checkRunningLots = await PaperTrade.aggregate([
       {
         $match: {
@@ -1054,7 +1055,38 @@ exports.saveLeaderboardData = async () => {
       },
     ]);
 
-    if (checkRunningLots?.length > 0) {
+    const checkRunningLotsStock = await Stock.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(today),
+          },
+          Product: "MIS",
+          status: "COMPLETE",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            trader: "$trader",
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          lots: {
+            $ne: 0,
+          },
+        },
+      },
+    ]);
+
+    if (checkRunningLots?.length > 0 || checkRunningLotsStock?.length > 0) {
       return false;
     }
 
@@ -1157,7 +1189,153 @@ exports.saveLeaderboardData = async () => {
         },
       },
     ]);
-    const create = await PaperTradeLeaderboard.create(data);
+
+    const dataStock = await Stock.aggregate([
+      {
+        $match: {
+          trade_time: {
+            $gte: new Date(today),
+          },
+          Product: "MIS",
+          status: "COMPLETE",
+        },
+      },
+      {
+        $lookup: {
+          from: "user-portfolios",
+          localField: "portfolioId",
+          foreignField: "_id",
+          as: "portfolio",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            traderId: "$trader",
+            portfolioValue: {
+              $arrayElemAt: ['$portfolio.portfolioValue', 0]
+            },
+          },
+          margin: {
+            $max: "$margin",
+          },
+          amount: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          lots: {
+            $sum: {
+              $toInt: "$Quantity",
+            },
+          },
+          trades: {
+            $count: {},
+          },
+          lotUsed: {
+            $sum: {
+              $abs: {
+                $toInt: "$Quantity",
+              },
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          lots: 0,
+        },
+      },
+      {
+        $project: {
+          portfolioValue: "$_id.portfolioValue",
+          trader: "$_id.traderId",
+          _id: 0,
+          margin: "$margin",
+          grossPnl: "$amount",
+          brokerage: "$brokerage",
+          lotUsed: "$lotUsed",
+          trades: "$trades",
+          runningLots: "$lots",
+          netPnl: {
+            $subtract: ["$amount", "$brokerage"],
+          },
+          roi: {
+            $divide: [
+              {
+                $multiply: [
+                  {
+                    $subtract: [
+                      "$amount",
+                      "$brokerage",
+                    ],
+                  },
+                  100,
+                ],
+              },
+              "$margin",
+            ],
+          },
+        },
+      },
+      {
+        $sort: {
+          roi: -1,
+        },
+      },
+    ]);
+
+    const resultObj = {} ;
+
+    // Sum npnl and brokerage values from data
+    data.forEach((dataItem) => {
+      const { trader, netPnl, grossPnl, lotUsed, trades, brokerage, margin, ...rest } = dataItem
+      if (!resultObj[trader]) {
+        resultObj[trader] = { trader, netPnl, grossPnl, lotUsed, trades, brokerage, margin, ...rest };
+        resultObj[trader].npnlOption = netPnl;
+        resultObj[trader].npnlStock = 0;
+
+      } else {
+        resultObj[trader].npnlOption += netPnl
+        resultObj[trader].netPnl += netPnl
+        // ((netPnl || 0) + (resultObj[trader].npnlStock || 0))
+        resultObj[trader].brokerage += brokerage
+        resultObj[trader].grossPnl += grossPnl
+        resultObj[trader].lotUsed += lotUsed
+        resultObj[trader].trades += trades
+        resultObj[trader].margin = Math.max(margin, resultObj[trader].margin)
+
+      }
+    })
+  
+    // Sum netPnl and brokerage values from leaderboard
+    dataStock.forEach((leaderItem) => {
+      const { trader, netPnl, grossPnl, lotUsed, trades, brokerage, margin, ...rest } = leaderItem
+      if (!resultObj[trader]) {
+        resultObj[trader] = { trader, netPnl, grossPnl, lotUsed, trades, brokerage, margin, ...rest };
+        resultObj[trader].npnlStock = netPnl;
+        resultObj[trader].npnlOption = 0;
+      } else {
+        resultObj[trader].npnlStock += netPnl
+        resultObj[trader].netPnl += netPnl
+        // ((netPnl || 0) + (resultObj[trader].npnlOption || 0))
+        resultObj[trader].brokerage += brokerage
+        resultObj[trader].grossPnl += grossPnl
+        resultObj[trader].lotUsed += lotUsed
+        resultObj[trader].trades += trades
+        resultObj[trader].margin = Math.max(margin, resultObj[trader].margin)
+      }
+    })
+
+    // Convert result object into an array
+    const result = Object.values(resultObj)
+  
+    const create = await PaperTradeLeaderboard.create(result);
     return true;
   } catch (err) {
     console.log(err);
@@ -1180,6 +1358,7 @@ exports.todayLeaderboardData = async (req, res) => {
       startDate: new Date(),
       leaderboardSetting: {
         usersPerTable: leaderboardParams?.usersPerTable,
+        tradingDaysAttendance: leaderboardParams?.tradingDaysAttendance || 80,
         workingDays: workingDays
       }
     });
@@ -1288,7 +1467,10 @@ exports.quarterlyLeaderboardData = async (req, res) => {
   }
 };
 
-const calculateWorkingDay = async(startDate, endDate)=>{
+const calculateWorkingDay = async(startDate)=>{
+  const today  = moment();
+  const endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+
   const holidays = await TradingHoliday.find({
     holidayDate: {
       $gte: new Date(startDate),
@@ -1366,6 +1548,12 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
         },
         netPnl: {
           $sum: "$netPnl",
+        },
+        npnlStock: {
+          $sum: "$npnlStock",
+        },
+        npnlOption: {
+          $sum: "$npnlOption",
         },
         brokerage: {
           $sum: "$brokerage",
@@ -1453,6 +1641,8 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
         portfolioValue: "$_id.portfolioValue",
         grossPnl: 1,
         npnl: '$netPnl',
+        npnlOption: 1,
+        npnlStock: 1,
         brokerage: 1,
         trades: 1,
         roi: {
@@ -1597,19 +1787,8 @@ exports.sendVirtualMyRankData = async () => {
 
 }
 
-const Leaderboard = async (leaderboardParams, virtualMargin) => {
-
-  const date = new Date();
-  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0"
-  )}-${String(date.getDate()).padStart(2, "0")}`;
-  todayDate = todayDate + "T00:00:00.000Z";
-  const today = new Date(todayDate);
-
-  const interest = leaderboardParams?.marginMoneyInterest || 10;
-  const usersPerTable = leaderboardParams?.usersPerTable || 10;
-  const portfolioValue = virtualMargin?.portfolioValue;
-
-  const allParticipants = await PaperTrade.aggregate([
+const uniqueUsers = async (today) => {
+  const paperTrade = await PaperTrade.aggregate([
     {
       $match: {
         trade_time: {
@@ -1660,29 +1839,128 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
     },
   ])
 
-  try {
-    let ranks = [];
+  const stockTrade = await Stock.aggregate([
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(today),
+        },
+        Product: "MIS",
+        status: "COMPLETE",
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          traderId: "$trader",
+          first_name: {
+            $arrayElemAt: ["$user.first_name", 0],
+          },
+          last_name: {
+            $arrayElemAt: ["$user.last_name", 0],
+          },
+          employeeid: {
+            $arrayElemAt: ["$user.employeeid", 0],
+          },
+          joining_date: {
+            $arrayElemAt: ["$user.joining_date", 0],
+          },
+          profilePhoto: {
+            $arrayElemAt: ["$user.profilePhoto", 0],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        joining_date: '$_id.joining_date',
+        trader: "$_id.traderId",
+        first_name: "$_id.first_name",
+        last_name: "$_id.last_name",
+        employeeid: "$_id.employeeid",
+        profilePhoto: "$_id.profilePhoto",
+      },
+    },
+  ])
 
+  const concatedArray = paperTrade.concat(stockTrade);
 
-    for (let i = 0; i < allParticipants.length; i++) {
-      let pnl;
-      pnl = await client.get(`${allParticipants[i].trader.toString()}: overallpnlPaperTrade`)
-      pnl = JSON.parse(pnl);
-      pnl = pnl?.filter((elem) => {
-        return !elem?._id?.isLimit
-      })
+  const uniqueTradersMap = new Map();
+  concatedArray.forEach(item => uniqueTradersMap.set(item.trader, item));
+  const uniqueTraders = Array.from(uniqueTradersMap.values());
 
-      if (pnl) {
-        for (let elem of pnl) {
-          elem.trader = allParticipants[i]?.trader?.toString();
-          elem.name = allParticipants[i]?.employeeid;
-          elem.userName = allParticipants[i]?.first_name + " " + allParticipants[i]?.last_name;
-          elem.photo = allParticipants[i]?.profilePhoto?.url;
-          elem.joining_date = allParticipants[i]?.joining_date;
-        }
-      }
-      ranks = ranks.concat(pnl)
+  return (uniqueTraders);
+}
+
+const pnlAddingToArray = async(allParticipants)=>{
+  let ranks = [];
+
+  for (let i = 0; i < allParticipants.length; i++) {
+    let pnl, stockIntraday;
+    pnl = await client.get(`${allParticipants[i].trader.toString()}: overallpnlPaperTrade`)
+    pnl = JSON.parse(pnl);
+    pnl = pnl?.filter((elem) => {
+      return !elem?._id?.isLimit
+    })
+
+    if(await client.exists(`${allParticipants[i].trader.toString()}: overallpnlIntraday`)){
+      stockIntraday = await client.get(`${allParticipants[i].trader.toString()}: overallpnlIntraday`);
+      stockIntraday = JSON.parse(stockIntraday);
+      // console.log('stockIntraday redis', stockIntraday)
+    } else {
+      stockIntraday = await pnlPositionDatabase(allParticipants[i]?.trader)
+      // console.log('stockIntraday db', stockIntraday)
     }
+
+  stockIntraday = stockIntraday?.filter((elem) => {
+    elem.stock = true;
+    return !elem?._id?.isLimit
+  })
+     
+  pnl = pnl?.concat(stockIntraday) || [];
+
+    if (pnl) {
+      for (let elem of pnl) {
+        elem.trader = allParticipants[i]?.trader?.toString();
+        elem.name = allParticipants[i]?.employeeid;
+        elem.userName = allParticipants[i]?.first_name + " " + allParticipants[i]?.last_name;
+        elem.photo = allParticipants[i]?.profilePhoto?.url;
+        elem.joining_date = allParticipants[i]?.joining_date;
+      }
+    }
+
+    // console.log(pnl);
+    ranks = ranks.concat(pnl)
+  }
+
+  return ranks;
+}
+
+const Leaderboard = async (leaderboardParams, virtualMargin) => {
+
+  const date = new Date();
+  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0"
+  )}-${String(date.getDate()).padStart(2, "0")}`;
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+
+  const interest = leaderboardParams?.marginMoneyInterest || 10;
+  const usersPerTable = leaderboardParams?.usersPerTable || 10;
+  const portfolioValue = virtualMargin?.portfolioValue;
+
+  const allParticipants = await uniqueUsers(today);
+
+  try {
+    const ranks = await pnlAddingToArray(allParticipants);
+
     const uniqueData = new Set();
 
     ranks.forEach(item => {
@@ -1727,8 +2005,6 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
         doc.rpnl = doc?.lots !== 0
           ? doc?.amount + doc?.lots * livePrices[doc?._id?.instrumentToken]
           : doc?.amount;
-        // ((Math.abs(doc?.lots)*livePrices[doc?._id?.instrumentToken]) || 0) -  doc?.amount;
-        // doc?.lots > 0 ? doc?.lots * livePrices[doc?._id?.instrumentToken] : 0; doc?.amount +
         doc.npnl = doc?.rpnl - doc?.brokerage;
         doc.portfolioValue = portfolioValue;
         doc.interest = interest;
@@ -1736,12 +2012,13 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
     }
 
     const result = await aggregateRanks(ranks);
+    // console.log('result', result)
 
     for (let rank of result) {
       try {
         await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
         await client.ZADD(`leaderboard-paper`, {
-          score: rank.npnl,
+          score: (rank.npnl + rank.npnlStock),
           value: JSON.stringify({ name: rank.name })
         });
       } catch (err) {
@@ -1752,6 +2029,7 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
     const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard-paper`, "0", `${usersPerTable}`, 'WITHSCORES'])
     const formattedLeaderboard = await formatData(leaderBoard, interest, portfolioValue)
 
+    // console.log("formattedLeaderboard", formattedLeaderboard)
     return formattedLeaderboard;
   } catch (e) {
     console.log("redis error", e);
@@ -1781,10 +2059,9 @@ async function aggregateRanks(ranks) {
   const result = {};
   for (const curr of ranks) {
     if (curr) {
-      const { npnl, trader, name, userName, photo, brokerage, portfolioValue, interest, joining_date } = curr;
+      const { npnl, trader, name, userName, photo, brokerage, portfolioValue, interest, joining_date, stock } = curr;
       const traderId = trader;
-      // let employeeidObj = await client.get(`${(id).toString()}employeeid`);
-      // employeeidObj = JSON.parse(employeeidObj);
+
       if (!result[traderId]) {
         result[traderId] = {
           traderId,
@@ -1792,6 +2069,7 @@ async function aggregateRanks(ranks) {
           name,
           // : employeeidObj[traderId.toString()]?.employeeid,
           npnl: 0,
+          npnlStock: 0,
           brokerage: 0,
           userName,
           // : employeeidObj[traderId.toString()]?.name,
@@ -1799,6 +2077,9 @@ async function aggregateRanks(ranks) {
           joining_date
           // : employeeidObj[traderId.toString()]?.photo,
         };
+      }
+      if(stock){
+        result[traderId].npnlStock += npnl
       }
       result[traderId].npnl += npnl;
       result[traderId].brokerage += brokerage;
@@ -1817,7 +2098,9 @@ async function formatData(arr, interest, portfolioValue) {
     // Add the npnl property to the object
     let data = await client.get(`${obj.name} investedAmount`)
     data = JSON.parse(data);
-    obj.npnl = Number(arr[i + 1]);
+    // obj.npnl = Number(arr[i + 1]);
+    obj.npnlOption = data?.npnl;
+    obj.npnlStock = data?.npnlStock
     obj.interest = Number(interest);
     obj.portfolioValue = Number(portfolioValue);
     obj.userName = data.userName;
