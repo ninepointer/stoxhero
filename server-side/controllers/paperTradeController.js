@@ -2100,7 +2100,7 @@ async function formatData(arr, interest, portfolioValue) {
     // Add the npnl property to the object
     let data = await client.get(`${obj.name} investedAmount`)
     data = JSON.parse(data);
-    // obj.npnl = Number(arr[i + 1]);
+    obj.npnl = data?.npnl + data?.npnlStock;
     obj.npnlOption = data?.npnl;
     obj.npnlStock = data?.npnlStock
     obj.interest = Number(interest);
@@ -2126,7 +2126,7 @@ exports.payouts = async () => {
 
   await dailyPayout();
 
-  if (today.getDay() === 5)
+  // if (today.getDay() === 5)
     await weekPayout();
 
   if (lastDayOfMonth === getMonthDate)

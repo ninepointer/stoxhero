@@ -532,6 +532,7 @@ const isHoliday = (date, holidays) => {
 };
 
 const isWeekend = (date, weekStart, weekEnd) => {
-  const newDate = date.clone().add(5, 'hours').add(30, 'minutes');
+  const newDate = date.clone()
+  // .add(5, 'hours').add(30, 'minutes');
   return newDate.day() === weekStart || newDate.day() === weekEnd; // Sunday or Saturday
 };
