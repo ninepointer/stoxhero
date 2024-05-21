@@ -11,7 +11,7 @@ const { createUserNotification } = require("./notification/notificationControlle
 const uuid = require("uuid");
 const moment = require('moment');
 
-const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
+const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency, startDate, endDate, workingDays) => {
   const session = await mongoose.startSession();
 
   try {
@@ -94,7 +94,10 @@ const addRewardToWallet = async (rewardAmount, pnlObj, setting, frequency) => {
         daysOfInterest: daysOfInterest || 1,
         trader,
         frequency,
-        pnlAfterCost
+        pnlAfterCost,
+        workingDays,
+        frequencyStart: startDate,
+        frequencyEnd: endDate
       }, session);
     }
 
@@ -115,8 +118,9 @@ exports.dailyPayout = async () => {
   const startOfDay = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
   const endOfDay = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
-  const data = await payoutHelper(startOfDay, endOfDay, leaderboardParams, setting[0]);
-
+  const helper = await payoutHelper(startOfDay, endOfDay, leaderboardParams, setting[0]);
+  const data = helper?.data;
+  const workingDays = helper?.workingDays;
 
   const rewards = leaderboardParams?.rewards;
   for (const [index, user] of data.entries()) {
@@ -125,7 +129,7 @@ exports.dailyPayout = async () => {
       const { rankStart, rankEnd, rewardType, reward } = rewarddata;
       if (rewardType === 'Cash' && userRank >= rankStart && userRank <= rankEnd && user?.pnlAfterCost > 0) {
         console.log('daily', reward)
-        await addRewardToWallet(reward, user, setting, 'Daily');
+        await addRewardToWallet(reward, user, setting, 'Daily', startOfDay, endOfDay, workingDays);
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here
         break; // Break the loop once the reward for this user is processed
       }
@@ -141,7 +145,9 @@ exports.monthPayout = async () => {
   const today = moment();
   const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
   const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
-  const data = await payoutHelper(startOfMonth, endOfMonth, leaderboardParams, setting[0]);
+  const helper = await payoutHelper(startOfMonth, endOfMonth, leaderboardParams, setting[0]);
+  const data = helper?.data;
+  const workingDays = helper?.workingDays;
 
   const rewards = leaderboardParams?.rewards;
   for (const [index, user] of data.entries()) {
@@ -150,7 +156,7 @@ exports.monthPayout = async () => {
       const { rankStart, rankEnd, rewardType, reward } = rewardobj;
       if ((rewardType === 'Cash') && (userRank >= rankStart) && (userRank <= rankEnd) && (user?.pnlAfterCost > 0) && (user?.attendancePer >= leaderboardParams?.tradingDaysAttendance)) {
         console.log('month', reward)
-        await addRewardToWallet(reward, user, setting, 'Monthly');
+        await addRewardToWallet(reward, user, setting, 'Monthly', startOfMonth, endOfMonth, workingDays);
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here
         break; // Break the loop once the reward for this user is processed
       }
@@ -165,7 +171,9 @@ exports.weekPayout = async () => {
   const endOfWeek = today.endOf('week').subtract(5, 'hours').subtract(30, 'minutes');
 
   const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Weekly' })
-  const data = await payoutHelper(startOfWeek, endOfWeek, leaderboardParams, setting[0]);
+  const helper = await payoutHelper(startOfWeek, endOfWeek, leaderboardParams, setting[0]);
+  const data = helper?.data;
+  const workingDays = helper?.workingDays;
 
   const rewards = leaderboardParams?.rewards;
   for (const [index, user] of data.entries()) {
@@ -175,7 +183,7 @@ exports.weekPayout = async () => {
 
       if ((rewardType === 'Cash') && (userRank >= rankStart) && (userRank <= rankEnd) && (user?.pnlAfterCost > 0) && (user?.attendancePer >= leaderboardParams?.tradingDaysAttendance)) {
         console.log('week', reward)
-        await addRewardToWallet(reward, user, setting, 'Weekly');
+        await addRewardToWallet(reward, user, setting, 'Weekly', startOfWeek, endOfWeek, workingDays);
         break;
       }
     }
@@ -185,7 +193,9 @@ exports.weekPayout = async () => {
 exports.quarterPayout = async () => {
   const setting = await Setting.find();
   const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' })
-  const data = await payoutHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams, setting[0]);
+  const helper = await payoutHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams, setting[0]);
+  const data = helper?.data;
+  const workingDays = helper?.workingDays;
 
   const rewards = leaderboardParams?.rewards;
   for (const [index, user] of data.entries()) {
@@ -193,7 +203,7 @@ exports.quarterPayout = async () => {
     for (const rewardobj of rewards) {
       const { rankStart, rankEnd, rewardType, reward } = rewardobj;
       if ((rewardType === 'Cash') && (userRank >= rankStart) && (userRank <= rankEnd) && (user?.pnlAfterCost > 0) && (user?.attendancePer >= leaderboardParams?.tradingDaysAttendance)) {
-        await addRewardToWallet(reward, user, setting, 'Quarter');
+        await addRewardToWallet(reward, user, setting, 'Quarter', leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, workingDays);
         // Assuming each user qualifies for only one reward, if not, you might need additional logic here
         break; // Break the loop once the reward for this user is processed
       }
@@ -389,17 +399,17 @@ const payoutHelper = async (startDate, endDate, leaderboardParams, setting) => {
   ];
 
   const data = await PaperTradeLeaderboard.aggregate(pipeline)
-  return data;
+  return {data, workingDays};
 }
 
 const savePayout = async (data, session) => {
   try {
     const { npnl, gpnl, brokerage, trades, portfolioValue, moneyCost, rewardAmount,
-      rewardCurrency, tds, daysOfInterest, trader, frequency, pnlAfterCost } = data;
+      rewardCurrency, tds, daysOfInterest, trader, frequency, pnlAfterCost, workingDays, frequencyStart, frequencyEnd } = data;
 
     const saveInfo = await PaperTradePayout.create([{
       npnl, gpnl, brokerage, trades, portfolioValue, moneyCost, rewardAmount,
-      rewardCurrency, tds, daysOfInterest, trader, frequency, pnlAfterCost, date: new Date()
+      rewardCurrency, tds, daysOfInterest, trader, frequency, pnlAfterCost, date: new Date(), workingDays, frequencyStart, frequencyEnd
     }], { session: session });
   } catch (err) {
     console.log(err);
@@ -522,5 +532,7 @@ const isHoliday = (date, holidays) => {
 };
 
 const isWeekend = (date, weekStart, weekEnd) => {
-  return date.day() === weekStart || date.day() === weekEnd; // Sunday or Saturday
+  const newDate = date.clone()
+  // .add(5, 'hours').add(30, 'minutes');
+  return newDate.day() === weekStart || newDate.day() === weekEnd; // Sunday or Saturday
 };

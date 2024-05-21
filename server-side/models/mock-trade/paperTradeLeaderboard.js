@@ -31,6 +31,16 @@ const paperTrade = new mongoose.Schema({
         type: Number,
         required: true
     },
+    npnlStock:{
+        type: Number,
+        required: true,
+        default: 0
+    },
+    npnlOption:{
+        type: Number,
+        required: true,
+        default: 0
+    },
     roi:{
         type: Number,
         required: true

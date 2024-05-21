@@ -58,6 +58,18 @@ const payout = new mongoose.Schema({
     date: {
         type: Date,
         required: true
+    },
+    frequencyStart: {
+        type: Date,
+        required: true
+    },
+    frequencyEnd: {
+        type: Date,
+        required: true
+    },
+    workingDays: {
+        type: Number,
+        required: true
     }
 })
 

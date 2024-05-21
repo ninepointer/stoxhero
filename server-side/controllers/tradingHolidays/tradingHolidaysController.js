@@ -136,16 +136,15 @@ exports.deleteTradingHoliday = async(req, res, next) => {
 
 exports.getTradingHolidayBetweenDates = async(req, res, next) => {
     let {startDate, endDate} = req.params;
-    startDate = moment(startDate);
-    endDate = moment(endDate)
+    const newstartDate = moment(startDate);
+    const newendDate = moment(endDate)
 
-    let startDateDateComponent = startDate.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
-    let endDateDateComponent = endDate.clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    let startDateDateComponent = newstartDate.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    let endDateDateComponent = newendDate.clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
     const fullStartDate = new Date(startDateDateComponent);
     const fullEndDate = new Date(endDateDateComponent);
 
-    // console.log(fullStartDate, fullEndDate)
     try {
         const holiday = await TradingHoliday.find({
             holidayDate: {
@@ -160,11 +159,8 @@ exports.getTradingHolidayBetweenDates = async(req, res, next) => {
             }
           });
 
-        //   console.log(holiday)
-        // const holiday = await TradingHoliday.find({holidayDate: {$gte: startDate, $lte: endDate}});
         res.status(200).json({status: 'success', data: holiday.length});
     } catch (e) {
-      
         res.status(500).json({status: 'error', message: 'Something went wrong'});
     }
 }
