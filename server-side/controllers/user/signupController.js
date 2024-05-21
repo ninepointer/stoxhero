@@ -17,6 +17,7 @@ const { signupMail, resendOTPMail } = require("./mails");
 
 const SignedUpUser = require("../../models/User/signedUpUser");
 const User = require("../../models/User/userDetailSchema");
+const UserDetail = require("../../models/User/userDetailSchema");
 const Referral = require("../../models/campaigns/referralProgram");
 const PortFolio = require("../../models/userPortfolio/UserPortfolio");
 const UserWallet = require("../../models/UserWallet/userWalletSchema");
