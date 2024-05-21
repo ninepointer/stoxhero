@@ -2071,6 +2071,7 @@ async function aggregateRanks(ranks) {
           // : employeeidObj[traderId.toString()]?.employeeid,
           npnl: 0,
           npnlStock: 0,
+          npnlOption: 0,
           brokerage: 0,
           userName,
           // : employeeidObj[traderId.toString()]?.name,
@@ -2081,6 +2082,9 @@ async function aggregateRanks(ranks) {
       }
       if(stock){
         result[traderId].npnlStock += npnl
+      }
+      if(!stock){
+        result[traderId].npnlOption += npnl
       }
       result[traderId].npnl += npnl;
       result[traderId].brokerage += brokerage;
@@ -2099,8 +2103,8 @@ async function formatData(arr, interest, portfolioValue) {
     // Add the npnl property to the object
     let data = await client.get(`${obj.name} investedAmount`)
     data = JSON.parse(data);
-    obj.npnl = data?.npnl + data?.npnlStock;
-    obj.npnlOption = data?.npnl;
+    obj.npnl = data?.npnl;
+    obj.npnlOption = data?.npnlOption;
     obj.npnlStock = data?.npnlStock
     obj.interest = Number(interest);
     obj.portfolioValue = Number(portfolioValue);
