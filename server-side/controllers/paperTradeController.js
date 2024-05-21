@@ -1486,7 +1486,6 @@ const calculateWorkingDay = async(startDate)=>{
   const setting = await Setting.findOne();
   const workingDays = await getWorkingTradingDays(startDate, endDate, holidays, setting?.weekStart, setting?.weekEnd);
 
-  console.log(workingDays, holidays, startDate, (endDate));
   return workingDays;
 }
 
@@ -1749,9 +1748,9 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
     leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
   }
 
-  // if (process.env.STAGING === 'true') {
-  //   leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
-  // }
+  if (process.env.STAGING === 'true') {
+    leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
+  }
 
   io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
 }
@@ -2126,7 +2125,7 @@ exports.payouts = async () => {
 
   await dailyPayout();
 
-  // if (today.getDay() === 5)
+  if (today.getDay() === 5)
     await weekPayout();
 
   if (lastDayOfMonth === getMonthDate)
