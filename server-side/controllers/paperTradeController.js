@@ -1486,6 +1486,7 @@ const calculateWorkingDay = async(startDate)=>{
   const setting = await Setting.findOne();
   const workingDays = await getWorkingTradingDays(startDate, endDate, holidays, setting?.weekStart, setting?.weekEnd);
 
+  console.log(workingDays, holidays, startDate, (endDate));
   return workingDays;
 }
 
@@ -1501,44 +1502,10 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
       },
     },
     {
-      $lookup: {
-        from: "user-personal-details",
-        localField: "trader",
-        foreignField: "_id",
-        as: "user",
-      },
-    },
-    {
       $group: {
         _id: {
           trader: "$trader",
-          name: {
-            $concat: [
-              {
-                $arrayElemAt: [
-                  "$user.first_name",
-                  0,
-                ],
-              },
-              " ",
-              {
-                $arrayElemAt: [
-                  "$user.last_name",
-                  0,
-                ],
-              },
-            ],
-          },
-          photo: {
-            $arrayElemAt: ["$user.profilePhoto.url", 0]
-          },
           portfolioValue: "$portfolioValue",
-          joining_date: {
-            $arrayElemAt: ["$user.joining_date", 0],
-          },
-          employeeid: {
-            $arrayElemAt: ["$user.employeeid", 0],
-          },
         },
         margin: {
           $max: "$margin",
@@ -1569,6 +1536,14 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
             },
           },
         }
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "_id.trader",
+        foreignField: "_id",
+        as: "user",
       },
     },
     {
@@ -1625,9 +1600,36 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
     },
     {
       $project: {
-        photo: "$_id.photo",
-        joining_date: "$_id.joining_date",
-        employeeid: '$_id.employeeid',
+        name: {
+          $concat: [
+            {
+              $arrayElemAt: [
+                "$user.first_name",
+                0,
+              ],
+            },
+            " ",
+            {
+              $arrayElemAt: [
+                "$user.last_name",
+                0,
+              ],
+            },
+          ],
+        },
+        photo: {
+          $arrayElemAt: ["$user.profilePhoto.url", 0]
+        },
+        // portfolioValue: "$portfolioValue",
+        joining_date: {
+          $arrayElemAt: ["$user.joining_date", 0],
+        },
+        employeeid: {
+          $arrayElemAt: ["$user.employeeid", 0],
+        },
+        // photo: "$_id.photo",
+        // joining_date: "$_id.joining_date",
+        // employeeid: '$_id.employeeid',
         daysOfInterest: 1,
         weekDays: 1,
         monthDays: 1,
@@ -1635,7 +1637,7 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
         pnlAfterCost: {
           $subtract: ['$netPnl', "$interestCost"]
         },
-        name: "$_id.name",
+        // name: "$_id.name",
         _id: 0,
         margin: 1,
         portfolioValue: "$_id.portfolioValue",
@@ -2160,6 +2162,7 @@ const getWorkingTradingDays = async (startDate, endDate, holidays, weekStart, we
   let dayCount = 0;
 
   while (newDate <= moment(endDate)) {
+    // console.log(newDate, moment(endDate), !isHoliday(newDate, holidays) && !isWeekend(newDate, weekStart, weekEnd), !isHoliday(newDate, holidays) , !isWeekend(newDate, weekStart, weekEnd))
     if (!isHoliday(newDate, holidays) && !isWeekend(newDate, weekStart, weekEnd)) {
       dayCount++;
     }
@@ -2178,5 +2181,6 @@ const isHoliday = (date, holidays) => {
 };
 
 const isWeekend = (date, weekStart, weekEnd) => {
-  return date.day() === weekStart || date.day() === weekEnd; // Sunday or Saturday
+  const newDate = date.clone().add(5, 'hours').add(30, 'minutes');
+  return newDate.day() === weekStart || newDate.day() === weekEnd; // Sunday or Saturday
 };
