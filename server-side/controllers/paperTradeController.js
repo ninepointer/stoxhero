@@ -1747,9 +1747,9 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
     leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
   }
 
-  if (process.env.STAGING === 'true') {
-    leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
-  }
+  // if (process.env.STAGING === 'true') {
+  //   leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
+  // }
 
   io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
 }
