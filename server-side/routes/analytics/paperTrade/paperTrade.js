@@ -8,6 +8,7 @@ const {
   getPaperTradesDailyPnlData,
   getPaperTradesMonthlyPnlData,
   getPaperTradesDateWiseWeekStats,
+  getPaperTradesOverallStats,
 } = require("../../../controllers/analyticsController");
 
 router
@@ -19,6 +20,9 @@ router
 router
   .route("/myweekdaystats")
   .get(Authenticate, setCurrentUser, getPaperTradesDateWiseWeekStats);
+router
+  .route("/myoverallstats")
+  .get(Authenticate, setCurrentUser, getPaperTradesOverallStats);
 router
   .route("/mydailypnl")
   .get(Authenticate, setCurrentUser, getPaperTradesDailyPnlData);

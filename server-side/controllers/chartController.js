@@ -37,7 +37,7 @@ exports.getHistoricalData = async (req, res) => {
     // Send the data back to the client
     res.status(200).json({ status: "success", data: formattedData });
   } catch (error) {
-    console.error("Error fetching historical data:", error.message);
+    console.error("Error fetching historical data:", error.message, error);
     res
       .status(500)
       .json({ error: "An error occurred while fetching historical data" });
