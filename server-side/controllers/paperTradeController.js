@@ -1895,13 +1895,13 @@ const uniqueUsers = async (today) => {
   const concatedArray = paperTrade.concat(stockTrade);
 
   const uniqueTradersMap = new Map();
-  concatedArray.forEach(item => uniqueTradersMap.set(item.trader, item));
+  concatedArray.forEach(item => uniqueTradersMap.set(item.trader?.toString(), item));
   const uniqueTraders = Array.from(uniqueTradersMap.values());
 
   return (uniqueTraders);
 }
 
-const pnlAddingToArray = async(allParticipants)=>{
+const pnlAddingToArray = async (allParticipants) => {
   let ranks = [];
 
   for (let i = 0; i < allParticipants.length; i++) {
@@ -1912,7 +1912,7 @@ const pnlAddingToArray = async(allParticipants)=>{
       return !elem?._id?.isLimit
     })
 
-    if(await client.exists(`${allParticipants[i].trader.toString()}: overallpnlIntraday`)){
+    if (await client.exists(`${allParticipants[i].trader.toString()}: overallpnlIntraday`)) {
       stockIntraday = await client.get(`${allParticipants[i].trader.toString()}: overallpnlIntraday`);
       stockIntraday = JSON.parse(stockIntraday);
       // console.log('stockIntraday redis', stockIntraday)
@@ -1921,12 +1921,14 @@ const pnlAddingToArray = async(allParticipants)=>{
       // console.log('stockIntraday db', stockIntraday)
     }
 
-  stockIntraday = stockIntraday?.filter((elem) => {
-    elem.stock = true;
-    return !elem?._id?.isLimit
-  })
-     
-  pnl = pnl?.concat(stockIntraday) || [];
+    stockIntraday = stockIntraday?.filter((elem) => {
+      elem.stock = true;
+      return !elem?._id?.isLimit
+    })
+
+    pnl = pnl?.concat(stockIntraday) || [];
+
+
 
     if (pnl) {
       for (let elem of pnl) {
@@ -1938,7 +1940,7 @@ const pnlAddingToArray = async(allParticipants)=>{
       }
     }
 
-    // console.log(pnl);
+
     ranks = ranks.concat(pnl)
   }
 
@@ -1961,7 +1963,6 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
 
   try {
     const ranks = await pnlAddingToArray(allParticipants);
-
     const uniqueData = new Set();
 
     ranks.forEach(item => {
@@ -1975,7 +1976,6 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
 
     let addUrl;
     let livePrices = {};
-
     const data = await getKiteCred.getAccess();
     uniqueDataArray.forEach((elem, index) => {
       if (elem.lots !== 0) {
@@ -2013,7 +2013,7 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
     }
 
     const result = await aggregateRanks(ranks);
-    // console.log('result', result)
+    
 
     for (let rank of result) {
       try {
@@ -2057,9 +2057,11 @@ const getRedisMyRank = async (employeeId) => {
 }
 
 async function aggregateRanks(ranks) {
+  console.log('ranks', ranks.length)
   const result = {};
   for (const curr of ranks) {
     if (curr) {
+      // console.log(';curr', curr)
       const { npnl, trader, name, userName, photo, brokerage, portfolioValue, interest, joining_date, stock } = curr;
       const traderId = trader;
 
