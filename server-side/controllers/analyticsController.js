@@ -8,10 +8,26 @@ const { ObjectId } = require("mongodb");
 exports.getPaperTradesOverview = async (req, res, next) => {
   let userId = req.params.id;
   let today = new Date();
-  // const yesterday = new Date();
-  // yesterday.setDate(today.getDate()-1);
+  
+  // Calculate the start of the current week (Sunday)
+  let startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  // Calculate the start of the current month
   const pastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  
+  // Calculate the start of the current year
   const pastYear = new Date(today.getFullYear(), 0, 1);
+  
+  // Calculate the start of the current quarter
+  const quarterStartMonth = Math.floor(today.getMonth() / 3) * 3;
+  const startOfQuarter = new Date(today.getFullYear(), quarterStartMonth, 1);
+  
+  // Calculate the end of the current quarter
+  const endOfQuarter = new Date(today.getFullYear(), quarterStartMonth + 3, 0);
+  
+  // Calculate yesterday's date
   let date = new Date();
   let getYesterdaydate = `${date.getFullYear()}-${String(
     date.getMonth() + 1
@@ -19,15 +35,11 @@ exports.getPaperTradesOverview = async (req, res, next) => {
   getYesterdaydate = getYesterdaydate + "T00:00:00.000Z";
   const yesterday = new Date(getYesterdaydate);
 
-  // console.log("in overview", yesterday, userId, pastMonth, pastYear)
-
   let paperTradesOverview = await PaperTrade.aggregate([
     {
       $match: {
         trader: new ObjectId(userId),
-        // trade_time:{$lte: today},
         status: "COMPLETE",
-        // Replace with the actual user ID
       },
     },
     {
@@ -36,36 +48,44 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         grossPNLDaily: {
           $sum: {
             $cond: [
-              {
-                $gte: ["$trade_time", yesterday], // Filter for past month's data
-              },
-              {
-                $multiply: ["$amount", -1],
-              },
+              { $gte: ["$trade_time", yesterday] },
+              { $multiply: ["$amount", -1] },
               0,
             ],
-          }, // Calculate gross PNL as sum of amount for today's date
+          },
         },
         brokerageSumDaily: {
           $sum: {
             $cond: [
-              {
-                $gte: ["$trade_time", yesterday], // Filter for past month's data
-              },
+              { $gte: ["$trade_time", yesterday] },
               "$brokerage",
               0,
             ],
-          }, // Calculate brokerage sum as sum of brokerage for today's date
+          },
+        },
+        grossPNLWeekly: {
+          $sum: {
+            $cond: [
+              { $gte: ["$trade_time", startOfWeek] },
+              { $multiply: ["$amount", -1] },
+              0,
+            ],
+          },
+        },
+        brokerageSumWeekly: {
+          $sum: {
+            $cond: [
+              { $gte: ["$trade_time", startOfWeek] },
+              "$brokerage",
+              0,
+            ],
+          },
         },
         grossPNLMonthly: {
           $sum: {
             $cond: [
-              {
-                $gte: ["$trade_time", pastMonth], // Filter for past month's data
-              },
-              {
-                $multiply: ["$amount", -1],
-              },
+              { $gte: ["$trade_time", pastMonth] },
+              { $multiply: ["$amount", -1] },
               0,
             ],
           },
@@ -73,9 +93,25 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         brokerageSumMonthly: {
           $sum: {
             $cond: [
-              {
-                $gte: ["$trade_time", pastMonth], // Filter for past month's data
-              },
+              { $gte: ["$trade_time", pastMonth] },
+              "$brokerage",
+              0,
+            ],
+          },
+        },
+        grossPNLQuarterly: {
+          $sum: {
+            $cond: [
+              { $and: [{ $gte: ["$trade_time", startOfQuarter] }, { $lte: ["$trade_time", endOfQuarter] }] },
+              { $multiply: ["$amount", -1] },
+              0,
+            ],
+          },
+        },
+        brokerageSumQuarterly: {
+          $sum: {
+            $cond: [
+              { $and: [{ $gte: ["$trade_time", startOfQuarter] }, { $lte: ["$trade_time", endOfQuarter] }] },
               "$brokerage",
               0,
             ],
@@ -84,12 +120,8 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         grossPNLYearly: {
           $sum: {
             $cond: [
-              {
-                $gte: ["$trade_time", pastYear], // Filter for past year's data
-              },
-              {
-                $multiply: ["$amount", -1],
-              },
+              { $gte: ["$trade_time", pastYear] },
+              { $multiply: ["$amount", -1] },
               0,
             ],
           },
@@ -97,9 +129,7 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         brokerageSumYearly: {
           $sum: {
             $cond: [
-              {
-                $gte: ["$trade_time", pastYear], // Filter for past year's data
-              },
+              { $gte: ["$trade_time", pastYear] },
               "$brokerage",
               0,
             ],
@@ -108,11 +138,10 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         grossPNLLifetime: {
           $sum: {
             $multiply: ["$amount", -1],
-          }, // Calculate gross PNL as sum of amount for all-time data
+          },
         },
-
         brokerageSumLifetime: {
-          $sum: "$brokerage", // Calculate brokerage sum as sum of brokerage for all-time data
+          $sum: "$brokerage",
         },
         count: {
           $sum: 1,
@@ -125,28 +154,37 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         grossPNLDaily: 1,
         brokerageSumDaily: 1,
         netPNLDaily: {
-          $subtract: ["$grossPNLDaily", "$brokerageSumDaily"], // Calculate net PNL as sum of gross PNL and brokerage sum for today's date data
+          $subtract: ["$grossPNLDaily", "$brokerageSumDaily"],
+        },
+        grossPNLWeekly: 1,
+        brokerageSumWeekly: 1,
+        netPNLWeekly: {
+          $subtract: ["$grossPNLWeekly", "$brokerageSumWeekly"],
         },
         grossPNLMonthly: 1,
         brokerageSumMonthly: 1,
         netPNLMonthly: {
-          $subtract: ["$grossPNLMonthly", "$brokerageSumMonthly"], // Calculate net PNL as sum of gross PNL and brokerage sum for past month data
+          $subtract: ["$grossPNLMonthly", "$brokerageSumMonthly"],
+        },
+        grossPNLQuarterly: 1,
+        brokerageSumQuarterly: 1,
+        netPNLQuarterly: {
+          $subtract: ["$grossPNLQuarterly", "$brokerageSumQuarterly"],
         },
         grossPNLYearly: 1,
         brokerageSumYearly: 1,
         netPNLYearly: {
-          $subtract: ["$grossPNLYearly", "$brokerageSumYearly"], // Calculate net PNL as sum of gross PNL and brokerage sum for past year data
+          $subtract: ["$grossPNLYearly", "$brokerageSumYearly"],
         },
         grossPNLLifetime: 1,
         brokerageSumLifetime: 1,
         netPNLLifetime: {
-          $subtract: ["$grossPNLLifetime", "$brokerageSumLifetime"], // Calculate net PNL as sum of gross PNL and brokerage sum for lifetime data
+          $subtract: ["$grossPNLLifetime", "$brokerageSumLifetime"],
         },
         count: 1,
       },
     },
   ]);
-  // console.log(paperTradesOverview);
 
   res.status(200).json({ status: "success", data: paperTradesOverview });
 };
