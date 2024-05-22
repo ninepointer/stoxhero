@@ -4,11 +4,12 @@ const InternshipTrader = require("../models/mock-trade/internshipTrade");
 const TraderDailyPnlData = require("../models/InstrumentHistoricalData/TraderDailyPnlDataSchema");
 const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const { ObjectId } = require("mongodb");
+const TradingHoliday = require("../models/TradingHolidays/tradingHolidays");
 
 exports.getPaperTradesOverview = async (req, res, next) => {
   let userId = req.params.id;
   let today = new Date();
-  
+
   // Calculate the start of the current week (Sunday)
   let startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
@@ -16,17 +17,17 @@ exports.getPaperTradesOverview = async (req, res, next) => {
 
   // Calculate the start of the current month
   const pastMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  
+
   // Calculate the start of the current year
   const pastYear = new Date(today.getFullYear(), 0, 1);
-  
+
   // Calculate the start of the current quarter
   const quarterStartMonth = Math.floor(today.getMonth() / 3) * 3;
   const startOfQuarter = new Date(today.getFullYear(), quarterStartMonth, 1);
-  
+
   // Calculate the end of the current quarter
   const endOfQuarter = new Date(today.getFullYear(), quarterStartMonth + 3, 0);
-  
+
   // Calculate yesterday's date
   let date = new Date();
   let getYesterdaydate = `${date.getFullYear()}-${String(
@@ -56,11 +57,7 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         },
         brokerageSumDaily: {
           $sum: {
-            $cond: [
-              { $gte: ["$trade_time", yesterday] },
-              "$brokerage",
-              0,
-            ],
+            $cond: [{ $gte: ["$trade_time", yesterday] }, "$brokerage", 0],
           },
         },
         grossPNLWeekly: {
@@ -74,11 +71,7 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         },
         brokerageSumWeekly: {
           $sum: {
-            $cond: [
-              { $gte: ["$trade_time", startOfWeek] },
-              "$brokerage",
-              0,
-            ],
+            $cond: [{ $gte: ["$trade_time", startOfWeek] }, "$brokerage", 0],
           },
         },
         grossPNLMonthly: {
@@ -92,17 +85,18 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         },
         brokerageSumMonthly: {
           $sum: {
-            $cond: [
-              { $gte: ["$trade_time", pastMonth] },
-              "$brokerage",
-              0,
-            ],
+            $cond: [{ $gte: ["$trade_time", pastMonth] }, "$brokerage", 0],
           },
         },
         grossPNLQuarterly: {
           $sum: {
             $cond: [
-              { $and: [{ $gte: ["$trade_time", startOfQuarter] }, { $lte: ["$trade_time", endOfQuarter] }] },
+              {
+                $and: [
+                  { $gte: ["$trade_time", startOfQuarter] },
+                  { $lte: ["$trade_time", endOfQuarter] },
+                ],
+              },
               { $multiply: ["$amount", -1] },
               0,
             ],
@@ -111,7 +105,12 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         brokerageSumQuarterly: {
           $sum: {
             $cond: [
-              { $and: [{ $gte: ["$trade_time", startOfQuarter] }, { $lte: ["$trade_time", endOfQuarter] }] },
+              {
+                $and: [
+                  { $gte: ["$trade_time", startOfQuarter] },
+                  { $lte: ["$trade_time", endOfQuarter] },
+                ],
+              },
               "$brokerage",
               0,
             ],
@@ -128,11 +127,7 @@ exports.getPaperTradesOverview = async (req, res, next) => {
         },
         brokerageSumYearly: {
           $sum: {
-            $cond: [
-              { $gte: ["$trade_time", pastYear] },
-              "$brokerage",
-              0,
-            ],
+            $cond: [{ $gte: ["$trade_time", pastYear] }, "$brokerage", 0],
           },
         },
         grossPNLLifetime: {
@@ -369,6 +364,140 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
   ]);
 
   res.status(200).json({ status: "success", data: pnlDetails });
+};
+
+exports.getPaperTradesOverallStats = async (req, res) => {
+  const { id } = req.params;
+  const { to, from } = req.query;
+  const fromDate = new Date(from);
+  fromDate.setHours(0, 0, 0, 0);
+  const toDate = new Date(to);
+  toDate.setHours(23, 59, 59, 999);
+
+  const countWeekdays = (startDate, endDate) => {
+    let count = 0;
+    const curDate = new Date(startDate);
+    while (curDate <= endDate) {
+      const dayOfWeek = curDate.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        // Skip Sundays (0) and Saturdays (6)
+        count++;
+      }
+      curDate.setDate(curDate.getDate() + 1);
+    }
+    return count;
+  };
+  // Calculate the total number of calendar days in the date range
+  const totalCalendarDays =
+    Math.floor((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1;
+  let holidayCount = 0;
+  const holidays = await TradingHoliday.find({
+    $and: [
+      { holidayDate: { $gt: fromDate } },
+      { holidayDate: { $lt: toDate } },
+    ],
+  }).select("holidayDate");
+  for (let holiday of holidays) {
+    if (
+      new Date(holiday?.holidayDate) != 0 &&
+      new Date(holiday?.holidayDate) != 6
+    ) {
+      holidayCount += 1;
+    }
+  }
+  const totalWeekDays = countWeekdays(fromDate, toDate);
+  const totalMarketDays = totalWeekDays - holidayCount;
+
+  let pnlDetails = await PaperTrade.aggregate([
+    {
+      $match: {
+        trade_time: { $gte: fromDate, $lte: toDate },
+        trader: new ObjectId(id),
+        status: "COMPLETE",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } },
+        },
+        totalGpnl: { $sum: { $multiply: ["$amount", -1] } },
+        totalBrokerage: { $sum: "$brokerage" },
+        totalNpnl: {
+          $sum: { $subtract: [{ $multiply: ["$amount", -1] }, "$brokerage"] },
+        },
+        totalTrades: { $sum: 1 },
+        totalLots: { $sum: { $toInt: "$Quantity" } },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalGpnl: { $sum: "$totalGpnl" },
+        totalBrokerage: { $sum: "$totalBrokerage" },
+        totalNpnl: { $sum: "$totalNpnl" },
+        totalTrades: { $sum: "$totalTrades" },
+        totalLots: { $sum: "$totalLots" },
+        distinctDays: { $sum: 1 },
+        profitDaysNpnl: {
+          $sum: {
+            $cond: [{ $gt: ["$totalNpnl", 0] }, "$totalNpnl", 0],
+          },
+        },
+        lossDaysNpnl: {
+          $sum: {
+            $cond: [{ $lt: ["$totalNpnl", 0] }, "$totalNpnl", 0],
+          },
+        },
+        profitDaysCount: {
+          $sum: {
+            $cond: [{ $gt: ["$totalNpnl", 0] }, 1, 0],
+          },
+        },
+        lossDaysCount: {
+          $sum: {
+            $cond: [{ $lt: ["$totalNpnl", 0] }, 1, 0],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalGpnl: 1,
+        totalBrokerage: 1,
+        totalNpnl: 1,
+        totalTrades: 1,
+        totalLots: 1,
+        totalTradingDays: "$distinctDays",
+        totalCalendarDays: totalCalendarDays,
+        avgGpnl: { $divide: ["$totalGpnl", "$distinctDays"] },
+        avgBrokerage: { $divide: ["$totalBrokerage", "$distinctDays"] },
+        avgNpnl: { $divide: ["$totalNpnl", "$distinctDays"] },
+        averageProfit: {
+          $cond: [
+            { $gt: ["$profitDaysCount", 0] },
+            { $divide: ["$profitDaysNpnl", "$profitDaysCount"] },
+            0,
+          ],
+        },
+        averageLoss: {
+          $cond: [
+            { $gt: ["$lossDaysCount", 0] },
+            { $divide: ["$lossDaysNpnl", "$lossDaysCount"] },
+            0,
+          ],
+        },
+        noOfProfitDays: "$profitDaysCount",
+        noOfLossDays: "$lossDaysCount",
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    data: { ...pnlDetails[0], totalCalendarDays, totalMarketDays },
+  });
 };
 
 exports.setCurrentUser = async (req, res, next) => {
