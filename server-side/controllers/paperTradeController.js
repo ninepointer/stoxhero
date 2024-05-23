@@ -2022,7 +2022,7 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
       try {
         await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
         await client.ZADD(`leaderboard-paper`, {
-          score: (rank.npnl + rank.npnlStock),
+          score: rank.npnl,
           value: JSON.stringify({ name: rank.name })
         });
       } catch (err) {
