@@ -1408,6 +1408,8 @@ exports.weeklyLeaderboardData = async (req, res) => {
 exports.monthlyLeaderboardData = async (req, res) => {
   try {
     const today = moment();
+    // const newStartOfMonth = moment('2024-05-14').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+
     const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const workingDays = await calculateWorkingDay(startOfMonth, endOfMonth);
@@ -1439,7 +1441,8 @@ exports.monthlyLeaderboardData = async (req, res) => {
 
 exports.quarterlyLeaderboardData = async (req, res) => {
   try {
-    
+    // const newStartOfQuarter = moment('2024-05-14').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+
     const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' });
     const workingDays = await calculateWorkingDay(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate);
 
@@ -2019,7 +2022,7 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
       try {
         await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
         await client.ZADD(`leaderboard-paper`, {
-          score: (rank.npnl + rank.npnlStock),
+          score: rank.npnl,
           value: JSON.stringify({ name: rank.name })
         });
       } catch (err) {
@@ -2057,7 +2060,7 @@ const getRedisMyRank = async (employeeId) => {
 }
 
 async function aggregateRanks(ranks) {
-  console.log('ranks', ranks.length)
+
   const result = {};
   for (const curr of ranks) {
     if (curr) {

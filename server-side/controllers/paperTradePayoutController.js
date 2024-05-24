@@ -145,7 +145,7 @@ exports.monthPayout = async () => {
   const today = moment();
   const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
   const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
-  const helper = await payoutHelper(startOfMonth, endOfMonth, leaderboardParams, setting[0]);
+  const helper = await payoutHelper(startOfMonth, endOfMonth, leaderboardParams, setting[0], 'Monthly');
   const data = helper?.data;
   const workingDays = helper?.workingDays;
 
@@ -193,7 +193,7 @@ exports.weekPayout = async () => {
 exports.quarterPayout = async () => {
   const setting = await Setting.find();
   const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' })
-  const helper = await payoutHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams, setting[0]);
+  const helper = await payoutHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams, setting[0], 'Quarterly');
   const data = helper?.data;
   const workingDays = helper?.workingDays;
 
@@ -211,11 +211,15 @@ exports.quarterPayout = async () => {
   }
 };
 
-const payoutHelper = async (startDate, endDate, leaderboardParams, setting) => {
+const payoutHelper = async (startDate, endDate, leaderboardParams, setting, frequency) => {
 
+  let newStartDate = startDate;
+  if(frequency === 'Monthly' || frequency === 'Quarterly'){
+    newStartDate = moment('2024-05-14').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+  }
   const holidays = await TradingHoliday.find({
     holidayDate: {
-      $gte: new Date(startDate),
+      $gte: new Date(newStartDate),
       $lte: new Date(endDate)
     },
     $expr: {
@@ -225,7 +229,7 @@ const payoutHelper = async (startDate, endDate, leaderboardParams, setting) => {
       ]
     }
   });
-  const workingDays = await getWorkingTradingDays(startDate, endDate, holidays, setting?.weekStart, setting?.weekEnd);
+  const workingDays = await getWorkingTradingDays(newStartDate, endDate, holidays, setting?.weekStart, setting?.weekEnd);
   const pipeline = [
     {
       $match: {

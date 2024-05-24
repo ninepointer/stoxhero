@@ -147,6 +147,8 @@ const Calculator = require('../../models/calculator/calculatorSchema');
 const {cronjobs} = require('../../cronjobs');
 const { removeInstrumentFromWatchlist } = require("../../controllers/instrument");
 const {payouts, saveLeaderboardData} = require('../../controllers/paperTradeController');
+const PaperTradeLeaderboard = require("../../models/mock-trade/paperTradeLeaderboard");
+
 // client8.connect()
 // .then(async (res) => {
     
@@ -155,6 +157,25 @@ const {payouts, saveLeaderboardData} = require('../../controllers/paperTradeCont
 // .catch((err) => {
 //     console.log("redis not connected", err)
 // }) 
+
+router.get("/updateDatainleaderboard", async (req, res) => {
+  try {
+    const data = await PaperTradeLeaderboard.find();
+
+    const updatedData = await Promise.all(
+      data.map(async (elem) => {
+        elem.npnlOption = elem.netPnl || 0; // Use `|| 0` to handle undefined `netPnl`
+        elem.npnlStock = 0;
+        return elem.save();
+      })
+    );
+
+    res.send(updatedData);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
 
 router.get("/portfolioUpdate", async (req, res) => {
   const data = await PortFolio.findOneAndUpdate({ status: 'Active', portfolioName: 'Virtual Trading Portfolio' }, {
