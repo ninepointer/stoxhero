@@ -23,12 +23,11 @@
 //   const [traders, setTraders] = useState([]);
 //   const [udates, setUDates] = useState([]);
 //   let [overallPnl, setOverallPnl] = useState([]);
-  
-  
+
 //   useEffect(()=>{
 //       pnlCalculation(valueInDate1,valueInDate2)
 //         overallPnl = 0;
-  
+
 //         axios.get(`${baseUrl}api/v1/readuserdetails`)
 //           .then((res)=>{
 //             let data = res.data;
@@ -41,7 +40,7 @@
 //               return new Error(err);
 //           })
 //     },[])
-  
+
 //     function startDate(e){
 //       e.preventDefault();
 //       if(e.target.value > secondDate){
@@ -64,8 +63,7 @@
 //       overallPnl = 0;
 //       //console.log(e.target.value);
 //     }
-  
-  
+
 //     function pnlCalculation(firstDate, secondDate){
 //       console.log(firstDate,secondDate)
 //       axios.get(`${baseUrl}api/v1/getuserreport/${firstDate}/${secondDate}`)
@@ -73,23 +71,22 @@
 //         let data = res.data;
 //         console.log(res.data);
 //         setOverallPnl(res.data);
-  
+
 //       }).catch((err) => {
 //           return new Error(err);
 //       })
-  
+
 //       axios.get(`${baseUrl}api/v1/getuniquedates/${firstDate}/${secondDate}`)
 //       .then((res) => {
 //         let data = res.data;
 //         console.log(res.data);
 //         setUDates(res.data);
-  
+
 //       }).catch((err) => {
 //           return new Error(err);
 //       })
 //     }
-  
-  
+
 //     overallPnl.sort((a, b) => {
 //       if (a.date < b.date) {
 //         return -1;
@@ -99,14 +96,12 @@
 //       }
 //       return 0;
 //     });
-  
-  
-  
+
 //   let traderNameList = []
 //   traders.map((elem)=>{
 //       traderNameList.push(elem.name)
 //   })
-  
+
 //   let pnldates = []
 //   udates.map((elem)=>{
 //       const dateString = elem._id.date;
@@ -122,35 +117,34 @@
 //       pnldata.push([elem._id.date,elem.amount])
 //   })
 //   console.log(pnldata)
-  
-  
+
 //   // const xLabelsVisibility = new Array(pnldates.length)
 //   //   .fill(0)
 //   //   .map((_, i) => (i % 2 === 0 ? true : false));
-  
+
 //   const xLabelsVisibility = pnldates;
-  
+
 //   const yLabels = traderNameList
 //   const xLabels = [];
 //   for (let i = 0; i < pnldates.length; i++) {
 //       console.log(pnldates[i][1]);
 //       xLabels.push(pnldates[i][1])
 //   }
-  
+
 //   const pnldates1 = [];
 //   for (let i = 0; i < pnldates.length; i++) {
 //       console.log(pnldates[i][0]);
 //       pnldates1.push(pnldates[i][0])
 //   }
-  
+
 //   let rows = traderNameList.length;
 //   let cols = xLabels.length;
 //   let data = new Array(rows);
-  
+
 //   for (let i = 0; i < rows; i++) {
 //     data[i] = new Array(cols);
 //   }
-  
+
 //   for (let i = 0; i < rows; i++) {
 //       for (let j = 0; j < cols; j++) {
 //         data[i][j] = overallPnl

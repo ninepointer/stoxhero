@@ -3,7 +3,6 @@ import * as echarts from 'echarts';
 
 const GaugeChart = ({myTradingDays,totalTradingDays}) => {
   const chartRef = useRef(null);
-  console.log(myTradingDays,totalTradingDays)
 
   useEffect(() => {
     const chartDom = chartRef.current;

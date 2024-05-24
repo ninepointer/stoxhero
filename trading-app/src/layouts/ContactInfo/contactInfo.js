@@ -1,27 +1,38 @@
-import React from 'react'
+import React,{useState, useEffect} from 'react'
 import MDBox from '../../components/MDBox'
 import MDTypography from '../../components/MDTypography'
 import DataTable from '../../examples/Tables/DataTable';
 import { Grid } from '@mui/material';
-
-const contactInfo = () => {
-    let rows =[];
-    let columns = [];
+import { apiUrl } from '../../constants/constants';
+import axios from 'axios';
+import ContactInfoCard from './components/contactInfoCard';
+const ContactInfo = () => {
+    const [contactInfos, setContactInfos] = useState([]);
+    const getAllContactInfo = async () =>{
+        const res = await axios.get(`${apiUrl}contactus`,{withCredentials:true});
+        console.log(res.data.data);
+        setContactInfos(res.data.data);
+    }
+    useEffect(()=>{
+        getAllContactInfo();
+    },[])
+     
   return (
     <Grid container>
-        <MDBox>
-            <MDTypography>
-                Contact Information
+        <MDBox style={{minHeight:'85vh'}}>
+            <MDTypography style={{marginTop:'14px', fontWeight:'700'}}>
+                Inbound Messages
             </MDTypography>
             <MDBox>
-                {/* <DataTable
-                    rows={rows}
-                    columns={columns}
-                /> */}
+                {contactInfos.map((item)=>{
+                    return(
+                        <ContactInfoCard contactInfo={item}/>
+                    )
+                })}
             </MDBox>
         </MDBox>
     </Grid>
   )
 }
 
-export default contactInfo
+export default ContactInfo

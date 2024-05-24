@@ -16,7 +16,6 @@ router.post("/enterDataInDB", async (req, res)=>{
 
         let instrumentToken = await fetchToken("NFO", instrument)
         // let instrumentToken = "11289858";
-        console.log(req.body, instrumentToken)
     const brokerageDetailBuy = await BrokerageDetail.find({transaction:"BUY"});
     const brokerageDetailSell = await BrokerageDetail.find({transaction:"SELL"});
 
@@ -104,7 +103,7 @@ router.post("/enterDataInDB", async (req, res)=>{
 
         let userBuyOrSell;
         let userQuantity = quantity;
-        console.log("instrumentToken", instrumentToken)
+
         if(transactionChange === "TRUE"){
             if(transaction_type === "SELL"){
                 userBuyOrSell = "BUY";
@@ -234,7 +233,6 @@ router.post("/enterDataInDB", async (req, res)=>{
                 
             });
 
-            console.log("mockTradeDetails comapny", mockTradeDetails);
             mockTradeDetails.save().then(()=>{
                 // res.status(201).json({massage : "data enter succesfully"});
             }).catch((err)=> console.log(err, "fail"))
@@ -259,7 +257,6 @@ router.post("/enterDataInDB", async (req, res)=>{
                 
             });
 
-            console.log("mockTradeDetails", mockTradeDetailsUser);
             mockTradeDetailsUser.save().then(()=>{
                 // res.status(201).json({massage : "data enter succesfully"});
             }).catch((err)=> {

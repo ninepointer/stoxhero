@@ -1,6 +1,10 @@
 const Referral = require('../models/campaigns/referralProgram');
 const User = require('../models/User/userDetailSchema');
 const {client, getValue} = require('../marketData/redisClient');
+const {ObjectId} = require('mongodb');
+const AffiliateTransaction = require('../models/affiliateProgram/affiliateTransactions');
+const mongoose = require('mongoose');
+
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -14,9 +18,9 @@ const filterObj = (obj, ...allowedFields) => {
 
 exports.createReferral = async(req, res, next)=>{
     // console.log(req.body);
-    const{referralProgramName, referralProgramStartDate, 
+    const{referralSignupBonus, referralProgramName, referralProgramStartDate, 
         referralProgramEndDate, rewardPerReferral, currency,
-        description, status
+        description, status, affiliateDetails
     } = req.body;
 
     if(await Referral.findOne({referralProgramName:referralProgramName})) return res.status(400).json({message:'This referral already exists.'});
@@ -25,8 +29,8 @@ exports.createReferral = async(req, res, next)=>{
       return res.status(400).json({status: 'error',message:'There is a referral program that is active in the same time.'});
     }
     const referral = await Referral.create({referralProgramName: referralProgramName.trim(), referralProgramStartDate, 
-        referralProgramEndDate, rewardPerReferral, currency, 
-        description, lastModifiedOn: new Date(), 
+        referralProgramEndDate, rewardPerReferral, currency, affiliateDetails,
+        description, lastModifiedOn: new Date(), referralSignupBonus,
         status, createdBy: req.user._id, lastModifiedBy: req.user._id});
     
     res.status(201).json({message: 'Referral Program successfully created.', data:referral});    
@@ -56,51 +60,88 @@ exports.getReferral = async(req, res, next)=>{
 
 exports.getActiveReferral = async(req, res, next)=>{
     try{
-    const referral = await Referral.find({status : 'Active'}); 
-    // console.log(referral)
-    // .select('_id referrralProgramId referrralProgramName rewardPerReferral status');
+    const referral = await Referral.find({status : 'Active'}).select('-users'); 
     res.status(201).json({message: "Referral Retrived",data: referral});    
     }
     catch{(err)=>{res.status(401).json({message: "err referral", error:err}); }}  
 };
 
+exports.getReferralName = async(req, res, next)=>{
+
+  try{
+  const referral = await Referral.find().select('referralProgramName')
+  res.status(201).json({message: "Referral Retrived",data: referral});    
+  }
+  catch{(err)=>{res.status(401).json({message: "err referral", error:err}); }}  
+};
+
 exports.editReferral = async(req, res, next) => {
-    try{ 
-        // const {referrralProgramName} = req.params
-        const {status, referralProgramEndDate, referrralProgramName} = req.body
-        // console.log(req.body);
-        // const {isAddedWatchlist} = req.body;
-        // const {_id} = req.user;
-        // console.log("in removing", instrumentToken, _id);
-        // const user = await User.findOne({_id: _id});
-        // const editReferral = await Referral.findOne({referrralProgramName : referrralProgramName})
-        // let index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
-        // console.log("index", index)
-        // if (index !== -1) {
-        //     user.watchlistInstruments.splice(index, 1); // remove the element at the index
-        //     try{
-        //      const redisClient = await client.LREM((_id).toString(), 1, (instrumentToken).toString());
+    // try{ 
+    //     // const {referrralProgramName} = req.params
+    //     const {status, referralProgramEndDate, referrralProgramName} = req.body
+    //     // console.log(req.body);
+    //     // const {isAddedWatchlist} = req.body;
+    //     // const {_id} = req.user;
+    //     // console.log("in removing", instrumentToken, _id);
+    //     // const user = await User.findOne({_id: _id});
+    //     // const editReferral = await Referral.findOne({referrralProgramName : referrralProgramName})
+    //     // let index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
+    //     // console.log("index", index)
+    //     // if (index !== -1) {
+    //     //     user.watchlistInstruments.splice(index, 1); // remove the element at the index
+    //     //     try{
+    //     //      const redisClient = await client.LREM((_id).toString(), 1, (instrumentToken).toString());
 
-        //     } catch(err){
-        //         console.log(err)
-        //     }
-        //     // client.LREM(_id, 1, instrumentToken);
-        // }
+    //     //     } catch(err){
+    //     //         console.log(err)
+    //     //     }
+    //     //     // client.LREM(_id, 1, instrumentToken);
+    //     // }
 
-        const editReferral = await Referral.findOneAndUpdate({referrralProgramName : referrralProgramName}, {
-            $set:{ 
-                status: status,
-                referralProgramEndDate: referralProgramEndDate
-            }
+    //     const editReferral = await Referral.findOneAndUpdate({referrralProgramName : referrralProgramName}, {
+    //         $set:{ 
+    //             status: status,
+    //             referralProgramEndDate: referralProgramEndDate
+    //         }
             
-        })
-        // console.log("removing", editReferral);
-        // res.send(inactiveInstrument)
-        res.status(201).json({message : "programme edited succesfully"});
-    } catch (e){
-        console.log(e)
-        res.status(500).json({error:"Failed to edit data"});
-    }
+    //     })
+    //     // console.log("removing", editReferral);
+    //     // res.send(inactiveInstrument)
+    //     res.status(201).json({message : "programme edited succesfully"});
+    // } catch (e){
+    //     console.log(e)
+    //     res.status(500).json({error:"Failed to edit data"});
+    // }
+
+
+    try {
+      const { id } = req.params; // ID of the contest to edit
+      const updates = req.body;
+
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ status: "error", message: "Invalid ID" });
+      }
+      updates.lastModifiedBy = req.user._id;
+      updates.lastModifiedOn = new Date();
+      const result = await Referral.findByIdAndUpdate(id, updates, { new: true });
+
+      if (!result) {
+          return res.status(404).json({ status: "error", message: "Referral not found" });
+      }
+
+      res.status(200).json({
+          status: 'success',
+          message: "Referral updated successfully",
+      });
+  } catch (error) {
+    console.log(error)
+      res.status(500).json({
+          status: 'error',
+          message: "Error in updating TestZone",
+          error: error.message
+      });
+  }
 }
 
 exports.editReferralWithId = async(req, res, next) => {
@@ -158,6 +199,25 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
                 totalReferralCount: {
                   $count : {}
                 },
+                totalActivationCount: {
+                  $sum: {
+                    $cond: {
+                      if: {
+                        $ifNull: [
+                          "$referrals.activationDate",
+                          false,
+                        ],
+                      },
+                      // Check if activationDate exists
+                      then: 1,
+                      // If exists, increment count by 1
+                      else: 0, // If not exists, don't increment count
+                    },
+                  },
+                },
+                totalActivationEarning: {
+                  $sum: "$referrals.activationEarning",
+                },
               }
             },
             {
@@ -165,7 +225,9 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
                 _id: 0,
                 user: '$_id',
                 totalReferralEarning: 1,
-                totalReferralCount: 1,                 
+                totalReferralCount: 1,   
+                totalActivationCount: 1,
+                totalActivationEarning: 1,              
               }
             }
         ]);
@@ -173,7 +235,10 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
         for (item of leaderboard){
             const { employeeid, first_name, last_name } = item.user;
             const score = item.totalReferralEarning;
-            const member = `${employeeid}:${first_name}:${last_name}:${item.totalReferralCount}`;
+            const activationEarning = item?.totalActivationEarning;
+            const activationCount = item?.totalActivationCount;
+
+            const member = `${employeeid}:${first_name}:${last_name}:${item.totalReferralCount}:${activationEarning}:${activationCount}`;
             await client.ZADD(`referralLeaderboard:${process.env.PROD}`, {
                 score: score,
                 value: member
@@ -199,8 +264,11 @@ exports.getReferralLeaderboard = async(req,res,next) =>{
           const first_name = inputArray[i].split(":")[1];
           const last_name = inputArray[i].split(":")[2];
           const referralCount = inputArray[i].split(":")[3];
+
+          const activationCount = inputArray[i].split(":")[5];
+          const activationEarning = inputArray[i].split(":")[4];
           const earnings = parseInt(inputArray[i + 1]);
-          const obj = { user,first_name, last_name, referralCount, earnings };
+          const obj = { user,first_name, last_name, referralCount, earnings, activationCount, activationEarning };
           outputArray.push(obj);
         }
         return outputArray;
@@ -219,7 +287,6 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
         const leaderBoardRank = await client.ZREVRANK(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
         const leaderBoardScore = await client.ZSCORE(`referralLeaderboard:${process.env.PROD}`, `${req.user.employeeid}:${req.user.first_name}:${req.user.last_name}:${referralCount}`);
     
-        console.log("My Leader Board: ",leaderBoardRank, leaderBoardScore)
         if(leaderBoardRank !== null){
           return res.status(200).json({
             status: 'success',
@@ -246,3 +313,102 @@ exports.getMyLeaderBoardRank = async(req,res,next) => {
     }
   
   }
+
+exports.getReferredProduct = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const product = await AffiliateTransaction.aggregate([
+      {
+        $facet:
+          {
+            transaction: [
+              {
+                $match: {
+                  affiliate: new ObjectId(
+                    userId
+                  ),
+                  product: {$ne: new ObjectId("6586e95dcbc91543c3b6c181")}
+                },
+              },
+              {
+                $lookup: {
+                  from: "user-personal-details",
+                  localField: "buyer",
+                  foreignField: "_id",
+                  as: "buyer",
+                },
+              },
+              {
+                $lookup: {
+                  from: "products",
+                  localField: "product",
+                  foreignField: "_id",
+                  as: "product",
+                },
+              },
+              {
+                $project:
+                  {
+                    buyer_first_name: {
+                      $arrayElemAt: [
+                        "$buyer.first_name",
+                        0,
+                      ],
+                    },
+                    product_name: {
+                      $arrayElemAt: [
+                        "$product.productName",
+                        0,
+                      ],
+                    },
+                    _id: 0,
+                    payout: "$affiliatePayout",
+                    productDiscountedPrice:
+                      "$productDiscountedPrice",
+                    date: "$createdOn",
+                    transactionId: "$transactionId"
+                  },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            summery: [
+              {
+                $match: {
+                  affiliate: new ObjectId(
+                    userId
+                  ),
+                  product: {$ne: new ObjectId("6586e95dcbc91543c3b6c181")}
+                },
+              },
+              {
+                $group: {
+                  _id: {},
+                  payout: {
+                    $sum: "$affiliatePayout",
+                  },
+                  count: {
+                    $sum: 1,
+                  },
+                },
+              },
+              {
+                $project: {
+                  count: 1,
+                  _id: 0,
+                  payout: 1,
+                },
+              },
+            ],
+          },
+      },
+    ])
+    res.status(200).json({status: "success", data: product, message: "Data received"});
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({status: "error", message: "Something went wrong"});
+  }
+}

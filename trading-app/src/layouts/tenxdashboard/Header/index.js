@@ -1,779 +1,1966 @@
-import React, {useState, useEffect} from 'react';
-import axios from "axios"
-import MDBox from '../../../components/MDBox';
-import MDButton from '../../../components/MDButton';
-import {Grid, CircularProgress, Divider} from '@mui/material';
-import MDTypography from '../../../components/MDTypography';
-// import MDAvatar from '../../../components/MDAvatar';
-// import man from '../../../assets/images/man.png'
-// import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import ReactGA from "react-ga";
+import MDBox from "../../../components/MDBox";
+import MDButton from "../../../components/MDButton";
+import { Grid, CircularProgress, Divider } from "@mui/material";
+import MDTypography from "../../../components/MDTypography";
 import { Link, useLocation } from "react-router-dom";
-// import RunningPNLChart from '../data/runningpnlchart'
+// import { suppressDeprecationWarnings } from "moment";
+import { apiUrl } from "../../../constants/constants.js";
+import MDSnackbar from "../../../components/MDSnackbar";
+import DailyTenXUsers from "../data/dailyTenXUsers";
 
-//data
-
-export default function LabTabs({socket}) {
-//   const [value, setValue] = React.useState('1');
-  const [isLoading,setIsLoading] = useState(false);
+export default function LabTabs({ socket }) {
+  const [isLoading, setIsLoading] = useState(false);
   const [trackEvent, setTrackEvent] = useState({});
-  const [liveDetail, setLiveDetail] = useState([]);
+  const [lastTenXTradingDate, setLastTenXTradingDate] = useState("");
+  // const [liveDetail, setLiveDetail] = useState([]);
+  const [dailyTenXUsers, setDailyTenXUsers] = useState();
   const [marketData, setMarketData] = useState([]);
   const [tradeData, setTradeData] = useState([]);
   const [tradeDataYesterday, setTradeDataYesterday] = useState([]);
   const [liveTraderCount, setLiveTraderCount] = useState(0);
   const [liveTraderCountYesterday, setLiveTraderCountYesterday] = useState(0);
   const [notliveTraderCount, setNotLiveTraderCount] = useState(0);
-  const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] = useState(0);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
-  let liveDetailsArr = [];
+  const [notliveTraderCountYesterday, setNotLiveTraderCountYesterday] =
+    useState(0);
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   let totalTransactionCost = 0;
   let totalGrossPnl = 0;
   let totalRunningLots = 0;
   let totalTurnover = 0;
   let totalLots = 0;
   let totalTrades = 0;
-  let ytotalTransactionCost = 0;
-  let ytotalGrossPnl = 0;
-  let ytotalRunningLots = 0;
-  let ytotalTurnover = 0;
-  let ytotalLots = 0;
-  let ytotalTrades = 0;
 
-  useEffect(()=>{
-    axios.get(`${baseUrl}api/v1/getliveprice`)
-    .then((res) => {
-        //console.log("live price data", res)
+  useEffect(() => {
+    axios
+      .get(`${baseUrl}api/v1/getliveprice`)
+      .then((res) => {
         setMarketData(res.data);
-        // setDetails.setMarketData(data);
-    }).catch((err) => {
+      })
+      .catch((err) => {
         return new Error(err);
-    })
+      });
 
-    socket.on('tick', (data) => {
-    //   console.log("data from socket in instrument in parent in  mock", data);
-      setMarketData(prevInstruments => {
-        const instrumentMap = new Map(prevInstruments.map(instrument => [instrument.instrument_token, instrument]));
-        data.forEach(instrument => {
+    socket.on("tick", (data) => {
+      setMarketData((prevInstruments) => {
+        const instrumentMap = new Map(
+          prevInstruments.map((instrument) => [
+            instrument.instrument_token,
+            instrument,
+          ])
+        );
+        data.forEach((instrument) => {
           instrumentMap.set(instrument.instrument_token, instrument);
         });
         return Array.from(instrumentMap.values());
       });
-    })
-  }, [])
+    });
 
-  useEffect(()=>{
-    socket.on('updatePnl', (data)=>{
-      // console.log("in the pnl event", data)
-      setTimeout(()=>{
-        setTrackEvent(data);
-      })
-    })
-  }, [])
+    ReactGA.pageview(window.location.pathname);
+  }, []);
 
-  useEffect(()=>{
-    console.log("Loading: ",isLoading)
-    setIsLoading(true)
-    axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnltoday`)
-    .then((res) => {
-        console.log("TenX Data Today: ",res.data.data)
-        setTradeData(res.data.data);
-        // setTimeout(()=>{
-        //     setIsLoading(false)
-        // },500)
-        
-    }).catch((err) => {
-        setIsLoading(false)
-        return new Error(err);
-    })
-    console.log("Loading: ",isLoading)
-    axios.get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercounttoday`)
-    .then((res) => {
-        console.log("TenX Count: ",res.data.data)
-        setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount)
-        setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount)
-        // setTimeout(()=>{
-        //     setIsLoading(false)
-        // },500)
-        
-    }).catch((err) => {
-        setIsLoading(false)
-        return new Error(err);
-    })
-
-    axios.get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnlyesterday`)
-    .then((res) => {
-        console.log("Yesterday's Data:",res.data.data)
-        setTradeDataYesterday(res.data.data);
-        // setTimeout(()=>{
-        //     setIsLoading(false)
-        // },500)
-        
-    }).catch((err) => {
-        setIsLoading(false)
-        return new Error(err);
-    })
-
-    axios.get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercountyesterday`)
-    .then((res) => {
-        console.log("TenX Count Yesterday: ",res.data.data)
-        setNotLiveTraderCountYesterday(res.data.data[0].zeroLotsTraderCount)
-        setLiveTraderCountYesterday(res.data.data[0].nonZeroLotsTraderCount)
-        setTimeout(()=>{
-            setIsLoading(false)
-        },500)
-        
-    }).catch((err) => {
-        setIsLoading(false)
-        return new Error(err);
-    })
-  
-    
-  }, [trackEvent])
-
-  console.log("Loading: ",isLoading)
   useEffect(() => {
-    return () => {
-        socket.close();
-    }
-  }, [])
+    socket.on("updatePnl", (data) => {
+      setTimeout(() => {
+        setTrackEvent(data);
+      });
+    });
+  }, []);
 
-  console.log(tradeDataYesterday)
-  tradeData.map((subelem, index)=>{
-    let obj = {};
-    totalRunningLots += Number(subelem.lots)
-    totalTransactionCost += Number(subelem.brokerage);
-    totalTurnover += Number(Math.abs(subelem.turnover));
-    totalLots += Number(Math.abs(subelem.totallots))
-    totalTrades += Number(subelem.trades)
+  useEffect(() => {
+    setIsLoading(true);
+    axios
+      .get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnltoday`)
+      .then((res) => {
+        setTradeData(res.data.data);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        return new Error(err);
+      });
+    axios
+      .get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercounttoday`)
+      .then((res) => {
+        setNotLiveTraderCount(res.data.data[0].zeroLotsTraderCount);
+        setLiveTraderCount(res.data.data[0].nonZeroLotsTraderCount);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        return new Error(err);
+      });
 
-    let liveDetail = marketData.filter((elem)=>{
-        return (elem !== undefined && (elem.instrument_token == subelem._id.instrumentToken || elem.instrument_token == subelem._id.exchangeInstrumentToken));
-    })
-    let updatedValue = (subelem.amount+(subelem.lots)*liveDetail[0]?.last_price);
+    axios
+      .get(`${baseUrl}api/v1/tenxtrade/tenxoveralltraderpnlyesterday`)
+      .then((res) => {
+        setTradeDataYesterday(res.data.data);
+        setLastTenXTradingDate(res.data.date);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        return new Error(err);
+      });
+
+    axios
+      .get(`${baseUrl}api/v1/tenxtrade/dailytenxusers`)
+      .then((res) => {
+        setDailyTenXUsers(res.data.data);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        return new Error(err);
+      });
+
+    axios
+      .get(`${baseUrl}api/v1/tenxtrade/liveandtotaltradercountyesterday`)
+      .then((res) => {
+        setNotLiveTraderCountYesterday(res.data.data[0].zeroLotsTraderCount);
+        setLiveTraderCountYesterday(res.data.data[0].nonZeroLotsTraderCount);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        return new Error(err);
+      });
+  }, [trackEvent]);
+
+  tradeData.map((subelem, index) => {
+    totalRunningLots += Number(subelem?.lots);
+    totalTransactionCost += Number(subelem?.brokerage);
+    totalTurnover += Number(Math.abs(subelem?.turnover));
+    totalLots += Number(Math.abs(subelem?.totallots));
+    totalTrades += Number(subelem?.trades);
+
+    let liveDetail = marketData.filter((elem) => {
+      return (
+        elem !== undefined &&
+        (elem?.instrument_token == subelem?._id?.instrumentToken ||
+          elem?.instrument_token == subelem?._id?.exchangeInstrumentToken)
+      );
+    });
+    let updatedValue =
+      subelem?.amount + subelem?.lots * liveDetail[0]?.last_price;
     totalGrossPnl += updatedValue;
+  });
 
-    // const instrumentcolor = subelem._id.symbol.slice(-2) == "CE" ? "success" : "error"
-    // const quantitycolor = subelem.lots >= 0 ? "success" : "error"
-    // const gpnlcolor = updatedValue >= 0 ? "success" : "error"
-    // const pchangecolor = (liveDetail[0]?.change) >= 0 ? "success" : "error"
-    // const productcolor =  subelem._id.product === "NRML" ? "info" : subelem._id.product == "MIS" ? "warning" : "error"
-  })
+  const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error";
+  const totalnetPnlcolor =
+    totalGrossPnl - totalTransactionCost >= 0 ? "success" : "error";
+  const totalquantitycolor = totalRunningLots >= 0 ? "success" : "error";
 
-  const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error"
-  const totalnetPnlcolor = (totalGrossPnl-totalTransactionCost) >= 0 ? "success" : "error"
-  const totalquantitycolor = totalRunningLots >= 0 ? "success" : "error"
+  async function revenueMail() {
+    const data = await axios.get(`${apiUrl}revenue/revenuemail`);
+  }
 
+  async function autoCreateProduct() {
+    const data = await axios.get(`${apiUrl}productautocreate`);
+    if (data?.data?.status === 'success') {
+      openSuccessSB('success', data?.data?.message)
+    } else {
+      openSuccessSB('error', data?.data?.message)
+    }
+  }
+
+  const [successSB, setSuccessSB] = useState(false);
+  const [messageObj, setMessageObj] = useState({
+    color: "",
+    icon: "",
+    title: "",
+    content: "",
+  });
+  const openSuccessSB = (value, content) => {
+    if (value === "success") {
+      messageObj.color = "success";
+      messageObj.icon = "check";
+      messageObj.title = "Successful";
+      messageObj.content = content;
+      setSuccessSB(true);
+    }
+    if (value === "error") {
+      messageObj.color = "error";
+      messageObj.icon = "error";
+      messageObj.title = "Error";
+      messageObj.content = content;
+    }
+
+    setMessageObj(messageObj);
+    setSuccessSB(true);
+  };
+  const closeSuccessSB = () => setSuccessSB(false);
+  const renderSuccessSB = (
+    <MDSnackbar
+      color={messageObj.color}
+      icon={messageObj.icon}
+      title={messageObj.title}
+      content={messageObj.content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite={messageObj.color}
+      sx={{
+        borderLeft: `10px solid ${
+          messageObj.color === "success"
+            ? "#4CAF50"
+            : messageObj.color === "error"
+            ? "#F44335"
+            : "#1A73E8"
+        }`,
+        borderRight: `10px solid ${
+          messageObj.color === "success"
+            ? "#4CAF50"
+            : messageObj.color === "error"
+            ? "#F44335"
+            : "#1A73E8"
+        }`,
+        borderRadius: "15px",
+        width: "auto",
+      }}
+    />
+  );
   return (
-    <MDBox bgColor="dark" mt={2} mb={1} p={2} borderRadius={10} minHeight='auto' maxWidth='100%'>
-        <MDBox>
-            <MDTypography ml={1} mb={1} color='light' fontSize={18} fontWeight='bold'>TenX Dashboard</MDTypography>
-        </MDBox>
+    <>
+    <MDBox
+      bgColor="dark"
+      mt={2}
+      mb={1}
+      p={2}
+      borderRadius={10}
+      minHeight="auto"
+      maxWidth="100%"
+    >
+      <MDBox>
+        <MDTypography
+          ml={1}
+          mb={1}
+          color="light"
+          fontSize={18}
+          fontWeight="bold"
+        >
+          TenX Dashboard
+        </MDTypography>
+      </MDBox>
 
-        <Grid container lg={12}>
-            <Grid item boxShadow={2} minHeight='20vH' minWidth='100%' style={{backgroundColor:'white'}} borderRadius={1}>
-                {isLoading ? 
-                    <MDBox mt={10} mb={10} display="flex" width="100%" justifyContent="center" alignItems="center">
-                        <CircularProgress color='info'/>
-                    </MDBox>
-                :
-                <>
-                <Grid container>
-                    <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Today's TenX Position</MDTypography>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
-                                <MDTypography color={totalGrossPnlcolor} fontSize={12} display='flex' justifyContent='left'>{ (totalGrossPnl) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-totalGrossPnl))}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='center'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTransactionCost)}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
-                                <MDTypography color={totalnetPnlcolor} fontSize={12} display='flex' justifyContent='right'>{ (totalGrossPnl - totalTransactionCost) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalGrossPnl - totalTransactionCost)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTransactionCost - totalGrossPnl))}</MDTypography>
-                            </Grid>
-                        </Grid>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='left'>{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalLots)}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
-                                <MDTypography color={totalquantitycolor} fontSize={12} display='flex' justifyContent='center'>{totalRunningLots}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
-                                <MDTypography color='info' fontSize={12} display='flex' justifyContent='right'>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalTurnover)}</MDTypography>
-                            </Grid>
-                        </Grid>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{totalTrades}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCount}/{notliveTraderCount + liveTraderCount}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
-                            </Grid>
-                        </Grid>
+      <Grid container xs={12} md={12} lg={12}>
+        <Grid
+          item
+          boxShadow={2}
+          minHeight="20vH"
+          minWidth="100%"
+          style={{ backgroundColor: "white" }}
+          borderRadius={1}
+        >
+          {isLoading ? (
+            <MDBox
+              mt={10}
+              mb={10}
+              display="flex"
+              width="100%"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <CircularProgress color="info" />
+            </MDBox>
+          ) : (
+            <>
+              <Grid container>
+                <Grid item p={2} xs={12} lg={5.9}>
+                  <MDTypography fontSize={16} fontWeight="bold" color="dark">
+                    Today's TenX Position (Trader Side)
+                  </MDTypography>
+                  <Grid container mt={1}>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        Gross P&L
+                      </MDTypography>
+                      <MDTypography
+                        color={totalGrossPnlcolor}
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        {totalGrossPnl >= 0
+                          ? "+₹" +
+                            new Intl.NumberFormat(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(totalGrossPnl)
+                          : "-₹" +
+                            new Intl.NumberFormat(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(-totalGrossPnl)}
+                      </MDTypography>
                     </Grid>
-
-                    <Grid item xs={true} lg={0.2} hidden={false}>
-                        <Divider orientation='vertical' color='black'/>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        Brokerage
+                      </MDTypography>
+                      <MDTypography
+                        color="info"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        ₹
+                        {new Intl.NumberFormat(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(totalTransactionCost)}
+                      </MDTypography>
                     </Grid>
-
-                    <Grid item p={2} xs={12} lg={5.9}>
-                        <MDTypography fontSize={16} fontWeight='bold' color='dark'>Yesterday's TenX Position</MDTypography>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Gross P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{ tradeDataYesterday[0] ? (tradeDataYesterday[0]?.amount) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-tradeDataYesterday[0]?.amount)) : "₹" + 0}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Brokerage</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataYesterday[0] ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage)) : "₹" + 0}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Net P&L</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{ tradeDataYesterday[0] ? (tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage) >= 0 ? "+₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.amount - tradeDataYesterday[0]?.brokerage)) : "-₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.brokerage - tradeDataYesterday[0]?.amount)) : "₹" + 0}</MDTypography>
-                            </Grid>
-                        </Grid>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'>Total Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday[0] ? new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.totallots) : 0}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Running Lots</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{tradeDataYesterday[0] ? tradeDataYesterday[0]?.lots : 0}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Turnover</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>{tradeDataYesterday[0] ? "₹" + (new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(tradeDataYesterday[0]?.turnover)) : "₹" + 0}</MDTypography>
-                            </Grid>
-                        </Grid>
-                        <Grid container mt={1}>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='left'># of Trades</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='left'>{tradeDataYesterday[0] ? tradeDataYesterday[0]?.trades : 0}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='center'>Live/Total Traders</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='center'>{liveTraderCountYesterday}/{notliveTraderCountYesterday}</MDTypography>
-                            </Grid>
-                            <Grid item lg={4}>
-                                <MDTypography color='text' fontSize={14} fontWeight='bold' display='flex' justifyContent='right'>Used Margin</MDTypography>
-                                <MDTypography color='text' fontSize={12} display='flex' justifyContent='right'>To Be Configured</MDTypography>
-                            </Grid>
-                        </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        Net P&L
+                      </MDTypography>
+                      <MDTypography
+                        color={totalnetPnlcolor}
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        {totalGrossPnl - totalTransactionCost >= 0
+                          ? "+₹" +
+                            new Intl.NumberFormat(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(totalGrossPnl - totalTransactionCost)
+                          : "-₹" +
+                            new Intl.NumberFormat(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(totalTransactionCost - totalGrossPnl)}
+                      </MDTypography>
                     </Grid>
+                  </Grid>
+                  <Grid container mt={1}>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        Total Lots
+                      </MDTypography>
+                      <MDTypography
+                        color="info"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        {new Intl.NumberFormat(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(totalLots)}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        Running Lots
+                      </MDTypography>
+                      <MDTypography
+                        color={totalquantitycolor}
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        {totalRunningLots}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        Turnover
+                      </MDTypography>
+                      <MDTypography
+                        color="info"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        ₹
+                        {new Intl.NumberFormat(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(totalTurnover)}
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+                  <Grid container mt={1}>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        # of Trades
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        {totalTrades}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        Live/Total Traders
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        {liveTraderCount}/{notliveTraderCount + liveTraderCount}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        Used Margin
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        To Be Configured
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
                 </Grid>
-                </>
-                }
-            </Grid>
-        </Grid>
 
-        <Grid container spacing={2} mt={1}>
-            <Grid item xs={12} md={6} lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"warning"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/tenxposition`,
-                          }}
+                <Grid item xs={true} lg={0.2} hidden={false}>
+                  <Divider orientation="vertical" color="black" />
+                </Grid>
+
+                <Grid item p={2} xs={12} lg={5.9}>
+                  <MDTypography fontSize={16} fontWeight="bold" color="dark">
+                    Last Trading Day -{" "}
+                    {new Date(lastTenXTradingDate).toLocaleDateString("en-US", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      weekday: "short",
+                    })}
+                  </MDTypography>
+                  <Grid container mt={1}>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="left"
                       >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Position</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
-                                  <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check today's TenX position here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Traders: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
-                              </Grid>
-      
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Batches: <span style={{fontSize:11,fontWeight:700}}>2</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-                
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"success"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/internshipbatch`,
-                          }}
+                        Gross P&L
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="left"
                       >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Report</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
-                                  <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all TenX reports here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Batches: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
-                              </Grid>
-      
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Completed Batches: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"primary"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/tenxsubscriptions`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Subscriptions</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
-                                  <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all TenX Subscriptions here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Total Colleges: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
-                              </Grid>
-      
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Total Zones: <span style={{fontSize:11,fontWeight:700}}>5</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-                    <MDButton 
-                        variant="contained" 
-                        color={"error"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/careerlist`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={20} style={{color:"white",paddingLeft:4,paddingRight:4,fontWeight:'bold'}}>TenX Subscribers</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}} display="flex" alignContent="center" alignItems="center">
-                                  <MDBox display="flex" flexDirection="column">
-                                  <MDTypography fontSize={10} display="flex" justifyContent="flex-start" style={{color:"white",paddingLeft:4,paddingRight:4}}>Check all TenX Subscribers here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Postings: <span style={{fontSize:11,fontWeight:700}}>4</span></MDTypography>
-                              </Grid>
-      
-                              <Grid item xs={12} md={6} lg={6} mb={1} display="flex" justifyContent="right">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Total Postings: <span style={{fontSize:11,fontWeight:700}}>10</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-            </Grid>
-        </Grid>
-
-        <Grid container spacing={2} mt={1}>
-            <Grid item xs={12} md={6} lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"primary"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/tenxtrading`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>TenX Trading</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                  <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Take TenX trades here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-                
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"error"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/adminreportlive`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>TenX Leaderboard</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                  <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check TenX leaderboard here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Green Traders: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"warning"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/tradersReport`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>TenX Payouts</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                  <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check TenX payouts here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}># of Certificated Issued: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"success"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/tradersReportLive`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Queries</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                  <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check queries form TenX traders here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Active Queries: <span style={{fontSize:11,fontWeight:700}}>0</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-            
-        </Grid>
-        
-        <Grid container spacing={2} mt={1} height='15vH'>
-            <Grid item lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"error"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/wallet`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Wallet</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                  <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your wallet transacrions here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-                
-            </Grid>
-
-            <Grid item lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"warning"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/analytics`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Analytics</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                  <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your trading analytics here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-
-            <Grid item lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"success"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/myportfolio`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>My Portfolio</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                  <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your funds details here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-
-            <Grid item lg={3}>
-                    
-                    <MDButton 
-                        variant="contained" 
-                        color={"primary"} 
-                        size="small" 
-                        component = {Link}
-                        to={{
-                            pathname: `/myreferrals`,
-                          }}
-                      >
-                          <Grid container>
-                              
-                              <Grid item xs={12} md={6} lg={12} mt={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={18} style={{color:"white",paddingLeft:4,fontWeight:'bold'}}>Referrals</MDTypography>
-                              </Grid>
-                              
-                              <Grid item xs={12} md={6} lg={12} mb={2} style={{fontWeight:1000}}>
-                                  <MDBox display='flex' justifyContent='left'>
-                                  <MDTypography fontSize={10} style={{color:"white",paddingLeft:4}}>Check your referrals here!</MDTypography>
-                                  </MDBox>
-                              </Grid>
-
-                              <Grid item xs={12} md={6} lg={12} mb={1} display="flex" justifyContent="left">
-                                  <MDTypography fontSize={9} style={{color:"white"}}>Current Month's P&L: <span style={{fontSize:11,fontWeight:700}}>10,000,000</span></MDTypography>
-                              </Grid>
-      
-                          </Grid>
-                    </MDButton>
-
-            </Grid>
-            
-        </Grid>
-
-        <Grid container spacing={2} mt={1}>
-            <Grid item lg={3}>
-                <MDBox p={2} bgColor='text' borderRadius={5}>
-                    <MDTypography color='light' fontSize={15} fontWeight='bold'>Quick Links</MDTypography>
-                    <Grid container spacing={1}>
-                        <Grid item fullWidth>
-                            <MDButton 
-                                variant="contained" 
-                                color={"success"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/internshiporders`,
-                                  }}
-                            >
-                                TenX Orders
-                            </MDButton>
-                        </Grid>
-                        <Grid item fullWidth>
-                            <MDButton 
-                                variant="contained" 
-                                color={"dark"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/userorders`,
-                                  }}
-                            >
-                                My Orders
-                            </MDButton>
-                        </Grid>
-                        <Grid item fullWidth>
-                            <MDButton 
-                                variant="contained" 
-                                color={"light"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/campaigns`,
-                                  }}
-                            >
-                                Campaigns
-                            </MDButton>
-                        </Grid>
-                        <Grid item fullWidth>
-                            <MDButton 
-                                variant="contained" 
-                                color={"warning"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/portfolio`,
-                                  }}
-                            >
-                                Portfolio
-                            </MDButton>
-                        </Grid>
-                        <Grid item fullWidth>
-                            <MDButton 
-                                variant="contained" 
-                                color={"error"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/referralprogram`,
-                                  }}
-                            >
-                                Referral Program
-                            </MDButton>
-                        </Grid>
-                        <Grid item fullWidth>
-                            <MDButton 
-                                variant="contained" 
-                                color={"dark"} 
-                                size="small" 
-                                component = {Link}
-                                to={{
-                                    pathname: `/tutorialvideos`,
-                                  }}
-                            >
-                                Tutorial Videos
-                            </MDButton>
-                        </Grid>
+                        {tradeDataYesterday[0]
+                          ? tradeDataYesterday[0]?.amount >= 0
+                            ? "+₹" +
+                              new Intl.NumberFormat(undefined, {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }).format(tradeDataYesterday[0]?.amount)
+                            : "-₹" +
+                              new Intl.NumberFormat(undefined, {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }).format(-tradeDataYesterday[0]?.amount)
+                          : "₹" + 0}
+                      </MDTypography>
                     </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        Brokerage
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        {tradeDataYesterday[0]
+                          ? "₹" +
+                            new Intl.NumberFormat(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(tradeDataYesterday[0]?.brokerage)
+                          : "₹" + 0}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        Net P&L
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        {tradeDataYesterday[0]
+                          ? tradeDataYesterday[0]?.amount -
+                              tradeDataYesterday[0]?.brokerage >=
+                            0
+                            ? "+₹" +
+                              new Intl.NumberFormat(undefined, {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }).format(
+                                tradeDataYesterday[0]?.amount -
+                                  tradeDataYesterday[0]?.brokerage
+                              )
+                            : "-₹" +
+                              new Intl.NumberFormat(undefined, {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }).format(
+                                tradeDataYesterday[0]?.brokerage -
+                                  tradeDataYesterday[0]?.amount
+                              )
+                          : "₹" + 0}
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+                  <Grid container mt={1}>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        Total Lots
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        {tradeDataYesterday[0]
+                          ? new Intl.NumberFormat(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(tradeDataYesterday[0]?.totallots)
+                          : 0}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        Running Lots
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        {tradeDataYesterday[0]
+                          ? tradeDataYesterday[0]?.lots
+                          : 0}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        Turnover
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        {tradeDataYesterday[0]
+                          ? "₹" +
+                            new Intl.NumberFormat(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(tradeDataYesterday[0]?.turnover)
+                          : "₹" + 0}
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+                  <Grid container mt={1}>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        # of Trades
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="left"
+                      >
+                        {tradeDataYesterday[0]
+                          ? tradeDataYesterday[0]?.trades
+                          : 0}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        Live/Total Traders
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="center"
+                      >
+                        {liveTraderCountYesterday}/{notliveTraderCountYesterday}
+                      </MDTypography>
+                    </Grid>
+                    <Grid item lg={4}>
+                      <MDTypography
+                        color="text"
+                        fontSize={14}
+                        fontWeight="bold"
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        Used Margin
+                      </MDTypography>
+                      <MDTypography
+                        color="text"
+                        fontSize={12}
+                        display="flex"
+                        justifyContent="right"
+                      >
+                        To Be Configured
+                      </MDTypography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </>
+          )}
+        </Grid>
+      </Grid>
+
+      <Grid
+        style={{ backgroundColor: "white", borderRadius: 5 }}
+        container
+        xs={12}
+        md={12}
+        lg={12}
+        mt={1}
+      >
+        <Grid item xs={12} md={12} lg={12}>
+          <MDBox p={0.5}>
+            {dailyTenXUsers && (
+              <DailyTenXUsers dailyTenXUsers={dailyTenXUsers} />
+            )}
+          </MDBox>
+        </Grid>
+      </Grid>
+
+      <Grid container xs={12} md={12} lg={12} spacing={2} mt={1}>
+        <Grid item xs={12} md={6} lg={3}>
+          <MDButton
+            variant="contained"
+            color={"warning"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/tenxposition`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{
+                    color: "white",
+                    paddingLeft: 4,
+                    paddingRight: 4,
+                    fontWeight: "bold",
+                  }}
+                >
+                  TenX Position
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+                display="flex"
+                alignContent="center"
+                alignItems="center"
+              >
+                <MDBox display="flex" flexDirection="column">
+                  <MDTypography
+                    fontSize={10}
+                    display="flex"
+                    justifyContent="flex-start"
+                    style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}
+                  >
+                    Check today's TenX position here!
+                  </MDTypography>
                 </MDBox>
-                
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={6}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Active Traders:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>10</span>
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={6}
+                mb={1}
+                display="flex"
+                justifyContent="right"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Active Batches:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>2</span>
+                </MDTypography>
+              </Grid>
             </Grid>
+          </MDButton>
         </Grid>
 
+        <Grid item xs={12} md={6} lg={3}>
+          <MDButton
+            variant="contained"
+            color={"success"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/tenxreport`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{
+                    color: "white",
+                    paddingLeft: 4,
+                    paddingRight: 4,
+                    fontWeight: "bold",
+                  }}
+                >
+                  TenX Report
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+                display="flex"
+                alignContent="center"
+                alignItems="center"
+              >
+                <MDBox display="flex" flexDirection="column">
+                  <MDTypography
+                    fontSize={10}
+                    display="flex"
+                    justifyContent="flex-start"
+                    style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}
+                  >
+                    Check all TenX reports here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={6}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Active Batches:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>10</span>
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={6}
+                mb={1}
+                display="flex"
+                justifyContent="right"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Completed Batches:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>10</span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDButton
+            variant="contained"
+            color={"primary"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/tenxsubscriptions`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{
+                    color: "white",
+                    paddingLeft: 4,
+                    paddingRight: 4,
+                    fontWeight: "bold",
+                  }}
+                >
+                  TenX Subscriptions
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+                display="flex"
+                alignContent="center"
+                alignItems="center"
+              >
+                <MDBox display="flex" flexDirection="column">
+                  <MDTypography
+                    fontSize={10}
+                    display="flex"
+                    justifyContent="flex-start"
+                    style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}
+                  >
+                    Check all TenX Subscriptions here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={6}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Total Colleges:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>10</span>
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={6}
+                mb={1}
+                display="flex"
+                justifyContent="right"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Total Zones:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>5</span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDButton
+            variant="contained"
+            color={"error"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/tenxdashboard/tenxsubscribers`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{
+                    color: "white",
+                    paddingLeft: 4,
+                    paddingRight: 4,
+                    fontWeight: "bold",
+                  }}
+                >
+                  TenX Subscribers
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+                display="flex"
+                alignContent="center"
+                alignItems="center"
+              >
+                <MDBox display="flex" flexDirection="column">
+                  <MDTypography
+                    fontSize={10}
+                    display="flex"
+                    justifyContent="flex-start"
+                    style={{ color: "white", paddingLeft: 4, paddingRight: 4 }}
+                  >
+                    Check all TenX Subscribers here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={6}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Active Postings:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>4</span>
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={6}
+                mb={1}
+                display="flex"
+                justifyContent="right"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Total Postings:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>10</span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDButton
+            variant="contained"
+            color={"primary"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/tenxtrading`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{ color: "white", paddingLeft: 4, fontWeight: "bold" }}
+                >
+                  TenX Trading
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+              >
+                <MDBox display="flex" justifyContent="left">
+                  <MDTypography
+                    fontSize={10}
+                    style={{ color: "white", paddingLeft: 4 }}
+                  >
+                    Take TenX trades here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Current Month's P&L:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    10,000,000
+                  </span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDButton
+            variant="contained"
+            color={"error"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/adminreportlive`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{ color: "white", paddingLeft: 4, fontWeight: "bold" }}
+                >
+                  TenX Leaderboard
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+              >
+                <MDBox display="flex" justifyContent="left">
+                  <MDTypography
+                    fontSize={10}
+                    style={{ color: "white", paddingLeft: 4 }}
+                  >
+                    Check TenX leaderboard here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Green Traders:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>0</span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDButton
+            variant="contained"
+            color={"warning"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/tradersReport`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{ color: "white", paddingLeft: 4, fontWeight: "bold" }}
+                >
+                  TenX Payouts
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+              >
+                <MDBox display="flex" justifyContent="left">
+                  <MDTypography
+                    fontSize={10}
+                    style={{ color: "white", paddingLeft: 4 }}
+                  >
+                    Check TenX payouts here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  # of Certificated Issued:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>0</span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={3}>
+          <MDButton
+            variant="contained"
+            color={"success"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/tradersReportLive`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{ color: "white", paddingLeft: 4, fontWeight: "bold" }}
+                >
+                  Queries
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+              >
+                <MDBox display="flex" justifyContent="left">
+                  <MDTypography
+                    fontSize={10}
+                    style={{ color: "white", paddingLeft: 4 }}
+                  >
+                    Check queries form TenX traders here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Active Queries:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>0</span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item lg={3}>
+          <MDButton
+            variant="contained"
+            color={"error"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/wallet`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{ color: "white", paddingLeft: 4, fontWeight: "bold" }}
+                >
+                  My Wallet
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+              >
+                <MDBox display="flex" justifyContent="left">
+                  <MDTypography
+                    fontSize={10}
+                    style={{ color: "white", paddingLeft: 4 }}
+                  >
+                    Check your wallet transacrions here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Current Month's P&L:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    10,000,000
+                  </span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item lg={3}>
+          <MDButton
+            variant="contained"
+            color={"warning"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/analytics`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{ color: "white", paddingLeft: 4, fontWeight: "bold" }}
+                >
+                  Analytics
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+              >
+                <MDBox display="flex" justifyContent="left">
+                  <MDTypography
+                    fontSize={10}
+                    style={{ color: "white", paddingLeft: 4 }}
+                  >
+                    Check your trading analytics here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Current Month's P&L:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    10,000,000
+                  </span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item lg={3}>
+          <MDButton
+            variant="contained"
+            color={"success"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/myportfolio`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{ color: "white", paddingLeft: 4, fontWeight: "bold" }}
+                >
+                  My Portfolio
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+              >
+                <MDBox display="flex" justifyContent="left">
+                  <MDTypography
+                    fontSize={10}
+                    style={{ color: "white", paddingLeft: 4 }}
+                  >
+                    Check your funds details here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Current Month's P&L:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    10,000,000
+                  </span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+
+        <Grid item lg={3}>
+          <MDButton
+            variant="contained"
+            color={"primary"}
+            size="small"
+            component={Link}
+            to={{
+              pathname: `/myreferrals`,
+            }}
+          >
+            <Grid container>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mt={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography
+                  fontSize={15}
+                  style={{ color: "white", paddingLeft: 4, fontWeight: "bold" }}
+                >
+                  Referrals
+                </MDTypography>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={2}
+                style={{ fontWeight: 1000 }}
+              >
+                <MDBox display="flex" justifyContent="left">
+                  <MDTypography
+                    fontSize={10}
+                    style={{ color: "white", paddingLeft: 4 }}
+                  >
+                    Check your referrals here!
+                  </MDTypography>
+                </MDBox>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={12}
+                mb={1}
+                display="flex"
+                justifyContent="left"
+              >
+                <MDTypography fontSize={9} style={{ color: "white" }}>
+                  Current Month's P&L:{" "}
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    10,000,000
+                  </span>
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDButton>
+        </Grid>
+      </Grid>
+
+      <Grid container xs={12} md={12} lg={12} spacing={2} mt={1}>
+        <Grid item xs={12} md={5} lg={5}>
+          <MDBox p={2} bgColor="text" borderRadius={5}>
+            <MDTypography color="light" fontSize={15} fontWeight="bold">
+              Quick Links
+            </MDTypography>
+            <Grid container spacing={1}>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"success"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/internshiporders`,
+                  }}
+                >
+                  TenX Orders
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"error"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/leaderboard-params`,
+                  }}
+                >
+                  Leaderboard Parameters
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"dark"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/userorders`,
+                  }}
+                >
+                  My Orders
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"light"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/campaigns`,
+                  }}
+                >
+                  Campaigns
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"warning"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/portfolio`,
+                  }}
+                >
+                  Portfolio
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"error"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/referralprogram`,
+                  }}
+                >
+                  Referral Program
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"warning"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/activationprogram`,
+                  }}
+                >
+                  Activation Program
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"warning"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/affiliateprograms`,
+                  }}
+                >
+                  Affiliate Program
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"info"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/fullcollege`,
+                  }}
+                >
+                  Create College
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"light"}
+                  size="small"
+                  onClick={async ()=>{
+                    await autoCreateProduct()
+                  }}
+                >
+                  Create TestZone & MarginX
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"dark"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/tutorialvideos`,
+                  }}
+                >
+                  Tutorial Videos
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"error"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/setting`,
+                  }}
+                >
+                  App Settings
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"error"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/notification`,
+                  }}
+                >
+                  Notification Group
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"error"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/sendnotificationdetails`,
+                  }}
+                >
+                  Send Notification
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"primary"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/trading-accounts`,
+                  }}
+                >
+                  Trading Account
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"primary"}
+                  size="small"
+                  onClick={revenueMail}
+                >
+                  Revenue Mail
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"info"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/instruments`,
+                  }}
+                >
+                  Instruments
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"light"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/algobox`,
+                  }}
+                >
+                  Algo Box
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"primary"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/coupons`,
+                  }}
+                >
+                  Coupons
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"warning"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/quiz`,
+                  }}
+                >
+                  Quiz
+                </MDButton>
+              </Grid>
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"error"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/city`,
+                  }}
+                >
+                  City
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"info"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/questionbank`,
+                  }}
+                >
+                  Question Bank
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"warning"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/school`,
+                  }}
+                >
+                  School Onboarding
+                </MDButton>
+              </Grid>
+
+              <Grid item fullWidth>
+                <MDButton
+                  variant="contained"
+                  color={"success"}
+                  size="small"
+                  component={Link}
+                  to={{
+                    pathname: `/alltransactions`,
+                  }}
+                >
+                  All Transactions
+                </MDButton>
+              </Grid>
+            </Grid>
+          </MDBox>
+        </Grid>
+      </Grid>
     </MDBox>
+    {renderSuccessSB}
+    </>
   );
 }

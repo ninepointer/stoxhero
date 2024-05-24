@@ -30,23 +30,28 @@ import Toggle from "../Toggle/toggle";
 function Header({ children, setShowSetting, showSetting }) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
-  const [userDetail,setuserDetail] = useState([]);
+  const [userDetail, setuserDetail] = useState([]);
   const getDetails = useContext(userContext);
 
-  console.log("getDetails", getDetails)
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  console.log("getDetails", getDetails);
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
- useEffect(()=>{
-       axios.get(`${baseUrl}api/v1/readparticularuserdetails/${getDetails.userDetails.email}`)
-      .then((res)=>{
-          console.log(res.data);
-          setuserDetail(res.data)
-      }).catch((err)=>{
-          //window.alert("Server Down");
-          return new Error(err);
+  useEffect(() => {
+    axios
+      .get(
+        `${baseUrl}api/v1/readparticularuserdetails/${getDetails.userDetails.email}`
+      )
+      .then((res) => {
+        console.log(res.data);
+        setuserDetail(res.data);
       })
-  },[getDetails])
-  console.log("Logged In user details: "+userDetail);
+      .catch((err) => {
+        //window.alert("Server Down");
+        return new Error(err);
+      });
+  }, [getDetails]);
+  console.log("Logged In user details: " + userDetail);
 
   useEffect(() => {
     // A function that sets the orientation state of the tabs.
@@ -70,8 +75,7 @@ function Header({ children, setShowSetting, showSetting }) {
 
   const handleSetTabValue = (event, newValue) => setTabValue(newValue);
 
-  function showTraderSetting(){
-
+  function showTraderSetting() {
     showSetting ? setShowSetting(false) : setShowSetting(true);
   }
 
@@ -84,7 +88,10 @@ function Header({ children, setShowSetting, showSetting }) {
         minHeight="10rem"
         borderRadius="xl"
         sx={{
-          backgroundImage: ({ functions: { rgba, linearGradient }, palette: { gradients } }) =>
+          backgroundImage: ({
+            functions: { rgba, linearGradient },
+            palette: { gradients },
+          }) =>
             `${linearGradient(
               rgba(gradients.info.main, 0.6),
               rgba(gradients.info.state, 0.6)
@@ -119,7 +126,11 @@ function Header({ children, setShowSetting, showSetting }) {
           </Grid>
           <Grid item xs={12} md={6} lg={4} sx={{ ml: "auto" }}>
             <AppBar position="static">
-              <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
+              <Tabs
+                orientation={tabsOrientation}
+                value={tabValue}
+                onChange={handleSetTabValue}
+              >
                 <Tab
                   label="App"
                   icon={
@@ -149,9 +160,10 @@ function Header({ children, setShowSetting, showSetting }) {
             </AppBar>
 
             {/* <TabPanel value={tabValue} index={0}><Toggle/> </TabPanel> */}
-            <TabPanel value={tabValue} index={1}><Toggle/> </TabPanel>
+            <TabPanel value={tabValue} index={1}>
+              <Toggle />{" "}
+            </TabPanel>
             {/* <TabPanel value={tabValue} index={2}><Toggle/> </TabPanel> */}
-
           </Grid>
         </Grid>
         {children}
@@ -174,14 +186,10 @@ function TabPanel(props) {
   const { children, value, index } = props;
   return (
     <>
-      {
-        value === index &&
-        <h1>{children}</h1>
-      }
+      {value === index && <h1>{children}</h1>}
       {/* <TableOne/> */}
     </>
-
-  )
+  );
 }
 
 export default Header;

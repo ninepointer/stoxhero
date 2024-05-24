@@ -26,6 +26,18 @@ const CareerApplication = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'career'
     },
+    college:{
+        type: Schema.Types.ObjectId,
+        ref: 'college'
+    },
+    course: {
+        type: String,
+        required: true,
+    },
+    passingoutyear: {
+        type: String,
+        required: true,
+    },
     resume:{
         type:String,
         // required:true,
@@ -34,13 +46,21 @@ const CareerApplication = new mongoose.Schema({
         type: String,
         enum: ['Yes','No']
     },
+    gender:{
+        type: String,
+        enum: ['Male','Female','Other']
+    },
     collegeName:{
         type:String,
         required: true,
     },
+    linkedInProfileLink:{
+        type:String,
+        required:true,
+    },
     appliedOn: {
         type: Date,
-        default: Date.now()
+        default: ()=> new Date()
     },
     source:{
         type:String,

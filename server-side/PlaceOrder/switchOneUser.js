@@ -10,7 +10,7 @@ const liveTrade = require("./liveTrade");
 exports.switchAlgoCheck = async (reqBody, res) => {
 
     const {userId, isChecked, uId} = reqBody
-    console.log("isChecked in oneUser", isChecked)
+    // console.log("isChecked in oneUser", isChecked)
     let date = new Date();
     let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
@@ -161,7 +161,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
                 real_instrument_token: tradeDetailArr[i]._id.instrumentToken,
                 exchange: tradeDetailArr[i]._id.exchange,
                 validity: tradeDetailArr[i]._id.validity,
-                OrderType: tradeDetailArr[i]._id.order_type,
+                order_type: tradeDetailArr[i]._id.order_type,
                 variety: tradeDetailArr[i]._id.variety,
                 realBuyOrSell: realBuyOrSell,
                 buyOrSell: buyOrSell,
@@ -186,7 +186,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
                     await liveTrade.liveTrade(detailObj, res);
                     quantity = quantity - 1800;
                 } else {
-                    console.log("quantity", quantity, (new Date()).getMilliseconds())
+                    // console.log("quantity", quantity, (new Date()).getMilliseconds())
                     if(quantity > 0 && quantity <= 1800){
                         detailObj.realQuantity = quantity;
                         detailObj.Quantity = quantity/usedAlgoBox[0].lotMultipler ;

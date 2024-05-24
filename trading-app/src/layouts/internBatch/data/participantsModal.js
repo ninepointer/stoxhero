@@ -86,7 +86,7 @@ const ParticipantsModal = ( {open, handleClose, gd, action, setAction}) => {
   const getParticipants = async() =>{
     try{
         console.log('getting')
-        const res = await axios.get(`${apiUrl}gd/${gd}`);
+        const res = await axios.get(`${apiUrl}gd/${gd}`,{withCredentials:true});
         console.log('data', res.data.data[0].participants);
         setParticipants(prev=>res.data.data[0].participants);
       }catch(e){

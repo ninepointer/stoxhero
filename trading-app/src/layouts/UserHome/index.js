@@ -34,7 +34,7 @@ function Tables() {
         <Grid container display="flex" style={{height:'100%'}}>
         <Grid item xs={12} md={6} lg={9} mb={4}>
           <MDBox ml={0} mr={1} display="flex" justifyContent="space-between">
-            <MDTypography variant="text" color="dark" fontSize={13}>Upcoming Contests</MDTypography>
+            <MDTypography variant="text" color="dark" fontSize={13}>Upcoming TestZones</MDTypography>
             <MDTypography fontSize={13}><button variant="text" color="dark" size="small" style={{border:"none"}}>View All</button></MDTypography>
           </MDBox>
           <Carousel/>

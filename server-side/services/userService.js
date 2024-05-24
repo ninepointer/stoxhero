@@ -39,12 +39,12 @@ exports.createUser = async({email, mobile})=>{
     
     if(!existingUser){
     const myReferralCode = generateUniqueReferralCode();
-    const userId = email.split('@')[0]
-    const userIds = await User.find({employeeid:userId})
-    console.log("User Ids: ",userIds)
+    let userId = email.split('@')[0]
+    let userIds = await User.find({employeeid:userId})
+    // console.log("User Ids: ",userIds)
       if(userIds.length > 0)
       {
-          userId = userId.toString()+(userIds.length+1).toString()
+        userId = userId.toString()+(userIds.length+1).toString()
       }
   
     const activeFreePortfolios = await PortFolio.find({status: "Active", portfolioAccount: "Free"});
@@ -96,16 +96,16 @@ exports.createUser = async({email, mobile})=>{
                 );
             }
           
-          console.log("Campaign: ",campaign)
+        //   console.log("Campaign: ",campaign)
           if(campaign){
-              console.log("Inside setting user to campaign")
+            //   console.log("Inside setting user to campaign")
               campaign?.users?.push({userId:newuser._id,joinedOn: new Date()})
               const campaignData = await Campaign.findOneAndUpdate({_id: campaign._id}, {
                   $set:{ 
                       users: campaign?.users
                   }
               })
-              console.log(campaignData)
+            //   console.log(campaignData)
           }
   
           await UserWallet.create(

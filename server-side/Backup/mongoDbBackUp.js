@@ -24,7 +24,7 @@ exports.backupDatabase = async(sourceUri, targetUri, res) => {
           
           if (!isCollectionExistsInTarget) {
             console.log(`Backing up collection ${collectionName}`);
-            if(collectionName !== "daily-pnl-datas" && collectionName !== "retreive-trades" && collectionName !== "trader-daily-pnls" && collectionName !== "instrument-ticks-histories"){
+            if(collectionName !== "daily-pnl-datas" && collectionName !== "retreive-trades" && collectionName !== "trader-daily-pnls" && collectionName !== "instrument-ticks-histories" && collectionName !== "trading-request-tokens"){
               console.log("in if", collectionName)
               const documents = await sourceDb.collection(collectionName).find({}).toArray();
     

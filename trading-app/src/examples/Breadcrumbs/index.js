@@ -1,18 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 // react-router-dom components
 import { Link } from "react-router-dom";
 
@@ -71,8 +56,66 @@ function Breadcrumbs({ icon, title, route, light }) {
     title = "Tutorial Videos"
   } else if(title === "companyposition"){
     title = "Company Position"
+  } else if(title === "stoxherodashboard"){
+    title = "StoxHero Dashboard"
+  } else if(title === "contestdashboard"){
+    title = "TestZone Dashboard"
+  } else if(title === "dailycontestdetails"){
+    title = "Daily TestZone Details"
+  } else if(title === "tradingholiday"){
+    title = "Trading Holidays"
+  } else if(title === "infinitymining"){
+    title = "Infinity Mining"
+  } else if(title === "dailycontestposition"){
+    title = "Daily TestZone Positions"
+  } else if(title === "dailycontestpositiontrader"){
+    title = "Daily TestZone Positions - Trader Side"
+  } else if(title === "contestdashboard"){
+    title = "TestZone Dashboard"
+  } else if(title === "virtualdashboard"){
+    title = "Virtual Trading Dashboard"
+  } else if(title === "contestscoreboard"){
+    title = "TestZone Scoreboard"
+  } else if(title === "collegecontest"){
+    title = "College TestZone"
+  } else if(title === "stoxherouserdashboard"){
+    title = "StoxHero Dashboard"
+  } 
+  else if(title === "marginxs"){
+    title = "MarginX"
+  } 
+  else if(title === "collegecontests"){
+    title = "College TestZones"
+  } 
+  else if(title === "tenxsubscribers"){
+    title = "TenX Subscribers"
+  } 
+  else if(title === "Tenxdashboard"){
+    title = "TenX Dashboard"
   }
-  // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:3000/"
+  else if(title === "marginxdashboard"){
+    title = "MarginX Dashboard"
+  } 
+  else if(title === "challengedashboard"){
+    title = "Challenge Dashboard"
+  }
+  else if(title === "battledashboard"){
+    title = "Battle Dashboard"
+  } 
+  else if(title === "walletpayment"){
+    title = "Wallet Payment"
+  }
+  else if(title === "signupanalytics"){
+    title = "SignUp Analytics"
+  }
+  else if(title === "affiliateprograms"){
+    title = "Affiliate Programs"
+  }  
+  else if(title === "toptestzoneportfolios"){
+    title = "Top TestZone Portfolios"
+  } 
+  
+  
   let path=' ';
 
   return (

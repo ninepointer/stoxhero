@@ -2,13 +2,16 @@ import { KeyboardArrowRight } from '@mui/icons-material'
 import { Button } from '@mui/material'
 import React from 'react'
 import MDTypography from '../../../../components/MDTypography'
+import MDButton from '../../../../components/MDButton'
+import SignupLoginPopup from "../../pages/courses/signupLoginPopup1";
 
-const LaunchButton = ({sx={}, ...props}) => {
+const LaunchButton = ({contestDetails,couponReferrerCode}) => {
   return (
-    <Button variant='contained' sx={{borderRadius:4,...sx}} {...props}>
-      <MDTypography color='white' fontSize={13} fontWeight='bold'>Launch App</MDTypography>
-      <KeyboardArrowRight color='white'/>
-    </Button>
+    <SignupLoginPopup
+      data={contestDetails}
+      testzone={true}
+      referrerCode={couponReferrerCode}
+    />
   )
 }
 

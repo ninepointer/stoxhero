@@ -7,20 +7,21 @@ export const NetPnlProvider = ({ children }) => {
   const [totalRunningLots, setTotalRunningLots] = useState(0);
   const [grossPnlAndBrokerage, setGrossPnlAndBrokerage] = useState({
     grossPnl: 0,
-    brokerage: 0
+    brokerage: 0,
+    trades: 0
   });
   const [contestNetPnl, setContestNetPnl] = useState(0);
   const [contestTotalRunningLots, setContestTotalRunningLots] = useState(0);
   const [pnlData, setPnlData] = useState([]);
-  // const [infinityNetPnl, setInfinityNetPnl] = useState(0);
-  // const [contestTotalRunningLots, setContestTotalRunningLots] = useState(0);
 
+  const [pendingOrderQuantity, setPendingOrderQuantity] = useState([]);
 
-  const updateNetPnl = (value,runninglots, grossPnl, brokerage) => {
+  const updateNetPnl = (value,runninglots, grossPnl, brokerage, trades) => {
     setNetPnl(value);
     setTotalRunningLots(runninglots);
     grossPnlAndBrokerage.grossPnl = grossPnl;
     grossPnlAndBrokerage.brokerage = brokerage;
+    grossPnlAndBrokerage.trades = trades;
     setGrossPnlAndBrokerage(grossPnlAndBrokerage);
   };
 
@@ -29,13 +30,22 @@ export const NetPnlProvider = ({ children }) => {
     setContestTotalRunningLots(contestRunningLot);
   };
 
-  // const updateInfinityNetPnl = (npnl) => {
-  //   setInfinityNetPnl(npnl);
-  //   // setContestTotalRunningLots(contestRunningLot);
-  // };updateInfinityNetPnl
-
   return (
-    <NetPnlContext.Provider value={{ pnlData, setPnlData, netPnl,totalRunningLots, updateNetPnl, updateContestNetPnl, contestNetPnl, contestTotalRunningLots, grossPnlAndBrokerage }}>
+    <NetPnlContext.Provider
+     value={{ 
+      pnlData, 
+      setPnlData, 
+      netPnl,
+      totalRunningLots, 
+      updateNetPnl, 
+      updateContestNetPnl, 
+      contestNetPnl, 
+      contestTotalRunningLots, 
+      grossPnlAndBrokerage, 
+      setPendingOrderQuantity,
+      pendingOrderQuantity
+      }}
+    >
       {children}
     </NetPnlContext.Provider>
   );

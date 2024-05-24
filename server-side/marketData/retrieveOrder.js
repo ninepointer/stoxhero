@@ -19,7 +19,7 @@ const router = express.Router();
   try{
     const response = await axios.get(url, authOptions);
     const allOrderData = (response.data).data;
-    console.log("in retrieve order", allOrderData.length);
+    // console.log("in retrieve order", allOrderData.length);
     let len = allOrderData.length;
     let orderData;
     for(let i = len-1; i >= 0; i--){
@@ -64,7 +64,6 @@ const router = express.Router();
               // console.log("this is trade data", tradeData, typeof(tradeData));
               tradeData.save()
               .then(()=>{
-                  console.log("data enter succesfully")
               }).catch((err)=> {
                 res.status(500).json({error:"Failed to enter data"});
                 console.log("failed to enter data of order");

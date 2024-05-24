@@ -22,7 +22,6 @@
 
 //   // let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
 
-
 // // setLastFiveTrades(CreatedBy[0]);
 // let buysell1 = Type[0] == "BUY" ? "bought" : "sold"
 // let title1 = `${CreatedBy[0]} ${buysell1} ${Quantity[0]} ${Symbol[0]}`

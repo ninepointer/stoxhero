@@ -4,42 +4,33 @@ require("../../db/conn");
 const RequestToken = require("../../models/Trading Account/requestTokenSchema");
 const {disconnectTicker, createNewTicker}  = require('../../marketData/kiteTicker');
 const getKiteCred = require('../../marketData/getKiteCred');
-const puppeteer = require("puppeteer");
-const KiteConnect = require('kiteconnect').KiteConnect;
-// const totp = require("totp-generator");
 const zerodhaLogin = require("../../utils/zerodhaAutoLogin");
-const authentication = require("../../authentication/authentication");
 const {client, getValue} = require("../../marketData/redisClient");
 const {deletePnlKey} = require("../../controllers/deletePnlKey");
 const {xtsInteractive} = require("../../services/xts/xtsInteractive");
 const {xtsAccountType, zerodhaAccountType} = require("../../constant");
 const { ObjectId } = require("mongodb");
+const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
+const KiteConnect = require("kiteconnect").KiteConnect;
 
-router.post("/requestToken", authentication, (req, res)=>{
+router.post("/requestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
 
     const {accountId, accessToken, requestToken, status, accountType} = req.body;
 
     if(!accountId || !accessToken || !status || !accountType){
         return res.status(422).json({error : "Please fill all fields"})
     }
-
-    // RequestToken.findOne({accessToken : accessToken})
-    // .then((accountIdExist)=>{
-    //     if(accountIdExist){
-    //         //console.log("accountId already");
-    //         return res.status(422).json({error : "Access Token already exist..."})
-    //     }
-    // }).catch(err => {console.log("fail in accesstoken auth")});
     const requestTokens = new RequestToken({accountId, accessToken, requestToken, status, lastModifiedBy: req.user._id, createdBy: req.user._id, accountType});
 
     requestTokens.save().then(async ()=>{
 
         await client.del(`kiteCredToday:${process.env.PROD}`);
-        disconnectTicker();
-        getKiteCred.getAccess().then((data) => {
-            //console.log(data);
-            createNewTicker(data.getApiKey, data.getAccessToken);
-        });
+        // disconnectTicker();
+        // getKiteCred.getAccess().then((data) => {
+        //     //console.log(data);
+        //     createNewTicker(data.getApiKey, data.getAccessToken);
+        // });
         
         res.status(201).json({massage : "data enter succesfully"});
     }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
@@ -47,21 +38,22 @@ router.post("/requestToken", authentication, (req, res)=>{
     
 })
 
-router.post("/autologin", authentication, async (req, res)=>{
-    // await client.del(`kiteCredToday:${process.env.PROD}`);
-    let isRedisConnected = getValue();
-    await deletePnlKey();
-    if(isRedisConnected){
-        await client.del(`referralLeaderboard:${process.env.PROD}`);
-    }
+router.post("/autologin", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
+
+
     const {accountId, apiKey, apiSecret, status, uId} = req.body;
     req.body.createdBy = req.user._id;
     if(!accountId || !apiKey || !apiSecret || !status || !uId){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "Please Fill all Fields."})
     }
-    let password = accountId === process.env.KUSH_ACCOUNT_ID && process.env.KUSH_PASS
+    let password = (accountId === process.env.KUSH_ACCOUNT_ID) ? process.env.KUSH_PASS : accountId === process.env.PRATEEK_ACCOUNT_ID && process.env.PRATEEK_PASS
 
+    // await deletePnlKey();
+
+    if(process.env.PROD === "true"){
+        return;
+    }
     try{
 
         const login = zerodhaLogin(
@@ -79,7 +71,7 @@ router.post("/autologin", authentication, async (req, res)=>{
     }
 })
 
-router.get("/autoLoginXTS", authentication, async (req, res)=>{
+router.get("/autoLoginXTS", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
 
     const data = await xtsInteractive();
 
@@ -94,7 +86,7 @@ router.get("/autoLoginXTS", authentication, async (req, res)=>{
     }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
 })
 
-router.get("/readRequestToken", (req, res)=>{
+router.get("/readRequestToken", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     RequestToken.find({accountType: zerodhaAccountType}, (err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -104,18 +96,18 @@ router.get("/readRequestToken", (req, res)=>{
     }).sort({$natural:-1})
 })
 
-router.get("/xtsTokenActive", async (req, res)=>{
+router.get("/xtsTokenActive", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     const token = await RequestToken.find({status: "Active", accountType: xtsAccountType}).sort({$natural: -1})
     res.status(200).send({status: "success", data: token, result: token.length});
 })
 
-router.get("/xtsTokenInactive", async (req, res)=>{
+router.get("/xtsTokenInactive", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     const token = await RequestToken.find({status: "Inactive", accountType: xtsAccountType}).sort({$natural: -1})
     res.status(200).send({status: "success", data: token, result: token.length});
 
 })
 
-router.get("/readRequestToken/:id", (req, res)=>{
+router.get("/readRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     RequestToken.findOne({_id : id})
@@ -127,7 +119,7 @@ router.get("/readRequestToken/:id", (req, res)=>{
     })
 })
 
-router.put("/readRequestToken/:id", async (req, res)=>{
+router.put("/readRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{
@@ -141,11 +133,11 @@ router.put("/readRequestToken/:id", async (req, res)=>{
                 lastModified: req.body.lastModified
             }
         });
-        disconnectTicker();
-        getKiteCred.getAccess().then((data) => {
-            //console.log(data);
-            createNewTicker(data.getApiKey, data.getAccessToken);
-        });
+        // disconnectTicker();
+        // getKiteCred.getAccess().then((data) => {
+        //     //console.log(data);
+        //     createNewTicker(data.getApiKey, data.getAccessToken);
+        // });
         
         //console.log("this is role", requestToken);
         res.send(requestToken)
@@ -155,7 +147,7 @@ router.put("/readRequestToken/:id", async (req, res)=>{
     }
 })
 
-router.delete("/readRequestToken/:id", async (req, res)=>{
+router.delete("/readRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params
@@ -169,7 +161,7 @@ router.delete("/readRequestToken/:id", async (req, res)=>{
 
 })
 
-router.patch("/inactiveRequestToken/:id", async (req, res)=>{
+router.patch("/inactiveRequestToken/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ // Broker, AccountID, AccountName, APIKey, APISecret, Status, lastModified
@@ -181,15 +173,12 @@ router.patch("/inactiveRequestToken/:id", async (req, res)=>{
             }
         },{new: true})
 
-        // res.status(500).json({"Failed to edit data"});
-        console.log("this is role", account);
-        // res.send(account)
     } catch (e){
         res.status(500).json({error:"Failed to edit data"});
     }
 })
 
-router.patch("/changeStatus/:id", authentication, async (req, res)=>{
+router.patch("/changeStatus/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     try{
         const {id} = req.params
 

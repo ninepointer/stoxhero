@@ -1,0 +1,544 @@
+const User = require('../models/User/userDetailSchema');
+const sendMail = require('../utils/emailService');
+const {generateAadhaarOtp, verifyAadhaarOtp, verifyPan, verifyBankAccount} = require('../utils/kycService');
+const {sendMultiNotifications} = require('../utils/fcmService');
+const Settings = require('../models/settings/setting');
+const Wallet = require('../models/UserWallet/userWalletSchema');
+const multer = require('multer');
+const AWS = require('aws-sdk');
+const sharp = require('sharp');
+const {createUserNotification} = require('../controllers/notification/notificationController');
+const {ObjectId} = require('mongodb')
+const storage = multer.memoryStorage();
+const fileFilter = (req, file, cb) => {
+
+  if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("application/")) {
+    cb(null, true);
+} else {
+    cb(new Error("Invalid file type"), false);
+}
+}
+AWS.config.update({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION
+  
+  });
+  
+const upload = multer({ storage, fileFilter }).single("transactionDocument");
+
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
+
+
+exports.uploadMulter = upload;
+
+exports.resizePhoto = (req, res, next) => {
+    if (!req.file) {
+      // no file uploaded, skip to next middleware
+
+      next();
+      return;
+    }
+    sharp(req.file.buffer).resize({width: 500, height: 500}).toBuffer()
+    .then((resizedImageBuffer) => {
+      req.file.buffer = resizedImageBuffer;
+    //   console.log("Resized:",resizedImageBuffer)
+      next();
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ message: "Error resizing photo" });
+    });
+}; 
+
+exports.uploadToS3 = async(req, res, next) => {
+    if (!req.file) {
+      // no file uploaded, skip to next middleware
+      next();
+      return;
+    }
+  
+    // create S3 upload parameters
+    const key = `withdrawals/documents/${(Date.now()) + req.file.originalname}`;
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: key,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read',
+    };
+  
+    // upload image to S3 bucket
+    
+    s3.upload((params)).promise()
+      .then((s3Data) => {
+        // console.log('file uploaded');
+        // console.log(s3Data.Location);
+        (req).uploadUrl = s3Data.Location;
+        next();
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send({ message: "Error uploading to S3" });
+      });
+  };
+
+
+exports.getAllPendingApprovalKYC = async (req, res, next) => {
+  try{
+    const skip = Number(req.query.skip) || 0;
+    const limit = Number(req.query.limit) || 10;
+    const count = await User.countDocuments({KYCStatus:'Pending Approval'});
+    const pendingKYCUsers = await User.find({KYCStatus:'Pending Approval'})
+    .select('first_name last_name dob state mobile aadhaarNumber panNumber KYCActionDate KYCStatus KYCRejectionReason aadhaarCardFrontImage panCardFrontImage upiId phonePe_number googlePay_number payTM_number bankName nameAsPerBankAccount ifscCode accountNumber')
+    .sort({KYCActionDate: -1}).skip(skip).limit(limit);
+    res.status(200).json({status:'success', data: pendingKYCUsers, results: count})
+  } catch(err){
+    res.status(200).json({status:'err', message: 'Something went wrong'});
+  }
+}
+
+exports.getAllPendingApprovalKYPageC = async (req, res, next) => {
+  // Extract page and limit from query parameters. Default to page 1 and limit 10 if not provided
+  let { page, limit } = req.query;
+  page = page * 1 || 1; // Convert to number and default to 1
+  limit = limit * 1 || 50; // Convert to number and default to 50
+  const skip = (page - 1) * limit;
+
+  try {
+      // Get the total number of documents matching the criteria
+      const total = await User.countDocuments({ KYCStatus: 'Pending Approval' });
+
+      // Find the documents, skip the previous pages, and limit to the page size
+      const pendingKYCUsers = await User.find({ KYCStatus: 'Pending Approval' })
+                                        .sort({ KYCActionDate: -1 })
+                                        .skip(skip)
+                                        .limit(limit);
+
+      res.status(200).json({
+          status: 'success',
+          data: pendingKYCUsers,
+          results: pendingKYCUsers.length,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          totalResults: total
+      });
+  } catch (error) {
+      // In case of an error, pass it to the error handling middleware
+      next(error);
+  }
+}
+
+
+exports.getApporvedKYC = async (req,res,next) => {
+  try{
+    const skip = Number(req.query.skip) || 0;
+    const limit = Number(req.query.limit) || 10;
+    const count = await User.countDocuments({KYCStatus:'Approved'});
+    const approvedKYCs = await User.find({KYCStatus:'Approved'})
+    .select('first_name last_name dob state mobile aadhaarNumber panNumber KYCActionDate KYCStatus KYCRejectionReason aadhaarCardFrontImage panCardFrontImage upiId phonePe_number googlePay_number payTM_number bankName nameAsPerBankAccount ifscCode accountNumber')
+    .sort({KYCActionDate: -1}).skip(skip).limit(limit);
+    res.status(200).json({status:'success', data: approvedKYCs, results: count})
+  } catch(err){
+    res.status(200).json({status:'err', message: 'Something went wrong'});
+  }
+}
+
+exports.getApprovedKYCPage = async (req, res, next) => {
+  let { page, limit } = req.query;
+  page = page * 1 || 1; // Convert to number, defaulting to 1 if undefined
+  limit = limit * 1 || 50; // Convert to number, defaulting to 10 if undefined
+  const skip = (page - 1) * limit;
+
+  try {
+      const total = await User.countDocuments({ KYCStatus: 'Approved' });
+      const approvedKYCs = await User.find({ KYCStatus: 'Approved' })
+                                     .sort({ KYCActionDate: -1 })
+                                     .skip(skip)
+                                     .limit(limit);
+
+      res.status(200).json({
+          status: 'success',
+          data: approvedKYCs,
+          results: approvedKYCs.length,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          totalResults: total
+      });
+  } catch (error) {
+      next(error);
+  }
+}
+
+
+exports.getRejectedKYCS = async (req,res,next) => {
+    try{
+      const skip = Number(req.query.skip) || 0;
+      const limit = Number(req.query.limit) || 10;
+      const count = await User.countDocuments({KYCStatus:'Rejected'});
+      const rejectedKYCS = await User.find({KYCStatus:'Rejected'})
+      .select('first_name last_name dob state mobile aadhaarNumber panNumber KYCActionDate KYCStatus KYCRejectionReason aadhaarCardFrontImage panCardFrontImage upiId phonePe_number googlePay_number payTM_number bankName nameAsPerBankAccount ifscCode accountNumber')
+      .sort({KYCActionDate: -1}).skip(skip).limit(limit);
+      res.status(200).json({status:'success', data: rejectedKYCS, results: count})
+    } catch(err){
+      res.status(200).json({status:'err', message: 'Something went wrong'});
+    }
+}
+
+exports.getRejectedKYCSPage = async (req, res, next) => {
+  let { page, limit } = req.query;
+  page = page * 1 || 1;
+  limit = limit * 1 || 50;
+  const skip = (page - 1) * limit;
+
+  try {
+      const total = await User.countDocuments({ KYCStatus: 'Rejected' });
+      const rejectedKYCS = await User.find({ KYCStatus: 'Rejected' })
+                                     .sort({ KYCActionDate: -1 })
+                                     .skip(skip)
+                                     .limit(limit);
+
+      res.status(200).json({
+          status: 'success',
+          data: rejectedKYCS,
+          results: rejectedKYCS.length,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          totalResults: total
+      });
+  } catch (error) {
+      next(error);
+  }
+}
+
+
+exports.approveKYC = async(req,res,next) => {
+    const userId = req.params.id;
+    try{
+      const user = await User.findById(userId);
+      user.KYCStatus = 'Approved';
+      user.KYCActionDate = new Date();
+      user.lastModified = new Date();
+    //   console.log('user',user?.dob);
+      await user.save({validateBeforeSave:false});
+      if(process.env.PROD == 'true'){
+        try{
+          sendMail(user.email, 'KYC Approved - StoxHero', `
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="UTF-8">
+              <title>KYC Approved</title>
+              <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  font-size: 16px;
+                  line-height: 1.5;
+                  margin: 0;
+                  padding: 0;
+              }
+    
+              .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  padding: 20px;
+                  border: 1px solid #ccc;
+              }
+    
+              h1 {
+                  font-size: 24px;
+                  margin-bottom: 20px;
+              }
+    
+              p {
+                  margin: 0 0 20px;
+              }
+    
+              .userid {
+                  display: inline-block;
+                  background-color: #f5f5f5;
+                  padding: 10px;
+                  font-size: 15px;
+                  font-weight: bold;
+                  border-radius: 5px;
+                  margin-right: 10px;
+              }
+    
+              .password {
+                  display: inline-block;
+                  background-color: #f5f5f5;
+                  padding: 10px;
+                  font-size: 15px;
+                  font-weight: bold;
+                  border-radius: 5px;
+                  margin-right: 10px;
+              }
+    
+              .login-button {
+                  display: inline-block;
+                  background-color: #007bff;
+                  color: #fff;
+                  padding: 10px 20px;
+                  font-size: 18px;
+                  font-weight: bold;
+                  text-decoration: none;
+                  border-radius: 5px;
+              }
+    
+              .login-button:hover {
+                  background-color: #0069d9;
+              }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+              <h1>KYC Approved</h1>
+              <p>Hello ${user.first_name},</p>
+              <p>Your KYC Approval request is approved by stoxhero.</p>
+              <p>You can now add or withdraw money from your wallet and get more in app privileges.</p>
+              <p>You can check your profile to see your KYC status.</p>
+              <p>In case of any discrepencies, raise a ticket or reply to this message.</p>
+              <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+              <br/><br/>
+              <p>Thanks,</p>
+              <p>StoxHero Team</p>
+    
+              </div>
+          </body>
+          </html>
+          `);
+        }catch(e){
+          console.log(e.message);
+        }
+      }
+      await createUserNotification({
+        title:'KYC Approved',
+        description:'KYC Request approved by Admin',
+        notificationType:'Individual',
+        notificationCategory:'Informational',
+        productCategory:'General',
+        user: user?._id,
+        priotity:'High',
+        channels:['App', 'Email'],
+        createdBy:'63ecbc570302e7cf0153370c',
+        lastModifiedBy:'63ecbc570302e7cf0153370c'  
+      });
+      if(user?.fcmTokens?.length>0){
+        await sendMultiNotifications('KYC Approved', 
+          `Your KYC Request was approved. You are now eligible for withdrawals.`,
+          user?.fcmTokens?.map(item=>item.token)
+          )  
+      }
+  
+      res.status(200).json({status:'success', message:'KYC Approved'});
+    }catch(e){
+      console.log(e);
+    }
+
+}
+
+exports.rejectKYC = async(req,res,next) => {
+    const userId = req.params.id;
+    const {rejectionReason} = req.body;
+    const user = await User.findById(userId);
+    user.KYCStatus = 'Rejected';
+    user.KYCRejectionReason = rejectionReason;
+    user.KYCActionDate = new Date();
+    user.lastModified = new Date();
+    await user.save({validateBeforeSave:false});
+    if(process.env.PROD == 'true'){
+      try{
+        sendMail(user.email, 'KYC Rejected - StoxHero', `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>KYC Rejected</title>
+            <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 16px;
+                line-height: 1.5;
+                margin: 0;
+                padding: 0;
+            }
+    
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ccc;
+            }
+    
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+    
+            p {
+                margin: 0 0 20px;
+            }
+    
+            .userid {
+                display: inline-block;
+                background-color: #f5f5f5;
+                padding: 10px;
+                font-size: 15px;
+                font-weight: bold;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+    
+            .password {
+                display: inline-block;
+                background-color: #f5f5f5;
+                padding: 10px;
+                font-size: 15px;
+                font-weight: bold;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+    
+            .login-button {
+                display: inline-block;
+                background-color: #007bff;
+                color: #fff;
+                padding: 10px 20px;
+                font-size: 18px;
+                font-weight: bold;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+    
+            .login-button:hover {
+                background-color: #0069d9;
+            }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+            <h1>KYC Rejected</h1>
+            <p>Hello ${user.first_name},</p>
+            <p>Your KYC approval request is rejected by stoxhero. The rejection reason is ${rejectionReason}</p>
+            <p>Please double check your documents and inputs and make sure you've uploaded the correct doucments in the right formats.</p>
+            <p>If you're sure there is an error on our part, contact the admin or POC.</p>
+            <p>Or in case of discrepencies, raise a ticket or reply to this message.</p>
+            <a href="https://stoxhero.com/contact" class="login-button">Write to Us Here</a>
+            <br/><br/>
+            <p>Thanks,</p>
+            <p>StoxHero Team</p>
+    
+            </div>
+        </body>
+        </html>
+        `)
+      }catch(e){
+        console.log(e.message);
+      }
+    }
+    await createUserNotification({
+      title:'KYC Rejected',
+      description:`KYC Request rejected by Admin. Reason-${rejectionReason}`,
+      notificationType:'Individual',
+      notificationCategory:'Informational',
+      productCategory:'General',
+      user: user?._id,
+      priotity:'High',
+      channels:['App', 'Email'],
+      createdBy:'63ecbc570302e7cf0153370c',
+      lastModifiedBy:'63ecbc570302e7cf0153370c'  
+    });
+    if(user?.fcmTokens?.length>0){
+      await sendMultiNotifications('KYC Rejected', 
+        `Reason-${rejectionReason}`,
+        user?.fcmTokens?.map(item=>item.token)
+        )  
+    }
+
+
+    res.status(200).json({status:'success', message:'KYC Rejected'});
+
+}
+
+exports.generateOtp = async(req,res) => {
+  const {aadhaarNumber} = req.body;
+  try{
+    const setting = await Settings.findOne();
+    const wallet = await Wallet.findOne({userId: new ObjectId(req?.user?._id)});
+    let walletBalance = 0;
+    for(let elem of wallet?.transactions){
+      if(elem?.transactionType === 'Cash'){
+        walletBalance += elem?.amount;
+      }
+    }
+
+    if(walletBalance < setting?.minWalletBalance){
+      return res.status(400).json({ status: 'error', message: `To proceed with KYC, your wallet balance needs to be greater than ₹${setting?.minWalletBalance || 0}.`});
+    }
+    const aadhaarNumberDoc = await User.findOne({aadhaar_number:aadhaarNumber, KYCStatus:"Approved"}).select('_id');
+    if(aadhaarNumberDoc._id.toString() == req?.user?._id.toString()){
+      res.status(400).json({ status: 'error', message: 'Aadhaar Number already approved with another account'});
+    }
+    const client_id = await generateAadhaarOtp(aadhaarNumber);
+    res.status(200).json({status:'success', data:client_id});  
+  }catch(e){
+    console.log(e);
+    const statusCode = e?.statusCode || 500;
+    // res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    res.status(statusCode).json({ status: 'error', message: e?.message });
+  }
+}
+
+exports.verifyOtp = async(req,res) =>{
+  const{client_id, otp, panNumber, bankAccountNumber, ifsc} = req.body;
+
+  try{
+    const aadhaarData =  await verifyAadhaarOtp(client_id, otp);
+
+    const panData = await verifyPan(panNumber);
+
+    const bankAccountData = await verifyBankAccount(bankAccountNumber, ifsc);
+    const user = await User.findById(req?.user?._id);
+    const titleRegex = /\b(Mr\.|Dr\.|Dr|Mr|Ms\.|Ms|Mrs\.|Shri|Smt|Sri)\s+/gi;
+
+    // Function to clean name by removing titles
+    const cleanName = (name) => name?.replace(titleRegex, '').replace(/\s/g, '').toLowerCase();
+
+    // Cleaned full names for comparison
+    const aadhaarName = cleanName(aadhaarData?.full_name);
+    const panName = cleanName(panData?.full_name);
+    const bankAccountName = cleanName(bankAccountData?.full_name);
+
+    
+    if(aadhaarName === panName && panName === bankAccountName){
+      user.KYCStatus = 'Approved';
+      user.KYCActionDate = new Date();
+      user.full_name = aadhaarData?.full_name;
+      user.aadhaarNumber = aadhaarData?.aadhaar_number;
+      user.panNumber = panData?.pan_number;
+      user.accountNumber =bankAccountNumber;
+      user.bankName = cleanName(bankAccountData?.ifsc_details?.bank_name);
+      user.bankState = cleanName(bankAccountData?.ifsc_details?.state);
+      user.nameAsPerBankAccount = bankAccountName;
+      user.ifscCode = ifsc;
+      await user.save({validateBeforeSave:false});
+      res.status(200).json({status:'success', message:'KYC Approved'});
+    }else{
+      user.KYCStatus = 'Rejected';
+      user.KYCRejectionReason = 'Aadhaar PAN and Bank Account Names don\'t match'
+      await user.save({validateBeforeSave:false});
+      res.status(400).json({status:'error', message:'KYC Rejected as Aadhaar PAN and Bank Account Names don\'t match'});
+    }
+  }catch(e){
+    console.log(e);
+    const statusCode = e?.statusCode || 500;
+    // res.status(500).json({status:'error', message:'Something went wrong', error:e.message});
+    res.status(statusCode).json({ status: 'error', message: e?.message });
+  }
+}

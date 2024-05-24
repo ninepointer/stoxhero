@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const ExchangeMapping = require("../../models/AlgoBox/ExchangeMappingSchema");
+const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
 
-router.post("/exchangeMapping", (req, res)=>{
+router.post("/exchangeMapping",Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     const {ExchangeNameIncoming, IncomingExchangeCode, ExchangeNameOutgoing, OutgoingInstrumentCode, Status, lastModified, uId, createdBy, createdOn} = req.body;
 
     if(!ExchangeNameIncoming || !IncomingExchangeCode || !ExchangeNameOutgoing || !OutgoingInstrumentCode || !Status || !lastModified || !uId || !createdBy || !createdOn){
@@ -26,7 +28,7 @@ router.post("/exchangeMapping", (req, res)=>{
     }).catch(err => {console.log( "fail")});
 })
 
-router.get("/readExchangeMapping", (req, res)=>{
+router.get("/readExchangeMapping", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     ExchangeMapping.find((err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -36,7 +38,7 @@ router.get("/readExchangeMapping", (req, res)=>{
     }).sort({$natural:-1})
 })
 
-router.get("/readExchangeMapping/:id", (req, res)=>{
+router.get("/readExchangeMapping/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     ExchangeMapping.findOne({_id : id})
@@ -48,7 +50,7 @@ router.get("/readExchangeMapping/:id", (req, res)=>{
     })
 })
 
-router.put("/readExchangeMapping/:id", async (req, res)=>{
+router.put("/readExchangeMapping/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -71,7 +73,7 @@ router.put("/readExchangeMapping/:id", async (req, res)=>{
     }
 })
 
-router.delete("/readExchangeMapping/:id", async (req, res)=>{
+router.delete("/readExchangeMapping/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params

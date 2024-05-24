@@ -13,6 +13,7 @@ import TradingPortfolioCard from '../data/tradingPortfolioCard'
 import InactivePortfolioCard from '../data/inactivePortfolioCard'
 import TenXPortfolioCard from '../data/tenXPortfolioCard';
 import InternshipPortfolioCard from '../data/internshipPortfolioCard';
+import DailyContestPortfolioCard from '../data/dailyContestPortfolioCard';
 
 //data
 // import UpcomingContest from '../data/UserContestCard'
@@ -46,8 +47,9 @@ export default function LabTabs() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Virtual Trading Portfolios" value="1" />
-            <Tab label="TenX Portfolios" value="2" />
-            <Tab label="Internship Portfolios" value="3" />
+            <Tab label="Contest Portfolios" value="2" />
+            <Tab label="TenX Portfolios" value="3" />
+            {/* <Tab label="Internship Portfolios" value="3" /> */}
             <Tab label="Inactive Portfolios" value="4" />
             <Tab label="Battle Portfolios" value="5" />
           </TabList>
@@ -67,7 +69,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <TenXPortfolioCard/>
+          <DailyContestPortfolioCard/>
           }
         </TabPanel>
         <TabPanel value="3">
@@ -76,7 +78,7 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <InternshipPortfolioCard/>
+          <TenXPortfolioCard/>
           }
         </TabPanel>
         <TabPanel value="4">
@@ -85,9 +87,18 @@ export default function LabTabs() {
             <CircularProgress color="info" />
           </MDBox>
           : 
-          <InactivePortfolioCard/>
+          <InternshipPortfolioCard/>
           }
         </TabPanel>
+        {/* <TabPanel value="5">
+          {isLoading ? 
+          <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>
+            <CircularProgress color="info" />
+          </MDBox>
+          : 
+          <InactivePortfolioCard/>
+          }
+        </TabPanel> */}
         <TabPanel value="5">
           {isLoading ? 
           <MDBox display="flex" justifyContent="center" alignItems="center" mt={5} mb={5}>

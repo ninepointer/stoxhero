@@ -2,260 +2,279 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Instrument = require("../../models/Instruments/instrumentSchema");
-// const axios = require('axios');
-// const fetchToken = require("../../marketData/generateSingleToken");
-// const RequestToken = require("../../models/Trading Account/requestTokenSchema");
-// const Account = require("../../models/Trading Account/accountSchema");
-const { unSubscribeTokens, subscribeSingleToken} = require('../../marketData/kiteTicker');
+const TradableInstrument = require("../../models/Instruments/tradableInstrumentsSchema");
+const { unSubscribeTokens, } = require('../../marketData/kiteTicker');
 const authentication = require("../../authentication/authentication")
 const User = require("../../models/User/userDetailSchema")
-const {client, getValue} = require("../../marketData/redisClient");
-const ObjectId = require('mongodb').ObjectId;
-const {subscribeSingleXTSToken, unSubscribeXTSToken} = require("../../services/xts/xtsMarket")
+const {client, getValue, client5} = require("../../marketData/redisClient");
+// const ObjectId = require('mongodb').ObjectId;
+// const {subscribeSingleXTSToken, unSubscribeXTSToken} = require("../../services/xts/xtsMarket")
 const {infinityTrader} = require("../../constant")
 const InfinityInstrument = require("../../models/Instruments/infinityInstrument");
+const Role = require("../../models/User/everyoneRoleSchema");
+const EquityInstrument = require("../../models/Instruments/equityStockWatchlist");
 
-router.post("/addInstrument",authentication, async (req, res)=>{
+client5.connect().then(()=>{})
+router.post("/addInstrument", authentication, async (req, res) => {
     let isRedisConnected = getValue();
-    const {_id} = req.user;
-    const {role} = req.user;
+    const { _id } = req.user;
+    
+    try {
+        let { from, exchangeInstrumentToken, instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment, chartInstrument } = req.body;
 
-    try{
-        let {from, exchangeInstrumentToken, instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, instrumentToken, accountType, exchangeSegment} = req.body;
+        const setInstrument = JSON.parse(await client.get('instrument-user') || JSON.stringify({}));
+        let userArr = setInstrument[instrumentToken] || [];
+        userArr.push(_id.toString());
+        const uniqueUserArr = [...new Set(userArr)];
+        setInstrument[instrumentToken] = uniqueUserArr;
+        await client.set('instrument-user', JSON.stringify(setInstrument));
 
-        // console.log("contractDate", exchangeSegment)
-        if(exchangeSegment === "NFO-OPT"){
+        if (exchangeSegment === "NFO-OPT") {
             exchangeSegment = 2;
         }
-        if(!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken ){
-            if(!instrumentToken){
-                return res.status(422).json({error : "Please enter a valid Instrument."})
+        // if (!instrument || !exchange || !symbol || !status || !uId || !lotSize || !instrumentToken) {
+            if (!instrumentToken) {
+                return res.status(422).json({ error: "Please enter a valid Instrument." })
             }
+            // return res.status(422).json({ error: "Any of one feild is incorrect..." })
+        // }
 
-            return res.status(422).json({error : "Any of one feild is incorrect..."})
-        }
-    
-        // console.log("above infinityTrade adding", from, infinityTrader)
-        if(role.roleName === infinityTrader){
-            console.log("in infinityTrade adding")
-            if(maxLot === 1800){
-                maxLot = 900;
+        const dataExist = await Instrument.findOne({ instrumentToken: instrumentToken, status: "Active" });
+        if (dataExist) {
+            const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
+                $push: {
+                    watchlistInstruments: dataExist._id,
+                    allInstruments: dataExist._id
+                }
+            })
+            try {
+                if (isRedisConnected) {
+                    let obj = {
+                        instrumentToken: instrumentToken,
+                        exchangeInstrumentToken: exchangeInstrumentToken
+                    }
+                    const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                    const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
+                }
+                const token = JSON.parse(await client.get('all-token')) || [];
+                token.push(instrumentToken);
+                const uniqueTokenArr = [...new Set(token)];
+                await client.set('all-token', JSON.stringify(uniqueTokenArr));
+
+                await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
+                    _id: dataExist._id,
+                    instrument: dataExist.instrument,
+                    exchange: dataExist.exchange,
+                    symbol: dataExist.symbol,
+                    status: dataExist.status,
+                    lotSize: dataExist.lotSize,
+                    instrumentToken: dataExist.instrumentToken,
+                    exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
+                    contractDate: dataExist.contractDate,
+                    maxLot: dataExist.maxLot,
+                    chartInstrument: dataExist.chartInstrument
+                }))
+
+                dataExist.users.push(_id?.toString());
+                const uniqueUsers = [...new Set(dataExist.users.map(obj => obj.toString()))]
+                dataExist.users = uniqueUsers;
+                await dataExist.save({ validateBeforeSave: false });
+
+            } catch (err) {
+                console.log(err)
             }
-            InfinityInstrument.findOne({instrumentToken : instrumentToken, status: "Active"})
-            .then(async (dataExist)=>{
-                if(dataExist){
-                    //console.log("data already");
-                    // return res.status(422).json({error : "date already exist..."})
-                    let getInstruments = await User.findOne({_id : _id});
-                    getInstruments.watchlistInstruments.push(dataExist._id)
-                    const updateInstrument = await User.findOneAndUpdate({_id : _id}, {
-                        $set:{ 
-                            
-                            watchlistInstruments: getInstruments.watchlistInstruments
-                        }
+            res.status(201).json({ message: "Instrument Added" })
+            return;
+        } else {
+            try{
+                await client5.PUBLISH("subscribe-single-token", JSON.stringify({ instrumentToken }));
 
-                    })
-                    try{
-                        console.log((_id).toString(), instrumentToken)
-                        // const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
-                        if(isRedisConnected){
-                            let obj = {
-                                instrumentToken: instrumentToken,
-                                exchangeInstrumentToken: exchangeInstrumentToken
-                            }
-                            const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
-                        }
-                        // console.log("this is redis client", newredisClient);
-
-                        // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
-                            let instrument = await client.LPUSH(`${req.user._id.toString()}: infinityInstrument`, JSON.stringify({
-                                _id: dataExist._id,
-                                instrument: dataExist.instrument,
-                                exchange: dataExist.exchange,
-                                symbol: dataExist.symbol ,
-                                status: dataExist.status ,
-                                lotSize: dataExist.lotSize ,
-                                instrumentToken: dataExist.instrumentToken ,
-                                exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
-                                contractDate: dataExist.contractDate ,
-                                maxLot: dataExist.maxLot ,
-                                // accountType: dataExist.accountType,
-                                
-                            }))                
-                        // }
-        
-                    } catch(err){
-                        console.log(err)
+                const token = JSON.parse(await client.get('all-token')) || [];
+                token.push(instrumentToken);
+                await client.set('all-token', JSON.stringify(token));
+                // const d = await subscribeSingleToken(instrumentToken);//TODO toggle
+                // await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
+                // console.log("adding ins", d);
+                const tradable = await TradableInstrument.findOne({instrument_token: instrumentToken, status: 'Active'}).sort({_id: -1});
+                const addingInstruments = await Instrument.create({
+                    exchangeInstrumentToken: tradable.exchange_token, instrument: tradable.name, exchange: tradable.exchange, symbol: tradable.tradingsymbol, status: 'Active', chartInstrument: tradable.chartInstrument,
+                    uId: 'abcdef', createdBy: _id, lastModifiedBy: _id, lotSize: tradable.lot_size, instrumentToken,
+                    contractDate: tradable.expiry, maxLot: 1800 || tradable.max_lot, accountType, exchangeSegment: Number(exchangeSegment||2),
+                    users: [_id?.toString()]
+                });
+    
+                if (isRedisConnected) {
+                    let obj = {
+                        instrumentToken: instrumentToken,
+                        exchangeInstrumentToken: exchangeInstrumentToken
                     }
-                    res.status(422).json({message : "InfinityInstrument Added"})
-                    return;
+                    const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                    const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
                 }
-                const addingInstruments = new InfinityInstrument({exchangeInstrumentToken, instrument, exchange, symbol, status, 
-                    uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken, 
-                    contractDate, maxLot, accountType, exchangeSegment: Number(exchangeSegment)});
-                //console.log("instruments", instruments)
-                addingInstruments.save().then(async()=>{
     
-                    try{
-                        console.log((_id).toString(), instrumentToken)
-                    //  const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
+                await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
+                    _id: addingInstruments._id,
+                    instrument: addingInstruments.instrument,
+                    exchange: addingInstruments.exchange,
+                    symbol: addingInstruments.symbol,
+                    status: addingInstruments.status,
+                    lotSize: addingInstruments.lotSize,
+                    instrumentToken: addingInstruments.instrumentToken,
+                    exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
+                    contractDate: addingInstruments.contractDate,
+                    maxLot: addingInstruments.maxLot,
+                    chartInstrument: addingInstruments.chartInstrument
+                }))
     
-                    if(isRedisConnected){
-                        let obj = {
-                            instrumentToken: instrumentToken,
-                            exchangeInstrumentToken: exchangeInstrumentToken
-                        }
-                        const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
+                    $push: {
+                        watchlistInstruments: addingInstruments._id,
+                        allInstruments: addingInstruments._id
                     }
     
-                    //  console.log("this is redis client", newredisClient)
+                })
+                res.status(201).json({ message: "Instrument Added" });
     
-                    // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
-                        let instrument = await client.LPUSH(`${req.user._id.toString()}: infinityInstrument`, JSON.stringify({
-                            _id: addingInstruments._id,
-                            instrument: addingInstruments.instrument,
-                            exchange: addingInstruments.exchange,
-                            symbol: addingInstruments.symbol ,
-                            status: addingInstruments.status ,
-                            lotSize: addingInstruments.lotSize ,
-                            instrumentToken: addingInstruments.instrumentToken ,
-                            exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
-                            contractDate: addingInstruments.contractDate ,
-                            maxLot: addingInstruments.maxLot ,
-                            // accountType: addingInstruments.accountType,
-                            
-                        }))
-                    // }
-    
-                    } catch(err){
-                        console.log(err)
-                    }
-                    
-                     await subscribeSingleToken(instrumentToken);//TODO toggle
-                     await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
-                     let getInstruments = await User.findOne({_id : _id});
-                     getInstruments.watchlistInstruments.push(addingInstruments._id)
-                     const updateInstrument = await User.findOneAndUpdate({_id : _id}, {
-                         $set:{ 
-                             
-                             watchlistInstruments: getInstruments.watchlistInstruments
-                         }
-                         
-                     })
-                    res.status(201).json({message : "Instrument Added"});
-                }).catch((err)=> res.status(500).json({err: err, error:"Failed to enter data"}));
-            }).catch(err => {console.log( "fail")});
-        } else{
-            Instrument.findOne({instrumentToken : instrumentToken, status: "Active"})
-            .then(async (dataExist)=>{
-                if(dataExist){
-                    //console.log("data already");
-                    // return res.status(422).json({error : "date already exist..."})
-                    let getInstruments = await User.findOne({_id : _id});
-                    getInstruments.watchlistInstruments.push(dataExist._id)
-                    const updateInstrument = await User.findOneAndUpdate({_id : _id}, {
-                        $set:{ 
-                            
-                            watchlistInstruments: getInstruments.watchlistInstruments
-                        }
-                        
-                    })
-                    try{
-                        console.log((_id).toString(), instrumentToken)
-                        // const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
-                        if(isRedisConnected){
-                            let obj = {
-                                instrumentToken: instrumentToken,
-                                exchangeInstrumentToken: exchangeInstrumentToken
-                            }
-                            const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
-                        }
-                        // console.log("this is redis client", newredisClient);
-    
-                        // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
-                            let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
-                                _id: dataExist._id,
-                                instrument: dataExist.instrument,
-                                exchange: dataExist.exchange,
-                                symbol: dataExist.symbol ,
-                                status: dataExist.status ,
-                                lotSize: dataExist.lotSize ,
-                                instrumentToken: dataExist.instrumentToken ,
-                                exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
-                                contractDate: dataExist.contractDate ,
-                                maxLot: dataExist.maxLot ,
-                                // accountType: dataExist.accountType,
-                            }))
-
-                            console.log("instrument", instrument)
-                        // }
-        
-                    } catch(err){
-                        console.log(err)
-                    }
-                    res.status(422).json({message : "Instrument Added"})
-                    return;
-                }
-                const addingInstruments = new Instrument({exchangeInstrumentToken, instrument, exchange, symbol, status, 
-                    uId, createdBy: _id, lastModifiedBy: _id, lotSize, instrumentToken, 
-                    contractDate, maxLot, accountType, exchangeSegment: Number(exchangeSegment)});
-                //console.log("instruments", instruments)
-                addingInstruments.save().then(async()=>{
-    
-                    try{
-                        console.log((_id).toString(), instrumentToken)
-                    //  const redisClient = await client.LPUSH((_id).toString(), (instrumentToken).toString());
-    
-                    if(isRedisConnected){
-                        let obj = {
-                            instrumentToken: instrumentToken,
-                            exchangeInstrumentToken: exchangeInstrumentToken
-                        }
-                        const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
-                    }
-    
-                    //  console.log("this is redis client", newredisClient)
-    
-                    // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
-                        let instrument = await client.LPUSH(`${req.user._id.toString()}: instrument`, JSON.stringify({
-                            _id: addingInstruments._id,
-                            instrument: addingInstruments.instrument,
-                            exchange: addingInstruments.exchange,
-                            symbol: addingInstruments.symbol ,
-                            status: addingInstruments.status ,
-                            lotSize: addingInstruments.lotSize ,
-                            instrumentToken: addingInstruments.instrumentToken ,
-                            exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
-                            contractDate: addingInstruments.contractDate ,
-                            maxLot: addingInstruments.maxLot ,
-                            // accountType: addingInstruments.accountType,
-                        }))
-                    // }
-    
-                    } catch(err){
-                        console.log(err)
-                    }
-                    
-                     await subscribeSingleToken(instrumentToken);//TODO toggle
-                     await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
-                     let getInstruments = await User.findOne({_id : _id});
-                     getInstruments.watchlistInstruments.push(addingInstruments._id)
-                     const updateInstrument = await User.findOneAndUpdate({_id : _id}, {
-                         $set:{ 
-                             
-                             watchlistInstruments: getInstruments.watchlistInstruments
-                         }
-                         
-                     })
-                    res.status(201).json({message : "Instrument Added"});
-                }).catch((err)=> res.status(500).json({err: err, error:"Failed to enter data"}));
-            }).catch(err => {console.log( "fail")});
+            } catch(err){
+                console.log(err);
+            }
         }
 
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err });
+        return new Error(err);
+    }
+})
 
-    } catch(err) {
-        // res.status(500).json({error:"Failed to enter data Check access token"});
-        res.status(500).json({error:err});
+router.post("/addstock", authentication, async (req, res) => {
+    let isRedisConnected = getValue();
+    const { _id } = req.user;
+    
+    try {
+        let { exchangeInstrumentToken, instrument, exchange, symbol, status, instrumentToken, accountType, chartInstrument, name } = req.body;
+
+        const setInstrument = JSON.parse(await client.get('instrument-user') || JSON.stringify({}));
+        let userArr = setInstrument[instrumentToken] || [];
+        userArr.push(_id.toString());
+        const uniqueUserArr = [...new Set(userArr)];
+        setInstrument[instrumentToken] = uniqueUserArr;
+        await client.set('instrument-user', JSON.stringify(setInstrument));
+
+        let exchangeSegment = 1;
+        if ( !exchange || !symbol || !status || !instrumentToken) {
+            if (!instrumentToken) {
+                return res.status(422).json({ status: "error", message: "Instrument is not valid" })
+            }
+            return res.status(422).json({ status: "error", message: "Something went wrong" })
+        }
+
+        const dataExist = await EquityInstrument.findOne({ instrumentToken: instrumentToken, status: "Active" });
+        const checkIsAdded = await User.findOne({ _id: _id })
+        .select('watchlistInstruments');
+
+        const match = checkIsAdded.watchlistInstruments.some(item=> dataExist?._id?.toString()===item?.toString());
+        if(match){
+            return res.status(400).json({status: "error", message: "This instrument is already exist in your watchlist." })
+        }
+        if (dataExist) {
+            const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
+                $push: {
+                    watchlistInstruments: dataExist._id,
+                    allInstruments: dataExist._id
+                }
+            })
+            try {
+                if (isRedisConnected) {
+                    let obj = {
+                        instrumentToken: instrumentToken,
+                        exchangeInstrumentToken: exchangeInstrumentToken
+                    }
+                    const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                    const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
+                }
+                const token = JSON.parse(await client.get('all-token')) || [];
+                token.push(instrumentToken);
+                const uniqueTokenArr = [...new Set(token)];
+                await client.set('all-token', JSON.stringify(uniqueTokenArr));
+
+                await client.LPUSH(`${req.user._id.toString()}: equity-instrument`, JSON.stringify({
+                    _id: dataExist._id,
+                    instrument: dataExist.instrument,
+                    exchange: dataExist.exchange,
+                    symbol: dataExist.symbol,
+                    status: dataExist.status,
+                    instrumentToken: dataExist.instrumentToken,
+                    exchangeInstrumentToken: dataExist.exchangeInstrumentToken,
+                    chartInstrument: dataExist.chartInstrument,
+                    name: dataExist.name
+                }))
+
+                dataExist.users.push(_id?.toString());
+                const uniqueUsers = [...new Set(dataExist.users.map(obj => obj.toString()))]
+                dataExist.users = uniqueUsers;
+                await dataExist.save({ validateBeforeSave: false });
+
+            } catch (err) {
+                console.log(err)
+            }
+            res.status(200).json({status: "success", message: "Instrument Added" })
+            return;
+        } else {
+            try{
+                await client5.PUBLISH("subscribe-single-token", JSON.stringify({ instrumentToken }));
+
+                const token = JSON.parse(await client.get('all-token')) || [];
+                token.push(instrumentToken);
+                await client.set('all-token', JSON.stringify(token));
+                // const d = await subscribeSingleToken(instrumentToken);//TODO toggle
+                // await subscribeSingleXTSToken(exchangeInstrumentToken, Number(exchangeSegment))
+                // console.log("adding ins", d);
+                const addingInstruments = await EquityInstrument.create({
+                    exchangeInstrumentToken, instrument, exchange, symbol, status, chartInstrument,
+                    createdBy: _id, lastModifiedBy: _id, instrumentToken,
+                    accountType, exchangeSegment: Number(exchangeSegment),
+                    users: [_id?.toString()], name
+                });
+    
+                if (isRedisConnected) {
+                    let obj = {
+                        instrumentToken: instrumentToken,
+                        exchangeInstrumentToken: exchangeInstrumentToken
+                    }
+                    const newredisClient = await client.SADD((_id).toString(), JSON.stringify(obj));
+                    const allinstrument = await client.SADD(`${(_id).toString()}allInstrument`, JSON.stringify(obj));
+                }
+    
+                await client.LPUSH(`${req.user._id.toString()}: equity-instrument`, JSON.stringify({
+                    _id: addingInstruments._id,
+                    instrument: addingInstruments.instrument,
+                    exchange: addingInstruments.exchange,
+                    symbol: addingInstruments.symbol,
+                    status: addingInstruments.status,
+                    instrumentToken: addingInstruments.instrumentToken,
+                    exchangeInstrumentToken: addingInstruments.exchangeInstrumentToken,
+                    chartInstrument: addingInstruments.chartInstrument,
+                    name: addingInstruments.name
+                }))
+    
+                const updateInstrument = await User.findOneAndUpdate({ _id: _id }, {
+                    $push: {
+                        watchlistInstruments: addingInstruments._id,
+                        allInstruments: addingInstruments._id
+                    }
+    
+                })
+                res.status(201).json({status: "success", message: "Instrument Added" });
+    
+            } catch(err){
+                console.log(err);
+            }
+        }
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err });
         return new Error(err);
     }
 })
@@ -266,11 +285,9 @@ router.post("/subscribeInstrument",authentication, async (req, res)=>{
 
     try{
         await subscribeSingleToken(instrumentToken);
-        console.log("subscribed", instrumentToken)
+        // console.log("subscribed", instrumentToken)
         res.status(200).json({message: "subscribed"});
     } catch(err) {
-        // res.status(500).json({error:"Failed to enter data Check access token"});
-        // res.status(500).json({error:err});
         return new Error(err);
     }
 })
@@ -281,7 +298,7 @@ router.post("/unsubscribeInstrument",authentication, async (req, res)=>{
 
     try{
         await unSubscribeTokens(instrumentToken);
-        console.log("unsubscribed", instrumentToken)
+        // console.log("unsubscribed", instrumentToken)
         res.status(200).json({message: "unSubscribed"});
     } catch(err) {
         // res.status(500).json({error:"Failed to enter data Check access token"});
@@ -290,25 +307,42 @@ router.post("/unsubscribeInstrument",authentication, async (req, res)=>{
     }
 })
 
-router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async (req, res)=>{
-    //console.log(req.params)
-    //console.log("this is body", req.body);
+router.patch("/inactiveInstrument/:instrumentToken/", authentication, async (req, res)=>{
     const {role} = req.user;
     let isRedisConnected = getValue();
+    let roleObj;
+
+  if(isRedisConnected && await client.exists('role')){
+    roleObj = await client.get('role');
+    roleObj = JSON.parse(roleObj)
+    let roleArr = roleObj.filter((elem)=>{
+      return (elem._id).toString() == role.toString();
+    })
+
+    roleObj = roleArr[0];
+  } else{
+      roleObj = await Role.find()
+      await client.set('role', JSON.stringify(roleObj));
+      let roleArr = roleObj.filter((elem)=>{
+        return (elem._id).toString() == role.toString();
+      })
+    
+      roleObj = roleArr[0];
+  }
     try{ 
         const {instrumentToken, from} = req.params
         const {isAddedWatchlist} = req.body;
         const {_id} = req.user;
-        console.log("in removing ", instrumentToken, _id);
+        // console.log("in removing ", instrumentToken, _id);
         const user = await User.findOne({_id: _id});
         let removeFromWatchlist ;
-        if(role.roleName === infinityTrader){
+        if(roleObj.roleName === infinityTrader){
             removeFromWatchlist = await InfinityInstrument.findOne({instrumentToken : instrumentToken, status: "Active"})
         } else{
             removeFromWatchlist = await Instrument.findOne({instrumentToken : instrumentToken, status: "Active"})
         }
         let index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
-        console.log("index", index)
+
         if (index !== -1 && isRedisConnected) {
             try{
             //  const redisClient = await client.LREM((_id).toString(), 1, (instrumentToken).toString());
@@ -323,30 +357,35 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
                 exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken,
                 contractDate: removeFromWatchlist.contractDate ,
                 maxLot: removeFromWatchlist.maxLot,
-                // accountType: removeFromWatchlist.accountType,
+                chartInstrument: removeFromWatchlist.chartInstrument,
             }
-            console.log("removeInstrumentObject", removeInstrumentObject)
+            // console.log("removeInstrumentObject", removeInstrumentObject)
             let removeInstrument;
-            if(role.roleName === infinityTrader){
+            if(roleObj.roleName === infinityTrader){
                 removeInstrument = await client.LREM(`${(_id).toString()}: infinityInstrument`, 1, JSON.stringify(removeInstrumentObject))
                 // console.log("in if removeInstrument", removeInstrument)
             } else{
                 let instrument = await client.LRANGE(`${_id.toString()}: instrument`, 0, -1)
 
                 removeInstrument = await client.LREM(`${(_id).toString()}: instrument`, 1, JSON.stringify(removeInstrumentObject))
-                console.log("in else removeInstrument", removeInstrument, instrument)
+                // console.log("in else removeInstrument", removeInstrument, instrument)
             }
 
-
-            //   console.log("redisClient", removeInstrument)
               const obj = {
                 instrumentToken: instrumentToken,
                 exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken
               }
-              const redisClient = await client.SREM((_id).toString(), JSON.stringify(obj));
-              user.watchlistInstruments.splice(index, 1); // remove the element at the index
+              
+              let instruments = await client.SMEMBERS((_id)?.toString());
+              let removeFromSet = instruments.filter((elem)=>{
+                return elem.includes(instrumentToken.toString())
+              })
 
-             
+              user.watchlistInstruments.splice(index, 1); // remove the element at the index
+              await user.save();
+
+              const redisClient = await client.SREM((_id).toString(), (removeFromSet[0]));
+            //   console.log("redisClient", JSON.stringify(obj), _id, redisClient, instruments)
 
             } catch(err){
                 console.log(err)
@@ -370,64 +409,110 @@ router.patch("/inactiveInstrument/:instrumentToken/:from", authentication, async
     }
 })
 
-router.get("/instrumentDetails/:from", authentication, async (req, res)=>{
+router.get("/instrumentDetails", authentication, async (req, res)=>{
     let isRedisConnected = getValue();
     const {_id} = req.user
     const from = req.params.from;
     const {role} = req.user;
+    let {isNifty, isBankNifty, isFinNifty, dailyContest} = req.query;
 
+    isNifty = isNifty==="true" ?  true : false;
+    isBankNifty = isBankNifty==="true" ?  true : false;
+    isFinNifty = isFinNifty==="true" ?  true : false;
+    dailyContest = dailyContest==="true" ?  true : false;
+
+    let url;
+    let roleObj;
+
+    if (isRedisConnected && await client.exists('role')) {
+        roleObj = await client.get('role');
+        roleObj = JSON.parse(roleObj)
+        let roleArr = roleObj.filter((elem) => {
+            return (elem._id).toString() == role.toString();
+        })
+
+        roleObj = roleArr[0];
+    } else {
+        roleObj = await Role.find()
+        await client.set('role', JSON.stringify(roleObj));
+        let roleArr = roleObj.filter((elem) => {
+            return (elem._id).toString() == role.toString();
+        })
+
+        roleObj = roleArr[0];
+    }
+
+    
     try{
 
-        if(role.roleName === infinityTrader){
-            if(isRedisConnected && await client.exists(`${req.user._id.toString()}: infinityInstrument`)){
-                // console.log("inif", infinityTrader)
-                let instrument = await client.LRANGE(`${req.user._id.toString()}: infinityInstrument`, 0, -1)
-                // console.log(instrument)
-                const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
-      
-                res.status(201).json({message: "redis instrument received", data: instrumentJSONs});      
+     
 
-            } else{
-      
-                const user = await User.findOne({_id: _id});
-    
-                let instrument = await InfinityInstrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
-                .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id ')
-                .sort({$natural:-1})
-                  // console.log("instruments", instrument)
-                const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
-                // console.log("instrumentJSONs", instrumentJSONs)
-                if(instrumentJSONs.length > 0 && isRedisConnected){
-                    await client.LPUSH(`${req.user._id.toString()}: infinityInstrument`, [...instrumentJSONs])
-                }
-                // console.log("instruments", instruments)
-                res.status(201).json({message: "instruments received", data: instrument});
-    
+            if (isNifty) {
+                url = `|NIFTY`;
             }
-        } else{
-            if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
-                let instrument = await client.LRANGE(`${req.user._id.toString()}: instrument`, 0, -1)
-                const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
-                res.status(201).json({message: "redis instrument received", data: instrumentJSONs}); 
+            if (isBankNifty) {
+                url += `|BANK`;
+            }
+            if (isFinNifty) {
+                url += `|FIN`;
+            }
+            if (isNifty && isBankNifty && isFinNifty) {
+                url = `|NIFTY|BANK|FIN`;
+            }
 
+            url = url?.slice(1);
+
+            if(dailyContest){
+
+                // if(isRedisConnected && await client.exists(`${req.user._id.toString()}: contestInstrument`)){
+                //     let instrument = await client.LRANGE(`${req.user._id.toString()}: contestInstrument`, 0, -1)
+                //     const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
+                //     res.status(201).json({message: "redis instrument received", data: instrumentJSONs}); 
+    
+                // } else{
+          
+                    const user = await User.findOne({_id: _id});
+                    let instrument = await Instrument.find({ 
+                        _id: { $in: user.watchlistInstruments }, 
+                        status: "Active",
+                        symbol: { $regex: new RegExp('^' + url, 'i') }
+                    })
+                    .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id chartInstrument')
+                    .sort({$natural:-1})
+        
+                    const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
+                    if(instrumentJSONs.length > 0 && isRedisConnected){
+                        await client.LPUSH(`${req.user._id.toString()}: contestInstrument`, [...instrumentJSONs])
+                    }
+                    res.status(200).json({message: "instruments received", data: instrument});
+    
+                // }
             } else{
-      
-                const user = await User.findOne({_id: _id});
+                if(isRedisConnected && await client.exists(`${req.user._id.toString()}: instrument`)){
+                    let instrument = await client.LRANGE(`${req.user._id.toString()}: instrument`, 0, -1)
+                    const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
+                    res.status(200).json({message: "redis instrument received", data: instrumentJSONs}); 
     
-                let instrument = await Instrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
-                .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id ')
-                .sort({$natural:-1})
-    
-                const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
-                // console.log("instrumentJSONs", instrumentJSONs)
-                if(instrumentJSONs.length > 0 && isRedisConnected){
-                    await client.LPUSH(`${req.user._id.toString()}: instrument`, [...instrumentJSONs])
+                } else{
+          
+                    const user = await User.findOne({_id: _id});
+        
+                    let instrument = await Instrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
+                    .select('exchangeInstrumentToken instrument exchange symbol status lotSize maxLot instrumentToken contractDate _id chartInstrument')
+                    .sort({$natural:-1})
+        
+                    const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
+                    // console.log("instrumentJSONs", instrumentJSONs)
+                    if(instrumentJSONs.length > 0 && isRedisConnected){
+                        await client.LPUSH(`${req.user._id.toString()}: instrument`, [...instrumentJSONs])
+                    }
+                    // console.log("instruments", instruments)
+                    res.status(200).json({message: "instruments received", data: instrument});
+
                 }
-                // console.log("instruments", instruments)
-                res.status(201).json({message: "instruments received", data: instrument});
-    
             }
-        }
+
+        
 
 
   
@@ -440,6 +525,104 @@ router.get("/instrumentDetails/:from", authentication, async (req, res)=>{
 
 })
 
+router.get("/equityinstrumentDetails", authentication, async (req, res) => {
+    let isRedisConnected = getValue();
+    const { _id } = req.user
+
+    try {
+        if (isRedisConnected && await client.exists(`${req.user._id.toString()}: equity-instrument`)) {
+            let instrument = await client.LRANGE(`${req.user._id.toString()}: equity-instrument`, 0, -1)
+            const instrumentJSONs = instrument.map(instrument => JSON.parse(instrument));
+            res.status(201).json({ message: "redis instrument received", data: instrumentJSONs });
+
+        } else {
+
+            const user = await User.findOne({ _id: _id });
+
+            let instrument = await EquityInstrument.find({ _id: { $in: user.watchlistInstruments }, status: "Active" })
+                .select('exchangeInstrumentToken instrument exchange symbol status instrumentToken _id chartInstrument name')
+                .sort({ $natural: -1 })
+
+            const instrumentJSONs = instrument.map(instrument => JSON.stringify(instrument));
+            // console.log("instrumentJSONs", instrumentJSONs)
+            if (instrumentJSONs.length > 0 && isRedisConnected) {
+                await client.LPUSH(`${req.user._id.toString()}: equity-instrument`, [...instrumentJSONs])
+            }
+            // console.log("instruments", instruments)
+            res.status(201).json({ message: "instruments received", data: instrument });
+
+        }
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ status: 'success', message: 'something went wrong.' })
+    }
+})
+
+router.patch("/removestock/:instrumentToken/", authentication, async (req, res)=>{
+    let isRedisConnected = getValue();
+
+    try{ 
+        const {instrumentToken} = req.params
+        // const {isAddedWatchlist} = req.body;
+        const {_id} = req.user;
+
+        const user = await User.findOne({_id: _id});
+        const removeFromWatchlist = await EquityInstrument.findOne({instrumentToken : instrumentToken, status: "Active"})
+        
+        const index = user.watchlistInstruments.indexOf(removeFromWatchlist._id); // find the index of 3 in the array
+
+        if (index !== -1 && isRedisConnected) {
+            try{
+            let removeInstrumentObject = {
+                _id: removeFromWatchlist._id,
+                instrument: removeFromWatchlist.instrument,
+                exchange: removeFromWatchlist.exchange,
+                symbol: removeFromWatchlist.symbol ,
+                status: removeFromWatchlist.status ,
+                instrumentToken: removeFromWatchlist.instrumentToken ,
+                exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken,
+                chartInstrument: removeFromWatchlist.chartInstrument,
+                name: removeFromWatchlist.name,
+            }
+
+                const instrument = await client.LRANGE(`${_id.toString()}: equity-instrument`, 0, -1)
+                const removeInstrument = await client.LREM(`${(_id).toString()}: equity-instrument`, 1, JSON.stringify(removeInstrumentObject))
+            
+
+            //   const obj = {
+            //     instrumentToken: instrumentToken,
+            //     exchangeInstrumentToken: removeFromWatchlist.exchangeInstrumentToken
+            //   }
+              
+              const instruments = await client.SMEMBERS((_id)?.toString());
+              const removeFromSet = instruments.filter((elem)=>{
+                return elem.includes(instrumentToken.toString())
+              })
+
+              user.watchlistInstruments.splice(index, 1); // remove the element at the index
+              await user.save();
+
+              const redisClient = await client.SREM((_id).toString(), JSON.stringify(removeFromSet[0]));
+
+            } catch(err){
+                console.log(err)
+            }
+        }
+
+        const removing = await User.findOneAndUpdate({_id: _id}, {
+            $set:{ 
+                watchlistInstruments: user.watchlistInstruments
+            }
+            
+        })
+        res.status(201).json({message : "Instrument removed."});
+    } catch (e){
+        console.log(e)
+        res.status(500).json({message:"Something went wrong."});
+    }
+})
+
 
 module.exports = router;
+
 

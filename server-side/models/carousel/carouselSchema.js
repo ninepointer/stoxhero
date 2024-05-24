@@ -18,24 +18,41 @@ const carouselSchema = new mongoose.Schema({
         type:Date,
         required: true
     },
+    carouselPosition:{
+        type: Number,
+        required: true,
+    },
+    window:{
+        type: String,
+        required: false
+    },
+    visibility:{
+        type: String,
+        required: true,
+    },
     status:{
         type:String,
         required:true,
         enum: ['Live','Draft','Rejected']
     },
-    objectType:{
-        type:String,
-        required:true,
-        enum: ['campaign','referral-program','contest']
+    clickable:{
+        type: Boolean,
+        required: true,
     },
-    objectId:{
-        type: Schema.Types.ObjectId,
-        refPath: 'objectType'
+    linkToCarousel:{
+        type: String,
+        required: false,
     },
     carouselImage:{
         type:String,
         required: true,
     },
+    clickedBy: [
+        {
+            userId:{type:Schema.Types.ObjectId,ref: 'user-personal-detail'},
+            clickedOn:{type:Date, default: ()=>new Date()}
+        }
+    ],
     createdOn:{
         type: Date,
         required : true,

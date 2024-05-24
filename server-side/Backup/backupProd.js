@@ -63,7 +63,7 @@ const backupDatabase = async(sourceUri, targetUri) => {
         for (const collection of collections) {
           await targetDb.collection(collection.name).drop();
         }
-        console.log('All collections in the target database have been dropped.');
+        // console.log('All collections in the target database have been dropped.');
     
         const sourceCollections = await sourceDb.listCollections().toArray();
     
@@ -73,8 +73,11 @@ const backupDatabase = async(sourceUri, targetUri) => {
           
           if (!isCollectionExistsInTarget) {
             console.log(`Backing up collection ${collectionName}`);
-            if(collectionName !== "daily-pnl-datas" && collectionName !== "retreive-trades" && collectionName !== "trader-daily-pnls" && collectionName !== "instrument-ticks-histories"){
-              console.log("in if", collectionName)
+            if(collectionName !== "daily-pnl-datas" && collectionName !== "retreive-trades" && collectionName !== "trader-daily-pnls" && collectionName !== "instrument-ticks-histories" &&
+              collectionName != "infinity-live-users" && collectionName != "infinity-trade-companies" && collectionName != "live-trade-companies" && collectionName != "live--trade-users" &&
+              collectionName != "all-trade-details"
+            ){
+              // console.log("in if", collectionName)
               const documents = await sourceDb.collection(collectionName).find({}).toArray();
     
             if (documents.length > 0) {
@@ -108,8 +111,8 @@ const backupDatabase = async(sourceUri, targetUri) => {
 
 
 (async function() {
-    await backupDatabase('mongodb+srv://team:stoxherodev@stoxhero0.duntdzc.mongodb.net/?retryWrites=true&w=majority', 
-    'mongodb+srv://staging-database:staging1234@cluster0.snsb6wx.mongodb.net/?retryWrites=true&w=majority');})();
+    await backupDatabase('mongodb+srv://team:N6a6gV6Y6UbQc9BV@stoxhero0.duntdzc.mongodb.net/?retryWrites=true&w=majority', 
+    'mongodb+srv://staging-database:kehlVHCGas3KBM75@cluster0.snsb6wx.mongodb.net/?retryWrites=true&w=majority');})();
 
 // const { MongoClient } = require('mongodb');
 // exports.backupDatabase = async(sourceUri, targetUri, res) => {

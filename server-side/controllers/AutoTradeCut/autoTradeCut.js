@@ -99,7 +99,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     Obj.real_instrument_token = data[i].instrumentToken;
     Obj.exchange = data[i].exchange;
     Obj.validity = data[i].validity;
-    Obj.OrderType = data[i].order_type;
+    Obj.order_type = data[i].order_type;
     Obj.variety = data[i].variety;
     Obj.buyOrSell = buyOrSell;
     Obj.trader = data[i].userId;
@@ -226,7 +226,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     Obj.real_instrument_token = data[i].instrumentToken;
     Obj.exchange = data[i].exchange;
     Obj.validity = data[i].validity;
-    Obj.OrderType = data[i].order_type;
+    Obj.order_type = data[i].order_type;
     Obj.variety = data[i].variety;
     Obj.buyOrSell = buyOrSell;
     Obj.trader = data[i].userId;
@@ -353,7 +353,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     Obj.real_instrument_token = data[i].instrumentToken;
     Obj.exchange = data[i].exchange;
     Obj.validity = data[i].validity;
-    Obj.OrderType = data[i].order_type;
+    Obj.order_type = data[i].order_type;
     Obj.variety = data[i].variety;
     Obj.buyOrSell = buyOrSell;
     Obj.trader = data[i].userId;
@@ -495,7 +495,7 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
     Obj.real_instrument_token = data[i].instrumentToken;
     Obj.exchange = data[i].exchange;
     Obj.validity = data[i].validity;
-    Obj.OrderType = data[i].order_type;
+    Obj.order_type = data[i].order_type;
     Obj.variety = data[i].variety;
     Obj.buyOrSell = buyOrSell;
     Obj.realBuyOrSell = realBuyOrSell;

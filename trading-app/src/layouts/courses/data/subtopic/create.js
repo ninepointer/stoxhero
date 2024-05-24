@@ -1,0 +1,461 @@
+import * as React from "react";
+import { useContext, useState } from "react";
+import TextField from "@mui/material/TextField";
+import {
+  Grid,
+
+} from "@mui/material";
+import MDBox from "../../../../components/MDBox";
+import MDButton from "../../../../components/MDButton";
+import { CircularProgress, Typography } from "@mui/material";
+import MDSnackbar from "../../../../components/MDSnackbar";
+import { apiUrl } from "../../../../constants/constants";
+import FormControl from "@mui/material/FormControl";
+import axios from "axios";
+import { Document, Page, pdfjs } from 'react-pdf';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import MDTypography from "../../../../components/MDTypography";
+
+
+export default function Create({
+  createForm,
+  setCreateForm,
+  subtopic,
+  contentId,
+  courseId,
+  setData, reloadContent, setReloadContent
+}) {
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formState, setFormState] = useState({
+    order: "" || subtopic?.order,
+    topic: "" || subtopic?.topic,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [fileVid, setFileVid] = useState(subtopic?.videoUrl || '');
+  const [notes, setNotes] = useState(subtopic?.notes || []);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [notesPreviewUrl, setNotesPreviewUrl] = useState('');
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
+
+
+  const handleNotesChange = (event) => {
+    setNotes(event.target.files);
+    let previewUrls = [];
+    const files = event.target.files;
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Add the preview URL to the array
+        previewUrls.push(reader.result);
+  
+        // If all files have been processed, update the state with the array of preview URLs
+        if (previewUrls.length === files.length) {
+          setNotesPreviewUrl(previewUrls);
+          // console.log("Title Preview URLs:", previewUrls);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setFileVid(event.target.files[0]);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setVideoPreviewUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!formState?.order || !formState?.topic) {
+      setTimeout(() => {
+        setIsSubmitted(false);
+      }, 500);
+      return openErrorSB(
+        "Missing Field",
+        "Please fill all the mandatory fields"
+      );
+    }
+
+    const formData = new FormData();
+    for (let elem in formState) {
+      formData.append(`${elem}`, formState[elem]);
+    }
+    if(videoPreviewUrl){
+      formData.append("fileVid", fileVid);
+    }
+
+    if(notesPreviewUrl?.length > 0){
+      for(let note of notes){
+        console.log('notes', note)
+        formData.append('pdfFiles', note);
+      }
+    }
+  
+
+    if (subtopic?.topic) {
+      try {
+        const response = await axios.patch(
+          `${apiUrl}courses/${courseId}/subtopic/${contentId}/${subtopic?._id}`,
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            onUploadProgress: (progressEvent) => {
+              const { loaded, total } = progressEvent;
+              const progress = Math.round((loaded / total) * 100);
+              setUploadProgress(progress);
+            },
+          }
+        );
+        const data = response.data.data;
+        setReloadContent(!reloadContent);
+        if (!data.error) {
+          setTimeout(() => {
+            setIsSubmitted(true);
+          }, 500);
+          openSuccessSB(
+            data.message,
+            `Contest Reward Created with prize: ${data.data?.prize}`
+          );
+          setCreateForm(!createForm);
+        } else {
+          setTimeout(() => {
+            setIsSubmitted(false);
+          }, 500);
+          console.log("Invalid Entry");
+          return openErrorSB("Couldn't Add Reward", data.error);
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        setUploadProgress(-1);
+        alert("Error uploading file. Please try again.");
+      }
+    } else {
+      try {
+        if (!fileVid) {
+          setTimeout(() => {
+            setIsSubmitted(false);
+          }, 500);
+          return openErrorSB(
+            "Missing Field",
+            "Please fill all the mandatory fields"
+          );
+        }
+        const response = await axios.patch(
+          `${apiUrl}courses/${courseId}/subtopic/${contentId}`,
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            onUploadProgress: (progressEvent) => {
+              const { loaded, total } = progressEvent;
+              const progress = Math.round((loaded / total) * 100);
+              setUploadProgress(progress);
+            },
+          }
+        );
+        const data = response.data.data;
+        setReloadContent(!reloadContent);
+        console.log("File uploaded successfully:", response.data);
+        setUploadProgress(200);
+        if (!data.error) {
+          setTimeout(() => {
+            setIsSubmitted(true);
+          }, 500);
+          openSuccessSB(
+            data.message,
+            `Contest Reward Created with prize: ${data.data?.prize}`
+          );
+          setCreateForm(!createForm);
+        } else {
+          setTimeout(() => {
+            setIsSubmitted(false);
+          }, 500);
+          console.log("Invalid Entry");
+          setUploadProgress(-1);
+          return openErrorSB("Couldn't Add Reward", data.error);
+        }
+        // Reset file input
+        setFileVid(null);
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        setUploadProgress(-1);
+        alert("Error uploading file. Please try again.");
+      }
+    }
+  };
+
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
+  const [successSB, setSuccessSB] = useState(false);
+  const openSuccessSB = (title, content) => {
+    setTitle(title);
+    setContent(content);
+    setSuccessSB(true);
+  };
+  const closeSuccessSB = () => setSuccessSB(false);
+  // console.log("Title, Content, Time: ",title,content,time)
+
+  const renderSuccessSB = (
+    <MDSnackbar
+      color="success"
+      icon="check"
+      title={title}
+      content={content}
+      open={successSB}
+      onClose={closeSuccessSB}
+      close={closeSuccessSB}
+      bgWhite="info"
+    />
+  );
+
+  const [errorSB, setErrorSB] = useState(false);
+  const openErrorSB = (title, content) => {
+    setTitle(title);
+    setContent(content);
+    setErrorSB(true);
+  };
+  const closeErrorSB = () => setErrorSB(false);
+
+  const renderErrorSB = (
+    <MDSnackbar
+      color="error"
+      icon="warning"
+      title={title}
+      content={content}
+      open={errorSB}
+      onClose={closeErrorSB}
+      close={closeErrorSB}
+      bgWhite
+    />
+  );
+
+  return (
+    <>
+      {isLoading ? (
+        <MDBox
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          mt={5}
+          mb={5}
+        >
+          <CircularProgress color="info" />
+        </MDBox>
+      ) : (
+        <MDBox p={3}>
+          <MDBox
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <MDTypography
+              variant="caption"
+              fontWeight="bold"
+              color="text"
+              textTransform="uppercase"
+            >
+              Sub Topic Details
+            </MDTypography>
+          </MDBox>
+
+            <Grid container mt={0.5} alignItems="center" justifyContent="center">
+              <Grid
+                container
+                spacing={1}
+                xs={12}
+                md={12}
+                xl={12}
+                display="flex"
+                justifyContent="center"
+              >
+                <Grid item xs={12} md={6} xl={3}>
+                  <TextField
+                    disabled={isSubmitted}
+                    id="outlined-required"
+                    placeholder="Order*"
+                    inputMode="numeric"
+                    fullWidth
+                    value={formState?.order}
+                    onChange={(e) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        order: e.target.value,
+                      }));
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6} xl={9}>
+                  <TextField
+                    disabled={isSubmitted}
+                    id="outlined-required"
+                    placeholder="Topic*"
+                    fullWidth
+                    value={formState?.topic}
+                    onChange={(e) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        topic: e.target.value,
+                      }));
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid container mt={0.5} alignItems="center" justifyContent="center">
+              <Grid
+                item
+                container
+                spacing={1}
+                xs={12}
+                md={6}
+                xl={12}
+                display="flex"
+                justifyContent="center"
+              >
+                <Grid item xs={12} md={8} xl={4}>
+                  <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(subtopic?.videoUrl && !fileVid) ? "warning" : ((subtopic?.videoUrl && fileVid) || fileVid) ? "error" : "success"} component="label">
+                    Topic Video
+                    <input hidden accept="*" type="file" onChange={handleFileChange} />
+                  </MDButton>
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <span>Upload Progress: {uploadProgress}%</span>
+                  )}
+                  {uploadProgress == 100 && <span>Storing Data in S3...</span>}
+                  {uploadProgress == 200 && <span>File uploaded successfully.</span>}
+                  {uploadProgress == -1 && <span>Error in file upload. Try again.</span>}
+                </Grid>
+
+                <Grid item xs={12} md={8} xl={4}>
+                  <MDButton variant="outlined" style={{ fontSize: 10 }} fullWidth color={(subtopic?.notes?.length && !notes?.length) ? "warning" : ((subtopic?.notes?.length && notes?.length) || notes?.length) ? "error" : "success"} component="label">
+                    Notes
+                    <input hidden accept="pdf/*" type="file" multiple onChange={handleNotesChange} />
+                  </MDButton>
+                </Grid>
+
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  xl={4}
+                  mt={1}
+                  display="flex"
+                  justifyContent="flex-end"
+                  gap={1}
+                >
+                  {!isSubmitted && (
+                    <>
+                      <Grid item>
+                        <MDButton
+                          variant="contained"
+                          size="small"
+                          color="success"
+                          onClick={(e) => {
+                            handleUpload(e);
+                          }}
+                        >
+                          Next
+                        </MDButton>
+                      </Grid>
+                      <Grid item>
+                        <MDButton
+                          variant="contained"
+                          size="small"
+                          color="warning"
+                          onClick={(e) => {
+                            setCreateForm(!createForm);
+                          }}
+                        >
+                          Back
+                        </MDButton>
+                      </Grid>
+                    </>
+                  )}
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid container mt={1} alignItems="center" justifyContent="center">
+              <Grid
+                container
+                spacing={1}
+                xs={12}
+                md={12}
+                xl={12}
+                // gap={1}
+                display="flex"
+                justifyContent="flex-start"
+                alignContent={'center'}
+                alignItems='center'
+              >
+                {videoPreviewUrl ?
+                <Grid item xs={12} md={6} xl={3} mr={1}>
+                  <video src={videoPreviewUrl} height={70} width={125}/>
+                </Grid>
+                :
+                <Grid item xs={12} md={6} xl={3} mr={1}>
+                  <video src={subtopic?.videoUrl} height={70} width={125}/>
+                </Grid>}
+
+                {notesPreviewUrl ?
+                notesPreviewUrl?.map((elem, index)=>{
+                  return (
+                    <Grid item xs={12} md={6} xl={2} display="flex"
+                      justifyContent="flex-start"
+                      flexDirection='column'
+                      alignContent={'center'}
+                      alignItems='center'>
+                      <PictureAsPdfIcon color='error' size={90} sx={{ height: '50px', width: '50px' }} />
+                      <MDTypography
+                        variant="caption"
+                        fontWeight="bold"
+                        color="text"
+                      >
+                        {`${(index + 1).toString().padStart(2, '0')}`}
+                      </MDTypography>
+
+                    </Grid>
+                  )
+                })
+                :
+                subtopic?.notes?.map((elem, index)=>{
+                  return(
+                    <Grid item xs={12} md={6} xl={2} display="flex"
+                      justifyContent="flex-start"
+                      flexDirection='column'
+                      alignContent={'center'}
+                      alignItems='center'>
+                      <PictureAsPdfIcon color='error' size={90} sx={{ height: '50px', width: '50px' }} />
+                      <MDTypography
+                        variant="caption"
+                        fontWeight="bold"
+                        color="text"
+                      >
+                        {`${(index + 1).toString().padStart(2, '0')}`}
+                      </MDTypography>
+                    </Grid>
+                  )
+                })}
+                
+              </Grid>
+            </Grid>
+
+
+          {renderSuccessSB}
+          {renderErrorSB}
+        </MDBox>
+      )}
+    </>
+  );
+}

@@ -2,9 +2,12 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const Permission = require("../../models/User/permissionSchema");
-const authentication = require("../../authentication/authentication")
+const Authenticate = require("../../authentication/authentication");
+const { ObjectId } = require('mongodb');
+const restrictTo = require('../../authentication/authorization');
 
-router.post("/permission", authentication, (req, res)=>{
+
+router.post("/permission", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     let {userId, isTradeEnable, isRealTradeEnable, algoId} = req.body;
     //console.log(req.body)
     if(!isTradeEnable){
@@ -26,7 +29,7 @@ router.post("/permission", authentication, (req, res)=>{
     // }).catch(err => {//console.log(err, "fail")});
 })
 
-router.get("/readpermission", async (req, res)=>{
+router.get("/readpermission", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
 
     let permission = await Permission.find()
     .populate('userId', 'name')
@@ -41,7 +44,16 @@ router.get("/readpermission", async (req, res)=>{
     res.status(200).send(permission)
 })
 
-router.get("/readpermission/:id", (req, res)=>{
+router.get("/getLiveUser", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
+    try{
+        const liveUser = await Permission.find({isRealTradeEnable : true}).populate('userId', 'first_name last_name')
+        res.status(200).json({status: "success", data: liveUser, result: liveUser.length})
+    } catch(err){
+        res.status(500).json({status: "error", error: err})
+    }
+})
+
+router.get("/readpermission/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     Permission.findOne({_id : id})
@@ -53,10 +65,9 @@ router.get("/readpermission/:id", (req, res)=>{
     })
 })
 
-router.get("/readpermissionbyemail/:email", (req, res)=>{
+router.get("/readpermissionbyemail/:email", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {email} = req.params
-    console.log(email)
     Permission.findOne({userId : email})
     .then((data)=>{
         return res.status(200).send(data);
@@ -66,7 +77,7 @@ router.get("/readpermissionbyemail/:email", (req, res)=>{
     })
 })
 
-router.put("/readpermission/:id", async (req, res)=>{
+router.put("/readpermission/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{
@@ -90,7 +101,7 @@ router.put("/readpermission/:id", async (req, res)=>{
     }
 })
 
-router.patch("/readpermission/:id", async (req, res)=>{
+router.patch("/readpermission/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -111,7 +122,7 @@ router.patch("/readpermission/:id", async (req, res)=>{
     }
 })
 
-router.patch("/readpermissionadduser/:id", async (req, res)=>{
+router.patch("/readpermissionadduser/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     //console.log("this is body", req.body, id);
@@ -134,7 +145,7 @@ router.patch("/readpermissionadduser/:id", async (req, res)=>{
     }
 })
 
-router.patch("/readpermissionalgo/:id", async (req, res)=>{
+router.patch("/readpermissionalgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -152,7 +163,7 @@ router.patch("/readpermissionalgo/:id", async (req, res)=>{
     }
 })
 
-router.delete("/readpermission/:id", async (req, res)=>{
+router.delete("/readpermission/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params
@@ -165,7 +176,7 @@ router.delete("/readpermission/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updatetradeenable/:id", authentication, async (req, res)=>{
+router.patch("/updatetradeenable/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     const {id} = req.params
     try{ 
         const permission = await Permission.findOneAndUpdate({_id : id}, {
@@ -182,7 +193,7 @@ router.patch("/updatetradeenable/:id", authentication, async (req, res)=>{
     }
 })
 
-router.patch("/updaterealtradeenable/:id", authentication, async (req, res)=>{
+router.patch("/updaterealtradeenable/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     const {id} = req.params
     try{ 
         const permission = await Permission.findOneAndUpdate({_id : id}, {
@@ -200,7 +211,7 @@ router.patch("/updaterealtradeenable/:id", authentication, async (req, res)=>{
     }
 })
 
-router.patch("/updateRealTrade/:id", authentication, async (req, res)=>{
+router.patch("/updateRealTrade/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     //console.log("this is body", req.body, id);
@@ -220,6 +231,15 @@ router.patch("/updateRealTrade/:id", authentication, async (req, res)=>{
     }
 })
 
+router.get("/getLiveUser/:algobox", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
+    try{
+        const {algobox} = req.params;
+        const liveUser = await Permission.find({isRealTradeEnable : true, algoId: new ObjectId(algobox)}).populate('userId', 'first_name last_name')
+        res.status(200).json({status: "success", data: liveUser, result: liveUser.length})
+    } catch(err){
+        res.status(500).json({status: "error", error: err})
+    }
+})
+
 
 module.exports = router;
-

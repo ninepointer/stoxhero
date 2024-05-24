@@ -1,79 +1,105 @@
-import React from 'react'
+import React from "react";
 import Grid from "@mui/material/Grid";
-import {useState, useContext, useEffect, memo} from "react"
+import { useState, useContext, useEffect, memo } from "react";
 import axios from "axios";
-import { NetPnlContext } from '../../../PnlContext';
-import MDBox from '../../../components/MDBox';
+import { NetPnlContext } from "../../../PnlContext";
+import MDBox from "../../../components/MDBox";
 import DefaultInfoCard from "../../../examples/Cards/InfoCards/DefaultInfoCard";
-import { renderContext } from '../../../renderContext';
+import { renderContext } from "../../../renderContext";
 
-const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
+const TenxMarginGrid = ({ subscriptionId, setyesterdayData }) => {
   const { netPnl, totalRunningLots, pnlData } = useContext(NetPnlContext);
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
+  let baseUrl =
+    process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const [fundDetail, setFundDetail] = useState({});
-  // const [yesterdayData, setyesterdayData] = useState({});
-  const {render} = useContext(renderContext);
+  const { render } = useContext(renderContext);
 
- 
-
-  const todayAmount = pnlData.reduce((total, acc) => {
-    if (acc.lots !== 0) {
-      return total + Math.abs(acc.amount);
-    }
-    return total; // return the accumulator if the condition is false
+  const todayMargin = pnlData.reduce((total, acc) => {
+    return total + (acc.margin ? acc.margin : 0);
   }, 0);
 
-  console.log("margin", todayAmount)
+  let amount = 0;
+  let margin = 0;
+  let subtractAmount = 0;
+  pnlData.map((elem) => {
+    if (elem?._id.isLimit) {
+      margin += elem?.margin;
+    } else {
+      if (elem?.lots < 0) {
+        margin += elem?.margin;
+        subtractAmount += Math.abs(elem?.lots * elem?.lastaverageprice);
+      }
+      amount += elem?.amount - elem?.brokerage;
+    }
+  });
 
   useEffect(() => {
-    axios.get(`${baseUrl}api/v1/tenX/${subscriptionId}/trade/marginDetail`,{
-      withCredentials: true,
-      headers: {
+    axios
+      .get(`${baseUrl}api/v1/tenX/${subscriptionId}/trade/marginDetail`, {
+        withCredentials: true,
+        headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": true
-      }}
-      ).then((res)=>{
+          "Access-Control-Allow-Credentials": true,
+        },
+      })
+      .then((res) => {
         setFundDetail(res.data.data);
         setyesterdayData(res.data.data);
-      })
-      
+      });
   }, [render, subscriptionId]);
 
-  console.log("fundDetail", Number(netPnl?.toFixed(0)), fundDetail?.openingBalance)
+  const totalCreditString = fundDetail?.totalFund
+    ? fundDetail?.totalFund >= 0
+      ? "+₹" + fundDetail?.totalFund?.toLocaleString()
+      : "-₹" + (-fundDetail?.totalFund)?.toLocaleString()
+    : "+₹0";
+  const runningPnl = Number(netPnl?.toFixed(0));
+  const openingBalance = fundDetail?.openingBalance
+    ? fundDetail?.openingBalance?.toFixed(0)
+    : fundDetail?.totalFund;
+  const availableMargin = (
+    runningPnl < 0
+      ? totalRunningLots === 0
+        ? openingBalance - todayMargin + runningPnl
+        : openingBalance - (Math.abs(amount - subtractAmount) + margin)
+      : openingBalance - todayMargin
+  )?.toFixed(0);
 
-  let totalCreditString = fundDetail?.totalFund ? fundDetail?.totalFund >= 0 ? "+₹" + fundDetail?.totalFund?.toLocaleString() : "-₹" + ((-fundDetail?.totalFund)?.toLocaleString()): "+₹0"
+  const availableMarginpnlstring =
+    availableMargin >= 0
+      ? "₹" + Number(availableMargin)?.toLocaleString()
+      : "₹0";
+  const usedMargin = runningPnl >= 0 ? 0 : runningPnl;
+  const usedMarginString =
+    usedMargin >= 0
+      ? "₹" + Number(usedMargin)?.toLocaleString()
+      : "₹" + (-Number(usedMargin))?.toLocaleString();
+  const unrealisedPnl = runningPnl >= 0 ? runningPnl : 0;
+  const unrealisedPnlString =
+    unrealisedPnl >= 0
+      ? "₹" + Number(unrealisedPnl)?.toLocaleString()
+      : "₹" + (-Number(unrealisedPnl))?.toLocaleString();
 
-  let runningPnl = Number(netPnl?.toFixed(0));
-  let openingBalance = fundDetail?.openingBalance ? (fundDetail?.openingBalance)?.toFixed(0) : fundDetail?.totalFund;
-  let openingBalanceString = openingBalance >= 0 ? "₹" + Number(openingBalance)?.toLocaleString() : "₹" + (-Number(openingBalance))?.toLocaleString()
-  let availableMargin = openingBalance ? (totalRunningLots === 0 ? Number(openingBalance)+runningPnl : Number(openingBalance)+runningPnl-todayAmount) : fundDetail?.totalFund;
-  let availableMarginpnlstring = availableMargin >= 0 ? "₹" + Number(availableMargin)?.toLocaleString() : "₹" + (-Number(availableMargin))?.toLocaleString()
-  let usedMargin = runningPnl >= 0 ? 0 : runningPnl
-  let usedMarginString = usedMargin >= 0 ? "₹" + Number(usedMargin)?.toLocaleString() : "₹" + (-Number(usedMargin))?.toLocaleString()
-  
-  console.log("checkmargin", netPnl, fundDetail, fundDetail)
-    
-    return (<>
-  
+  return (
+    <>
       <MDBox mt={0.5}>
         <MDBox mb={0}>
           <Grid container spacing={3}>
             <Grid item xs={16} lg={12}>
               <Grid container spacing={3}>
-
                 <Grid item xs={16} md={6} xl={3}>
                   <DefaultInfoCard
-                    // icon={<CreditCardIcon/>}
-                    title="Portfolio Value"
+                    title="Virtual Margin Money"
                     description="Total funds added by StoxHero in your Account"
                     value={totalCreditString}
+                    style={{ fontSize: "1px" }}
                   />
                 </Grid>
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<AvailableIcon/>}
-                    title="available margin"
+                    title="Virtual available margin"
                     description="Funds that you can used to trade today"
                     value={availableMarginpnlstring}
                   />
@@ -81,7 +107,7 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
                     // icon={<ShoppingCartIcon/>}
-                    title="used margin"
+                    title="Virtual used margin"
                     description="Net funds utilized for your executed trades"
                     value={usedMarginString}
                   />
@@ -89,10 +115,10 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
 
                 <Grid item xs={16} md={8} xl={3}>
                   <DefaultInfoCard
-                    // icon={<AccountBalanceWalletIcon/>}
-                    title="opening balance"
-                    description="Cash available at the beginning of the day"
-                    value={openingBalanceString}
+                    // icon={<ShoppingCartIcon/>}
+                    title="Virtual unrealised pnl"
+                    description="Increased value of your investment"
+                    value={unrealisedPnlString}
                   />
                 </Grid>
               </Grid>
@@ -100,8 +126,8 @@ const InfinityMarginGrid = ({subscriptionId, setyesterdayData}) => {
           </Grid>
         </MDBox>
       </MDBox>
-      </>
-    )
-}
+    </>
+  );
+};
 
-export default memo(InfinityMarginGrid);
+export default memo(TenxMarginGrid);

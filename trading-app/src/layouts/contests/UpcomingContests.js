@@ -42,7 +42,7 @@ const UpcomingContests = () => {
                       sx={{marginLeft:1.5}}
                       onClick={()=>{setCreateContestForm(true);setIsObjectNew(true)}}
                       >
-                      Create Contest
+                      Create TestZone
                     </MDButton>
                     }
                   </MDBox>

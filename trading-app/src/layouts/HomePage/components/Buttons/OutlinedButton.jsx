@@ -1,23 +1,15 @@
 import { Button } from "@mui/material";
 import React from "react";
+import MDButton from '../../../../components/MDButton'
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import MDTypography from '../../../../components/MDTypography'
 
 const OutlinedButton = ({ sx = {}, arrow, children, fit, ...props }) => {
   return (
-    <Button
-      variant="outlined"
-      sx={{
-        borderRadius: 2,
-        color: "#FFF",
-        borderColor: "#fff",
-        width: fit ? "fit-content" : "100%",
-        ...sx,
-      }}
-      {...props}
-    >
-      {children}
-      {arrow && <KeyboardArrowRightIcon fontSize="small" sx={{ ml: 0.5 }} />}
-    </Button>
+    <MDButton variant='outlined' style={{color:'black'}} sx={{borderRadius:4,...sx}} {...props}>
+      <MDTypography fontSize={13} fontWeight='bold' color='light'>Download App</MDTypography>
+      {/* <KeyboardArrowRight color='black'/> */}
+    </MDButton>
   );
 };
 

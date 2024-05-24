@@ -19,31 +19,30 @@ const takeAutoTenxTrade = async (tradeDetails) => {
   const today = new Date(todayDate);
   const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-  let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId,
+  let { exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId,
     validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
     realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, autoTrade,
     dontSendResp } = tradeDetails;
 
-  console.log("tradeDetails", tradeDetails)
+  // 
   let createdBy;
   if (autoTrade) {
     // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
     let system = await User.findOne({ email: "system@ninepointer.in" })
     createdBy = system._id
-    console.log("createdBy", createdBy)
+    // 
   } else {
     createdBy = trader
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", type: "Option" });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", type: "Option" });
 
 
-  if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
-    ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+  if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
     if (!dontSendResp) {
-      console.log("Please fill all fields, autotrade");
+      // console.log("Please fill all fields, autotrade");
       // return res.status(422).json({error : "please fill all the feilds..."})
     } else {
       return;
@@ -62,7 +61,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
 
     //console.log("above")
     let liveData = await singleLivePrice(exchange, symbol)
-    console.log("liveData", liveData)
+    // 
     for (let elem of liveData) {
       if (elem.instrument_token == instrumentToken) {
         newTimeStamp = elem.timestamp;
@@ -72,7 +71,7 @@ const takeAutoTenxTrade = async (tradeDetails) => {
 
 
     trade_time = new Date(newTimeStamp);
-    console.log("trade_time", trade_time)
+    // 
   } catch (err) {
     console.log(err)
     return new Error(err);
@@ -112,23 +111,23 @@ const takeAutoTenxTrade = async (tradeDetails) => {
     brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
   }
 
-  console.log("brokerageUser", brokerageUser)
+  // 
   TenxTrader.findOne({ order_id: order_id })
     .then((dateExist) => {
       if (dateExist) {
-        console.log("data already");
+        // console.log("data already");
       }
 
 
-      console.log("4st", subscriptionId)
+      // console.log("4st", subscriptionId)
       const tenx = new TenxTrader({
         status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+        variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
         order_id, instrumentToken, brokerage: brokerageUser, portfolioId, subscriptionId,
         createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
       });
 
-      console.log("tenx", tenx);
+      // console.log("tenx", tenx);
       tenx.save().then(async () => {
         if (isRedisConnected && await client.exists(`${trader.toString()}${subscriptionId.toString()}: overallpnlTenXTrader`)) {
           //console.log("in the if condition")
@@ -188,29 +187,28 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
   const today = new Date(todayDate);
   const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-  let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, batch,
+  let { exchange, symbol, buyOrSell, Quantity, Product, order_type, batch,
     validity, variety, order_id, instrumentToken, portfolioId, internPath,
     trader, isAlgoTrader, paperTrade, autoTrade,
     dontSendResp } = tradeDetails;
 
-  console.log("tradeDetails", tradeDetails)
+  // 
   let createdBy;
   if (autoTrade) {
     // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
     let system = await User.findOne({ email: "system@ninepointer.in" })
     createdBy = system._id
-    console.log("createdBy", createdBy)
+    // 
   } else {
     createdBy = trader
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", type: "Option" });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", type: "Option" });
 
 
-  if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
-    ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+  if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
     if (!dontSendResp) {
       console.log("Please fill all fields, autotrade");
       // return res.status(422).json({error : "please fill all the feilds..."})
@@ -231,7 +229,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
     //console.log("above")
     let liveData = await singleLivePrice(exchange, symbol)
-    console.log("liveData", liveData)
+    
     for (let elem of liveData) {
       if (elem.instrument_token == instrumentToken) {
         newTimeStamp = elem.timestamp;
@@ -241,7 +239,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
 
     trade_time = new Date(newTimeStamp);
-    console.log("trade_time", trade_time)
+    
   } catch (err) {
     console.log(err)
     return new Error(err);
@@ -281,7 +279,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
     brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
   }
 
-  // console.log("brokerageUser", brokerageUser)
+  // 
   InternshipTrade.findOne({order_id : order_id})
   .then((dataExist)=>{
       if(dataExist){
@@ -292,7 +290,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
       const internship = new InternshipTrade({
           status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-          variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+          variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
           order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: batch,
           createdBy,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
           
@@ -303,7 +301,7 @@ const takeAutoInternshipTrade = async (tradeDetails) => {
 
       //console.log("mockTradeDetails", paperTrade);
       internship.save().then(async ()=>{
-          console.log("sending response");
+          
           if(isRedisConnected && await client.exists(`${trader.toString()}${batch.toString()}: overallpnlIntern`)){
               //console.log("in the if condition")
               let pnl = await client.get(`${trader.toString()}${batch.toString()}: overallpnlIntern`)
@@ -361,29 +359,28 @@ const takeAutoPaperTrade = async (tradeDetails) => {
   const today = new Date(todayDate);
   const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-  let { exchange, symbol, buyOrSell, Quantity, Product, OrderType, subscriptionId,
+  let { exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId,
     validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
     realBuyOrSell, realQuantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, autoTrade,
     dontSendResp } = tradeDetails;
 
-  console.log("tradeDetails", tradeDetails)
+  
   let createdBy;
   if (autoTrade) {
     // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
     let system = await User.findOne({ email: "system@ninepointer.in" })
     createdBy = system._id
-    console.log("createdBy", createdBy)
+    
   } else {
     createdBy = trader
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", type: "Option" });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", type: "Option" });
 
 
-  if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !OrderType || !validity || !variety) {
-    ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+  if (!exchange || !symbol || !buyOrSell || !Quantity || !Product || !order_type || !validity || !variety) {
     if (!dontSendResp) {
       console.log("Please fill all fields, autotrade");
       // return res.status(422).json({error : "please fill all the feilds..."})
@@ -404,7 +401,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
     //console.log("above")
     let liveData = await singleLivePrice(exchange, symbol)
-    console.log("liveData", liveData)
+    
     for (let elem of liveData) {
       if (elem.instrument_token == instrumentToken) {
         newTimeStamp = elem.timestamp;
@@ -414,7 +411,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
 
     trade_time = new Date(newTimeStamp);
-    console.log("trade_time", trade_time)
+    
   } catch (err) {
     console.log(err)
     return new Error(err);
@@ -454,7 +451,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
     brokerageUser = sellBrokerage(Math.abs(Number(Quantity)) * originalLastPriceUser);
   }
 
-  console.log("brokerageUser", brokerageUser)
+  
   PaperTrade.findOne({ order_id: order_id })
     .then((dateExist) => {
       if (dateExist) {
@@ -465,7 +462,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
       const paperTrade = new PaperTrade({
         status: "COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
-        variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+        variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
         order_id, instrumentToken, brokerage: brokerageUser, portfolioId,
         createdBy, trader: trader, amount: (Number(Quantity) * originalLastPriceUser), trade_time: trade_time,
 
@@ -473,7 +470,7 @@ const takeAutoPaperTrade = async (tradeDetails) => {
 
       //console.log("mockTradeDetails", paperTrade);
       paperTrade.save().then(async () => {
-        console.log("sending response");
+        
         if (isRedisConnected && await client.exists(`${trader.toString()}: overallpnlPaperTrade`)) {
           //console.log("in the if condition")
           let pnl = await client.get(`${trader.toString()}: overallpnlPaperTrade`)
@@ -531,29 +528,28 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
   const today = new Date(todayDate);
   const secondsRemaining = Math.round((today.getTime() - date.getTime()) / 1000);
 
-  let { exchange, symbol, buyOrSell, userQuantity, Product, OrderType, subscriptionId,
+  let { exchange, symbol, buyOrSell, userQuantity, Product, order_type, subscriptionId,
     validity, variety, algoBoxId, order_id, instrumentToken, portfolioId, tenxTraderPath,
     realBuyOrSell, Quantity, real_instrument_token, realSymbol, trader, isAlgoTrader, paperTrade, autoTrade,
     dontSendResp } = tradeDetails;
 
-  console.log("tradeDetails", tradeDetails)
+  
   let createdBy;
   if (autoTrade) {
     // createdBy = new ObjectId("63ecbc570302e7cf0153370c")
     let system = await User.findOne({ email: "system@ninepointer.in" })
     createdBy = system._id
-    console.log("createdBy", createdBy)
+    
   } else {
     createdBy = trader
   }
   //console.log("req.body", tradeDetails)
 
-  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY" });
-  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL" });
+  const brokerageDetailBuy = await BrokerageDetail.find({ transaction: "BUY", type: "Option" });
+  const brokerageDetailSell = await BrokerageDetail.find({ transaction: "SELL", type: "Option" });
 
 
-  if (!exchange || !symbol || !buyOrSell || !userQuantity || !Product || !OrderType || !validity || !variety) {
-    ////console.log(Boolean(exchange)); ////console.log(Boolean(symbol)); ////console.log(Boolean(buyOrSell)); //console.log(Boolean(Quantity)); //console.log(Boolean(Product)); //console.log(Boolean(OrderType)); //console.log(Boolean(validity)); //console.log(Boolean(variety));  //console.log(Boolean(algoName)); //console.log(Boolean(transactionChange)); //console.log(Boolean(instrumentChange)); //console.log(Boolean(exchangeChange)); //console.log(Boolean(lotMultipler)); //console.log(Boolean(productChange)); //console.log(Boolean(tradingAccount));
+  if (!exchange || !symbol || !buyOrSell || !userQuantity || !Product || !order_type || !validity || !variety) {
     if (!dontSendResp) {
       console.log("Please fill all fields, autotrade");
       // return res.status(422).json({error : "please fill all the feilds..."})
@@ -575,7 +571,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
     //console.log("above")
     let liveData = await singleLivePrice(exchange, symbol)
-    console.log("liveData", liveData)
+    
     for (let elem of liveData) {
       if (elem.instrument_token == instrumentToken) {
         newTimeStamp = elem.timestamp;
@@ -586,7 +582,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
 
     trade_time = new Date(newTimeStamp);
-    console.log("trade_time", trade_time)
+    
   } catch (err) {
     console.log(err)
     return new Error(err);
@@ -649,7 +645,7 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
     const companyDoc = {
       status: "COMPLETE", average_price: originalLastPriceCompany, Quantity: Quantity,
-      Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: OrderType,
+      Product, buyOrSell: realBuyOrSell, variety, validity, exchange, order_type: order_type,
       symbol, placed_by: "stoxhero", algoBox: algoBoxId, order_id,
       instrumentToken: real_instrument_token, brokerage: brokerageCompany, createdBy,
       trader: trader, isRealTrade: false, amount: (Number(Quantity) * originalLastPriceCompany),
@@ -658,20 +654,20 @@ const takeAutoInfinityTrade = async (tradeDetails) => {
 
     const traderDoc = {
       status: "COMPLETE", average_price: originalLastPriceUser, Quantity: userQuantity, Product, buyOrSell,
-      variety, validity, exchange, order_type: OrderType, symbol, placed_by: "stoxhero",
+      variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
       isRealTrade: false, order_id, instrumentToken, brokerage: brokerageUser,
       createdBy, trader: trader, amount: (Number(userQuantity) * originalLastPriceUser), trade_time: trade_time,
     }
 
     const mockTradeDetails = await InfinityTradeCompany.create([companyDoc], { session });
     const algoTrader = await InfinityTrader.create([traderDoc], { session });
-    console.log(algoTrader[0].order_id, mockTradeDetails[0].order_id)
-    console.log("above if", isRedisConnected, await client.exists(`${trader.toString()} overallpnl`))
+    // console.log(algoTrader[0].order_id, mockTradeDetails[0].order_id)
+    // console.log("above if", isRedisConnected, await client.exists(`${trader.toString()} overallpnl`))
     if (isRedisConnected && await client.exists(`${trader.toString()} overallpnl`)) {
-      console.log("in if")
+      // console.log("in if")
       let pnl = await client.get(`${trader.toString()} overallpnl`)
       pnl = JSON.parse(pnl);
-      console.log("redis pnl", pnl)
+      // console.log("redis pnl", pnl)
       const matchingElement = pnl.find((element) => (element._id.instrumentToken === algoTrader[0].instrumentToken && element._id.product === algoTrader[0].Product));
       // if instrument is same then just updating value
       if (matchingElement) {

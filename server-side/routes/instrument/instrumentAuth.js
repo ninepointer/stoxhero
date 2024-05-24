@@ -11,6 +11,7 @@ const RequestToken = require("../../models/Trading Account/requestTokenSchema");
 const Account = require("../../models/Trading Account/accountSchema");
 const {subscribeTokens, unSubscribeTokens} = require('../../marketData/kiteTicker');
 const authentication = require("../../authentication/authentication");
+const restrictTo = require('../../authentication/authorization');
 
 router.post("/contestInstrument", authentication, async (req, res)=>{
     let isRedisConnected = getValue();
@@ -18,9 +19,9 @@ router.post("/contestInstrument", authentication, async (req, res)=>{
         let {instrument, exchange, symbol, status, uId, lotSize, contractDate, maxLot, contest} = req.body;
         const {_id, contestName} = contest;
         // console.log("Request Body inside instrument auth: ",req.body);
-        console.log("Exchange & Symbol: ", exchange,symbol)
+        // console.log("Exchange & Symbol: ", exchange,symbol)
         let instrumentToken = await fetchToken(exchange, symbol);
-        console.log("instrumentToken", instrumentToken);
+        // console.log("instrumentToken", instrumentToken);
         // let firstDateSplit = (contractDate).split(" ");
         // let secondDateSplit = firstDateSplit[0].split("-");
         // contractDate = `${secondDateSplit[2]}-${secondDateSplit[1]}-${secondDateSplit[0]}`
@@ -29,8 +30,8 @@ router.post("/contestInstrument", authentication, async (req, res)=>{
             if(!instrumentToken){
                 return res.status(422).json({error : "Please enter a valid Instrument."})
             }
-            console.log(instrumentToken);
-            console.log(req.body);
+            // console.log(instrumentToken);
+            // console.log(req.body);
             // console.log("data nhi h pura");
             return res.status(422).json({error : "Any of one feild is incorrect..."})
         }
@@ -38,16 +39,16 @@ router.post("/contestInstrument", authentication, async (req, res)=>{
         ContestInstrument.findOne({uId : uId})
         .then((dateExist)=>{
             if(dateExist){
-                console.log("data already");
+                // console.log("data already");
                 return res.status(422).json({error : "date already exist..."})
             }
             const instruments = new ContestInstrument({instrument, exchange, symbol, status, uId, createdBy: req.user._id, lastModifiedBy: req.user._id, lotSize, instrumentToken, contractDate, maxLot, contest: {name: contestName, contestId: _id}});
-            console.log("instruments", instruments)
+            // console.log("instruments", instruments)
             instruments.save().then(async()=>{
                 if(isRedisConnected){
                     const newredisClient = await client.SADD((_id).toString(), (instrumentToken).toString());
                 }
-                 console.log("this is redis client", newredisClient)
+                //  console.log("this is redis client", newredisClient)
                 // client.del(socket.id);
                  await subscribeTokens();
                 res.status(201).json({massage : "data enter succesfully"});
@@ -61,7 +62,7 @@ router.post("/contestInstrument", authentication, async (req, res)=>{
     }
 })
 
-router.get("/contestInstrument", (req, res)=>{
+router.get("/contestInstrument", authentication, (req, res)=>{
     ContestInstrument.find({status: "Active"}, (err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -71,7 +72,7 @@ router.get("/contestInstrument", (req, res)=>{
     }).sort({$natural:-1})
 })
 
-router.get("/contestInstrument/:id", async (req, res) => {
+router.get("/contestInstrument/:id", authentication, async (req, res) => {
     try {
       const { id } = req.params;
       const data = await ContestInstrument.find(
@@ -91,7 +92,7 @@ router.get("/contestInstrument/:id", async (req, res) => {
     }
 });
 
-router.get("/readInstrumentDetails", (req, res)=>{
+router.get("/readInstrumentDetails", authentication, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     Instrument.find((err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -101,7 +102,7 @@ router.get("/readInstrumentDetails", (req, res)=>{
     }).sort({$natural:-1})
 })
 
-router.get("/readInstrumentDetails/:id", (req, res)=>{
+router.get("/readInstrumentDetails/:id", authentication, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     Instrument.findOne({_id : id})
@@ -113,10 +114,10 @@ router.get("/readInstrumentDetails/:id", (req, res)=>{
     })
 })
 
-router.put("/contestInstrument/:id", async (req, res)=>{
+router.put("/contestInstrument/:id", authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     let isRedisConnected = getValue();
     //console.log(req.params)
-    console.log( req.body)
+    // console.log( req.body)
     let {contest, contract_Date, Exchange, Symbole} = req.body;
     const {_id, contestName} = contest;
     
@@ -165,7 +166,7 @@ router.put("/contestInstrument/:id", async (req, res)=>{
     }
 })
 
-router.delete("/readInstrumentDetails/:id", async (req, res)=>{
+router.delete("/readInstrumentDetails/:id", authentication, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params

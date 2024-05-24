@@ -94,9 +94,9 @@ export const section1Content = {
 
 export const section2Content = {
   items: [
-    { counter: 12000, subtitle: "Total Signups", name:'totalSignups' },
-    { counter: 10000000, before: "", after: "", subtitle: "Total Traded Volume", name:'totalTradedVolume' },
-    { counter: 10000, before: "₹", after: "", subtitle: "Total Wallets Transactions", decimals: false, name:'totalWalletTransactions' },
+    { counter: 13000, subtitle: "Total Signups", name:'totalSignups' },
+    { counter: 20000000000, before: "", after: "", subtitle: "Total Traded Volume", name:'totalTradedVolume' },
+    { counter: 600000, before: "₹", after: "", subtitle: "Total Wallets Transactions", decimals: false, name:'totalWalletTransactions' },
     { counter: 356345, after: "", subtitle: "Total Trades", decimals: false, name:'totalTrades' },
   ],
 };

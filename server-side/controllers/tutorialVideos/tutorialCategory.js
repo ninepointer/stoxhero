@@ -12,7 +12,7 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.createTutorialCategory = async(req, res, next)=>{
-    console.log(req.body) 
+    // console.log(req.body) 
     const{categoryName, description, status } = req.body;
 
     if(await tutorialCategory.findOne({categoryName})) return res.status(400).json({message:'This category already exists.'});
@@ -48,7 +48,7 @@ exports.getTutorialCategory = async(req, res, next) => {
 exports.editTutorialCategory = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
     const videoCategory = await tutorialCategory.findById(id);
 
     const filteredBody = filterObj(req.body, "categoryName", "status", "description");
@@ -57,7 +57,7 @@ exports.editTutorialCategory = async(req, res, next) => {
         videoId:req.body.categoryVideos.videoId,}]
     filteredBody.lastModifiedBy = req.user._id;    
 
-    console.log(filteredBody)
+    // console.log(filteredBody)
     const updated = await tutorialCategory.findByIdAndUpdate(id, filteredBody, { new: true });
 
     res.status(200).json({message: 'Successfully edited Tutorial Category.', data: updated});
@@ -66,7 +66,7 @@ exports.editTutorialCategory = async(req, res, next) => {
 exports.deleteTutorialCategory = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("req ,", req.user)
+    // console.log("req ,", req.user)
 
     const videoCategory = await tutorialCategory.findOneAndUpdate({_id : id}, {
         $set:{
@@ -75,6 +75,6 @@ exports.deleteTutorialCategory = async(req, res, next) => {
             lastModifiedOn: new Date()
         }
     }, {new: true})
-    console.log(videoCategory)
+    // console.log(videoCategory)
     res.status(200).json({message: 'Successfully deleted tutorial category.', data: videoCategory});
 }

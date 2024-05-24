@@ -16,10 +16,10 @@ exports.protect = async (req, res, next)=>{
         req.headers.authorization.startsWith('Bearer')
       ) {
         token = req.headers.authorization.split(' ')[1];
-      }
-      if (req.cookies) {
+      } else if (req.cookies) {
         token = req.cookies.jwtoken;
       }
+      
       if (!token) {
         return res.status(403).json({error:"Please login again"})
       }

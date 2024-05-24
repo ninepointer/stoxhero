@@ -1,7 +1,6 @@
 
 import React from "react";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useContext } from "react";
 import { io } from "socket.io-client";
 import { Chart } from 'chart.js/auto';
 import Grid from "@mui/material/Grid";
@@ -25,33 +24,25 @@ import Header from "./Header";
 
 // import OverallTraderPnl from "./AlgoUserComponents/overallTraderPnl";
 import TraderwiseTraderPnl from "./AlgoUserComponents/TraderwiseTraderPNL";
+import { socketContext } from "../../socketContext";
 
 function AlgoUser() {
 
   let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
-  let socket;
-  const[batches,setBatches] = useState([]);
-  const [selectedBatch, setSelectedBatch] = useState();
-  try{
-      socket = io.connect(`${baseUrl1}`)
-  } catch(err){
-      throw new Error(err);
-  }
+  // let socket;
+  // try{
+  //     socket = io.connect(`${baseUrl1}`)
+  // } catch(err){
+  //     throw new Error(err);
+  // }
+  const socket = useContext(socketContext);
+
 
     useEffect(()=>{
-        socket.on("connect", ()=>{
-            //console.log(socket.id);
-            socket.emit("hi",true)
-        })
-        socket.on("noToken", (data)=>{
-            //console.log("no token");
-            window.alert(data);
-        })
-        socket.on("wrongToken", (data)=>{
-            //console.log("wrong Token");
-            window.alert(data);
-        })
+        // socket.on("connect", ()=>{
+            socket.emit("company-ticks", true)
+        // })
 
     }, []);
 

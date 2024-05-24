@@ -85,7 +85,7 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
       );  
   const getColleges = async () => {
     try{
-      const res = await axios.get(`${apiUrl}college`);
+      const res = await axios.get(`${apiUrl}college`, {withCredentials:true});
       setColleges(prev=>res.data.data);
     }catch(e){
       console.log(e);
@@ -93,7 +93,7 @@ const AddApplicantModal = ( {open, handleClose, applicant, applicantName, career
   }
   const getGroupDiscussionsByCareer = async () => {
     try{
-      const res = await axios.get(`${apiUrl}gd/career/${career}`);
+      const res = await axios.get(`${apiUrl}gd/career/${career}`,{withCredentials:true});
       console.log("in gd", res.data);
       setGds(prev=>res.data.data);
     }catch(e){

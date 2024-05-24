@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useContext} from 'react';
+import React, {useEffect, useState, useCallback, useMemo, useContext} from 'react';
 // import axios from "axios";
 import { Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
@@ -15,9 +15,13 @@ import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
 import { NetPnlContext } from '../../../PnlContext';
+import ReactGA from "react-ga"
 import TenXTMargin from '../../tradingCommonComponent/MarginDetails/TenXMargin';
 import { internshipTrader } from '../../../variables';
 import InternshipMargin from '../../tradingCommonComponent/MarginDetails/InternshipMargin';
+import Order from '../../tradingCommonComponent/Order/Order';
+import PendingOrder from '../../tradingCommonComponent/Order/PendingOrder';
+import ExecutedOrders from '../../tradingCommonComponent/Order/ExecutedOrders';
 
 export default function TenXTrading({socket, BatchId}) {
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
@@ -25,6 +29,13 @@ export default function TenXTrading({socket, BatchId}) {
   const pnl = useContext(NetPnlContext);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
   const [availbaleMargin, setAvailbleMargin] = useState([]);
+  const [watchList, setWatchList] = useState([]);
+  const [updatePendingOrder, setUpdatePendingOrder] = useState();
+
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
   const memoizedStockIndex = useMemo(() => {
     return <StockIndex socket={socket} />;
@@ -41,8 +52,9 @@ export default function TenXTrading({socket, BatchId}) {
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={internshipTrader}
       subscriptionId={BatchId}
-    />;
-  }, [ isGetStartedClicked, handleSetIsGetStartedClicked, BatchId]);
+      watchList={watchList}
+      />;
+    }, [watchList, isGetStartedClicked, handleSetIsGetStartedClicked, BatchId]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -51,8 +63,9 @@ export default function TenXTrading({socket, BatchId}) {
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={internshipTrader}
       subscriptionId={BatchId}
-    />;
-  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked, BatchId]);
+      setWatchList={setWatchList}
+      />;
+    }, [setWatchList, socket, handleSetIsGetStartedClicked, isGetStartedClicked, BatchId]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl
@@ -69,7 +82,7 @@ export default function TenXTrading({socket, BatchId}) {
   let openingBalance = yesterdayData?.openingBalance ? (yesterdayData?.openingBalance) : yesterdayData?.totalFund;
   let fundChangePer = openingBalance ? ((openingBalance+pnl.netPnl - openingBalance)*100/openingBalance) : 0;
 
-  console.log("fundDetail", fundChangePer, openingBalance)
+  // console.log("fundDetail", fundChangePer, openingBalance)
   return (
     <>
     <MDBox bgColor="dark" color="light" mt={2} mb={0} p={2} borderRadius={10} >
@@ -81,12 +94,12 @@ export default function TenXTrading({socket, BatchId}) {
           <MDBox bgColor="light" borderRadius={5} p={2} display="flex" justifyContent="space-between">
               <Grid container display="flex" justifyContent="space-around">
 
-                <Grid item xs={12} md={6} lg={2.5}>
+                <Grid item xs={12} md={6} lg={2}>
                   <MDAvatar src={marginicon} size="sm"/>
                 </Grid>
            
-                <Grid item xs={12} md={6} lg={5}>
-                  <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Margin</MDTypography>
+                <Grid item xs={12} md={6} lg={6.5}>
+                  <MDTypography fontSize={11} fontWeight="bold" display="flex" justifyContent="left" alignContent="left" alignItems="left">Opening Balance</MDTypography>
                   <MDBox display="flex">
                   
                     <MDTypography fontSize={10}>₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(openingBalance + pnl.netPnl)}</MDTypography>
@@ -94,7 +107,7 @@ export default function TenXTrading({socket, BatchId}) {
                   </MDBox>
                 </Grid>
 
-                <Grid item xs={12} md={6} lg={4.5}>
+                <Grid item xs={12} md={6} lg={3.5}>
                   <MDTypography fontSize={13} fontWeight="bold" display="flex" justifyContent="right">₹{new Intl.NumberFormat(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(openingBalance)}</MDTypography>
                   <MDBox display="flex" justifyContent="right">
                     <MDTypography fontSize={10} display="flex" justifyContent="right">{fundChangePer.toFixed(2)}%</MDTypography>
@@ -147,6 +160,13 @@ export default function TenXTrading({socket, BatchId}) {
         <Grid item xs={12} md={6} lg={12}>
           {memoizedOverallPnl}
         </Grid>
+
+        <Grid item xs={12} md={6} lg={12}>
+          <PendingOrder from={internshipTrader} socket={socket} id={BatchId} setUpdatePendingOrder={setUpdatePendingOrder} updatePendingOrder={updatePendingOrder} />
+          <ExecutedOrders from={internshipTrader} socket={socket} id={BatchId} updatePendingOrder={updatePendingOrder} />
+          <Order from={internshipTrader} id={BatchId} updatePendingOrder={updatePendingOrder} />
+        </Grid>
+
         <Grid item xs={12} md={6} lg={12}>
           <InternshipMargin availbaleMargin={availbaleMargin} BatchId={BatchId} setyesterdayData={setyesterdayData}/>
         </Grid>

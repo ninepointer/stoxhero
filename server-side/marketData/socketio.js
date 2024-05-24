@@ -1,27 +1,37 @@
-const { Server } = require('socket.io');
+const { Server } = require("socket.io");
 
-const io = new Server(9000, {
-    cors: {
-        origin: 'http://localhost:3000',
+let io;
+
+async function setIOValue() {
+  try {
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "https://staging.stoxhero.com",
+      "https://stoxhero.com",
+      "https://www.stoxhero.com",
+      "https://stoxhero-next-ts.vercel.app",
+      "https://www.stoxhero-next-ts.vercel.app",
+      "http://43.204.7.180",
+    ];
+
+    io = new Server(9000, {
+      cors: {
+        origin: allowedOrigins,
         //  origin: "http://3.110.187.5/",
-        methods: ['GET', 'POST', 'PATCH'],
-      }
+        methods: ["GET", "POST", "PATCH"],
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
+}
 
-});
+function getIOValue() {
+  return io;
+}
 
-module.exports = io;
+module.exports = { setIOValue, getIOValue };
 
+// module.exports = io;
 
-// {
-//   "MessageCode":1512,
-//   "MessageVersion":4,
-//   "ApplicationType":0,
-//   "TokenID":0,
-//   "ExchangeSegment":1,
-//   "ExchangeInstrumentID":2885,
-//   "BookType":1,
-//   "XMarketType":1,
-//   "LastTradedPrice":2495,
-//   "LastTradedQunatity":1,
-//   "LastUpdateTime":
-// }
+//

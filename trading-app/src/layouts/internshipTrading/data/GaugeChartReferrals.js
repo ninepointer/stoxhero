@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 
-const GaugeChart = ({myReferralCount}) => {
+const GaugeChart = ({myReferralCount, referralCount}) => {
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const GaugeChart = ({myReferralCount}) => {
               startAngle: 180,
               endAngle: 0,
               min: 0,
-              max: 10,
+              max: parseInt(referralCount),
               splitNumber: 2,
               itemStyle: {
                 color: '#1A73E8',
@@ -101,7 +101,7 @@ const GaugeChart = ({myReferralCount}) => {
     return () => {
       myChart.dispose();
     };
-  }, [myReferralCount]);
+  }, [myReferralCount,referralCount]);
 
   return <div ref={chartRef} style={{ minWidth: '100%', height: '200px', padding:0 }} />;
 };

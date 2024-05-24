@@ -24,27 +24,29 @@ import { userContext } from '../../../AuthContext';
 import { io } from 'socket.io-client';
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndex';
 import OverallPnl from '../../tradingCommonComponent/OverallP&L/OverallGrid'
+import { socketContext } from '../../../socketContext';
 
 export default function Wallet() {
 
   const [reRender, setReRender] = useState(true);
   const getDetails = useContext(userContext);
   const [isGetStartedClicked, setIsGetStartedClicked] = useState(false);
+  const socket = useContext(socketContext);
 
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
 
-  let socket;
-  try {
-    socket = io.connect(`${baseUrl1}`)
-  } catch (err) {
-    throw new Error(err);
-  }
+  // let socket;
+  // try {
+  //   socket = io.connect(`${baseUrl1}`)
+  // } catch (err) {
+  //   throw new Error(err);
+  // }
 
   useEffect(() => {
-    socket.on("connect", () => {
+    // socket.on("connect", () => {
       socket.emit('userId', getDetails.userDetails._id)
       socket.emit("user-ticks", true)
-    })
+    // })
   }, []);
 
   const memoizedStockIndex = useMemo(() => {

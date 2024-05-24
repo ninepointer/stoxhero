@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../ProgressBar.css';
+import '../ProgressBar.module.css';
 
 function ProgressBar({progress}) {
 //   const [progress, setProgress] = useState(props.progress);

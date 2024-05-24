@@ -5,15 +5,14 @@ const InstrumentAlgo = require("../../models/AlgoBox/instrumentMappingSchema");
 const fetchToken = require("../../marketData/generateSingleToken");
 const Instrument = require("../../models/Instruments/instrumentSchema");
 const {subscribeTokens, unSubscribeTokens} = require('../../marketData/kiteTicker');
+const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
 
 
 
-router.post("/instrumentAlgo", async (req, res)=>{
+router.post("/instrumentAlgo", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
 
     try{
-
-        
-
         const {InstrumentNameIncoming, IncomingInstrumentCode, InstrumentNameOutgoing, OutgoingInstrumentCode, Status, lastModified, uId, createdBy, createdOn} = req.body;
 
         let instrumentDetail = await Instrument.find({status: "Active", instrument: InstrumentNameIncoming});
@@ -47,7 +46,7 @@ router.post("/instrumentAlgo", async (req, res)=>{
             }
             const instrumentAlgo = new InstrumentAlgo({InstrumentNameIncoming, IncomingInstrumentCode: incomingInstrumentToken, InstrumentNameOutgoing, OutgoingInstrumentCode: outgoingInstrumentToken, Status, lastModified, uId, createdBy, createdOn, incomingInstrumentExchange: instrumentDetail[0].exchange, outgoingInstrumentExchange: instrumentDetail[0].exchange});
     
-            console.log("instrumentAlgo", instrumentAlgo)
+            // console.log("instrumentAlgo", instrumentAlgo)
             instrumentAlgo.save().then(async ()=>{
                 await subscribeTokens();
                 res.status(201).json({massage : "data enter succesfully"});
@@ -64,7 +63,7 @@ router.post("/instrumentAlgo", async (req, res)=>{
 
 })
 
-router.get("/readInstrumentAlgo", (req, res)=>{
+router.get("/readInstrumentAlgo", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     InstrumentAlgo.find((err, data)=>{
         if(err){
             return res.status(500).send(err);
@@ -74,7 +73,7 @@ router.get("/readInstrumentAlgo", (req, res)=>{
     }).sort({$natural:-1})
 })
 
-router.get("/readInstrumentAlgo/:id", (req, res)=>{
+router.get("/readInstrumentAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     InstrumentAlgo.findOne({_id : id})
@@ -86,7 +85,7 @@ router.get("/readInstrumentAlgo/:id", (req, res)=>{
     })
 })
 
-router.put("/readInstrumentAlgo/:id", async (req, res)=>{
+router.put("/readInstrumentAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -96,12 +95,12 @@ router.put("/readInstrumentAlgo/:id", async (req, res)=>{
         let incomingInstrumentToken;
         let outgoingInstrumentToken;
         if(instrumentDetail.length !== 0){
-            console.log("instrumentDetail", instrumentDetail)
+            // console.log("instrumentDetail", instrumentDetail)
             incomingInstrumentToken = await fetchToken(instrumentDetail[0].exchange, req.body.incoming_instrument);
             outgoingInstrumentToken = await fetchToken(instrumentDetail[0].exchange, req.body.outgoing_instrument);
         } else{
             instrumentDetail = await Instrument.find({status: "Active"});
-            console.log("instrumentDetail in else", instrumentDetail)
+            // console.log("instrumentDetail in else", instrumentDetail)
             incomingInstrumentToken = await fetchToken(instrumentDetail[0].exchange, req.body.incoming_instrument);
             outgoingInstrumentToken = await fetchToken(instrumentDetail[0].exchange, req.body.outgoing_instrument);
 
@@ -131,7 +130,7 @@ router.put("/readInstrumentAlgo/:id", async (req, res)=>{
     }
 })
 
-router.delete("/readInstrumentAlgo/:id", async (req, res)=>{
+router.delete("/readInstrumentAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params

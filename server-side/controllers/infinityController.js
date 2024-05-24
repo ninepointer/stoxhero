@@ -1,9 +1,10 @@
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const InfinityTraderCompany = require("../models/mock-trade/infinityTradeCompany");
-const InfinityTradeCompanyLive = require('../models/TradeDetails/infinityLiveUser')
+const InfinityTradeCompanyLive = require('../models/TradeDetails/liveTradeSchema')
 const { ObjectId } = require("mongodb");
 const { client, getValue } = require('../marketData/redisClient');
 const User = require("../models/User/userDetailSchema");
+const InfinityTraderLive = require("../models/TradeDetails/infinityLiveUser")
 
 
 exports.overallPnlTrader = async (req, res, next) => {
@@ -26,7 +27,6 @@ exports.overallPnlTrader = async (req, res, next) => {
     if (isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)) {
       let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
       pnl = JSON.parse(pnl);
-      // console.log("pnl redis", pnl)
 
       res.status(201).json({ message: "pnl received", data: pnl });
 
@@ -75,14 +75,12 @@ exports.overallPnlTrader = async (req, res, next) => {
           },
         },
       ])
-      // console.log("pnlDetails in else", pnlDetails)
 
       if (isRedisConnected) {
         await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnlDetails))
         await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
       }
 
-      // console.log("pnlDetails", pnlDetails)
       res.status(201).json({ message: "pnl received", data: pnlDetails });
     }
 
@@ -107,18 +105,10 @@ exports.overallPnlTraderWise = async (req, res, next) => {
   const tempDate = new Date(tempTodayDate);
   const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
 
-  console.log(traderId)
+  //console.log(traderId)
 
   try {
 
-    // if (isRedisConnected && await client.exists(`${req.user._id.toString()} overallpnl`)) {
-    //   let pnl = await client.get(`${req.user._id.toString()} overallpnl`)
-    //   pnl = JSON.parse(pnl);
-    //   // console.log("pnl redis", pnl)
-
-    //   res.status(201).json({ message: "pnl received", data: pnl });
-
-    // } else {
 
       let pnlDetails = await InfinityTrader.aggregate([
         {
@@ -163,14 +153,14 @@ exchangeInstrumentToken: "$exchangeInstrumentToken",
           },
         },
       ])
-      // console.log("pnlDetails in else", pnlDetails)
+      // //console.log("pnlDetails in else", pnlDetails)
 
       // if (isRedisConnected) {
       //   await client.set(`${req.user._id.toString()} overallpnl`, JSON.stringify(pnlDetails))
       //   await client.expire(`${req.user._id.toString()} overallpnl`, secondsRemaining);
       // }
 
-      // console.log("pnlDetails", pnlDetails)
+      // //console.log("pnlDetails", pnlDetails)
       res.status(201).json({ message: "pnl received", data: pnlDetails });
     // }
 
@@ -187,7 +177,7 @@ exports.overallPnlCompanySide = async (req, res, next) => {
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  // console.log(userId, today)
+  // //console.log(userId, today)
   let pnlDetails = await InfinityTraderCompany.aggregate([
     {
       $match: {
@@ -371,13 +361,12 @@ exports.myTodaysTrade = async (req, res, next) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 10
   const count = await InfinityTrader.countDocuments({ trader: new ObjectId(userId), trade_time: { $gte: today } })
-  // console.log("Under my today orders",userId, today)
+  // //console.log("Under my today orders",userId, today)
   try {
     const myTodaysTrade = await InfinityTrader.find({ trader: new ObjectId(userId), trade_time: { $gte: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
-    // console.log(myTodaysTrade)
     res.status(200).json({ status: 'success', data: myTodaysTrade, count: count });
   } catch (e) {
     console.log(e);
@@ -393,13 +382,13 @@ exports.myAllTodaysTrade = async (req, res, next) => {
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  console.log("Under my today orders", userId, today)
+  // //console.log("Under my today orders", userId, today)
   try {
     const myTodaysTrade = await InfinityTrader.find({ trader: new ObjectId(userId), trade_time: { $gte: today } })
       .populate('trader', 'name')
       .select('symbol buyOrSell Product Quantity amount status average_price trade_time order_id brokerage trader')
       .sort({ _id: -1 })
-    // console.log(myTodaysTrade)
+    // //console.log(myTodaysTrade)
     res.status(200).json({ status: 'success', data: myTodaysTrade });
   } catch (e) {
     console.log(e);
@@ -417,13 +406,13 @@ exports.myHistoryTrade = async (req, res, next) => {
   const skip = parseInt(req.query.skip) || 0;
   const limit = parseInt(req.query.limit) || 5
   const count = await InfinityTrader.countDocuments({ trader: userId, trade_time: { $lt: today } })
-  console.log("Under history orders", skip, limit)
+  // //console.log("Under history orders", skip, limit)
   try {
     const myHistoryTrade = await InfinityTrader.find({ trader: new ObjectId(userId), trade_time: { $lt: today } }, { 'symbol': 1, 'buyOrSell': 1, 'Product': 1, 'Quantity': 1, 'amount': 1, 'status': 1, 'average_price': 1, 'trade_time': 1, 'order_id': 1 })
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
-    // console.log(myHistoryTrade)
+    // //console.log(myHistoryTrade)
     res.status(200).json({ status: 'success', data: myHistoryTrade, count: count });
   } catch (e) {
     console.log(e);
@@ -510,85 +499,126 @@ exports.getPnlAndCreditData = async (req, res, next) => {
 }
 
 exports.getMyPnlAndCreditData = async (req, res, next) => {
+  let isRedisConnected = getValue();
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   // todayDate = "2023-05-19" + "T00:00:00.000Z";
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
 
-  let myPnlAndCreditData = await InfinityTrader.aggregate([
-    {
-      $lookup: {
-        from: "user-personal-details",
-        localField: "trader",
-        foreignField: "_id",
-        as: "result",
-      },
-    },
-    {
-      $match: {
-        status: "COMPLETE",
-        trader: new ObjectId(req.user._id),
-        trade_time: {
-          $lt: today
+  let tempTodayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  tempTodayDate = tempTodayDate + "T23:59:59.999Z";
+  const tempDate = new Date(tempTodayDate);
+  const secondsRemaining = Math.round((tempDate.getTime() - date.getTime()) / 1000);
+
+
+  try {
+
+    if (isRedisConnected && await client.exists(`${req.user._id.toString()} openingBalanceAndMargin`)) {
+      let marginDetail = await client.get(`${req.user._id.toString()} openingBalanceAndMargin`)
+      marginDetail = JSON.parse(marginDetail);
+
+      res.status(201).json({ message: "pnl received", data: marginDetail });
+
+    } else {
+
+      let myPnlAndCreditData = await InfinityTrader.aggregate([
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "trader",
+            foreignField: "_id",
+            as: "result",
+          },
+        },
+        {
+          $match: {
+            status: "COMPLETE",
+            trader: new ObjectId(req.user._id),
+            trade_time: {
+              $lt: today
+            }
+          }
+        },
+        {
+          $group: {
+            _id: {
+    
+              funds: {
+                $arrayElemAt: ["$result.fund", 0],
+              },
+            },
+            gpnl: {
+              $sum: {
+                $multiply: ["$amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: {
+                $toDouble: "$brokerage",
+              },
+            },
+          },
+        },
+        {
+          $addFields:
+          {
+            npnl: {
+              $subtract: ["$gpnl", "$brokerage"],
+            },
+            availableMargin: {
+              $add: ["$_id.funds", { $subtract: ["$gpnl", "$brokerage"] }]
+            }
+          },
+        },
+        {
+          $project:
+          {
+            _id: 0,
+            totalFund: "$_id.funds",
+            gpnl: "$gpnl",
+            brokerage: "$brokerage",
+            npnl: "$npnl",
+            openingBalance: "$availableMargin"
+          },
+        },
+        {
+          $sort: { npnl: 1 }
         }
+      ])
+
+      if (myPnlAndCreditData.length > 0) {
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()} openingBalanceAndMargin`, JSON.stringify(myPnlAndCreditData[0]))
+          await client.expire(`${req.user._id.toString()} openingBalanceAndMargin`, secondsRemaining);
+        }
+        res.status(201).json({ message: "data received", data: myPnlAndCreditData[0] });
+      } else {
+        const data = await User.findById(req.user._id).select('fund');
+        const respData = { "totalFund": data.fund };
+        if (isRedisConnected) {
+          await client.set(`${req.user._id.toString()} openingBalanceAndMargin`, JSON.stringify(respData))
+          await client.expire(`${req.user._id.toString()} openingBalanceAndMargin`, secondsRemaining);
+        }
+        res.status(201).json({ message: "data received", data: respData });
       }
-    },
-    {
-      $group: {
-        _id: {
 
-          funds: {
-            $arrayElemAt: ["$result.fund", 0],
-          },
-        },
-        gpnl: {
-          $sum: {
-            $multiply: ["$amount", -1],
-          },
-        },
-        brokerage: {
-          $sum: {
-            $toDouble: "$brokerage",
-          },
-        },
-      },
-    },
-    {
-      $addFields:
-      {
-        npnl: {
-          $subtract: ["$gpnl", "$brokerage"],
-        },
-        availableMargin: {
-          $add: ["$_id.funds", { $subtract: ["$gpnl", "$brokerage"] }]
-        }
-      },
-    },
-    {
-      $project:
-      {
-        _id: 0,
-        totalFund: "$_id.funds",
-        gpnl: "$gpnl",
-        brokerage: "$brokerage",
-        npnl: "$npnl",
-        openingBalance: "$availableMargin"
-      },
-    },
-    {
-      $sort: { npnl: 1 }
+
+
+      // res.status(201).json({ message: "pnl received", data: pnlDetails });
     }
-  ])
 
-  if (myPnlAndCreditData.length > 0) {
-    res.status(201).json({ message: "data received", data: myPnlAndCreditData[0] });
-  } else {
-    const data = await User.findById(req.user._id).select('fund');
-    const respData = { "totalFund": data.fund };
-    //res.status(201).json({message: "data received", data: fundDetail[0]});
-    res.status(201).json({ message: "data received", data: respData });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: 'success', message: 'something went wrong.' })
   }
+
+
+
+
+
+
+
 
 
 }
@@ -598,7 +628,7 @@ exports.openingBalance = async (req, res, next) => {
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
-  // console.log(req.user._id)
+  // //console.log(req.user._id)
   let myPnlAndCreditData = await InfinityTrader.aggregate([
     {
       $lookup: {
@@ -667,7 +697,7 @@ exports.openingBalance = async (req, res, next) => {
     }
   ])
 
-  // console.log("myPnlAndCreditData", myPnlAndCreditData)
+  // //console.log("myPnlAndCreditData", myPnlAndCreditData)
 
   res.status(201).json({ message: "data received", data: myPnlAndCreditData[0] });
 }
@@ -809,125 +839,8 @@ exports.batchWisePnl = async (req, res, next) => {
 exports.companyDailyPnlTWise = async (req, res, next) => {
 
   let { startDate, endDate } = req.params
-  // let date = new Date();
-  // const days = date.getDay();
-  // let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  //console.log("Today "+todayDate)
   startDate = startDate + "T00:00:00.000Z";
   endDate = endDate + "T23:59:59.000Z";
-  // console.log("startDate", startDate,endDate )
-  let pipeline = [
-
-    {
-      $lookup: {
-        from: "user-personal-details",
-        localField: "trader",
-        foreignField: "_id",
-        as: "zyx",
-      },
-    },
-
-    {
-      $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
-        status: "COMPLETE"
-      }
-      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
-    },
-    {
-      $group:
-      {
-        _id: "$zyx.name",
-        gpnl: {
-          $sum: { $multiply: ["$amount", -1] }
-        },
-        brokerage: {
-          $sum: { $toDouble: "$brokerage" }
-        },
-        trades: {
-          $count: {}
-        },
-      }
-    },
-    {
-      $addFields:
-      {
-        npnl: { $subtract: ["$gpnl", "$brokerage"] }
-      }
-    },
-    {
-      $sort:
-        { npnl: -1 }
-    }
-  ]
-
-  let x = await InfinityTraderCompany.aggregate(pipeline)
-
-  // res.status(201).json(x);
-
-  res.status(201).json({ message: "data received", data: x });
-}
-
-exports.companyPnlReport = async (req, res, next) => {
-
-  let { startDate, endDate } = req.params
-
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
-
-
-  let pipeline = [{
-    $match: {
-      trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
-      status: "COMPLETE"
-    }
-    // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
-  },
-  {
-    $group:
-    {
-      _id: {
-        "date": { $substr: ["$trade_time", 0, 10] },
-      },
-      gpnl: {
-        $sum: { $multiply: ["$amount", -1] }
-      },
-      brokerage: {
-        $sum: { $toDouble: "$brokerage" }
-      },
-      trades: {
-        $count: {}
-      },
-    }
-  },
-  {
-    $addFields:
-    {
-      npnl: { $subtract: ["$gpnl", "$brokerage"] },
-      dayOfWeek: { $dayOfWeek: { $toDate: "$_id.date" } }
-    }
-  },
-  {
-    $sort:
-      { _id: 1 }
-  }
-  ]
-
-  let x = await InfinityTraderCompany.aggregate(pipeline)
-
-  // res.status(201).json(x);
-
-  res.status(201).json({ message: "data received", data: x });
-}
-
-exports.traderPnlTWise = async (req, res, next) => {
-
-  let { startDate, endDate } = req.params
-
-  startDate = startDate + "T00:00:00.000Z";
-  endDate = endDate + "T23:59:59.000Z";
-
-
   let pipeline = [
 
     {
@@ -938,33 +851,43 @@ exports.traderPnlTWise = async (req, res, next) => {
         as: "user",
       },
     },
+
     {
       $match: {
-        trade_time: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        trade_time: {$gte: new Date(startDate), $lte: new Date(endDate) },
         status: "COMPLETE"
       }
       // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
     },
     {
-      $group:
-      {
-        _id: "$user.name",
-        gpnl: {
-          $sum: { $multiply: ["$amount", -1] }
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
         },
-        brokerage: {
-          $sum: { $toDouble: "$brokerage" }
-        },
-        trades: {
-          $count: {}
-        },
-      }
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
     },
     {
-      $addFields:
-      {
-        npnl: { $subtract: ["$gpnl", "$brokerage"] }
-      }
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
     },
     {
       $sort:
@@ -972,11 +895,1942 @@ exports.traderPnlTWise = async (req, res, next) => {
     }
   ]
 
+  let pipelineCommulative = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$lte: new Date(endDate) },
+        status: "COMPLETE"
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let dateRangeDays = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let commulativeDays = [
+    {
+      $match: {
+        trade_time: {
+          // $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let x = await InfinityTraderCompany.aggregate(pipeline);
+  let cumulative = await InfinityTraderCompany.aggregate(pipelineCommulative);
+  let rangeDaysCalculation = await InfinityTraderCompany.aggregate(dateRangeDays);
+  let commulativeDaysCalculation = await InfinityTraderCompany.aggregate(commulativeDays);
+
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative, commulativeDays: commulativeDaysCalculation[0], rangeDays: rangeDaysCalculation[0] });
+}
+
+exports.companyDailyPnlTWiseSingleUser = async (req, res, next) => {
+
+  let { startDate, endDate, userId } = req.params
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+  let pipeline = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let pipelineCommulative = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$lte: new Date(endDate) },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let dateRangeDays = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let commulativeDays = [
+    {
+      $match: {
+        trade_time: {
+          // $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+
+  let x = await InfinityTraderCompany.aggregate(pipeline)
+  let cumulative = await InfinityTraderCompany.aggregate(pipelineCommulative)
+  let rangeDaysCalculation = await InfinityTraderCompany.aggregate(dateRangeDays);
+  let commulativeDaysCalculation = await InfinityTraderCompany.aggregate(commulativeDays);
+
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative, commulativeDays: commulativeDaysCalculation[0], rangeDays: rangeDaysCalculation[0] });
+}
+
+// optimised
+
+// exports.companyPnlReport = async (req, res, next) => {
+
+//   let { startDate, endDate } = req.params
+
+//   startDate = new Date(startDate + "T00:00:00.000Z");
+//   endDate = new Date(endDate + "T23:59:59.000Z");
+//   let oneDayAfterEnd = endDate.setDate(endDate.getDate() + 1)
+//   let newDate = new Date(startDate)
+
+//   let pipeline = [
+//     {
+//       $match: {
+//         trade_time: {
+//           $gte: new Date(startDate),
+//           $lte: new Date(endDate),
+//         },
+//         status: "COMPLETE",
+//       },
+//       // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+//     },
+//     {
+//       $group: {
+//         _id: {
+//           date: {
+//             $substr: ["$trade_time", 0, 10],
+//           },
+//         },
+//         gpnl: {
+//           $sum: {
+//             $multiply: ["$amount", -1],
+//           },
+//         },
+//         brokerage: {
+//           $sum: {
+//             $toDouble: "$brokerage",
+//           },
+//         },
+//         noOfTrade: {
+//           $count: {},
+//         },
+//       },
+//     },
+//     {
+//       $addFields: {
+//         date: "$_id.date",
+//         npnl: {
+//           $subtract: ["$gpnl", "$brokerage"],
+//         },
+//         dayOfWeek: {
+//           $dayOfWeek: {
+//             $toDate: "$_id.date",
+//           },
+//         },
+//       },
+//     },
+//     {
+//       $project:
+//       /**
+//        * specifications: The fields to
+//        *   include or exclude.
+//        */
+//       {
+//         _id: 0,
+//         gpnl: 1,
+//         brokerage: 1,
+//         npnl: 1,
+//         dayOfWeek: 1,
+//         noOfTrade: 1,
+//         date: 1,
+//       },
+//     },
+//     {
+//       $sort: {
+//         date: -1,
+//       },
+//     },
+//   ]
+
+//   let dateRangeData = await InfinityTraderCompany.aggregate(pipeline)
+
+
+//   async function getCumulativeAllData(date){
+//     console.log(date)
+//     let pipelineCommulative = [
+//       {
+//         $match: {
+//           trade_time: {
+//             // $gte: new Date(startDate),
+//             $lte: new Date(date),
+//           },
+//           status: "COMPLETE",
+//         },
+//         // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             date: {
+//               $substr: ["$trade_time", 0, 10],
+//             },
+//           },
+//           gpnl: {
+//             $sum: {
+//               $multiply: ["$amount", -1],
+//             },
+//           },
+//           brokerage: {
+//             $sum: {
+//               $toDouble: "$brokerage",
+//             },
+//           },
+//           noOfTrade: {
+//             $count: {},
+//           },
+//         },
+//       },
+//       {
+//         $addFields: {
+//           date: {
+//             $dateToString: {
+//               format: "%Y-%m-%d",
+//               date: new Date(date),
+//             },
+//           },
+//           npnl: {
+//             $subtract: ["$gpnl", "$brokerage"],
+//           },
+//           dayOfWeek: {
+//             $dayOfWeek: {
+//               $toDate: new Date(date),
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           gpnl: 1,
+//           brokerage: 1,
+//           npnl: 1,
+//           dayOfWeek: 1,
+//           noOfTrade: 1,
+//           date: 1,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: {
+//             date: "$date",
+//           },
+          
+//           tradingDays: {
+//             $count: {},
+//           },
+//           greenDays: {
+//             $sum: {
+//               $cond: {
+//                 if: {
+//                   $gt: ["$npnl", 0],
+//                 },
+//                 then: 1,
+//                 else: 0,
+//               },
+//             },
+//           },
+//           redDays: {
+//             $sum: {
+//               $cond: {
+//                 if: {
+//                   $lt: ["$npnl", 0],
+//                 },
+//                 then: 1,
+//                 else: 0,
+//               },
+//             },
+//           },
+//           totalGpnl: {
+//             $sum: "$gpnl",
+//           },
+//           totalNpnl: {
+//             $sum: "$npnl",
+//           },
+//           totalBrokerage: {
+//             $sum: "$brokerage",
+//           },
+//           totalTrade: {
+//             $sum: "$noOfTrade",
+//           },
+//         },
+//       },
+//       {
+//         $sort: {
+//           _id: 1,
+//         },
+//       },
+//     ]
+//     let cumulative = await InfinityTraderCompany.aggregate(pipelineCommulative)
+//     //console.log(cumulative)
+//     return cumulative[0];
+//   }
+
+//   async function getCumulativeSingleData(date){
+//     //console.log(date)
+//     // let pipelineCommulative = [
+//     //   {
+//     //     $match: {
+//     //       trade_time: {
+//     //         $gte: new Date(date1),
+//     //         $lt: new Date(date2),
+//     //       },
+//     //       status: "COMPLETE",
+//     //     },
+//     //     // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+//     //   },
+//     //   {
+//     //     $group: {
+//     //       _id: {
+//     //         date: {
+//     //           $substr: ["$trade_time", 0, 10],
+//     //         },
+//     //       },
+//     //       gpnl: {
+//     //         $sum: {
+//     //           $multiply: ["$amount", -1],
+//     //         },
+//     //       },
+//     //       brokerage: {
+//     //         $sum: {
+//     //           $toDouble: "$brokerage",
+//     //         },
+//     //       },
+//     //       noOfTrade: {
+//     //         $count: {},
+//     //       },
+//     //     },
+//     //   },
+//     //   {
+//     //     $addFields: {
+//     //       date: {
+//     //         $dateToString: {
+//     //           format: "%Y-%m-%d",
+//     //           date: new Date(date),
+//     //         },
+//     //       },
+//     //       npnl: {
+//     //         $subtract: ["$gpnl", "$brokerage"],
+//     //       },
+//     //       dayOfWeek: {
+//     //         $dayOfWeek: {
+//     //           $toDate: new Date(date),
+//     //         },
+//     //       },
+//     //     },
+//     //   },
+//     //   {
+//     //     $project: {
+//     //       _id: 0,
+//     //       gpnl: 1,
+//     //       brokerage: 1,
+//     //       npnl: 1,
+//     //       dayOfWeek: 1,
+//     //       noOfTrade: 1,
+//     //       date: 1,
+//     //     },
+//     //   },
+//     //   {
+//     //     $group: {
+//     //       _id: {
+//     //         date: "$date",
+//     //       },
+          
+//     //       tradingDays: {
+//     //         $count: {},
+//     //       },
+//     //       greenDays: {
+//     //         $sum: {
+//     //           $cond: {
+//     //             if: {
+//     //               $gt: ["$npnl", 0],
+//     //             },
+//     //             then: 1,
+//     //             else: 0,
+//     //           },
+//     //         },
+//     //       },
+//     //       redDays: {
+//     //         $sum: {
+//     //           $cond: {
+//     //             if: {
+//     //               $lt: ["$npnl", 0],
+//     //             },
+//     //             then: 1,
+//     //             else: 0,
+//     //           },
+//     //         },
+//     //       },
+//     //       totalGpnl: {
+//     //         $sum: "$gpnl",
+//     //       },
+//     //       totalNpnl: {
+//     //         $sum: "$npnl",
+//     //       },
+//     //       totalBrokerage: {
+//     //         $sum: "$brokerage",
+//     //       },
+//     //       totalTrade: {
+//     //         $sum: "$noOfTrade",
+//     //       },
+//     //     },
+//     //   },
+//     //   {
+//     //     $sort: {
+//     //       _id: 1,
+//     //     },
+//     //   },
+//     // ]
+//     // let cumulative = await InfinityTraderCompany.aggregate(pipelineCommulative)
+//     // console.log(cumulative)
+//     let selectedData = dateRangeData.filter((elem)=>{
+//       // console.log(elem.date)
+//       return new Date(elem.date).getTime()  === (date).getTime() ;
+//     })
+//     console.log("in sinlgle", selectedData[0])
+//     return selectedData[0];
+//   }
+
+//   const result = [];
+//   let resultObj = {};
+//   let flag = true;
+//   let allData = {};
+//   for (let currentDate = startDate; currentDate <= oneDayAfterEnd; currentDate.setDate(currentDate.getDate() + 1)) {
+//     //console.log(currentDate, startDate, newDate)
+//     // Execute the current pipeline and store the result
+    
+//     let data = [];
+//     if(currentDate.getTime() === newDate.getTime()){
+      
+
+//       allData = await getCumulativeAllData(currentDate);
+//       console.log("in if all dtata", allData)
+//       result.push(JSON.parse(JSON.stringify(allData)));
+      
+//       //console.log("result is",result )
+//     } else{
+//       // let date1 = currentDate;
+//       // let date2 = currentDate.setDate(currentDate.getDate() + 1);
+//       data = await getCumulativeSingleData(currentDate);
+//       // let singleData = {};
+//       // if(data?.length > 0){
+//        console.log("all data", allData)
+//       if(allData && flag){
+//         if(data?.npnl > 0){
+//           resultObj.greenDays = allData?.greenDays + 1; 
+//         } else{
+//           resultObj.redDays = allData?.redDays + 1; 
+//         }
+//         resultObj._id = { date: data?.date };
+//         resultObj.tradingDays = allData?.tradingDays + 1; 
+//         resultObj.totalGpnl = allData?.totalGpnl + data?.gpnl; 
+//         resultObj.totalNpnl = allData?.totalNpnl + data?.npnl; 
+//         resultObj.totalBrokerage = allData?.totalBrokerage + data?.brokerage; 
+//         resultObj.totalTrade = allData?.totalTrade + data?.noOfTrade; 
+//         flag = false;
+//         console.log("in first", resultObj)
+//         result.push(resultObj);
+//       } else{
+//         if(data?.npnl >= 0){
+//           resultObj.greenDays = (resultObj?.greenDays ? resultObj?.greenDays : 0) + 1; 
+//         } else if(data?.npnl < 0){
+//           resultObj.redDays = (resultObj?.redDays ? resultObj?.redDays : 0) + 1; 
+//         }
+//         resultObj._id = { date: data?.date };
+//         if(data?.npnl){
+//           resultObj.tradingDays = (resultObj?.tradingDays ? resultObj?.tradingDays : 0) + 1; 
+//         }
+//         resultObj.totalGpnl = (resultObj?.totalGpnl ? resultObj?.totalGpnl : 0) + (data?.gpnl ? data?.gpnl : 0); 
+//         resultObj.totalNpnl = (resultObj?.totalNpnl ? resultObj?.totalNpnl : 0) + (data?.npnl ? data?.npnl : 0); 
+//         resultObj.totalBrokerage = (resultObj?.totalBrokerage ? resultObj?.totalBrokerage : 0) + (data?.brokerage ? data?.brokerage : 0); 
+//         resultObj.totalTrade = (resultObj?.totalTrade ? resultObj?.totalTrade : 0) + (data?.noOfTrade ? data?.noOfTrade : 0); 
+//         console.log("in second", resultObj)
+
+//         result.push(JSON.parse(JSON.stringify(resultObj)));
+//       }
+
+
+//         // console.log("result is",singleData )
+//       // }
+//     }    
+//   }
+
+  
+
+
+//   res.status(201).json({ message: "data received", data: dateRangeData, cumulative: result });
+// }
+
+
+exports.traderPnlTWise = async (req, res, next) => {
+
+  let { startDate, endDate } = req.params
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+  let pipeline = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE"
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let pipelineCommulative = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$lte: new Date(endDate) },
+        status: "COMPLETE"
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let dateRangeDays = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let commulativeDays = [
+    {
+      $match: {
+        trade_time: {
+          // $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let x = await InfinityTrader.aggregate(pipeline);
+  let cumulative = await InfinityTrader.aggregate(pipelineCommulative);
+  let rangeDaysCalculation = await InfinityTrader.aggregate(dateRangeDays);
+  let commulativeDaysCalculation = await InfinityTrader.aggregate(commulativeDays);
+
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative, commulativeDays: commulativeDaysCalculation[0], rangeDays: rangeDaysCalculation[0] });
+
+
+
+}
+
+// de optimise code
+
+exports.companyPnlReport = async (req, res, next) => {
+
+  let { startDate, endDate } = req.params
+  startDate = new Date(startDate + "T00:00:00.000Z");
+  endDate = new Date(endDate + "T23:59:59.000Z");
+
+
+  let pipeline = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lt: new Date(endDate),
+        },
+        status: "COMPLETE",
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      /**
+       * specifications: The fields to
+       *   include or exclude.
+       */
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+  // let oneDayAfterEnd = endDate.setDate(endDate.getDate() + 1)
+
+  async function getCumulativeData(date){
+    // //console.log(date)
+    let pipelineCommulative = [
+      {
+        $match: {
+          trade_time: {
+            // $gte: new Date(startDate),
+            $lte: new Date(date),
+          },
+          status: "COMPLETE",
+        },
+        // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+      },
+      {
+        $group: {
+          _id: {
+            date: {
+              $substr: ["$trade_time", 0, 10],
+            },
+          },
+          gpnl: {
+            $sum: {
+              $multiply: ["$amount", -1],
+            },
+          },
+          brokerage: {
+            $sum: {
+              $toDouble: "$brokerage",
+            },
+          },
+          noOfTrade: {
+            $count: {},
+          },
+        },
+      },
+      {
+        $addFields: {
+          date: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: new Date(date),
+            },
+          },
+          npnl: {
+            $subtract: ["$gpnl", "$brokerage"],
+          },
+          dayOfWeek: {
+            $dayOfWeek: {
+              $toDate: new Date(date),
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          gpnl: 1,
+          brokerage: 1,
+          npnl: 1,
+          dayOfWeek: 1,
+          noOfTrade: 1,
+          date: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ]
+    let cumulative = await InfinityTraderCompany.aggregate(pipelineCommulative)
+    //console.log(cumulative)
+    return cumulative[0];
+  }
+
+  const result = [];
+  for (let currentDate = startDate; currentDate < endDate; currentDate.setDate(currentDate.getDate() + 1)) {
+    // console.log(currentDate, endDate)
+
+    currentDate.setHours(23, 59, 59, 0);
+    
+    const currentResult = await getCumulativeData(currentDate); // Replace this with your code to execute the aggregation pipeline
+    
+    result.push(currentResult);
+  }
+
+  
+
+  let x = await InfinityTraderCompany.aggregate(pipeline)
+
+  res.status(201).json({ message: "data received", data: x, cumulative: result });
+}
+
+exports.traderPnlTWiseSingleUser = async (req, res, next) => {
+
+  let { startDate, endDate, userId } = req.params
+  startDate = startDate + "T00:00:00.000Z";
+  endDate = endDate + "T23:59:59.000Z";
+  let pipeline = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$gte: new Date(startDate), $lte: new Date(endDate) },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+  let pipelineCommulative = [
+
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+
+    {
+      $match: {
+        trade_time: {$lte: new Date(endDate) },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      }
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          userId: "$trader",
+          name: {
+            $concat: [
+              { $arrayElemAt: ["$user.first_name", 0] },
+              " ",
+              { $arrayElemAt: ["$user.last_name", 0] },
+            ],
+          },
+        },
+        gpnl: { $sum: { $multiply: ["$amount", -1] } },
+        brokerage: { $sum: { $toDouble: "$brokerage" } },
+        trades: { $count: {} },
+        tradingDays: { $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } } },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        userId: "$_id.userId",
+        name: "$_id.name",
+        tradingDays: { $size: "$tradingDays" },
+        gpnl: 1,
+        brokerage: 1,
+        npnl: { $subtract: ["$gpnl", "$brokerage"] },
+        noOfTrade: "$trades"
+      },
+    },
+    {
+      $sort:
+        { npnl: -1 }
+    }
+  ]
+
+
+  let dateRangeDays = [
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+  let commulativeDays = [
+    {
+      $match: {
+        trade_time: {
+          // $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: new ObjectId(userId)
+      },
+      // trade_time : {$gte : '2023-01-13 00:00:00', $lte : '2023-01-13 23:59:59'}
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $substr: ["$trade_time", 0, 10],
+          },
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        noOfTrade: {
+          $count: {},
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: "$_id.date",
+        npnl: {
+          $subtract: ["$gpnl", "$brokerage"],
+        },
+        dayOfWeek: {
+          $dayOfWeek: {
+            $toDate: "$_id.date",
+          },
+        },
+      },
+    },
+    {
+      $project:
+      {
+        _id: 0,
+        gpnl: 1,
+        brokerage: 1,
+        npnl: 1,
+        dayOfWeek: 1,
+        noOfTrade: 1,
+        date: 1,
+      },
+    },
+        {
+        $group: {
+          _id: {
+            // date: "$date",
+          },
+          
+          tradingDays: {
+            $count: {},
+          },
+          greenDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          redDays: {
+            $sum: {
+              $cond: {
+                if: {
+                  $lt: ["$npnl", 0],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+          totalGpnl: {
+            $sum: "$gpnl",
+          },
+          totalNpnl: {
+            $sum: "$npnl",
+          },
+          totalBrokerage: {
+            $sum: "$brokerage",
+          },
+          totalTrade: {
+            $sum: "$noOfTrade",
+          },
+        },
+      },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+  ]
+
+
   let x = await InfinityTrader.aggregate(pipeline)
+  let cumulative = await InfinityTrader.aggregate(pipelineCommulative)
+  let rangeDaysCalculation = await InfinityTrader.aggregate(dateRangeDays);
+  let commulativeDaysCalculation = await InfinityTrader.aggregate(commulativeDays);
 
-  // res.status(201).json(x);
+  res.status(201).json({ message: "data received", data: x, cumulative: cumulative, commulativeDays: commulativeDaysCalculation[0], rangeDays: rangeDaysCalculation[0] });
 
-  res.status(201).json({ message: "data received", data: x });
+
+
 }
 
 exports.traderMatrixPnl = async (req, res, next) => {
@@ -1015,7 +2869,7 @@ exports.traderMatrixPnl = async (req, res, next) => {
         brokerage: {
           $sum: { $toDouble: "$brokerage" }
         },
-        trades: {
+        noOfTrade: {
           $count: {}
         },
       }
@@ -1507,193 +3361,22 @@ exports.getLetestMockTradeCompany = async (req, res, next) => {
 
 exports.getAllMockOrders = async (req, res)=>{
   let date = new Date();
-  let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')-1}`
-//$gte : `${todayDate} 00:00:00`, 
-  try{
-    let x = await InfinityTraderCompany.aggregate([
-         { $match: { trade_time: {$lte : new Date(yesterdayDate)} } },
-         {$lookup:{from: "user-personal-details",
-         localField: "trader",
-         foreignField: "_id",
-         as: "result",}},
-         {$lookup:{from: "user-personal-details",
-         localField: "createdBy",
-         foreignField: "_id",
-         as: "created",}},
-         {$lookup:{from: "algo-tradings",
-         localField: "algoBox",
-         foreignField: "_id",
-         as: "algo",}},
-         { $project: { "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1, 
-         "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1, "algoBox":{
-          $arrayElemAt: ["$algo.algoName", 0],
-        } ,
-         "createdBy": { $concat: [ {
-          $arrayElemAt: ["$created.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$created.last_name", 0],
-        } ] },
-         "trader": { $concat: [ {
-          $arrayElemAt: ["$result.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$result.last_name", 0],
-        } ] }, } },
-         { $sort:{ _id: -1 }}
-      ]);
-         res.status(201).json(x);
-  }catch(e){
-    console.log(e);
-  }
-}
-
-exports.getAllMockOrdersForToday = async (req, res)=>{
-  let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-//$gte : `${todayDate} 00:00:00`, 
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTraderCompany.countDocuments({ trade_time: { $lt: today } })
+
   try{
     let x = await InfinityTraderCompany.aggregate([
-         { $match: { trade_time: {$gte : new Date(todayDate), $lte: new Date(`${todayDate}T23:59:59`)} } },
-         {$lookup:{from: "user-personal-details",
-         localField: "trader",
-         foreignField: "_id",
-         as: "result",}},
-         {$lookup:{from: "user-personal-details",
-         localField: "createdBy",
-         foreignField: "_id",
-         as: "created",}},
-         {$lookup:{from: "algo-tradings",
-         localField: "algoBox",
-         foreignField: "_id",
-         as: "algo",}},
-         { $project: { "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1, 
-         "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1, "algoBox":{
-          $arrayElemAt: ["$algo.algoName", 0],
-        } ,
-         "createdBy": { $concat: [ {
-          $arrayElemAt: ["$created.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$created.last_name", 0],
-        } ] },
-         "trader": { $concat: [ {
-          $arrayElemAt: ["$result.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$result.last_name", 0],
-        } ] }, } },
-         { $sort:{ _id: -1 }}
-      ]);
-                 console.log(x)
-   
-         res.status(201).json(x);
-  }catch(e){
-    console.log(e);
-  }
-}
-
-exports.getAllLiveOrders = async (req, res)=>{
-  let date = new Date();
-  let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')-1}`
-//$gte : `${todayDate} 00:00:00`, 
-  try{
-    let x = await InfinityTraderCompany.aggregate([
-         { $match: { trade_time: {$lte : new Date(yesterdayDate)} } },
-         {$lookup:{from: "user-personal-details",
-         localField: "trader",
-         foreignField: "_id",
-         as: "result",}},
-         {$lookup:{from: "user-personal-details",
-         localField: "createdBy",
-         foreignField: "_id",
-         as: "created",}},
-         {$lookup:{from: "algo-tradings",
-         localField: "algoBox",
-         foreignField: "_id",
-         as: "algo",}},
-         { $project: { "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1, 
-         "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1, "algoBox":{
-          $arrayElemAt: ["$algo.algoName", 0],
-        } ,
-         "createdBy": { $concat: [ {
-          $arrayElemAt: ["$created.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$created.last_name", 0],
-        } ] },
-         "trader": { $concat: [ {
-          $arrayElemAt: ["$result.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$result.last_name", 0],
-        } ] }, } },
-         { $sort:{ _id: -1 }}
-      ]);
-         res.status(201).json(x);
-  }catch(e){
-    console.log(e);
-  }
-}
-
-exports.getAllLiveOrdersForToday = async (req, res)=>{
-  let date = new Date();
-  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-//$gte : `${todayDate} 00:00:00`, 
-  try{
-    let x = await InfinityTraderCompany.aggregate([
-         { $match: { trade_time: {$gte : new Date(todayDate), $lte: new Date(`${todayDate}T23:59:59`)} } },
-         {$lookup:{from: "user-personal-details",
-         localField: "trader",
-         foreignField: "_id",
-         as: "result",}},
-         {$lookup:{from: "user-personal-details",
-         localField: "createdBy",
-         foreignField: "_id",
-         as: "created",}},
-         {$lookup:{from: "algo-tradings",
-         localField: "algoBox",
-         foreignField: "_id",
-         as: "algo",}},
-         { $project: { "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1, 
-         "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1, "algoBox":{
-          $arrayElemAt: ["$algo.algoName", 0],
-        } ,
-         "createdBy": { $concat: [ {
-          $arrayElemAt: ["$created.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$created.last_name", 0],
-        } ] },
-         "trader": { $concat: [ {
-          $arrayElemAt: ["$result.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$result.last_name", 0],
-        } ] }, } },
-         { $sort:{ _id: -1 }}
-      ]);
-                 console.log(x)
-   
-         res.status(201).json(x);
-  }catch(e){
-    console.log(e);
-  }
-}
-
-exports.getAllTradersLiveOrders = async (req, res)=>{
-  let date = new Date();
-  let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')-1}`
-//$gte : `${todayDate} 00:00:00`, 
-  try{
-    let x = await InfinityTrader.aggregate([
-      { $match: { trade_time: { $lte: new Date(yesterdayDate) } } },
+      { $match: {trade_time: { $lt: today } } },
       {
         $lookup: {
           from: "user-personal-details",
           localField: "trader",
           foreignField: "_id",
-          as: "result",
-        }
-      },
-      {
-        $lookup: {
-          from: "user-personal-details",
-          localField: "createdBy",
-          foreignField: "_id",
-          as: "created",
+          as: "user",
         }
       },
       {
@@ -1702,60 +3385,288 @@ exports.getAllTradersLiveOrders = async (req, res)=>{
           "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
           "createdBy": {
             $concat: [{
-              $arrayElemAt: ["$created.first_name", 0],
+              $arrayElemAt: ["$user.first_name", 0],
             }, " ", {
-              $arrayElemAt: ["$created.last_name", 0],
+              $arrayElemAt: ["$user.last_name", 0],
             }]
           },
-          "trader": {
-            $concat: [{
-              $arrayElemAt: ["$result.first_name", 0],
-            }, " ", {
-              $arrayElemAt: ["$result.last_name", 0],
-            }]
-          },
+          // "trader": {
+          //   $concat: [{
+          //     $arrayElemAt: ["$result.first_name", 0],
+          //   }, " ", {
+          //     $arrayElemAt: ["$result.last_name", 0],
+          //   }]
+          // },
         }
       },
-      { $sort: { _id: -1 } }
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
     ]);
-         res.status(201).json(x);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
   }catch(e){
     console.log(e);
   }
 }
 
+exports.getAllMockOrdersForToday = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTraderCompany.countDocuments({ trade_time: { $gte: today } })
+
+  try{
+    let x = await InfinityTraderCompany.aggregate([
+      { $match: {trade_time: { $gte: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+          // "trader": {
+          //   $concat: [{
+          //     $arrayElemAt: ["$result.first_name", 0],
+          //   }, " ", {
+          //     $arrayElemAt: ["$result.last_name", 0],
+          //   }]
+          // },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+}
+
+exports.getAllLiveOrders = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTradeCompanyLive.countDocuments({ trade_time: { $lt: today } })
+
+  try{
+    let x = await InfinityTradeCompanyLive.aggregate([
+      { $match: {trade_time: { $lt: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+          // "trader": {
+          //   $concat: [{
+          //     $arrayElemAt: ["$result.first_name", 0],
+          //   }, " ", {
+          //     $arrayElemAt: ["$result.last_name", 0],
+          //   }]
+          // },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+}
+
+exports.getAllLiveOrdersForToday = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTradeCompanyLive.countDocuments({ trade_time: { $gte: today } })
+
+  try{
+    let x = await InfinityTradeCompanyLive.aggregate([
+      { $match: {trade_time: { $gte: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+          // "trader": {
+          //   $concat: [{
+          //     $arrayElemAt: ["$result.first_name", 0],
+          //   }, " ", {
+          //     $arrayElemAt: ["$result.last_name", 0],
+          //   }]
+          // },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+}
+
+exports.getAllTradersLiveOrders = async (req, res)=>{
+  let date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTraderLive.countDocuments({ trade_time: { $lt: today } })
+
+  try{
+    let x = await InfinityTraderLive.aggregate([
+      { $match: {trade_time: { $lt: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+          // "trader": {
+          //   $concat: [{
+          //     $arrayElemAt: ["$result.first_name", 0],
+          //   }, " ", {
+          //     $arrayElemAt: ["$result.last_name", 0],
+          //   }]
+          // },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
+  }catch(e){
+    console.log(e);
+  }
+
+}
+
 exports.getAllTradersLiveOrdersForToday = async (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-//$gte : `${todayDate} 00:00:00`, 
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTraderLive.countDocuments({ trade_time: { $gte: today } })
+
   try{
-    let x = await InfinityTrader.aggregate([
-         { $match: { trade_time: {$gte : new Date(todayDate), $lte: new Date(`${todayDate}T23:59:59`)} } },
-         {$lookup:{from: "user-personal-details",
-         localField: "trader",
-         foreignField: "_id",
-         as: "result",}},
-         {$lookup:{from: "user-personal-details",
-         localField: "createdBy",
-         foreignField: "_id",
-         as: "created",}},
-         { $project: { "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1, 
-         "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
-         "createdBy": { $concat: [ {
-          $arrayElemAt: ["$created.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$created.last_name", 0],
-        } ] },
-         "trader": { $concat: [ {
-          $arrayElemAt: ["$result.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$result.last_name", 0],
-        } ] }, } },
-         { $sort:{ _id: -1 }}
-      ]);
-                 console.log(x)
+    let x = await InfinityTraderLive.aggregate([
+      { $match: {trade_time: { $gte: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+          // "trader": {
+          //   $concat: [{
+          //     $arrayElemAt: ["$result.first_name", 0],
+          //   }, " ", {
+          //     $arrayElemAt: ["$result.last_name", 0],
+          //   }]
+          // },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
    
-         res.status(201).json(x);
+    res.status(200).json({ status: 'success', data: x, count: count });
+
   }catch(e){
     console.log(e);
   }
@@ -1763,148 +3674,187 @@ exports.getAllTradersLiveOrdersForToday = async (req, res)=>{
 
 exports.getAllTradersMockOrders = async (req, res)=>{
   let date = new Date();
-  let yesterdayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')-1}`
-//$gte : `${todayDate} 00:00:00`, 
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTrader.countDocuments({ trade_time: { $lt: today } })
+
   try{
     let x = await InfinityTrader.aggregate([
-         { $match: { trade_time: {$lte : new Date(yesterdayDate)} } },
-         {$lookup:{from: "user-personal-details",
-         localField: "trader",
-         foreignField: "_id",
-         as: "result",}},
-         {$lookup:{from: "user-personal-details",
-         localField: "createdBy",
-         foreignField: "_id",
-         as: "created",}},
-         { $project: { "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1, 
-         "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
-         "createdBy": { $concat: [ {
-          $arrayElemAt: ["$created.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$created.last_name", 0],
-        } ] },
-         "trader": { $concat: [ {
-          $arrayElemAt: ["$result.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$result.last_name", 0],
-        } ] }, } },
-         { $sort:{ _id: -1 }}
-      ]);
-         res.status(201).json(x);
+      { $match: {trade_time: { $lt: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+          // "trader": {
+          //   $concat: [{
+          //     $arrayElemAt: ["$result.first_name", 0],
+          //   }, " ", {
+          //     $arrayElemAt: ["$result.last_name", 0],
+          //   }]
+          // },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+   
+    res.status(200).json({ status: 'success', data: x, count: count });
+
   }catch(e){
     console.log(e);
   }
+
 }
 
 exports.getAllTradersMockOrdersForToday = async (req, res)=>{
   let date = new Date();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-//$gte : `${todayDate} 00:00:00`, 
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
+  const skip = parseInt(req.query.skip) || 0;
+  const limit = parseInt(req.query.limit) || 10
+  const count = await InfinityTrader.countDocuments({ trade_time: { $gte: today } })
+
   try{
     let x = await InfinityTrader.aggregate([
-         { $match: { trade_time: {$gte : new Date(todayDate), $lte: new Date(`${todayDate}T23:59:59`)} } },
-         {$lookup:{from: "user-personal-details",
-         localField: "trader",
-         foreignField: "_id",
-         as: "result",}},
-         {$lookup:{from: "user-personal-details",
-         localField: "createdBy",
-         foreignField: "_id",
-         as: "created",}},
-         { $project: { "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1, 
-         "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
-         "createdBy": { $concat: [ {
-          $arrayElemAt: ["$created.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$created.last_name", 0],
-        } ] },
-         "trader": { $concat: [ {
-          $arrayElemAt: ["$result.first_name", 0],
-        }, " ", {
-          $arrayElemAt: ["$result.last_name", 0],
-        } ] }, } },
-         { $sort:{ _id: -1 }}
-      ]);
-                 console.log(x)
+      { $match: {trade_time: { $gte: today } } },
+      {
+        $lookup: {
+          from: "user-personal-details",
+          localField: "trader",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $project: {
+          "order_id": 1, "buyOrSell": 1, "Quantity": 1, "average_price": 1,
+          "trade_time": 1, "symbol": 1, "Product": 1, "amount": 1, "status": 1,
+          "createdBy": {
+            $concat: [{
+              $arrayElemAt: ["$user.first_name", 0],
+            }, " ", {
+              $arrayElemAt: ["$user.last_name", 0],
+            }]
+          },
+          // "trader": {
+          //   $concat: [{
+          //     $arrayElemAt: ["$result.first_name", 0],
+          //   }, " ", {
+          //     $arrayElemAt: ["$result.last_name", 0],
+          //   }]
+          // },
+        }
+      },
+      { $sort: { _id: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
    
-         res.status(201).json(x);
+    res.status(200).json({ status: 'success', data: x, count: count });
+
   }catch(e){
     console.log(e);
   }
 }
 
 exports.overallInfinityMockCompanyPnlYesterday = async (req, res, next) => {
-  let yesterdayDate = new Date();
-  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  // console.log(yesterdayDate)
-    let yesterdayStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayStartTime = yesterdayStartTime + "T00:00:00.000Z";
-    let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
-    yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
-    const startTime = new Date(yesterdayStartTime); 
-    const endTime = new Date(yesterdayEndTime); 
-    // console.log("Query Timing: ", startTime, endTime)
-    let pnlDetails = await InfinityTraderCompany.aggregate([
+  let date;
+  let i = 1;
+  let maxDaysBack = 30;  // define a maximum limit to avoid infinite loop
+  let pnlDetailsData;
+
+  while (!pnlDetailsData && i <= maxDaysBack) {
+    let day = new Date();
+    day.setDate(day.getDate() - i);
+    let startTime = new Date(day.setHours(0, 0, 0, 0));
+    let endTime = new Date(day.setHours(23, 59, 59, 999));
+    date = startTime;
+    
+    pnlDetailsData = await InfinityTraderCompany.aggregate([
       {
         $match: {
           trade_time: {
-            $gte: startTime, $lte: endTime
-            // $gte: new Date("2023-05-26T00:00:00.000+00:00")
+            $gte: startTime,
+            $lte: endTime
           },
           status: "COMPLETE",
         },
       },
-        {
-          $group: {
-            _id: null,
-            amount: {
-              $sum: {$multiply : ["$amount",-1]},
-            },
-            turnover: {
-              $sum: {
-                $toInt: {$abs : "$amount"},
-              },
-            },
-            brokerage: {
-              $sum: {
-                $toDouble: "$brokerage",
-              },
-            },
-            lots: {
-              $sum: {
-                $toInt: "$Quantity",
-              },
-            },
-            totalLots: {
-              $sum: {
-                $toInt: {$abs : "$Quantity"},
-              },
-            },
-            trades: {
-              $count:{}
-            },
+      {
+        $group: {
+          _id: null,
+          amount: {
+            $sum: { $multiply: ["$amount", -1] },
+          },
+          turnover: {
+            $sum: { $toInt: { $abs: "$amount" } },
+          },
+          brokerage: {
+            $sum: { $toDouble: "$brokerage" },
+          },
+          lots: {
+            $sum: { $toInt: "$Quantity" },
+          },
+          totallots: {
+            $sum: { $toInt: { $abs: "$Quantity" } },
+          },
+          trades: {
+            $count: {}
           },
         },
-        {
-          $sort: {
-            _id: -1,
-          },
+      },
+      {
+        $sort: {
+          _id: -1,
         },
-      ])
-      res.status(201).json({ message: "pnl received", data: pnlDetails });
+      },
+    ]);
+
+    if (!pnlDetailsData || pnlDetailsData.length === 0) {
+      pnlDetailsData = null;  // reset the value to ensure the while loop continues
+      i++;  // increment the day counter
+    }
+  }
+
+  res.status(201).json({
+    message: "pnl received", 
+    data: pnlDetailsData, 
+    results: pnlDetailsData ? pnlDetailsData.length : 0, 
+    date: date
+  });
 }
 
 exports.overallInfinityMockCompanyPnlMTD = async (req, res, next) => {
   let yesterdayDate = new Date();
   yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  // console.log(yesterdayDate)
+  // //console.log(yesterdayDate)
     let monthStartTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(1).padStart(2, '0')}`
     monthStartTime = monthStartTime + "T00:00:00.000Z";
     let yesterdayEndTime = `${(yesterdayDate.getFullYear())}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`
     yesterdayEndTime = yesterdayEndTime + "T23:59:59.000Z";
     const startTime = new Date(monthStartTime); 
     const endTime = new Date(yesterdayEndTime); 
-    // console.log("Query Timing: ", startTime, endTime)
+    // //console.log("Query Timing: ", startTime, endTime)
     let pnlDetails = await InfinityTraderCompany.aggregate([
       {
         $match: {
@@ -1984,19 +3934,19 @@ exports.getUserReportMockDateWise = async(req, res)=>{
            { $sort: {_id: -1}},
           ])
           
-              // //console.log(pnlDetails)
+              //console.log(pnlDetails)
 
       res.status(201).json(pnlDetails);
 
 }
 
 exports.getAllTraderReportDateWise = async(req, res)=>{
-  //console.log("Inside Aggregate API - Date wise company pnl based on date entered")
+  // //console.log("Inside Aggregate API - Date wise company pnl based on date entered")
   let {startDate,endDate} = req.params
   let date = new Date();
   const days = date.getDay();
   let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  //console.log("Today "+todayDate)
+  // //console.log("Today "+todayDate)
   
   let pipeline = [ {$match: {
                       trade_time : {$gte : new Date(startDate), $lte : new Date(`${endDate}T23:59:59`)},

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import YouTube from 'react-youtube';
 import { CircularProgress, Grid } from '@mui/material';
 import MDBox from '../../../components/MDBox';
@@ -6,12 +6,14 @@ import MDTypography from '../../../components/MDTypography';
 // import MDButton from '../../../components/MDButton';
 // import {Link} from 'react-router-dom'
 import { useNavigate, useLocation } from "react-router-dom";
+import { userContext } from '../../../AuthContext';
 
 
 function CategoryVideos() {
     const location = useLocation();
     const id = location?.state?.data;
-    console.log(id)
+    // console.log(id)
+    const getDetails = useContext(userContext);
     const [isLoading, setIsLoading] = useState(false);
 
     React.useEffect(()=>{
@@ -23,7 +25,7 @@ function CategoryVideos() {
 
 
     
-    console.log("Updated Category Data: ",id)
+    // console.log("Updated Category Data: ",id)
     const opts = {
       height: '200',
       width: '100%',
@@ -50,7 +52,14 @@ function CategoryVideos() {
                    <Grid item xs={12} md={6} lg={4}>
                         <MDTypography fontSize={15} fontWeight='bold' display='flex' justifyContent='center' alignItems='center'>{elem?.title}</MDTypography>
                         <MDBox>
-                          <YouTube videoId={elem?.videoId} opts={opts} />
+                          <YouTube videoId={elem?.videoId} opts={opts} onClick={
+                            ()=>{
+                              window.webengage.track('tutorials_video_clicked', {
+                                user: getDetails?.userDetails?._id,
+                                videoId: elem?.videoId
+                              });
+                            }
+                          } />
                         </MDBox>
                     </Grid>
                 </>)

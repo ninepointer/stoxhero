@@ -1,17 +1,22 @@
 // Material Dashboard 2 React example components
+import ReactGA from "react-ga"
+import React, { useEffect, useContext, useState} from "react";
 import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
 import Footer from "../../examples/Footer";
-
-
-// Data
-// import authorsTableData from "./data/authorsTableData";
-// import projectsTableData from "./data/projectsTableData";
 import Header from "./Header";
+import { userContext } from "../../AuthContext";
 
 function Tables() {
-  // const { columns, rows } = authorsTableData();
-  // const { columns: pColumns, rows: pRows } = projectsTableData();
+
+  const getDetails = useContext(userContext)
+  
+  useEffect(() => {
+    window.webengage.track('marketguru_tab_clicked', {
+      user: getDetails?.userDetails?._id,
+    });
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
   return (
     <>

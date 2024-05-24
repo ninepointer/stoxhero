@@ -54,6 +54,43 @@ const redisBackup = new Schema({
         default: false
         // required: true
     },
+    autoTrade:{
+        type: Boolean,
+        default: false
+        // required: true
+    },
+    singleUser:{
+        type: Boolean,
+        default: false
+        // required: true
+    },
+    marginData: {
+        isReleaseFund: {type: Boolean},
+        isAddMoreFund: {type: Boolean},
+        isSquareOff: {type: Boolean},
+        runningLots: {type: Number},
+        zerodhaMargin: {type: Number}
+    },
+    order_type:{
+        type: String,
+        required: true
+    },
+    Product:{
+        type: String,
+        required: true
+    },
+    realQuantity:{
+        type: Number,
+        // required: true
+    },
+    realBuyOrSell:{
+        type: String,
+        // required: true
+    },
+    dailyContestId: {
+        type: Schema.Types.ObjectId,
+        ref: 'daily-contests', 
+    }
 })
 
 const RedisDetail = mongoose.model("liveOrder-key-backup", redisBackup);

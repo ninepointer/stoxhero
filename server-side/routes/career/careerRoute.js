@@ -2,8 +2,12 @@ const express = require("express");
 const router = express.Router({mergeParams: true});
 const multer = require('multer');
 const aws = require('aws-sdk');
-const {getUploadsApplication, createCareer, getCareers, editCareer, getCareer, getCareerApplicantions, generateOTP, confirmOTP, getSelectedCareerApplicantions} = require("../../controllers/career/careerController");
+const {getAllCareers, getDraftCareers, getRejectedCareers, getUploadsApplication, createCareer, 
+      getCareers, editCareer, getCareer, getCareerApplicantions, findCareerByName, getCareerApplicationCount,
+      generateOTP, confirmOTP, getSelectedCareerApplicantions, getRejectedApplications, 
+      rejectApplication, fetchCareers, applyForCareer} = require("../../controllers/career/careerController");
 const authentication = require("../../authentication/authentication");
+const restrictTo = require('../../authentication/authorization')
 const internBatchRoute = require("./internBatchRoute");
 const groupDiscussion = require("./groupDiscussionRoute");
 
@@ -23,14 +27,22 @@ const upload = multer({
 });
 
 router.route('/').get(getCareers);
+router.route('/all').get(authentication, restrictTo('Admin', 'Super Admin'), getAllCareers);
+router.route('/live').get(fetchCareers);
+router.route('/draft').get(getDraftCareers);
+router.route('/reject').get(getRejectedCareers);
 router.route('/generateotp').post(generateOTP);
 router.route('/confirmotp').post(confirmOTP);
-router.route('/:id').get(getCareer);
+router.route('/findbyname').get(findCareerByName);
+router.route('/apply').post(authentication, applyForCareer);
 router.route('/userDetail').post(upload.array("files"), getUploadsApplication);
-router.route('/create').post(authentication, createCareer);
+router.route('/create').post(authentication, restrictTo('Admin', 'Super Admin'), createCareer);
+router.route('/careerapplicationcount/:id').get(getCareerApplicationCount);
+router.route('/reject/:id').patch(authentication, restrictTo('Admin', 'Super Admin'), rejectApplication);
+router.route('/careerapplications/selected/:id').get(authentication, restrictTo('Admin', 'Super Admin'), getSelectedCareerApplicantions);
+router.route('/careerapplications/rejected/:id').get(authentication, restrictTo('Admin', 'Super Admin'), getRejectedApplications);
+router.route('/careerapplications/:id').get(authentication, restrictTo('Admin', 'Super Admin'), getCareerApplicantions);
 router.route('/:id').get(getCareer).patch(authentication, editCareer);
-router.route('/careerapplications/selected/:id').get(getSelectedCareerApplicantions);
-router.route('/careerapplications/:id').get(getCareerApplicantions);
 router.use('/:id/batch', internBatchRoute);
 router.use('/:id/groupDiscussion', groupDiscussion);
 

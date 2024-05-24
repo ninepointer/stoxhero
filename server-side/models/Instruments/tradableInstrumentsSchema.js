@@ -81,7 +81,20 @@ const tradableInstrumentSchema = new mongoose.Schema({
         type: String,
         required : true,
         default: "Active"
-    }
+    },
+    infinityVisibility: {
+        type: Boolean,
+    },
+    earlySubscription: {
+        type: Boolean,
+    },
+    chartInstrument: {
+        type: String,
+    },
+    isEquity: {
+        type: Boolean
+    },
+    max_lot: Number
 })
 
 const TradableInstrumentDetail = mongoose.model("tradable-instrument", tradableInstrumentSchema);

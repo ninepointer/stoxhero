@@ -19,6 +19,10 @@ const PortfolioSchema = new mongoose.Schema({
         type: Number,
         required : true
     }, 
+    portfolioUpdate:[{
+        date: Date,
+        value: Number
+    }], 
     createdOn:{
         type: Date,
         required : true,
@@ -35,7 +39,7 @@ const PortfolioSchema = new mongoose.Schema({
     },
     portfolioType:{
         type:String,
-        enum:['Contest','Trading', 'Equity Trading','TenX Trading','Internship']
+        enum:['Battle','Trading', 'Equity Trading','TenX Trading','Internship','Daily Contest']
     },
     createdBy:{
         type: Schema.Types.ObjectId,

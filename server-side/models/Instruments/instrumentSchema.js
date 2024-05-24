@@ -78,6 +78,15 @@ const instrumentSchema = new mongoose.Schema({
         ref: 'user-personal-details',
         required: true,
     },
+    chartInstrument: {
+        type: String,
+    },
+    users: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "user-personal-details"
+        } 
+    ]
 })
 
 const instrumentDetail = mongoose.model("instrument-detail", instrumentSchema);

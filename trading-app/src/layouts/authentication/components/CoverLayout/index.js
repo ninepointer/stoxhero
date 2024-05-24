@@ -19,7 +19,7 @@ import Footer from "../Footer";
 function CoverLayout({ coverHeight, image, children }) {
   return (
     <PageLayout>
-      <DefaultNavbar
+      {/* <DefaultNavbar
         action={{
           type: "external",
           route: "/",
@@ -27,7 +27,7 @@ function CoverLayout({ coverHeight, image, children }) {
         }}
         transparent
         light
-      />
+      /> */}
       <MDBox
         width="calc(100% - 2rem)"
         minHeight={coverHeight}

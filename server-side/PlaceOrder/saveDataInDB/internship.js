@@ -1,0 +1,178 @@
+const InternshipTrade = require("../../models/mock-trade/internshipTrade");
+const {internTrader} = require("../../constant");
+const {applyingSLSP} = require("./PendingOrderCondition/applyingSLSP")
+const {reverseTradeCondition} = require("./PendingOrderCondition/reverseTradeCondition");
+const mongoose = require('mongoose')
+const {clientForIORedis} = require('../../marketData/redisClient');
+
+
+exports.internTrade = async (req, res, otherData) => {
+  let {exchange, symbol, buyOrSell, Quantity, Product, order_type, subscriptionId, 
+      exchangeInstrumentToken, validity, variety, order_id, instrumentToken, 
+      portfolioId, trader, deviceDetails, margin, price, stopProfitPrice, stopLossPrice,
+      originalLastPriceUser, originalLastPriceCompany, trade_time} = req.body 
+
+  let {isRedisConnected, brokerageUser, secondsRemaining} = otherData;
+  const session = await mongoose.startSession();
+  const lockKey = `${req.user._id}-${subscriptionId}`
+  const lockValue = Date.now().toString() + Math.random() * 1000;
+
+  try{
+    const lockAcquired = await acquireLock(lockKey, lockValue);
+    // console.log('lockAcquired', lockAcquired, lockKey)
+    if (!lockAcquired) {
+        return res.status(400).json({ status: 'error', message: 'Your previous request is still being processed. Please try again later.' });
+    }
+
+    const intern = await InternshipTrade.findOne({order_id: order_id});
+    if(intern){
+      return res.status(422).json({ status: "error", message: "something went wrong." })
+    }
+
+    session.startTransaction();
+
+    const internDoc = {
+      status:"COMPLETE", average_price: originalLastPriceUser, Quantity, Product, buyOrSell,
+      variety, validity, exchange, order_type: order_type, symbol, placed_by: "stoxhero",
+      order_id, instrumentToken, brokerage: brokerageUser, portfolioId, batch: subscriptionId, exchangeInstrumentToken,
+      createdBy: req.user._id,trader: trader, amount: (Number(Quantity)*originalLastPriceUser), trade_time:trade_time,
+      deviceDetails: {deviceType: deviceDetails?.deviceType, platformType: deviceDetails?.platformType},
+      margin
+    }
+
+    const save = (order_type !== "LIMIT") && await InternshipTrade.create([internDoc], { session }); 
+
+    let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`)
+    pnl = JSON.parse(pnl);
+    let reverseTradeConditionData;
+    const matchingElement = pnl.find((element) => (element._id.instrumentToken === internDoc.instrumentToken && element._id.product === internDoc.Product && element._id.isLimit));
+    if(matchingElement){
+      const matchingElementBuyOrSell = matchingElement?.lots > 0 ? "BUY" : "SELL";
+      if(matchingElement?.lots !== 0 && (matchingElementBuyOrSell !== internDoc.buyOrSell) && (order_type !== "LIMIT")){
+        reverseTradeConditionData = await reverseTradeCondition(req.user._id, subscriptionId, internDoc, stopLossPrice, stopProfitPrice, save[0]?._id, originalLastPriceUser, pnl, internTrader);
+      }
+    }
+
+    if(reverseTradeConditionData === 0){
+      stopLossPrice = 0;
+      stopProfitPrice = 0;
+    }
+
+    const pnlRedis = await saveInRedis(req, internDoc, subscriptionId);
+
+    if (isRedisConnected) {
+      await client.expire(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`, secondsRemaining);
+    }
+
+    let pendingOrderRedis;
+    if(stopLossPrice || stopProfitPrice || price){
+      pendingOrderRedis = await applyingSLSP(req, {ltp: originalLastPriceUser}, session, save[0]?._id, internTrader);
+    } else{
+      pendingOrderRedis = "OK";
+    }
+
+    if (pendingOrderRedis === "OK" && pnlRedis === "OK") {
+      await session.commitTransaction();
+      await releaseLock(lockKey);
+      res.status(201).json({ status: 'Complete', message: 'COMPLETE' });
+    }
+
+  } catch(err){
+    await client.del('stoploss-stopprofit');
+    await client.del(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`);
+    await releaseLock(lockKey);
+    await session.abortTransaction();
+    console.error('Transaction failed, documents not saved:', err);
+    res.status(201).json({status: 'error', message: 'Something went wrong. Please try again.'});
+  } finally{
+    await releaseLock(lockKey);
+    session.endSession();
+  }
+}
+
+async function acquireLock(lockKey, lockValue) {
+  // console.log('acquiring lock ........')
+  const result = await clientForIORedis.set(lockKey, lockValue, 'NX');
+  return result === 'OK';
+}
+
+async function releaseLock(lockKey) {
+  const result = await clientForIORedis.del(lockKey);
+}
+
+const saveInRedis = async (req, internDoc, subscriptionId)=>{
+  const {margin, order_type} = req.body;
+
+  if (await client.exists(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`)) {
+    let pnl = await client.get(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`)
+    pnl = JSON.parse(pnl);
+
+    if(order_type === "LIMIT"){
+      // const matchingElement = pnl.find((element) => (element._id.instrumentToken === internDoc.instrumentToken && element._id.product === internDoc.Product && internDoc.order_type === "LIMIT" && element._id.isLimit  ));
+      const matchingElement = pnl.find((element) => 
+      {
+        const type = element.lots >= 0 ? "BUY" : "SELL"
+        return (element._id.instrumentToken === internDoc.instrumentToken && element._id.product === internDoc.Product && internDoc.order_type === "LIMIT" && element._id.isLimit && type===internDoc.buyOrSell  )
+
+      });
+      if (matchingElement) {
+        // Update the values of the matching element with the values of the first document
+        matchingElement._id.isLimit = true;
+        matchingElement.amount += (internDoc.amount * -1);
+        matchingElement.brokerage += Number(internDoc.brokerage);
+        matchingElement.lastaverageprice = internDoc.average_price;
+        matchingElement.lots += Number(internDoc.Quantity);
+        matchingElement.margin += margin;
+      } else {
+        // Create a new element if instrument is not matching
+        pnl.push({
+          _id: {
+            symbol: internDoc.symbol,
+            product: internDoc.Product,
+            instrumentToken: internDoc.instrumentToken,
+            exchangeInstrumentToken: internDoc.exchangeInstrumentToken,
+            exchange: internDoc.exchange,
+            validity: internDoc.validity,
+            variety: internDoc.variety,
+            isLimit: true
+          },
+          amount: (internDoc.amount * -1),
+          brokerage: Number(internDoc.brokerage),
+          lots: Number(internDoc.Quantity),
+          lastaverageprice: internDoc.average_price,
+          margin: margin
+        });
+      }
+    } else{
+      const matchingElement = pnl.find((element) => (element._id.instrumentToken === internDoc.instrumentToken && element._id.product === internDoc.Product && internDoc.order_type !== "LIMIT" && !element._id.isLimit  ));
+      if (matchingElement) {
+        // Update the values of the matching element with the values of the first document
+        matchingElement.amount += (internDoc.amount * -1);
+        matchingElement.brokerage += Number(internDoc.brokerage);
+        matchingElement.lastaverageprice = internDoc.average_price;
+        matchingElement.lots += Number(internDoc.Quantity);
+        matchingElement.margin = margin;
+      } else {
+        // Create a new element if instrument is not matching
+        pnl.push({
+          _id: {
+            symbol: internDoc.symbol,
+            product: internDoc.Product,
+            instrumentToken: internDoc.instrumentToken,
+            exchangeInstrumentToken: internDoc.exchangeInstrumentToken,
+            exchange: internDoc.exchange,
+            validity: internDoc.validity,
+            variety: internDoc.variety,
+          },
+          amount: (internDoc.amount * -1),
+          brokerage: Number(internDoc.brokerage),
+          lots: Number(internDoc.Quantity),
+          lastaverageprice: internDoc.average_price,
+          margin: margin
+        });
+      }
+    }
+    pnlRedis = await client.set(`${req.user._id.toString()}${subscriptionId.toString()}: overallpnlIntern`, JSON.stringify(pnl))
+    return pnlRedis;
+  }
+}

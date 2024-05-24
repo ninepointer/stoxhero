@@ -7,7 +7,7 @@ const TradableInstrument = require("../../models/Instruments/tradableInstruments
 const {xtsAccountType} = require("../../constant");
 const fetchXTSToken = require("./xtsHelper/fetchXTSToken");
 const {client, isRedisConnected} = require("../../marketData/redisClient");
-const io = require('../../marketData/socketio');
+const {getIOValue} = require('../../marketData/socketio');
 const {save} = require("./xtsHelper/saveXtsCred");
 const { ObjectId } = require('mongodb');
 
@@ -32,7 +32,7 @@ const xtsMarketLogin = async ()=>{
     try{
       (async ()=>{
         // console.log(loginRequest, process.env.MARKETDATA_URL)
-        let logIn = await xtsMarketDataAPI.logIn(loginRequest);
+        let logIn = await xtsMarketDataAPI?.logIn(loginRequest);
         console.log(logIn)
         let socketInitRequest = {
             userID: process.env.XTS_USERID,
@@ -40,17 +40,21 @@ const xtsMarketLogin = async ()=>{
             broadcastMode: 'Full',
             token: logIn?.result?.token
           };
-        xtsMarketDataWS.init(socketInitRequest);
+        xtsMarketDataWS?.init(socketInitRequest);
   
-        xtsMarketDataWS.onConnect((connectData) => {
+        xtsMarketDataWS?.onConnect((connectData) => {
           // console.log("socket connection", connectData);
         });
   
-        xtsMarketDataWS.onJoined((joinedData) => {
+        xtsMarketDataWS?.onJoined((joinedData) => {
           // console.log("joinedData", joinedData);
         });
   
-        await save(logIn?.result?.userID, logIn?.result?.token, "Market")
+        if(process.env.PROD === "true"){
+          await save(logIn?.result?.userID, logIn?.result?.token, "Market")
+        }
+        // await save(logIn?.result?.userID, logIn?.result?.token, "Market")
+
       
     })();
     } catch(err){
@@ -60,13 +64,13 @@ const xtsMarketLogin = async ()=>{
 }
 
 const onDisconnect = async()=>{
-  xtsMarketDataWS.onDisconnect((disconnect) => {
-    console.log("xts socket disconnected", disconnect);
+  xtsMarketDataWS?.onDisconnect((disconnect) => {
+    // console.log("xts socket disconnected", disconnect);
   });
 }
 
 const getInstrument = async()=>{
-    let response = await xtsMarketDataAPI.searchInstrument({
+    let response = await xtsMarketDataAPI?.searchInstrument({
         searchString: 'NIF',
         source: "WEBAPI",
       });
@@ -76,20 +80,20 @@ const getInstrument = async()=>{
 
 const subscribeInstrument = async()=>{
   const token = await fetchXTSToken();
-  let response3 = await xtsMarketDataAPI.subscription({
+  let response3 = await xtsMarketDataAPI?.subscription({
     instruments: token,
     xtsMessageCode: 1502,
   });
-  let response4 = await xtsMarketDataAPI.subscription({
+  let response4 = await xtsMarketDataAPI?.subscription({
     instruments: token,
     xtsMessageCode: 1512,
   });
-  console.log("subscription info", response4);
+  // console.log("subscription info", response4);
 }
 
 const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
   // console.log(exchangeSegment)
-  let response3 = await xtsMarketDataAPI.subscription({
+  let response3 = await xtsMarketDataAPI?.subscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,
@@ -99,7 +103,7 @@ const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
     xtsMessageCode: 1512,
   });
 
-  let response4 = await xtsMarketDataAPI.subscription({
+  let response4 = await xtsMarketDataAPI?.subscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,
@@ -108,11 +112,11 @@ const subscribeSingleXTSToken = async(instrumentToken, exchangeSegment) => {
     ],
     xtsMessageCode: 1502,
   });
-  console.log(response3)
+  // console.log(response3)
 }
 
 const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
-  let response = await xtsMarketDataAPI.unSubscription({
+  let response = await xtsMarketDataAPI?.unSubscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,
@@ -122,7 +126,7 @@ const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
     xtsMessageCode: 1502,
   });
 
-  let response3 = await xtsMarketDataAPI.subscription({
+  let response3 = await xtsMarketDataAPI?.subscription({
     instruments: [
       {
         exchangeSegment: exchangeSegment,
@@ -136,7 +140,7 @@ const unSubscribeXTSToken = async(instrumentToken, exchangeSegment)=>{
 const getXTSTicksForCompanySide = async (socket) => {
 
   await emitCompanyTicks(socket);
-  xtsMarketDataWS.onMarketDepthEvent((ticksObj) => {
+  xtsMarketDataWS?.onMarketDepthEvent((ticksObj) => {
     // console.log(ticksObj)
     let Obj = {};
     // if (ticksObj.ExchangeInstrumentID == marketDepth.ExchangeInstrumentID) {
@@ -171,13 +175,13 @@ const getXTSTicksForUserPosition = async (socket, id) => {
     indecies = JSON.parse(indecies);  
   }
 
-  // xtsMarketDataWS.onMarketDepthEvent((marketDepthData) => {
+  // xtsMarketDataWS?.onMarketDepthEvent((marketDepthData) => {
   //   marketDepth = marketDepthData;
   // });
   // let timeoutId = null;
   const userId = await client.get(socket.id)
   await emitTicks(userId);
-  xtsMarketDataWS.onMarketDepthEvent(async (ticksObj) => {
+  xtsMarketDataWS?.onMarketDepthEvent(async (ticksObj) => {
     // console.log(ticksObj)
     // ticksObj = JSON.parse(ticksObj);
     let Obj = {};
@@ -273,12 +277,13 @@ const getXTSTicksForUserPosition = async (socket, id) => {
 
 
 const emitTicks = async (userId) => {
+  const io = getIOValue();
   let intervalId;
   if (intervalId) {
     clearInterval(intervalId);
   }
 
-  console.log("Will emit filteredTicks in 2 seconds...");
+  // console.log("Will emit filteredTicks in 2 seconds...");
   intervalId = setInterval(() => {
     if (filteredTicks && filteredTicks.length > 0) {
       io.to(`${userId}`).emit("tick-room", filteredTicks);
@@ -302,7 +307,7 @@ const emitCompanyTicks = async(socket)=>{
 }
 
 const tradableInstrument = async(req, res)=>{
-  let response = await xtsMarketDataAPI.searchInstrument({
+  let response = await xtsMarketDataAPI?.searchInstrument({
     searchString: 'BAN',
     // searchString: 'NIF',
     source: "WEBAPI",
@@ -331,7 +336,7 @@ const tradableInstrument = async(req, res)=>{
         createdBy: req.user._id,
 
       }
-      console.log("docs", docs)
+      // console.log("docs", docs)
       const tradableInstrument = await TradableInstrument.create(docs);
       // console.log(tradableInstrument)
     }

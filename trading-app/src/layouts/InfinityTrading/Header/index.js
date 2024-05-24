@@ -1,5 +1,6 @@
 import React, {useEffect, useState, useCallback, useMemo, useContext} from 'react';
 import axios from "axios";
+import ReactGA from "react-ga"
 import { CircularProgress, Grid, Divider } from '@mui/material';
 import MDBox from '../../../components/MDBox';
 import MDTypography from '../../../components/MDTypography';
@@ -8,8 +9,6 @@ import upicon from '../../../assets/images/arrow.png'
 import downicon from '../../../assets/images/down.png'
 import marginicon from '../../../assets/images/marginicon.png'
 import netpnlicon from '../../../assets/images/netpnlicon.png'
-
-
 import TradableInstrument from '../../tradingCommonComponent/TradableInstrument/TradableInstrument';
 import WatchList from "../../tradingCommonComponent/InstrumentDetails/index"
 import StockIndex from '../../tradingCommonComponent/StockIndex/StockIndexInfinity';
@@ -23,7 +22,12 @@ export default function InfinityTrading({socket}) {
   const [yesterdayData, setyesterdayData] = useState({});
   const [availbaleMargin, setAvailbleMargin] = useState([]);
   const pnl = useContext(NetPnlContext);
+  const [watchList, setWatchList] = useState([]);
   const gpnlcolor = pnl.netPnl >= 0 ? "success" : "error"
+
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname)
+  }, []);
 
 
   const memoizedStockIndex = useMemo(() => {
@@ -40,8 +44,9 @@ export default function InfinityTrading({socket}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={infinityTrader}
-    />;
-  }, [socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
+      watchList={watchList}
+      />;
+    }, [watchList, socket, isGetStartedClicked, handleSetIsGetStartedClicked]);
 
   const memoizedInstrumentDetails = useMemo(() => {
     return <WatchList
@@ -49,8 +54,9 @@ export default function InfinityTrading({socket}) {
       isGetStartedClicked={isGetStartedClicked}
       setIsGetStartedClicked={handleSetIsGetStartedClicked}
       from={infinityTrader}
-    />;
-  }, [socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
+      setWatchList={setWatchList}
+      />;
+    }, [setWatchList, socket, handleSetIsGetStartedClicked, isGetStartedClicked]);
 
   const memoizedOverallPnl = useMemo(() => {
     return <OverallPnl

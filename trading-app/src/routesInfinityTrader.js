@@ -12,6 +12,9 @@ import HelpIcon from '@mui/icons-material/Help';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { GiNinjaHeroicStance } from 'react-icons/gi';
 import Funds from "./layouts/funds";
+import StoxHeroDashboard from './layouts/StoxHeroTraderDashboard'
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import Chart from './layouts/charts/index';
 
 //page routes
 import Tnc from "./layouts/terms/tnc";
@@ -29,6 +32,15 @@ import Analytics from "./layouts/userAnalytics/index"
 
 const routes = [
 
+    // {
+    //   type: "collapse",
+    //   name: "Dashboard",
+    //   key: "stoxherodashboard",
+    //   // icon: <Icon fontSize="small">person</Icon>,
+    //   icon: <DashboardIcon/>,
+    //   route: "/stoxherodashboard",
+    //   component: <StoxHeroDashboard />,
+    // },
   {
     type: "collapse",
     name: "Infinity Trading",
@@ -55,6 +67,11 @@ const routes = [
     icon: <ReorderIcon/>,
     route: "/orders",
     component: <UserOrders />,
+  },
+  {
+
+    route: "/chart",
+    component: <Chart/>,
   },
   {
     type: "collapse",

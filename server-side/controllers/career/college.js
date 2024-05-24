@@ -2,7 +2,7 @@ const College = require("../../models/Careers/collageSchema");
 // const User = require("../../models/User/userDetailSchema")
 
 exports.createCollege = async(req, res, next)=>{
-    console.log(req.body) // batchID
+    // console.log(req.body) // batchID
     const{collegeName, zone } = req.body;
 
     if(await College.findOne({collegeName: collegeName.trim()})) return res.status(400).json({message:'This college exists.'});
@@ -15,7 +15,7 @@ exports.createCollege = async(req, res, next)=>{
 
 exports.getColleges = async(req, res, next)=>{
     try{
-        const colleges = await College.find();
+        const colleges = await College.find().sort({collegeName:1});
         res.status(200).json({status: 'success', data: colleges, results: colleges.length});    
     }catch(e){
         console.log(e);
@@ -38,7 +38,7 @@ exports.getCollege = async(req, res, next) => {
 exports.editCollege = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
 
     const college = await College.findOneAndUpdate({_id : id}, {
         $set:{
@@ -55,7 +55,7 @@ exports.editCollege = async(req, res, next) => {
 exports.deleteCollege = async(req, res, next) => {
     const id = req.params.id;
 
-    console.log("id is ,", id)
+    // console.log("id is ,", id)
 
     const college = await College.findByIdAndUpdate(id, { isDeleted: true })
 
@@ -73,6 +73,16 @@ exports.getEastZoneColleges = async(req, res, next)=>{
         .skip(skip)
         .limit(limit);
         res.status(201).json({status: 'success', data: eastzonecolleges, count: count});    
+    }catch(e){
+        console.log(e);
+        res.status(500).json({status: 'error', message: 'Something went wrong'});
+    }
+};
+
+exports.getCollegeName = async(req, res, next)=>{
+    try{
+        const collegeName = await College.find().select('collegeName _id')
+        res.status(201).json({status: 'success', data: collegeName, count: collegeName.length});    
     }catch(e){
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});

@@ -30,31 +30,6 @@ import NonAlgoUser from "../NonAlgoUser";
 
 function TradingAccountHeader({ children }) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
-  // const [tabValue, setTabValue] = useState(0);
-
-  // useEffect(() => {
-  //   // A function that sets the orientation state of the tabs.
-  //   function handleTabsOrientation() {
-  //     return window.innerWidth < breakpoints.values.sm
-  //       ? setTabsOrientation("vertical")
-  //       : setTabsOrientation("horizontal");
-  //   }
-
-  //   /** 
-  //    The event listener that's calling the handleTabsOrientation function when resizing the window.
-  //   */
-  //   window.addEventListener("resize", handleTabsOrientation);
-
-  //   // Call the handleTabsOrientation function to set the state with the initial value.
-  //   handleTabsOrientation();
-
-  //   // Remove event listener on cleanup
-  //   return () => window.removeEventListener("resize", handleTabsOrientation);
-  // }, [tabsOrientation]);
-
-
-  // const handleSetTabValue = (event, newValue) => setTabValue(newValue);
-
 
   return (
    
@@ -90,34 +65,6 @@ function TradingAccountHeader({ children }) {
         <Grid container spacing={6} alignItems="center">
           <Grid item xs={12} md={12} lg={12} sx={{ ml: "auto" }}>
             <AlgoUser/>
-            {/* <AppBar position="static"> */}
-              {/* <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}> */}
-              {/* <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
-                <Tab
-                  label="Algo User"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25}}>
-                      home
-                    </Icon>
-                  }
-                />
-                <Tab
-                  label="Non Algo User"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25}}>
-                      home
-                    </Icon>
-                     }
-                />
-
-                
-                
-              </Tabs> */}
-            {/* </AppBar> */}
-            {/* <TabPanel value={tabValue} index={0}><AlgoUser/> </TabPanel> */}
-            {/* <TabPanel value={tabValue} index={1}><NonAlgoUser /> </TabPanel> */}
-            {/* <TabPanel value={tabValue} index={2}></> </TabPanel> */}
-            {/* <TabPaneltwo/> */}
           </Grid>
         </Grid>
         </Card>

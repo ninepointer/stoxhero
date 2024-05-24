@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import ReactGA from "react-ga"
 import theme from '../utils/theme/index';
 import Navbar from '../components/Navbars/Navbar'
 import Footer from '../components/Footers/Footer'
@@ -22,21 +23,17 @@ const Home = () => {
   const [data, setData] = useState();
   const getMetrics = async()=>{
     const res = await axios.get(`${apiUrl}appmetrics`);
-    console.log(res.data.data);
     setData(res.data.data);
   }
   useEffect(()=>{
     getMetrics();
+    ReactGA.pageview(window.location.pathname)
   },[])
 
   return (
     <div>
-
-      {/* Navbar */}
       <ThemeProvider theme={theme}>
       <Navbar/>
-
-      {/* Section */}
       <Section1/>
       <Section2 data ={data}/>
       <Box sx={{ height:{sx:"4000px"},width:"100%", bgcolor:"#06070A", position: "relative" }}>

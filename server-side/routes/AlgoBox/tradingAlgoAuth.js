@@ -2,8 +2,12 @@ const express = require("express");
 const router = express.Router();
 require("../../db/conn");
 const TradingAlgo = require("../../models/AlgoBox/tradingAlgoSchema");
+const {client, getValue} = require('../../marketData/redisClient');
+const Authenticate = require('../../authentication/authentication');
+const restrictTo = require('../../authentication/authorization');
 
-router.post("/tradingalgo", (req, res)=>{
+
+router.post("/tradingalgo", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     const {algoName, transactionChange, instrumentChange, status, exchangeChange, lotMultipler, productChange, tradingAccount, lastModified, uId, createdBy, createdOn, realTrade, marginDeduction, isDefault} = req.body;
 
     if(!algoName || !transactionChange || !instrumentChange || !status || !exchangeChange || !lotMultipler || !productChange || !tradingAccount || !lastModified || !uId || !createdBy || !createdOn){
@@ -13,7 +17,7 @@ router.post("/tradingalgo", (req, res)=>{
     }
 
     TradingAlgo.findOne({uId : uId})
-    .then((dateExist)=>{
+    .then(async (dateExist)=>{
         if(dateExist){
             //console.log("data already");
             return res.status(422).json({error : "date already exist..."})
@@ -23,24 +27,34 @@ router.post("/tradingalgo", (req, res)=>{
             uId, createdBy, createdOn, isRealTrade:realTrade, marginDeduction, isDefault});
 
             //console.log(tradingAlgo)
-        tradingAlgo.save().then(()=>{
+        tradingAlgo.save().then(async ()=>{
+            await client.del('tradingAlgo');
             res.status(201).json({massage : "data enter succesfully"});
         }).catch((err)=> res.status(500).json({error:"Failed to enter data"}));
     }).catch(err => {console.log("fail")});
 })
 
-router.get("/readtradingAlgo", (req, res)=>{
-
-    TradingAlgo.find((err, data)=>{
-        if(err){
-            return res.status(500).send(err);
-        }else{
-            return res.status(200).send(data);
-        }
-    }).sort({createdOn:-1})
+router.get("/readtradingAlgo", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
+    const isRedisConnected = getValue();
+    if(isRedisConnected && await client.exists(`tradingAlgo`)){
+        let algo = await client.get(`tradingAlgo`);
+        algo = JSON.parse(algo);
+        return res.status(200).send(algo);
+    } else{
+        const algo = await TradingAlgo.find();
+        const redisAlgo = await client.set(`tradingAlgo`, JSON.stringify(algo));
+        return res.status(200).send(algo);
+    }
+    // TradingAlgo.find((err, data)=>{
+    //     if(err){
+    //         return res.status(500).send(err);
+    //     }else{
+            
+    //     }
+    // }).sort({createdOn:-1})
 })
 
-router.get("/readtradingAlgo/:id", (req, res)=>{
+router.get("/readtradingAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
     //console.log(req.params)
     const {id} = req.params
     TradingAlgo.findOne({_id : id}).sort({createdOn:-1})
@@ -52,7 +66,7 @@ router.get("/readtradingAlgo/:id", (req, res)=>{
     })
 })
 
-router.put("/readtradingAlgo/:id", async (req, res)=>{
+router.put("/readtradingAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{
@@ -71,6 +85,7 @@ router.put("/readtradingAlgo/:id", async (req, res)=>{
             }
         })
         //console.log("this is role", tradingAlgo);
+        await client.del('tradingAlgo');
         res.send(tradingAlgo)
         // res.status(201).json({massage : "data edit succesfully"});
     } catch (e){
@@ -78,7 +93,7 @@ router.put("/readtradingAlgo/:id", async (req, res)=>{
     }
 })
 
-router.patch("/readtradingAlgo/:id", async (req, res)=>{
+router.patch("/readtradingAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -93,6 +108,7 @@ router.patch("/readtradingAlgo/:id", async (req, res)=>{
             
         })
         //console.log("this is role", tradingAlgo);
+        await client.del('tradingAlgo');
         res.send(tradingAlgo)
         // res.status(201).json({massage : "data patch succesfully"});
     } catch (e){
@@ -100,7 +116,7 @@ router.patch("/readtradingAlgo/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updatemargindeduction/:id", async (req, res)=>{
+router.patch("/updatemargindeduction/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -114,6 +130,7 @@ router.patch("/updatemargindeduction/:id", async (req, res)=>{
             
         })
         //console.log("this is role", tradingAlgo);
+        await client.del('tradingAlgo');
         res.send(tradingAlgo)
         // res.status(201).json({massage : "data patch succesfully"});
     } catch (e){
@@ -121,7 +138,7 @@ router.patch("/updatemargindeduction/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updatedefaultalgo/:id", async (req, res)=>{
+router.patch("/updatedefaultalgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -135,6 +152,7 @@ router.patch("/updatedefaultalgo/:id", async (req, res)=>{
             
         })
         //console.log("this is role", tradingAlgo);
+        await client.del('tradingAlgo');
         res.send(isDefault)
         // res.status(201).json({massage : "data patch succesfully"});
     } catch (e){
@@ -142,7 +160,7 @@ router.patch("/updatedefaultalgo/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updatetransactionChange/:id", async (req, res)=>{
+router.patch("/updatetransactionChange/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -156,6 +174,7 @@ router.patch("/updatetransactionChange/:id", async (req, res)=>{
             
         })
         //console.log("this is role", tradingAlgo);
+        await client.del('tradingAlgo');
         res.send(tradingAlgo)
         // res.status(201).json({massage : "data patch succesfully"});
     } catch (e){
@@ -163,7 +182,7 @@ router.patch("/updatetransactionChange/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updateinstrumentChange/:id", async (req, res)=>{
+router.patch("/updateinstrumentChange/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -177,6 +196,7 @@ router.patch("/updateinstrumentChange/:id", async (req, res)=>{
             
         })
         //console.log("this is role", tradingAlgo);
+        await client.del('tradingAlgo');
         res.send(tradingAlgo)
         // res.status(201).json({massage : "data patch succesfully"});
     } catch (e){
@@ -184,7 +204,7 @@ router.patch("/updateinstrumentChange/:id", async (req, res)=>{
     }
 })
 
-router.patch("/updateexchangeChange/:id", async (req, res)=>{
+router.patch("/updateexchangeChange/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -199,13 +219,14 @@ router.patch("/updateexchangeChange/:id", async (req, res)=>{
         })
         //console.log("this is role", tradingAlgo);
         res.send(tradingAlgo)
+        await client.del('tradingAlgo');
         // res.status(201).json({massage : "data patch succesfully"});
     } catch (e){
         res.status(500).json({error:"Failed to edit data"});
     }
 })
 
-router.patch("/updateproductChange/:id", async (req, res)=>{
+router.patch("/updateproductChange/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     //console.log("this is body", req.body);
     try{ 
@@ -220,19 +241,21 @@ router.patch("/updateproductChange/:id", async (req, res)=>{
         })
         //console.log("this is role", tradingAlgo);
         res.send(tradingAlgo)
+        await client.del('tradingAlgo');
         // res.status(201).json({massage : "data patch succesfully"});
     } catch (e){
         res.status(500).json({error:"Failed to edit data"});
     }
 })
 
-router.delete("/readtradingAlgo/:id", async (req, res)=>{
+router.delete("/readtradingAlgo/:id", Authenticate, restrictTo('Admin', 'SuperAdmin'), async (req, res)=>{
     //console.log(req.params)
     try{
         const {id} = req.params
         const tradingAlgo = await TradingAlgo.deleteOne({_id : id})
         //console.log("this is userdetail", tradingAlgo);
         // res.send(userDetail)
+        await client.del('tradingAlgo');
         res.status(201).json({massage : "data delete succesfully"});
     } catch (e){
         res.status(500).json({error:"Failed to delete data"});

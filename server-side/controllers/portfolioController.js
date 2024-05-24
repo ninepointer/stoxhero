@@ -4,6 +4,8 @@ const Contest = require('../models/Contest/contestSchema');
 const ContestTrade = require('../models/Contest/ContestTrade');
 const ObjectId = require('mongodb').ObjectId;
 const Subscription = require("../models/TenXSubscription/TenXSubscriptionSchema");
+const TenxTrade = require("../models/mock-trade/tenXTraderSchema");
+
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -16,7 +18,7 @@ const filterObj = (obj, ...allowedFields) => {
   };
 
 exports.createPortfolio = async(req, res, next)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const{portfolioName, portfolioValue, portfolioType, portfolioAccount, status
     } = req.body;
     if(await Portfolio.findOne({portfolioName})) return res.status(400).json({message:'This portfolio already exists.'});
@@ -40,11 +42,11 @@ exports.getPortfolios = async(req, res, next)=>{
         
 };
 
-exports.getContestPortolios = async(req, res, next)=>{
+exports.getBattlePortfolios = async(req, res, next)=>{
     try{
         const portfolio = await Portfolio.find({portfolioType: "Battle",status: "Active"})
         
-        res.status(201).json({status: 'success', data: portfolio, results: portfolio.length});    
+        res.status(200).json({status: 'success', data: portfolio, results: portfolio.length});    
     }catch(e){
         console.log(e);
         res.status(500).json({status: 'error', message: 'Something went wrong'});
@@ -55,6 +57,18 @@ exports.getContestPortolios = async(req, res, next)=>{
 exports.getTenXPortolios = async(req, res, next)=>{
   try{
       const portfolio = await Portfolio.find({portfolioType: "TenX Trading",status: "Active"})
+      
+      res.status(201).json({status: 'success', data: portfolio, results: portfolio.length});    
+  }catch(e){
+      console.log(e);
+      res.status(500).json({status: 'error', message: 'Something went wrong'});
+  }
+      
+};
+
+exports.getDailyContestPortolios = async(req, res, next)=>{
+  try{
+      const portfolio = await Portfolio.find({portfolioType: "Daily Contest",status: "Active"})
       
       res.status(201).json({status: 'success', data: portfolio, results: portfolio.length});    
   }catch(e){
@@ -113,11 +127,11 @@ exports.getPortfolio = async(req, res, next)=>{
 };
 
 exports.editPortfolio = async(req, res, next) => {
-    console.log("in edit")
+    // console.log("in edit")
     const _id = req.params.id;
-    console.log("id is", _id)
+    // console.log("id is", _id)
     const portfolio = await Portfolio.findById(_id);
-    console.log(id, portfolio)
+    // console.log(id, portfolio)
     const filteredBody = filterObj(req.body, "portfolioName", "portfolioValue", "portfolioType", "lastModifiedOn",
                           "status");
 
@@ -129,11 +143,11 @@ exports.editPortfolio = async(req, res, next) => {
 }
 
 exports.editPortfolioWithName = async(req, res, next) => {
-    console.log("in edit")
+    // console.log("in edit")
     // const _id = req.params.id;
     // console.log("id is", _id)
     const portfolio = await Portfolio.find({portfolioName: req.body.portfolioName});
-    console.log(portfolio)
+    // console.log(portfolio)
     const filteredBody = filterObj(req.body, "portfolioName", "portfolioValue", "portfolioType", "lastModifiedOn",
                           "status");
 
@@ -245,7 +259,7 @@ exports.getPortfolioRemainingAmount = async(req, res, next) => {
             },
         ]);
 
-        console.log(userId, portfolioId)
+        // console.log(userId, portfolioId)
         const portfolio = await Portfolio.findById(portfolioId).select('portfolioValue')
 
         res.status(201).json({pnl: pnlDetails, portfolio: portfolio});
@@ -328,119 +342,115 @@ exports.portfolioForMobile = async(req,res,next) => {
 }
 
 exports.myTenXPortfolio = async(req, res, next)=>{
-  let pnlDetails = await Subscription.aggregate([
-    {
-      $unwind:
-        {
-          path: "$users",
-        },
-    },
-    {
-      $match: {
-        "users.userId": new ObjectId(req.user._id),
-      },
-    },
-    {
-      $lookup: {
-        from: "user-portfolios",
-        localField: "portfolio",
-        foreignField: "_id",
-        as: "portfolioData",
-      },
-    },
-    {
-      $lookup: {
-        from: "tenx-trade-users",
-        localField: "_id",
-        foreignField: "subscriptionId",
-        as: "trades",
-      },
-    },
-    {
-      $unwind:
-        {
-          path: "$trades",
-          includeArrayIndex: "string",
-        },
-    },
-    {
-        $match: {
-            "trades.status": "COMPLETE",
-        },
-    },
-    {
-      $group:
-  
-        {
-          _id: {
-            subscriptionId: "$_id",
-            totalFund: {
-              $arrayElemAt: [
-                "$portfolioData.portfolioValue",
-                0,
-              ],
-            },
-            portfolioName: {
-              $arrayElemAt: [
-                "$portfolioData.portfolioName",
-                0,
-              ],
-            },
-            portfolioType: {
-              $arrayElemAt: [
-                "$portfolioData.portfolioType",
-                0,
-              ],
-            },
-            portfolioAccount: {
-              $arrayElemAt: [
-                "$portfolioData.portfolioAccount",
-                0,
-              ],
-            },
-          },
-          totalAmount: {
-            $sum:{
-                $multiply: ["$trades.amount", -1],
-            }
-          },
-          totalBrokerage: {
-            $sum: "$trades.brokerage",
-          },
-        },
-    },
-    {
-      $project:
-  
-        {
-          _id: 0,
-          subscriptionId: "$_id.subscriptionId",
-          portfolioValue: "$_id.totalFund",
-          portfolioType: "$_id.portfolioType",
-          portfolioName: "$_id.portfolioName",
-          portfolioAccount: "$_id.portfolioAccount",
-          investedAmount: {
-            $subtract: [
-              "$totalAmount",
-              "$totalBrokerage",
-            ],
-          },
-          cashBalance: {
-            $sum: [
-                "$_id.totalFund",
-                { $subtract: ["$totalAmount", "$totalBrokerage"] }
-              ]
-          }
-        },
-    },
-  ]);
+  const userId = req?.user?._id;
+  const date = new Date();
+  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  todayDate = todayDate + "T00:00:00.000Z";
+  const today = new Date(todayDate);
 
-  res.status(201).json({status: "success", data: pnlDetails});
+  const user = await User.findOne({_id: new ObjectId(userId)})
+  .select('subscription')
+  .populate({
+    path: 'subscription.subscriptionId',
+    select: 'plan_name actual_price discounted_price portfolio',
+    populate: {
+      path: 'portfolio',
+      select: 'portfolioName portfolioValue portfolioAccount portfolioType'
+    }
+  });
 
+  const liveSubs = user?.subscription?.filter((elem)=>{
+    return elem?.status === 'Live' && elem?.subscriptionId;
+  });
+
+  const newArr = [];
+  for(const elem of liveSubs){
+    const margin = await TenxTrade.aggregate([
+      {
+        $facet: {
+          old: [
+            {
+              $match: {
+                trade_time_utc: {
+                  $gte: new Date(
+                    elem?.subscribedOn
+                  ),
+                  $lt: today,
+                },
+                subscriptionId: new ObjectId(elem?.subscriptionId?._id),
+                trader: new ObjectId(
+                  userId
+                ),
+              },
+            },
+            {
+              $group: {
+                _id: {},
+                npnl: {
+                  $sum: {
+                    $subtract: [
+                      {
+                        $multiply: ["$amount", -1],
+                      },
+                      "$brokerage",
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+          new: [
+            {
+              $match: {
+                trade_time_utc: {
+                  $gte: today,
+                },
+                subscriptionId: new ObjectId(elem?.subscriptionId?._id),
+                trader: new ObjectId(
+                  userId
+                ),
+              },
+            },
+            {
+              $group: {
+                _id: {},
+                npnl: {
+                  $sum: {
+                    $subtract: [
+                      {
+                        $multiply: ["$amount", -1],
+                      },
+                      "$brokerage",
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    const old = margin?.[0]?.old?.[0];
+    const newData = margin?.[0]?.new?.[0];
+
+    const openingBalance = (elem?.subscriptionId?.portfolio?.portfolioValue + (old?.npnl || 0)) > 0 ? (elem?.subscriptionId?.portfolio?.portfolioValue + (old?.npnl || 0)) : 0
+    newArr.push({
+      name: elem?.subscriptionId?.plan_name,
+      portfolioValue: elem?.subscriptionId?.portfolio?.portfolioValue,
+      type: elem?.subscriptionId?.portfolio?.portfolioType,
+      account: elem?.subscriptionId?.portfolio?.portfolioAccount,
+      portfolioName: elem?.subscriptionId?.portfolio?.portfolioName,
+      openingBalance: openingBalance,
+      availableBalance: openingBalance + (newData?.npnl || 0)
+    })
+  }
+
+  res.status(201).json({status: "success", data: newArr});
 }
 
 exports.myVirtualFreePortfolio = async(req, res, next)=>{
-  console.log("in free", req.user._id)
+  // console.log("in free", req.user._id)
   let pnlDetails = await Portfolio.aggregate([
     {
       $match: {
@@ -518,7 +528,7 @@ exports.myVirtualFreePortfolio = async(req, res, next)=>{
         },
     },
   ]);
-  console.log("pnlDetails", pnlDetails)
+  // console.log("pnlDetails", pnlDetails)
   res.status(201).json({status: "success", data: pnlDetails});
 
 }

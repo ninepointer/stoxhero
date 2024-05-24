@@ -1,0 +1,607 @@
+const mongoose = require('mongoose');
+const Contest = require('../models/DailyContest/dailyContest'); // Assuming your model is exported as Contest from the mentioned path
+const User = require("../models/User/userDetailSchema");
+const Wallet = require("../models/UserWallet/userWalletSchema");
+const { ObjectId } = require('mongodb');
+// const Contest = require('../models/DailyContest/dailyContest')
+const DailyContestMockUser = require("../models/DailyContest/dailyContestMockUser");
+const dailyContest = require('../models/DailyContest/dailyContestMockUser');
+const {client, getValue} = require('../marketData/redisClient');
+
+
+// Controller for getting all contests
+exports.getContestScoreboard = async (req, res) => {
+    try {
+
+      const skip = Number(req.query.skip) || 0;
+      const limit = Number(req.query.limit) || 10;
+      const isRedisConnected = getValue();
+      if (isRedisConnected && await client.exists(`contestscorboard: ${skip}`)) {
+        const data = JSON.parse(await client.get(`contestscorboard: ${skip}`));
+        const count = JSON.parse(await client.get('contestscorboard-count'));
+        res.status(200).json({
+          status: "success",
+          message: "Contest Earnings fetched successfully",
+          data: data,
+          count: count
+        });
+      } else{
+        const pipeline = [
+          {
+            $match: {
+              status: "COMPLETE",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                trader: "$trader",
+                contest: "$contestId",
+              },
+              gpnl: {
+                $sum: {
+                  $multiply: ["$amount", -1],
+                },
+              },
+              brokerage: {
+                $sum: "$brokerage",
+              },
+            },
+          },
+          {
+            $addFields: {
+              npnl: {
+                $subtract: ["$gpnl", "$brokerage"],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "user-personal-details",
+              localField: "_id.trader",
+              foreignField: "_id",
+              as: "trader_details",
+            },
+          },
+          {
+            $lookup: {
+              from: "daily-contests",
+              localField: "_id.contest",
+              foreignField: "_id",
+              as: "contest",
+            },
+          },
+          {
+            $addFields: {
+              payout: {
+                $divide: [
+                  {
+                    $multiply: [
+                      "$npnl",
+                      {
+                        $arrayElemAt: [
+                          "$contest.payoutPercentage",
+                          0,
+                        ],
+                      },
+                    ],
+                  },
+                  100,
+                ],
+              },
+            },
+          },
+          {
+            $match: {
+              "contest.contestStatus": "Completed",
+              "contest.payoutStatus": "Completed",
+              "contest.contestFor": "StoxHero",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                trader: "$_id.trader",
+              },
+              contestParticipated: {
+                $sum: 1,
+              },
+              contestWon: {
+                $sum: {
+                  $cond: [
+                    {
+                      $gt: ["$payout", 0],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+              totalPayout: {
+                $sum: {
+                  $cond: [
+                    {
+                      $gt: ["$payout", 0],
+                    },
+                    "$payout",
+                    0,
+                  ],
+                },
+              },
+              trader_details: {
+                $first: "$trader_details",
+              },
+            },
+          },
+          {
+            $project: {
+              traderFirstName: {
+                $ifNull: [
+                  {
+                    $arrayElemAt: [
+                      "$trader_details.first_name",
+                      0
+                    ]
+                  },
+                  "StoxHero"
+                ]
+              },
+              traderLastName: {
+                $ifNull: [
+                  {
+                    $arrayElemAt: [
+                      "$trader_details.last_name",
+                      0
+                    ]
+                  },
+                  "StoxHero"
+                ]
+              },
+              traderProfilePhoto: {
+                $arrayElemAt: [
+                  "$trader_details.profilePhoto.url",
+                  0,
+                ],
+              },
+              contestParticipated: 1,
+              contestWon: 1,
+              totalPayout: 1,
+            },
+          },
+          {
+            $addFields: {
+              strikeRate: {
+                $multiply: [
+                  {
+                    $divide: [
+                      "$contestWon",
+                      "$contestParticipated",
+                    ],
+                  },
+                  100,
+                ],
+              },
+            },
+          },
+          {
+            $match:
+              {
+                totalPayout: {
+                  $gt: 0,
+                },
+              },
+          },
+          {
+            $sort:
+            {
+              totalPayout: -1
+            }
+          },
+          {
+            $skip: skip
+          },
+          {
+            $limit: limit
+          }
+        ]
+
+        const pipelineCount = [
+          {
+            $match: {
+              status: "COMPLETE",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                trader: "$trader",
+                contest: "$contestId",
+              },
+              gpnl: {
+                $sum: {
+                  $multiply: ["$amount", -1],
+                },
+              },
+              brokerage: {
+                $sum: "$brokerage",
+              },
+            },
+          },
+          {
+            $addFields: {
+              npnl: {
+                $subtract: ["$gpnl", "$brokerage"],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "daily-contests",
+              localField: "_id.contest",
+              foreignField: "_id",
+              as: "contest",
+            },
+          },
+          {
+            $addFields: {
+              payout: {
+                $divide: [
+                  {
+                    $multiply: [
+                      "$npnl",
+                      {
+                        $arrayElemAt: [
+                          "$contest.payoutPercentage",
+                          0,
+                        ],
+                      },
+                    ],
+                  },
+                  100,
+                ],
+              },
+            },
+          },
+          {
+            $match: {
+              "contest.contestStatus": "Completed",
+              "contest.payoutStatus": "Completed",
+              "contest.contestFor": "StoxHero",
+            },
+          },
+          {
+            $group: {
+              _id: {
+                trader: "$_id.trader",
+              },
+              totalPayout: {
+                $sum: {
+                  $cond: [
+                    {
+                      $gt: ["$payout", 0],
+                    },
+                    "$payout",
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              totalPayout: 1,
+            },
+          },
+          {
+            $match:
+              {
+                totalPayout: {
+                  $gt: 0,
+                },
+              },
+          },
+          {
+            $count: "count"
+          },
+         
+        ];
+
+        const contestScoreboard = await DailyContestMockUser.aggregate(pipeline);
+        let count = 0;
+        await client.set(`contestscorboard: ${skip}`, JSON.stringify(contestScoreboard));
+        await client.expire(`contestscorboard: ${skip}`, 2400);
+
+        if (isRedisConnected && await client.exists(`contestscorboard-count`)) {
+          count = JSON.parse(await client.get('contestscorboard-count'));
+        } else{
+          const contestScoreboardCount = await DailyContestMockUser.aggregate(pipelineCount); 
+          await client.set(`contestscorboard-count`, JSON.stringify(contestScoreboardCount?.[0]?.count));
+          await client.expire(`contestscorboard-count`, 2400); 
+          count = contestScoreboardCount?.[0]?.count;
+        }
+  
+        res.status(200).json({
+            status:"success",
+            message: "Contest Scoreboard fetched successfully",
+            data: contestScoreboard,
+            count: count || 100
+        });
+      }
+
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            message: "Something went wrong",
+            error: error.message
+        });
+    }
+};
+
+exports.getCollegeContestScoreboard = async (req, res) => {
+  try {
+      const pipeline = [
+        {
+          $match: {
+            status: "COMPLETE",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              trader: "$trader",
+              contest: "$contestId",
+            },
+            gpnl: {
+              $sum: {
+                $multiply: ["$amount", -1],
+              },
+            },
+            brokerage: {
+              $sum: "$brokerage",
+            },
+          },
+        },
+        {
+          $addFields: {
+            npnl: {
+              $subtract: ["$gpnl", "$brokerage"],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "_id.trader",
+            foreignField: "_id",
+            as: "trader_details",
+          },
+        },
+        {
+          $lookup: {
+            from: "daily-contests",
+            localField: "_id.contest",
+            foreignField: "_id",
+            as: "contest",
+          },
+        },
+        {
+          $addFields: {
+            payout: {
+              $divide: [
+                {
+                  $multiply: [
+                    "$npnl",
+                    {
+                      $arrayElemAt: [
+                        "$contest.payoutPercentage",
+                        0,
+                      ],
+                    },
+                  ],
+                },
+                100,
+              ],
+            },
+          },
+        },
+        {
+          $match: {
+            "contest.contestStatus": "Completed",
+            "contest.payoutStatus": "Completed",
+            "contest.contestFor": "College",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              trader: "$_id.trader",
+            },
+            contestParticipated: {
+              $sum: 1,
+            },
+            contestWon: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: ["$payout", 0],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            totalPayout: {
+              $sum: {
+                $cond: [
+                  {
+                    $gt: ["$payout", 0],
+                  },
+                  "$payout",
+                  0,
+                ],
+              },
+            },
+            trader_details: {
+              $first: "$trader_details",
+            },
+          },
+        },
+        {
+          $project: {
+            traderFirstName: {
+              $arrayElemAt: [
+                "$trader_details.first_name",
+                0,
+              ],
+            },
+            traderLastName: {
+              $arrayElemAt: [
+                "$trader_details.last_name",
+                0,
+              ],
+            },
+            traderProfilePhoto: {
+              $arrayElemAt: [
+                "$trader_details.profilePhoto.url",
+                0,
+              ],
+            },
+            contestParticipated: 1,
+            contestWon: 1,
+            totalPayout: 1,
+          },
+        },
+        {
+          $addFields: {
+            strikeRate: {
+              $multiply: [
+                {
+                  $divide: [
+                    "$contestWon",
+                    "$contestParticipated",
+                  ],
+                },
+                100,
+              ],
+            },
+          },
+        },
+        {
+          $match:
+            {
+              totalPayout: {
+                $gt: 0,
+              },
+            },
+        },
+        {
+          $sort:
+          {
+            totalPayout: -1
+          }
+        }
+      ]
+
+      const contestScoreboard = await DailyContestMockUser.aggregate(pipeline)
+
+      res.status(200).json({
+          status:"success",
+          message: "Contest Scoreboard fetched successfully",
+          data: contestScoreboard
+      });
+  } catch (error) {
+      res.status(500).json({
+          status:"error",
+          message: "Something went wrong",
+          error: error.message
+      });
+  }
+};
+
+exports.getHomePageContestEarnings = async (req, res) => {
+  try {
+    let isRedisConnected = getValue();
+    if (isRedisConnected && await client.exists('homepagecontestearning')) {
+      const data = JSON.parse(await client.get('homepagecontestearning'));
+      res.status(200).json({
+        status: "success",
+        message: "Contest Earnings fetched successfully",
+        data: data
+      });
+    } else {
+      const pipeline = [
+        {
+          $match: {
+            contestStatus: "Completed",
+          },
+        },
+        {
+          $unwind: {
+            path: "$participants",
+          },
+        },
+        {
+          $lookup: {
+            from: "user-personal-details",
+            localField: "participants.userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              id: "$user._id",
+              first_name: "$user.first_name",
+            },
+            reward: {
+              $sum: {
+                $ifNull: ["$participants.payout", 0],
+              },
+            },
+          },
+        },
+        {
+          $sort: {
+            reward: -1,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            first_name: "$_id.first_name",
+            reward: 1,
+          },
+        },
+        {
+          $limit: 10,
+        },
+      ]
+
+      const contestEarnings = await Contest.aggregate(pipeline)
+
+      await client.set(`homepagecontestearning`, JSON.stringify(contestEarnings));
+      await client.expire(`homepagecontestearning`, 2400);
+
+      res.status(200).json({
+        status: "success",
+        message: "Contest Earnings fetched successfully",
+        data: contestEarnings
+      });
+    }
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
+

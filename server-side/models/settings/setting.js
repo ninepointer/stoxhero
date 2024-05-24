@@ -17,14 +17,14 @@ const settingSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    AppStartTime:{
-        type: Date,
-        required: true,
-    },
-    AppEndTime:{
-        type: Date,
-        required: true,
-    },
+    // AppStartTime:{
+    //     type: Date,
+    //     required: true,
+    // },
+    // AppEndTime:{
+    //     type: Date,
+    //     required: true,
+    // },
     leaderBoardTimming:{
         type: Number,
         required: true,
@@ -33,7 +33,38 @@ const settingSchema = new mongoose.Schema({
         complete: {type: String, enum : [zerodhaAccountType, xtsAccountType]},
         ltp: {type: String, enum : [zerodhaAccountType, xtsAccountType]},
         liveOrder: {type: String, enum : [zerodhaAccountType, xtsAccountType]},
-    }
+    },
+    infinityLive:{
+        type: Boolean
+    },
+    infinityPrice: {
+        type: Number,
+        required: true,
+    },
+    minWithdrawal: Number,
+    maxWithdrawal: Number,
+    maxWithdrawalHigh: Number,
+    walletBalanceUpperLimit: Number,
+    gstPercentage: Number,
+    tdsPercentage: Number,
+    contest: {
+        upiId: {type: String},
+        email: {type: String},
+        mobile: {type: String},
+    },
+    time: {    
+        appStartTime: {type: Date},
+        timerStartTimeInStart: {type: Date},
+        appEndTime: {type: Date},
+        timerStartTimeInEnd: {type: Date}
+    },
+    mobileAppVersion: String,
+    bonusToUnitCashRatio:Number,
+    maxBonusRedemptionPercentage: Number,
+    minWalletBalance:Number,
+    courseGstPercentage: Number,
+    weekStart: Number,
+    weekEnd: Number
 })
 
 const settingDetail = mongoose.model("setting-detail", settingSchema);

@@ -1,348 +1,304 @@
 const kiteTicker = require('kiteconnect').KiteTicker;
 const fetchToken = require('./fetchToken');
-const getKiteCred = require('./getKiteCred'); 
-const RetreiveOrder = require("../models/TradeDetails/retreiveOrder")
+const getKiteCred = require('./getKiteCred');
+// const RetreiveOrder = require("../models/TradeDetails/retreiveOrder")
 const StockIndex = require("../models/StockIndex/stockIndexSchema");
-const ContestInstrument = require("../models/Instruments/contestInstrument");
-const DummyMarketData = require("./dummyMarketData")
-const User = require("../models/User/userDetailSchema")
-const io = require('../marketData/socketio');
-const {client, getValue} = require("./redisClient");
-const { ObjectId } = require('mongodb');
-const {xtsAccountType, zerodhaAccountType} = require("../constant");
-
-
-
+// const ContestInstrument = require("../models/Instruments/contestInstrument");
+const { DummyMarketData } = require("./dummyMarketData")
+// const User = require("../models/User/userDetailSchema")
+const { getIOValue } = require('../marketData/socketio');
+const { client, getValue } = require("./redisClient");
+// const { ObjectId } = require('mongodb');
+const { zerodhaAccountType } = require("../constant");
+const Instrument = require("../models/Instruments/instrumentSchema");
+let { client6 } = require("../marketData/redisClient");
+const {equityInstrumentArray} = require('../controllers/TradableInstrument/searchInstrument')
+const axios = require('axios');
 let ticker;
+client6.connect().then(()=>{});
 
-const createNewTicker = (api_key, access_token) => {
-  console.log("createNewTicker")
-    ticker = new kiteTicker({
-        api_key,
-        access_token 
-    });
-   
-    ticker?.connect();
-    ticker?.autoReconnect(true, 10000000000, 5);
-    return ticker;    
+const createNewTicker = async (api_key, access_token) => {
+
+  console.log("createNewTicker");
+
+  ticker = new kiteTicker({
+    api_key,
+    access_token
+  });
+
+  try {
+    await ticker?.connect();
+    await ticker?.autoReconnect(true, 10000000000, 5);
+    await subscribeTokens();
+    // await getDummyTicks();
+    await ticksData();
+
+    await client6.SUBSCRIBE("subscribe-single-token", async (instruemnt) => {
+      instruemnt = JSON.parse(instruemnt);
+      ticker?.subscribe([Number(instruemnt?.instrumentToken)]);
+      ticker?.setMode(ticker?.modeQuote, [Number(instruemnt?.instrumentToken)]);  
+    })
+    
+    return ticker;
+  } catch (error) {
+    console.error('Error creating ticker:', error);
+    throw error;
+  }
+}
+
+const ticksData = async () => {
+  const io = getIOValue();
+  try{
+    let indexObj = {};
+    const indecies = await index();
+    // populate hash table with indexObj from indecies
+    for (let i = 0; i < indecies?.length; i++) {
+      indexObj[indecies[i]?.instrumentToken] = true;
+    }
+    ticker?.on('ticks', async (ticks) => {
+      const users = await instrumentAndUser();
+      const indexData = ticks.filter(function (item) {
+        return indexObj[item.instrument_token];
+      });
+  
+      let userTickObj = {};
+      for(let tick of ticks){
+        const userIds = users[tick.instrument_token] || [];
+        for(let subelem of userIds){
+          userTickObj[subelem] = userTickObj[subelem] || [];
+          userTickObj[subelem].push(tick);
+        }
+      }
+
+      const equity = ticks.filter((elem)=>{
+        return equityInstrumentArray.includes(elem.instrument_token);
+      })
+
+      for(let elem in (userTickObj)){
+        io.to(`${elem}`).emit('tick-room', userTickObj[elem]);
+      }
+      // console.log(indexData.length)
+      if (indexData?.length > 0) {
+        io.emit('index-tick', indexData)
+      }
+
+      io?.to(`${'equity'}`).emit('equity-ticks', equity);
+      io?.to(`${'company-side'}`).emit('tick', ticks);
+
+      await pendingOrderProcess(ticks);
+      userTickObj={};
+      ticks=[];
+  
+    })
+  } catch(err){
+    console.log(err)
+  }
+
 }
 
 const disconnectTicker = () => {
-    console.log('disconnecting ticker');
-    ticker?.disconnect();
+  console.log('disconnecting ticker');
+  ticker?.disconnect();
 }
 
-const subscribeTokens = async() => {
-  // getKiteCred.getAccess().then(async (data)=>{
-    let tokens = await fetchToken();
-    // console.log("token in kite", tokens)
-    ticker?.subscribe(tokens);
-  // });
+const subscribeTokens = async () => {
+  let tokens = await fetchToken();
+  ticker?.subscribe(tokens);
+  ticker?.setMode(ticker?.modeQuote, tokens);
 }
 
-const subscribeSingleToken = async(instrumentToken) => {
-  ticker?.subscribe(instrumentToken);
-}
-
-// const unSubscribeSingleToken = async(instrumentToken) => {
-//   ticker.unsubscribe(instrumentToken);
-// }
-
-const unSubscribeTokens = async(token) => {
-    let tokens = [];
-    tokens?.push(token)
-   let x =  ticker.unsubscribe(tokens);
-  //  console.log("unsubscribed token", x, tokens); 
-}
-
-const getTicks = async (socket) => {
-  let isRedisConnected = getValue();
-  let indecies;
-  if(isRedisConnected){
-    indecies = await client.get("index")
-  }
-  
-  if(!indecies){
-    indecies = await StockIndex.find({status: "Active"});
-    if(isRedisConnected){
-      await client.set("index", JSON.stringify(indecies));
-    }
-  } else{
-    indecies = JSON.parse(indecies);
+const subscribeWatchListInstrument = async () => {
+  let token = [];
+  if (await client.exists(`all-token`)) {
+    token = JSON.parse(await client.get('all-token'));
+  } else {
+    token = await fetchToken();
+    await client.set('all-token', JSON.stringify(token));
   }
 
-  ticker.on('ticks', async (ticks) => {
-    socket.emit('tick', ticks);
+  ticker?.subscribe(token);
+  ticker?.setMode(ticker?.modeQuote, token);
 
-    // socket.emit('check', ticks);
-
-    let indexObj = {};
-    let now = performance.now();
-    // populate hash table with indexObj from indecies
-    for (let i = 0; i < indecies?.length; i++) {
-      indexObj[indecies[i]?.instrumentToken] = true;
-    }
-    // filter ticks using hash table lookups
-    let indexData = ticks.filter(function(item) {
-      return indexObj[item.instrument_token];
-    });
-
-    try{
-
-      let instrumentTokenArr = [];
-      let userId ;
-      if(isRedisConnected){
-        userId = await client.get(socket.id);
-      }
-      
-      if(isRedisConnected && await client.exists((userId).toString())){
-        let instruments = await client.SMEMBERS((userId).toString())
-        instrumentTokenArr = new Set(instruments)
-      } else{
-        console.log("in else part")
-        const user = await User.findById(new ObjectId(userId))
-        .populate('watchlistInstruments')
-  
-        userId = user._id;
-        for(let i = 0; i < user.watchlistInstruments.length; i++){
-          instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
-        }
-        instrumentTokenArr = new Set(instrumentTokenArr)
-      }
-
-      // let userId = await client.get(socket.id)
-      // let instruments = await client.SMEMBERS(userId)
-      // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
-      if(indexData?.length > 0){
-        socket.emit('index-tick', indexData)
-      }
-      
-      if(filteredTicks.length > 0){
-        io.to(`${userId}`).emit('contest-ticks', filteredTicks);
-        io.to(`${userId}`).emit('tick-room', filteredTicks);
-      }
-
-      console.log("performance", performance.now()-now, socket.id);
-
-      filteredTicks = null;
-      ticks = null;
-      indexData = null;
-      instrumentTokenArr = null;
-      instruments = null;
-
-
-    } catch (err){
-      console.log(err)
-    }
-
-
-  });
 }
 
-const getDummyTicks = async(socket) => {
-  let userId = await client.get(socket.id);
-  let filteredTicks = await DummyMarketData();
-  io.to(userId).emit('contest-ticks', filteredTicks);
+const unSubscribeTokens = async (token) => {
+  let tokens = [];
+  tokens?.push(token)
+  let x = ticker?.unsubscribe(tokens);
 }
 
-const getTicksForUserPosition = async (socket, id) => {
-  let isRedisConnected = getValue();
-  console.log("this is getter1", getValue());
-  let indecies;
-  if(isRedisConnected){
-    indecies = await client.get("index")
-  }
-  
-  if(!indecies){
-    indecies = await StockIndex.find({status: "Active", accountType: zerodhaAccountType});
-    if(isRedisConnected){
-      await client.set("index", JSON.stringify(indecies));
-    }
-  } else{
-    indecies = JSON.parse(indecies);
-  }
-  // console.log("indecies", indecies)
-  ticker.on('ticks', async (ticks) => {
-// console.log("tick", ticks)
-    let indexObj = {};
-    let now = performance.now();
-    // populate hash table with indexObj from indecies
-    for (let i = 0; i < indecies?.length; i++) {
-      indexObj[indecies[i]?.instrumentToken] = true;
-    }
-    // filter ticks using hash table lookups
-    let indexData = ticks.filter(function(item) {
-      return indexObj[item.instrument_token];
-    });
-
-    // console.log("indexdata", indexData)
-
-    try{
-      let instrumentTokenArr ;
-      let userId ;
-      if(isRedisConnected){
-        userId = await client.get(socket.id);
-      }
-      // console.log(isRedisConnected)
-      if(isRedisConnected && await client.exists((userId)?.toString())){
-        let instruments = await client.SMEMBERS((userId)?.toString())
-        // instrumentTokenArr = new Set(instruments)
-        const parsedInstruments = instruments.map(jsonString => JSON.parse(jsonString));
-        instrumentTokenArr = new Set();
-
-        parsedInstruments.forEach(obj => {
-          instrumentTokenArr.add(obj.instrumentToken);
-          instrumentTokenArr.add(obj.exchangeInstrumentToken);
-        });
-      } else{
-        // console.log("in else part")
-        const user = await User.findById(new ObjectId(id))
-        .populate('watchlistInstruments')
-  
-        userId = user._id;
-        for(let i = 0; i < user.watchlistInstruments.length; i++){
-          instrumentTokenArr.push(user.watchlistInstruments[i].instrumentToken);
-          instrumentTokenArr.push(user.watchlistInstruments[i].exchangeInstrumentToken);
-
-        }
-        instrumentTokenArr = new Set(instrumentTokenArr)
-      }
-
-      // console.log("this is getter2", getValue());
-      // let userId = await client.get(socket.id)
-      // let instruments = await client.SMEMBERS(userId)
-      // let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-      let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token)));
-      if(indexData?.length > 0){
-        socket.emit('index-tick', indexData)
-      }
-      
-      if(filteredTicks.length > 0){
-        io.to(`${userId}`).emit('tick-room', filteredTicks);
-      }
-
-      filteredTicks = null;
-      ticks = null;
-      indexData = null;
-      instrumentTokenArr = null;
-      instruments = null;
-
-    } catch (err){
-      // console.log(err)
-    }
-
-
-  });
+const getDummyTicks = async (id) => {
+  const io = getIOValue();
+  // let userId = await client.get(id.id);
+  let filteredTicks = await DummyMarketData(id);
+  io.to(id.toString()).emit('tick-room', filteredTicks);
 }
 
-const getTicksForContest = async (socket) => {
-
-  // ticker.on('ticks', async (ticks) => {
-
-
-  //   try{
-  //     let contestId = await client.get(socket.id)
-  //     let instruments = await client.SMEMBERS((contestId))
-  //     // console.log(contestId, instruments)
-  //     let instrumentTokenArr = new Set(instruments); // create a Set of tokenArray elements
-  //     // console.log(instrumentTokenArr)
-  //     let filteredTicks = ticks.filter(tick => instrumentTokenArr.has((tick.instrument_token).toString()));
+const tempGetTicks = async (id) => {
+  const io = getIOValue();
+  getKiteCred.getAccess().then(async (data) => {
+    let {getApiKey, getAccessToken} = data;
+    const stockIndex = await StockIndex.find({status: "Active"});
     
-  //     if(filteredTicks.length > 0){
-  //       io.to(`${contestId}`).emit('contest-ticks', filteredTicks);
-  //     }
-  //     // console.log("performance", performance.now()-now, socket.id);
+    let addUrl;
+    stockIndex.forEach((elem, index) => {
+      if (index === 0) {
+        addUrl = ('i=' + elem.exchange + ':' + elem.instrumentSymbol);
+      } else {
+        addUrl += ('&i=' + elem.exchange + ':' + elem.instrumentSymbol);
+      }
+    });
 
-  //     filteredTicks = null;
-  //     ticks = null;
-  //     indexData = null;
-  //     instrumentTokenArr = null;
-  //     instruments = null;
+    let url = `https://api.kite.trade/quote/ohlc?${addUrl}`;
+    const api_key = getApiKey; 
+    const access_token = getAccessToken;
+    let auth = 'token' + api_key + ':' + access_token;
+  
+    let authOptions = {
+      headers: {
+        'X-Kite-Version': '3',
+        Authorization: auth,
+      },
+    };
+  // console.log(url, authOptions);
+    let arr = [];
+      try{
+        const response = await axios.get(url, authOptions);
+        
+        for (let instrument in response.data.data) {
+          // console.log("response", response.data.data[instrument])
+            let obj = {};
+            obj.last_price = response.data.data[instrument].last_price;
+            obj.instrument_token = response.data.data[instrument].instrument_token;
+            obj.average_price = response.data.data[instrument].last_price;
+            obj.timestamp = new Date();
+            obj.change = (response.data.data[instrument].last_price - response.data.data[instrument].ohlc.close)*100/response.data.data[instrument].ohlc.close;
+            arr.push(obj);
+        }
+  
+        // console.log("Arr", arr)
+        io.emit('index-tick', arr);
 
-
-  //   } catch (err){
-  //     // console.log(err)
-  //   }
-
-
-  // });
-}
-
-const getTicksForCompanySide = async (socket) => {
-  ticker.on('ticks', async (ticks) => {
-    try{
-      socket.emit('tick', ticks);
-      ticks = null;
-    } catch (err){
-      console.log(err)
-    }
+      } catch (err){
+        console.log(err)
+    }  
   });
 }
 
-const onError = ()=>{
-    ticker?.on('error', (error)=>{
-      console.log(error);
-    });
-}
+async function pendingOrderProcess(ticks) {
+  try {
+    let data = await client.get('stoploss-stopprofit');
+    data = JSON.parse(data);
 
-const onOrderUpdate = ()=>{
-  // ticker.on("order_update", onTrade)
-  ticker.on('order_update', (orderUpdate)=>{
-    let {order_id, status, average_price, quantity, product, transaction_type, exchange_order_id, order_timestamp, variety, 
-      validity, exchange, exchange_timestamp, order_type, price, 
-      filled_quantity, pending_quantity, cancelled_quantity, 
-      guid, market_protection, disclosed_quantity, tradingsymbol, 
-      placed_by, status_message, status_message_raw, 
-      instrument_token, exchange_update_timestamp, account_id} = orderUpdate
+    if (data) {
+      const newDataArr = [];
+      for (let tick of ticks) {
 
-      if(!status_message){
-          status_message = "null"
-      }
-      if(!status_message_raw){
-          status_message_raw = "null"
-      }
-      if(!exchange_timestamp){
-          exchange_timestamp = "null"
-      }
-      if(!exchange_order_id){
-          exchange_order_id = "null"
-      }
-      if(!exchange_update_timestamp){
-          exchange_update_timestamp = "null"
-      }
-
-      if(status === "COMPLETE" || status === "REJECTED"){
-        RetreiveOrder.findOne({order_id : order_id, guid: guid})
-        .then((dataExist)=>{
-          if(dataExist ){
-              return;
+        let symbolArr = data[`${tick.instrument_token}`];
+        try {
+          if (symbolArr?.length > 0) {
+            const length = symbolArr?.length
+            
+            for (let i = 0; i < length; i++) {
+              // publish(take trade) only when 
+              if (symbolArr[i]?.type === "StopLoss" && symbolArr[i]?.price >= tick.last_price && symbolArr[i]?.buyOrSell === "SELL") {
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+              }
+              if (symbolArr[i]?.type === "StopLoss" && symbolArr[i]?.price <= tick.last_price && symbolArr[i]?.buyOrSell === "BUY") {
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+              }
+              if (symbolArr[i]?.type === "StopProfit" && symbolArr[i]?.price <= tick.last_price && symbolArr[i]?.buyOrSell === "SELL") {
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+              }
+              if (symbolArr[i]?.type === "StopProfit" && symbolArr[i]?.price >= tick.last_price && symbolArr[i]?.buyOrSell === "BUY") {
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+              }
+              if (symbolArr[i]?.type === "Limit" && symbolArr[i]?.price >= tick.last_price && symbolArr[i]?.buyOrSell === "BUY") {
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+              }
+              if (symbolArr[i]?.type === "Limit" && symbolArr[i]?.price <= tick.last_price && symbolArr[i]?.buyOrSell === "SELL") {
+                newDataArr.push({ data: symbolArr[i], ltp: tick.last_price, index: i });
+                // await client.PUBLISH("place-order", JSON.stringify({ data: symbolArr[i], ltp: tick.last_price, index: i }))
+              }
+            }
           }
-
-          const retreiveOrder = new RetreiveOrder({order_id, status, average_price, quantity, product, transaction_type, exchange_order_id, order_timestamp, variety, 
-              validity, exchange, exchange_timestamp, order_type, price, 
-              filled_quantity, pending_quantity, cancelled_quantity, 
-              guid, market_protection, disclosed_quantity, tradingsymbol, 
-              placed_by, status_message, status_message_raw, 
-              instrument_token, exchange_update_timestamp, account_id});
-              
-          // console.log("retreiveOrder", retreiveOrder._id, retreiveOrder.status, retreiveOrder.order_id)
-          retreiveOrder.save().then(async ()=>{
-              // await subscribeTokens();
-              // res.status(201).json({massage : "data enter succesfully"});
-          }).catch((err)=> console.log( "failed to enter data"));
-          
-    
-
-        }).catch(err => {console.log("fail company live data saving")});
+        } catch (err) {
+          console.log(err);
+        }
       }
 
+      if(newDataArr.length > 0){
+        await client.PUBLISH("place-order", JSON.stringify(newDataArr));
+      }
+    }
+    ticks = null;
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+const onError = () => {
+  ticker?.on('error', (error) => {
+    console.log(error);
   });
+}
+
+async function instrumentAndUser(){
+  if(await client.exists('instrument-user')){
+    const data = JSON.parse(await client.get('instrument-user'));
+    return data;
+  } else{
+    let obj = {};
+    const instrument = await Instrument.find({status: "Active"});
+    for(let elem of instrument){
+      obj[elem.instrumentToken] = elem.users;
+    }
+    await client.set('instrument-user', JSON.stringify(obj));
+    return obj;
+  }
+}
+
+async function index(){
+  let isRedisConnected = getValue();
+  let indecies = isRedisConnected && await client.get("index");
+  if (!indecies) {
+    indecies = await StockIndex.find({ status: "Active", accountType: zerodhaAccountType });
+    isRedisConnected && await client.set("index", JSON.stringify(indecies));
+    return indecies;
+  } else {
+    indecies = JSON.parse(indecies);
+    // console.log("indecies oddfef", indecies)
+    return indecies;
+  }
 }
 
 
 const getTicker = () => ticker;
-module.exports = {createNewTicker, disconnectTicker, subscribeTokens, getTicker, getTicks, onError, unSubscribeTokens, onOrderUpdate, subscribeSingleToken, getTicksForContest, getTicksForUserPosition, getDummyTicks, getTicksForCompanySide };
+module.exports = {tempGetTicks, createNewTicker, disconnectTicker, subscribeTokens, getTicker, onError, unSubscribeTokens, subscribeWatchListInstrument, 
+  // getTicksForUserPosition, 
+  getDummyTicks, 
+  // getTicksForCompanySide
+ };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

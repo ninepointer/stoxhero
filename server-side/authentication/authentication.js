@@ -1,97 +1,65 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User/userDetailSchema");
 const {client, getValue} = require("../marketData/redisClient");
-const { ObjectId } = require("bson");
+const ObjectId = require('mongodb').ObjectId;
 
 
-const Authenticate = async (req, res, next)=>{
+const Authenticate = async (req, res, next) => {
     let isRedisConnected = getValue();
     let token;
-    try{
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith('Bearer')
-    ) {
-        token = req.headers.authorization.split(' ')[1];
-    }
-    // console.log((req ))
-    if (req.cookies) {
-        if(req.cookies.jwtoken) token = req.cookies.jwtoken;
-    }
-        // console.log("Token: ",req.cookies.jwtoken)
+
+    try {
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            token = req.headers?.authorization?.split(' ')[1];
+        }
+
+        if (req.cookies && req.cookies.jwtoken) {
+            token = req.cookies.jwtoken;
+        }
+
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
-        console.log('verify token',verifyToken);
 
-        try{
-            // console.log("above authentication", isRedisConnected, getValue());
-            // console.log("check",  client.exists(`${verifyToken._id.toString()}authenticatedUser`))
-            if(isRedisConnected && await client.exists(`${verifyToken._id.toString()}authenticatedUser`)){
-                // console.log("in authentication if")
-                let user = await client.get(`${verifyToken._id.toString()}authenticatedUser`)
-                user = JSON.parse(user);
-                // await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 10);
-                user._id = new ObjectId(user._id)
-                req.user = user;
+        let user;
+
+        if (isRedisConnected && await client.exists(`${verifyToken._id.toString()}authenticatedUser`)) {
+            user = await client.get(`${verifyToken._id.toString()}authenticatedUser`);
+            user = JSON.parse(user);
+            if(user?.role?.toString()=='644903ac236de3fd7cfd755c'){
+                return res.status(400).json({status:'error', message:'Invalid request'});
             }
+            // user._id = new ObjectId(user._id);
+            await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 180);
+            if(new Date(user?.passwordChangedAt)>new Date(verifyToken?.iat)){
+                // console.log('password changed');
+            }
+        } else {
             
-            else{
+            user = await User.findOne({ _id: new ObjectId(verifyToken._id), status: "Active" })
+                .select('referredBy collegeDetails _id employeeid first_name last_name mobile name role isAlgoTrader passwordChangedAt activationDetails paidDetails');
 
-                // console.log("in else authentication")
-                const user = await User.findOne({_id: verifyToken._id, status: "Active"})
-                .populate('role', 'roleName')
-                .populate('portfolio.portfolioId','portfolioName portfolioValue portfolioType portfolioAccount')
-                .populate({
-                    path : 'subscription.subscriptionId',
-                    select: 'portfolio',
-                    populate: [{
-                        path: 'portfolio',
-                        select: 'portfolioName portfolioValue portfolioType portfolioAccount'
-                    },
-                    ]
-                })
-                .populate({
-                    path: 'internshipBatch',
-                    select: 'batchName batchStartDate batchEndDate career portfolio participants',
-                    populate: [{
-                        path: 'career',
-                        select: 'jobTitle'
-                    },
-                    {
-                        path: 'portfolio',
-                        select: 'portfolioValue'
-                    },
-                    {
-                        path: 'participants',
-                        populate: {
-                            path: 'college',
-                            select: 'collegeName'
-                        }
-                    }
-                ],
-                  })
-                // .populate('internshipBatch', 'batchName batchStartDate batchEndDate career portfolio')
-                // .populate('internshipBatch.career', 'jobTitle')
-                .select('pincode aadhaarCardFrontImage aadhaarCardBackImage panCardFrontImage passportPhoto addressProofDocument profilePhoto _id address city cohort country degree designation dob email employeeid first_name fund gender joining_date last_name last_occupation location mobile myReferralCode name role state status trading_exp whatsApp_number aadhaarNumber panNumber drivingLicenseNumber passportNumber accountNumber bankName googlePay_number ifscCode nameAsPerBankAccount payTM_number phonePe_number upiId watchlistInstruments isAlgoTrader contests portfolio referrals subscription internshipBatch')
-                
-                if(!user){ return res.status(404).json({status:'error', message: 'User not found'})}
-
-                // console.log("abobe redis")
-                if(isRedisConnected){
-                    await client.set(`${verifyToken._id.toString()}authenticatedUser`, JSON.stringify(user));
-                    await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 30);    
-                }
-                // console.log("below redis")
-                req.user = user;
+                // console.log(user)
+            if (!user) { 
+                return res.status(404).json({ status: 'error', message: 'User not found' });
             }
-          }catch(e){
-            console.log("redis error", e);
-          }
+            if(user?.role?.toString()=='644903ac236de3fd7cfd755c'){
+                return res.status(400).json({status:'error', message:'Invalid request'});
+            }
+            if (user.changedPasswordAfter(verifyToken.iat)) {
+                return res.status(401).send({ status: "error", message: "User recently changed password! Please log in again." });
+            }
+            if ("isRedisConnected") {
+                await client.set(`${verifyToken._id.toString()}authenticatedUser`, JSON.stringify(user));
+                await client.expire(`${verifyToken._id.toString()}authenticatedUser`, 180);
+            }
+        }
 
-    } catch(err){
-        console.log("err", err)
-        return res.status(401).send({status: "error", message: "Unauthenthicated"});
+        req.user = user;
+    } catch (err) {
+        console.log("err", err);
+        return res.status(401).send({ status: "error", message: "Unauthenticated" });
     }
     next();
 }
+
 
 module.exports = Authenticate;

@@ -20,7 +20,7 @@ const infinityTradeCompanySchema = new mongoose.Schema({
     },
     average_price:{
         type: Number,
-        // required: true
+        required: true
     },
     Quantity:{
         type: Number,
@@ -59,7 +59,8 @@ const infinityTradeCompanySchema = new mongoose.Schema({
         required: true
     },
     brokerage:{
-        type: Number,        
+        type: Number,  
+        required: true      
     },
     instrumentToken:{
         type: Number, 
@@ -76,7 +77,7 @@ const infinityTradeCompanySchema = new mongoose.Schema({
     },
     amount:{
         type: Number,
-        // required: true
+        required: true
     },
     trade_time:{
         type: Date,
@@ -89,19 +90,22 @@ const infinityTradeCompanySchema = new mongoose.Schema({
     trader:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
-        // required : true
+        required : true
     },
     createdOn:{
         type: Date,
-        default: ()=>new Date()
+        default: ()=>new Date(),
+        required: true
     },
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'user-personal-detail',
+        required: true
     },
     algoBox:{
         type: Schema.Types.ObjectId,
         ref: 'algo-trading', 
+        required: true
     }
 })
 
