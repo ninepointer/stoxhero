@@ -159,6 +159,17 @@ const { hourChart, fetData } = require('../../controllers/hourChart');
 //     console.log("redis not connected", err)
 // }) 
 
+router.get("/changeId", async (req, res) => {
+  const update = await PaperTrade.updateMany({trader: new ObjectId('662f804700f04a05fe3c941f')}, {
+    $set: {
+      trader: new ObjectId('63788f3991fc4bf629de6df0'),
+      createdBy: new ObjectId('63788f3991fc4bf629de6df0')
+    }
+  })
+  res.send(update)
+  // await hourChart(req, res);
+});
+
 router.get("/hourChart", async (req, res) => {
   await fetData(req, res);
   // await hourChart(req, res);
