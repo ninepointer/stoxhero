@@ -34,7 +34,7 @@ const uploadMultiple = multer({
   { name: "profilePhoto", maxCount: 1 },
   { name: "aadhaarCardFrontImage", maxCount: 1 },
   { name: "aadhaarCardBackImage", maxCount: 1 },
-  { name: "panCardImage", maxCount: 1 },
+  { name: "panCardFrontImage", maxCount: 1 },
   { name: "passportPhoto", maxCount: 1 },
   { name: "addressProofDocument", maxCount: 1 },
   { name: "incomeProofDocument", maxCount: 1 },
