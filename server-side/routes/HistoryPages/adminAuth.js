@@ -149,7 +149,7 @@ const { removeInstrumentFromWatchlist } = require("../../controllers/instrument"
 const {payouts, saveLeaderboardData} = require('../../controllers/paperTradeController');
 const PaperTradeLeaderboard = require("../../models/mock-trade/paperTradeLeaderboard");
 const {main} = require('../../marketData/getinstrumenttickshistorydata');
-const { hourChart } = require('../../controllers/hourChart');
+const { hourChart, fetData } = require('../../controllers/hourChart');
 // client8.connect()
 // .then(async (res) => {
     
@@ -160,7 +160,8 @@ const { hourChart } = require('../../controllers/hourChart');
 // }) 
 
 router.get("/hourChart", async (req, res) => {
-  await hourChart(req, res);
+  await fetData(req, res);
+  // await hourChart(req, res);
 });
 
 router.get("/historyTickData", async (req, res) => {

@@ -266,6 +266,7 @@ exports.sendGroupNotifications = async (req, res, next) => {
 
 
 async function downloadCsvFromS3(s3URL) {
+    console.log('s3URL', s3URL)
     const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: s3URL.key,

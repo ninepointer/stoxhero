@@ -16,8 +16,8 @@ const getInstrumentTicksHistoryData = async () => {
 
       const datePart = (new Date(endOfMonth)).toISOString()?.split('T')[0];
       console.log('datePart', datePart);
-      const instrumentList = await TradableInstrument.find({expiry: '2024-05-15'})
-      // const instrumentList = await TradableInstrument.find({status: 'Active', expiry: {$lt: datePart}})
+      // const instrumentList = await TradableInstrument.find({expiry: '2024-05-15'})
+      const instrumentList = await TradableInstrument.find({status: 'Active', expiry: {$lt: datePart}})
       .select('instrument_token exchange_token expiry tradingsymbol');
 
       const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
