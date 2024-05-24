@@ -1408,14 +1408,14 @@ exports.weeklyLeaderboardData = async (req, res) => {
 exports.monthlyLeaderboardData = async (req, res) => {
   try {
     const today = moment();
-    // const newStartOfMonth = moment('2024-05-14').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const newStartOfMonth = moment('2024-05-14').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
     const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
     const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
-    const workingDays = await calculateWorkingDay(startOfMonth, endOfMonth);
+    const workingDays = await calculateWorkingDay(newStartOfMonth, endOfMonth);
 
     const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Monthly' })
-    const data = await leaderboardDataHelper(startOfMonth, endOfMonth, leaderboardParams, workingDays);
+    const data = await leaderboardDataHelper(newStartOfMonth, endOfMonth, leaderboardParams, workingDays);
 
     res.status(200).json({
       status: "success",
@@ -1441,12 +1441,13 @@ exports.monthlyLeaderboardData = async (req, res) => {
 
 exports.quarterlyLeaderboardData = async (req, res) => {
   try {
-    // const newStartOfQuarter = moment('2024-05-14').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const newStartOfQuarter = moment('2024-05-14').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
     const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' });
-    const workingDays = await calculateWorkingDay(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate);
+    const workingDays = await calculateWorkingDay(newStartOfQuarter, leaderboardParams?.quarterEndDate);
 
-    const data = await leaderboardDataHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams, workingDays);
+    const data = await leaderboardDataHelper(newStartOfQuarter, leaderboardParams?.quarterEndDate, leaderboardParams, workingDays);
+    // const data = await leaderboardDataHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams, workingDays);
 
     res.status(200).json({
       status: "success",
