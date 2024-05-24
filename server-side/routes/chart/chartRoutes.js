@@ -7,5 +7,8 @@ const router = express.Router();
 router
   .route("/historical")
   .get(Authenticate, chartController.getHistoricalData);
+router
+  .route("/historicaludf")
+  .get(Authenticate, chartController.getHistoricalDataUDF);
 
 module.exports = router;

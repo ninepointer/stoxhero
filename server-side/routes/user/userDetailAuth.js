@@ -8,7 +8,8 @@ const AWS = require("aws-sdk");
 const sharp = require("sharp");
 const Authenticate = require("../../authentication/authentication");
 const restrictTo = require("../../authentication/authorization");
-const userController = require('../../controllers/user/userController');
+const userController = require("../../controllers/user/userController");
+const { BlobServiceClient } = require("@azure/storage-blob");
 
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
@@ -33,7 +34,7 @@ const uploadMultiple = multer({
   { name: "profilePhoto", maxCount: 1 },
   { name: "aadhaarCardFrontImage", maxCount: 1 },
   { name: "aadhaarCardBackImage", maxCount: 1 },
-  { name: "panCardFrontImage", maxCount: 1 },
+  { name: "panCardImage", maxCount: 1 },
   { name: "passportPhoto", maxCount: 1 },
   { name: "addressProofDocument", maxCount: 1 },
   { name: "incomeProofDocument", maxCount: 1 },
@@ -332,6 +333,131 @@ const uploadToS3 = async (req, res, next) => {
   }
 };
 
+const uploadToAzure = async (req, res, next) => {
+  if (!req.files) {
+    console.log("here");
+    // no file uploaded, skip to next middleware
+    next();
+    return;
+  }
+
+  try {
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+      process.env.AZURE_STORAGE_CONNECTION_STRING
+    );
+    const containerClient = blobServiceClient.getContainerClient(
+      process.env.AZURE_STORAGE_CONTAINER_NAME
+    );
+
+    const uploadFile = async (fileBuffer, fileName, contentType) => {
+      const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+      await blockBlobClient.uploadData(fileBuffer, {
+        blobHTTPHeaders: { blobContentType: contentType },
+      });
+      return blockBlobClient.url;
+    };
+
+    const user = await UserDetail.findById(req.params.id);
+    const userName = `${user?.first_name}${user?.last_name}${user?._id}`;
+
+    if (req.files.profilePhoto) {
+      const key = `users/${userName}/photos/display/${Date.now()}${
+        req.files.profilePhoto[0].originalname
+      }`;
+      req.profilePhotoUrl = await uploadFile(
+        req.files.profilePhoto[0].buffer,
+        key,
+        req.files.profilePhoto[0].mimetype
+      );
+    }
+
+    const checkKYCStatus = () => {
+      if (user.KYCStatus == "Approved") {
+        res.status(400).json({
+          status: "error",
+          message: "KYC is completed. Can't change documents after approval.",
+        });
+        return true;
+      }
+      return false;
+    };
+
+    if (req.files.aadhaarCardFrontImage) {
+      if (checkKYCStatus()) return;
+      const key = `users/${userName}/photos/aadharFront/${Date.now()}${
+        req.files.aadhaarCardFrontImage[0].originalname
+      }`;
+      req.aadhaarCardFrontImageUrl = await uploadFile(
+        req.files.aadhaarCardFrontImage[0].buffer,
+        key,
+        req.files.aadhaarCardFrontImage[0].mimetype
+      );
+    }
+
+    if (req.files.aadhaarCardBackImage) {
+      if (checkKYCStatus()) return;
+      const key = `users/${userName}/photos/aadharBack/${Date.now()}${
+        req.files.aadhaarCardBackImage[0].originalname
+      }`;
+      req.aadhaarCardBackImageUrl = await uploadFile(
+        req.files.aadhaarCardBackImage[0].buffer,
+        key,
+        req.files.aadhaarCardBackImage[0].mimetype
+      );
+    }
+
+    if (req.files.panCardFrontImage) {
+      if (checkKYCStatus()) return;
+      const key = `users/${userName}/photos/panFront/${Date.now()}${
+        req.files.panCardFrontImage[0].originalname
+      }`;
+      req.panCardFrontImageUrl = await uploadFile(
+        req.files.panCardFrontImage[0].buffer,
+        key,
+        req.files.panCardFrontImage[0].mimetype
+      );
+    }
+
+    if (req.files.passportPhoto) {
+      const key = `users/${userName}/photos/passport/${Date.now()}${
+        req.files.passportPhoto[0].originalname
+      }`;
+      req.passportPhotoUrl = await uploadFile(
+        req.files.passportPhoto[0].buffer,
+        key,
+        req.files.passportPhoto[0].mimetype
+      );
+    }
+
+    if (req.files.addressProofDocument) {
+      const key = `users/${userName}/photos/addressProof/${Date.now()}${
+        req.files.addressProofDocument[0].originalname
+      }`;
+      req.addressProofDocumentUrl = await uploadFile(
+        req.files.addressProofDocument[0].buffer,
+        key,
+        req.files.addressProofDocument[0].mimetype
+      );
+    }
+
+    if (req.files.incomeProofDocument) {
+      const key = `users/${userName}/photos/incomeProof/${Date.now()}${
+        req.files.incomeProofDocument[0].originalname
+      }`;
+      req.incomeProofDocumentUrl = await uploadFile(
+        req.files.incomeProofDocument[0].buffer,
+        key,
+        req.files.incomeProofDocument[0].mimetype
+      );
+    }
+
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: "Error uploading to Azure" });
+  }
+};
+
 const currentUser = (req, res, next) => {
   req.params.id = req.user._id;
   next();
@@ -347,30 +473,33 @@ router.patch("/generateOTP", userController.generateOTP);
 
 router.patch("/schoolgenerateotp", userController.schoolGenerateOTP);
 
-router.get( "/readuserdetails", Authenticate,
-  restrictTo("Admin", "SuperAdmin"),
-  userController.readUserDetails 
-);
-
-router.get( "/getAdmins/",
+router.get(
+  "/readuserdetails",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  userController.getAdmins 
+  userController.readUserDetails
 );
 
+router.get(
+  "/getAdmins/",
+  Authenticate,
+  restrictTo("Admin", "SuperAdmin"),
+  userController.getAdmins
+);
 
-
-router.patch( "/userdetail/me",
+router.patch(
+  "/userdetail/me",
   authController.protect,
   currentUser,
   uploadMultiple,
   checkFileError,
   resizePhoto,
-  uploadToS3,
+  uploadToAzure,
   userController.editProfile
 );
 
-router.patch( "/student/image",
+router.patch(
+  "/student/image",
   authController.protect,
   currentUser,
   uploadMultiple,
@@ -380,7 +509,8 @@ router.patch( "/student/image",
   userController.studentImageEdit
 );
 
-router.patch( "/student/me",
+router.patch(
+  "/student/me",
   authController.protect,
   currentUser,
   uploadMultiple,
@@ -394,94 +524,109 @@ router.get("/myreferrals/:id", Authenticate, userController.myReferrals);
 
 router.get("/earnings", Authenticate, userController.earnings);
 
-router.get( "/newusertoday",
+router.get(
+  "/newusertoday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.newUserToday
 );
 
-router.get( "/newuseryesterday",
+router.get(
+  "/newuseryesterday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.newUserYesterday
 );
 
-router.get( "/newuserthismonth",
+router.get(
+  "/newuserthismonth",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.newUserThisMonth
 );
 
-router.get( "/allusers",
+router.get(
+  "/allusers",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.allUsers
 );
 
-router.get( "/allusersNameAndId",
+router.get(
+  "/allusersNameAndId",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.allUsersNameAndId
 );
 
-router.get( "/newuserreferralstoday",
+router.get(
+  "/newuserreferralstoday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.newuserreferralstoday
 );
 
-router.get( "/newuserreferralsyesterday",
+router.get(
+  "/newuserreferralsyesterday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.newuserreferralsyesterday
 );
 
-router.get( "/newuserreferralsthismonth",
+router.get(
+  "/newuserreferralsthismonth",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.newuserreferralsthismonth
 );
 
-router.get( "/allreferralsusers",
+router.get(
+  "/allreferralsusers",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.allreferralsusers
 );
 
-router.get( "/newusercampaigntoday",
+router.get(
+  "/newusercampaigntoday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.newusercampaigntoday
 );
 
-router.get( "/newusercampaignyesterday",
+router.get(
+  "/newusercampaignyesterday",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.newusercampaignyesterday
 );
 
-router.get( "/newusercampaignthismonth",
+router.get(
+  "/newusercampaignthismonth",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.newusercampaignthismonth
 );
 
-router.get( "/allcampaignusers",
+router.get(
+  "/allcampaignusers",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
   userController.allcampaignusers
 );
 
-router.get( "/normalusers",
+router.get(
+  "/normalusers",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  userController.normalusers 
+  userController.normalusers
 );
 
-router.get( "/influencer",
+router.get(
+  "/influencer",
   Authenticate,
   restrictTo("Admin", "SuperAdmin"),
-  userController.influencer 
+  userController.influencer
 );
 
 module.exports = router;
