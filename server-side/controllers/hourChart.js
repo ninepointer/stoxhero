@@ -49,10 +49,12 @@ exports.hourChart = async (req, res) => {
         const userId = req?.user?._id;
         const today = moment(date);
         const startToday = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
-        const endToday = today.clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+        const endToday = today.clone().endOf('day')
+        // .subtract(5, 'hours').subtract(30, 'minutes');
 
-        const pnlObjArr = [];
+        const pnlObjArr = [];        
         const tradeData = await TradeData.find({ status: "COMPLETE", trader: new ObjectId(userId), trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) } })
+
         const symbolArr = tradeData.map((elem) => {
             return elem?.symbol;
         })
@@ -78,12 +80,27 @@ exports.hourChart = async (req, res) => {
                 return new Date(elem.trade_time) >= new Date(timeArr[0]) && new Date(elem.trade_time) <= new Date(timeArr[i])
             })
 
-            const arrData = await formatTradeData(filteredArr);
+            filteredArr.sort((a, b) => {
+                if (a.trade_time > b.trade_time) {
+                    return 1;
+                }
+                if (a.trade_time <= b.trade_time) {
+                    return -1;
+                }
+            })
 
-            if(arrData.length && uniqueTicksArr.length){
+            const marginUtilise = await getMarginUtilisation(filteredArr)
+            const averageEntryLots = await getAverageEntryLots(filteredArr);
+            const arrData = await formatTradeData(filteredArr);
+            // const arrData = formatedData.formattedData;
+
+            if(tradeData.length && uniqueTicksArr.length){
                 const pnlObj = await calculatePnl(arrData, uniqueTicksArr, timeArr[i])
-                pnlObjArr.push(pnlObj)    
+                pnlObj.averageEntryLots = averageEntryLots;
+                pnlObj.marginUtilise = marginUtilise;
+                pnlObjArr.push(pnlObj)
             }
+            
         }
         res.status(200).json({
             status: "success",
@@ -99,18 +116,86 @@ exports.hourChart = async (req, res) => {
     }
 };
 
-const formatTradeData = async (tradeData) => {
+const getMarginUtilisation = async (tradeData) => {
+    
     const map = new Map();
-    tradeData.forEach(trade => {
-        const { symbol, amount, brokerage, Quantity } = trade;
 
+    tradeData.forEach(trade => {
+        const {symbol, margin } = trade;
+        if (map.has(symbol)) {
+            const existingTrade = map.get(symbol);
+            existingTrade.margin = Math.max(margin, existingTrade.margin)
+        } else {
+            map.set(symbol, { symbol, margin });
+        }
+    });
+    // Convert map values back to an array
+    const formattedData = Array.from(map.values());
+
+    const totalMarginUtilised = formattedData.reduce((total, acc)=>{
+        return total + acc?.margin
+    }, 0)
+
+    return totalMarginUtilised;
+}
+
+const getAverageEntryLots = async (tradeData) => {
+    let totalEntryLots = 0;
+    let totalEntryLotsFrequency = 0;
+
+    for (const elem of tradeData) {
+        const { Quantity, buyOrSell, trade_time, symbol } = elem;
+        const previousTrades = tradeData.filter((trades) => {
+            return (new Date(trades.trade_time) < new Date(trade_time));
+        })
+
+        const pnlData = await formatTradeData(previousTrades);
+
+        const mySymbol = pnlData.filter((pnl) => {
+            return pnl?.symbol === symbol;
+        })
+
+        const runningLotForSymbol = mySymbol[0]?.Quantity;
+        const transactionTypeForSymbol = mySymbol[0]?.Quantity >= 0 ? "BUY" : mySymbol[0]?.Quantity < 0 && "SELL";
+        const quantity = Quantity;
+        const transaction_type = buyOrSell;
+
+        if (Math.abs(runningLotForSymbol) > Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
+            // if squaring of some quantity
+        } else if (Math.abs(runningLotForSymbol) < Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
+            // if squaring of all quantity and adding more in reverse direction (square off more quantity)
+            totalEntryLotsFrequency += 1;
+            totalEntryLots += Math.abs(Quantity-runningLotForSymbol);
+        } else if (Math.abs(runningLotForSymbol) === Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
+            // if squaring off all quantity
+        } else if (transactionTypeForSymbol === transaction_type) {
+            // if adding more quantity
+            totalEntryLotsFrequency += 1;
+            totalEntryLots += Quantity;
+        } else {
+            totalEntryLotsFrequency += 1;
+            totalEntryLots += Quantity;
+        }
+
+    }
+
+    const averageEntryLots = Math.ceil(totalEntryLots/totalEntryLotsFrequency) || 0;
+    return averageEntryLots;
+}
+
+const formatTradeData = async (tradeData) => {
+
+    const map = new Map();
+
+    tradeData.forEach(trade => {
+        const { symbol, amount, brokerage, Quantity, buyOrSell } = trade;
         if (map.has(symbol)) {
             const existingTrade = map.get(symbol);
             existingTrade.amount += (amount * -1);
             existingTrade.brokerage += brokerage;
             existingTrade.Quantity += Quantity;
         } else {
-            map.set(symbol, { symbol, amount: (amount * -1), brokerage, Quantity });
+            map.set(symbol, { symbol, amount: (amount * -1), brokerage, Quantity, buyOrSell });
         }
     });
     // Convert map values back to an array
@@ -120,8 +205,11 @@ const formatTradeData = async (tradeData) => {
 
 const calculatePnl = async (tradeData, ltpData, timestamp) => {
     let totalGpnl = 0;
+    let totalRunningLots = 0;
+
 
     for (const elem of tradeData) {
+        
         const getCandleArray = ltpData?.find((subelem) => subelem?.symbol === elem?.symbol)?.candles;
 
         if (!getCandleArray) continue;
@@ -143,9 +231,11 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
             : elem.amount;
 
         totalGpnl += gpnl;
+        totalRunningLots += elem.Quantity
     }
 
-    return { gpnl: totalGpnl, timestamp };
+
+    return { gpnl: totalGpnl, timestamp, runningLots: totalRunningLots };
 };
 
 exports.uploadCSV = async (req, res) => {
@@ -188,7 +278,6 @@ async function parseCsvStream(stream) {
         stream
             .pipe(csv())
             .on('data', ((data) => {
-                console.log('data', data)
                 results.push(data)
             }))
             .on('end', () => resolve(results))
