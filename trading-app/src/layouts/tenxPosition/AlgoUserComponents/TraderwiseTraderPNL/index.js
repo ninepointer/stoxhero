@@ -18,8 +18,6 @@ import DataTable from "../../../../examples/Tables/DataTable";
 
 // Data
 import data from "./data";
-import ViewTradeDetail from "./ViewTradeDetail";
-import ViewOrderDetail from "./MockTraderwiseOrders";
 import { TextField } from "@mui/material";
 
 function TraderwiseTraderPNL({ socket }) {
@@ -298,6 +296,12 @@ function TraderwiseTraderPNL({ socket }) {
       </MDTypography>
     );
 
+    obj.userId = (
+      <MDTypography component="a" variant="caption" fontWeight="medium">
+        {subelem.userId}
+      </MDTypography>
+    );
+
     rows.push(obj);
   });
 
@@ -307,11 +311,7 @@ function TraderwiseTraderPNL({ socket }) {
   const totalnetPnlcolor =
     totalGrossPnl - totalTransactionCost >= 0 ? "success" : "error";
 
-  obj.userId = (
-    <MDTypography component="a" variant="caption" fontWeight="medium">
-      {subelem.userId}
-    </MDTypography>
-  );
+
 
   obj.traderName = (
     <MDTypography
