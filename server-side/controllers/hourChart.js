@@ -180,7 +180,7 @@ const distinctBuySell = async (tradeData) => {
         } else if (Math.abs(runningLotForSymbol) < Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
             // if squaring of all quantity and adding more in reverse direction (square off more quantity)
             totalEntryLotsFrequency += 1;
-            totalEntryLots += Math.abs(Quantity-runningLotForSymbol);
+            totalEntryLots += Math.abs(Quantity)-Math.abs(runningLotForSymbol);
             const newObjBuy = {...elem};
             const newObjSell = {...elem};
 

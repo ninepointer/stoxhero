@@ -4,7 +4,7 @@ const express = require("express");
 const getKiteCred = require('../marketData/getKiteCred'); 
 const sendMail = require('../utils/emailService');
 const moment = require('moment');
-const TradableInstrument = require('../models/Instruments/tradableInstrumentsSchema');
+const TradableInstrument = require('../models/Instruments/allTradableInstrumentsSchema');
 const TradableInstrumentList = require("../controllers/TradableInstrument/tradableInstrument");
 
 
@@ -165,7 +165,7 @@ exports.main = async ()=>{
   const end = today.clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
 
   console.log(' before first', new Date());
-  await TradableInstrumentList.tradableInstrument();
+  // await TradableInstrumentList.allTradableInstrument();
 
   console.log('first', new Date());
   await getInstrumentTicksHistoryData();

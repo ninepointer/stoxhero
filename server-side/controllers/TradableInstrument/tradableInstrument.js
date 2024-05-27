@@ -1,7 +1,9 @@
 const axios = require('axios');
 const zlib = require('zlib');
 const csv = require('csv-parser');
-const TradableInstrument = require("../../models/Instruments/tradableInstrumentsSchema")
+const TradableInstrument = require("../../models/Instruments/tradableInstrumentsSchema");
+const AllTradableInstrument = require("../../models/Instruments/allTradableInstrumentsSchema");
+
 const getKiteCred = require('../../marketData/getKiteCred'); 
 const EquityStock = require('../../models/Instruments/equityStocks');
 
@@ -76,6 +78,102 @@ exports.tradableInstrument = async (req, res, next) => {
                                     }
 
                                 }
+                            }
+                        })
+                        .on('end', () => {
+                            console.log('CSV file successfully processed');
+                            res &&
+                                res.send('CSV file successfully processed')
+                        });
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+            resolve();
+        }).catch((err) => {
+            reject(err);
+        })
+    });
+}
+
+exports.allTradableInstrument = async (req, res, next) => {
+    return new Promise(async (resolve, reject) => {
+        let userId = "63ecbc570302e7cf0153370c";
+        getKiteCred.getAccess().then((data) => {
+            const url = 'https://api.kite.trade/instruments/NFO';
+
+            const api_key = data.getApiKey;
+            const access_token = data.getAccessToken;
+            let auth = 'token ' + api_key + ':' + access_token;
+
+            const niftyMaxLot = 1800;
+            const bankniftyMaxLot = 900;
+            const finniftyMaxLot = 1800;
+            const options = {
+                headers: {
+                    'X-Kite-Version': '3',
+                    'Authorization': auth,
+                    'Accept-Encoding': 'gzip',
+                },
+                responseType: 'stream',
+            };
+
+            axios.get(url, options)
+                .then((response) => {
+                    // If the response is gzipped, decompress it
+                    const unzip = response.headers['content-encoding'] === 'gzip'
+                        ? response.data.pipe(zlib.createGunzip())
+                        : response.data;
+
+                    // Parse the CSV data from the response
+                    unzip
+                        .pipe(csv())
+                        .on('data', async (row) => {
+
+                            const existingInstrument = await AllTradableInstrument.findOne({ tradingsymbol: row.tradingsymbol, status: "Active" });
+
+                            if (!existingInstrument) {
+                                try {
+                                    row.lastModifiedBy = userId;
+                                    row.createdBy = userId;
+                                    const x = await AllTradableInstrument.create([row]);
+                                    console.log(x);
+                                } catch (err) {
+                                    // console.log(err);
+                                }
+                                // if ((row.name == "NIFTY" || row.name == "BANKNIFTY" || row.name == "FINNIFTY") && row.segment == "NFO-OPT") {
+
+
+                                //     row.lastModifiedBy = userId;
+                                //     row.createdBy = userId;
+                                //     let date = changeDate(row.expiry);
+                                //     let prefix = "OPTIDX_" + row.name;
+                                //     let type = row.instrument_type;
+                                //     let strike = row.strike;
+
+                                //     row.chartInstrument = `${prefix}_${date}_${type}_${strike}`;
+                                //     if (row.name === "NIFTY") {
+                                //         row.name = row.name + "50";
+                                //         row.max_lot = niftyMaxLot;
+                                //     }
+
+                                //     if (row.name === "BANKNIFTY") {
+                                //         row.max_lot = bankniftyMaxLot;
+                                //     }
+
+                                //     if (row.name === "FINNIFTY") {
+                                //         row.max_lot = finniftyMaxLot;
+                                //     }
+
+
+                                //     try {
+                                //         const x = await TradableInstrument.create([row]);
+                                //         console.log(x);
+                                //     } catch (err) {
+                                //         // console.log(err);
+                                //     }
+
+                                // }
                             }
                         })
                         .on('end', () => {
