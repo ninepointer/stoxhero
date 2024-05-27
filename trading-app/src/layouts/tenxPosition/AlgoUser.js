@@ -7,28 +7,11 @@ import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
 import MDBox from "../../components/MDBox";
-
-
-
-// Material Dashboard 2 React example components
-import DashboardLayout from "../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../examples/Navbars/DashboardNavbar";
-import Footer from "../../examples/Footer";
-import Header from "./Header";
-
-// Data
-
-
-
-// Dashboard components
-
-// import OverallTraderPnl from "./AlgoUserComponents/overallTraderPnl";
 import TraderwiseTraderPnl from "./AlgoUserComponents/TraderwiseTraderPNL";
 import { socketContext } from "../../socketContext";
 
 function AlgoUser() {
 
-  let baseUrl = process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/"
   let baseUrl1 = process.env.NODE_ENV === "production" ? "/" : "http://localhost:9000/"
   // let socket;
   // try{
@@ -53,7 +36,7 @@ function AlgoUser() {
         <MDBox>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={12}>
-              <TraderwiseTraderPnl socket={socket} batches={batches} setBatches={setBatches} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch}/>
+              <TraderwiseTraderPnl socket={socket} />
             </Grid>
           </Grid>
         </MDBox>

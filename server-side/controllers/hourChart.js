@@ -90,21 +90,28 @@ exports.hourChart = async (req, res) => {
             })
 
             const marginUtilise = await getMarginUtilisation(filteredArr)
-            const averageEntryLots = await getAverageEntryLots(filteredArr);
+            const newData = await distinctBuySell(JSON.parse(JSON.stringify(filteredArr)));
             const arrData = await formatTradeData(filteredArr);
-            // const arrData = formatedData.formattedData;
+            const averageEntryLots = newData?.averageEntryLots;
+            const formatedBuyArr = await formatTradeData(newData?.buyArr);
+            const formatedSellArr = await formatTradeData(newData?.sellArr);
 
             if(tradeData.length && uniqueTicksArr.length){
+                const buyPnlObj = await calculatePnl(formatedBuyArr, uniqueTicksArr, timeArr[i])
+                const sellPnlObj = await calculatePnl(formatedSellArr, uniqueTicksArr, timeArr[i]);
                 const pnlObj = await calculatePnl(arrData, uniqueTicksArr, timeArr[i])
+
                 pnlObj.averageEntryLots = averageEntryLots;
                 pnlObj.marginUtilise = marginUtilise;
+                pnlObj.buyPnl = buyPnlObj.gpnl;
+                pnlObj.sellPnl = sellPnlObj.gpnl;
                 pnlObjArr.push(pnlObj)
             }
             
         }
         res.status(200).json({
             status: "success",
-            data: pnlObjArr
+            data: pnlObjArr, 
         });
     } catch (err) {
         console.log(err);
@@ -139,12 +146,15 @@ const getMarginUtilisation = async (tradeData) => {
     return totalMarginUtilised;
 }
 
-const getAverageEntryLots = async (tradeData) => {
+const distinctBuySell = async (tradeData) => {
     let totalEntryLots = 0;
     let totalEntryLotsFrequency = 0;
+    const buyArr = [];
+    const sellArr = [];
+
 
     for (const elem of tradeData) {
-        const { Quantity, buyOrSell, trade_time, symbol } = elem;
+        const { Quantity, buyOrSell, trade_time, symbol, average_price } = elem;
         const previousTrades = tradeData.filter((trades) => {
             return (new Date(trades.trade_time) < new Date(trade_time));
         })
@@ -162,25 +172,60 @@ const getAverageEntryLots = async (tradeData) => {
 
         if (Math.abs(runningLotForSymbol) > Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
             // if squaring of some quantity
+            if(transactionTypeForSymbol === 'BUY'){
+                buyArr.push(elem);
+            } else{
+                sellArr.push(elem);
+            }
         } else if (Math.abs(runningLotForSymbol) < Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
             // if squaring of all quantity and adding more in reverse direction (square off more quantity)
             totalEntryLotsFrequency += 1;
             totalEntryLots += Math.abs(Quantity-runningLotForSymbol);
+            const newObjBuy = {...elem};
+            const newObjSell = {...elem};
+
+            if(transactionTypeForSymbol === 'BUY'){
+                buyArr.push({...newObjBuy, Quantity: 0-Math.abs(runningLotForSymbol), amount: 0-(Math.abs(runningLotForSymbol)*average_price)});
+                newObjSell.Quantity = 0- (Math.abs(Quantity)-Math.abs(runningLotForSymbol)); 
+                newObjSell.amount = 0-((Math.abs(Quantity)-Math.abs(runningLotForSymbol))*average_price);
+                sellArr.push(newObjSell);
+            } else{
+                sellArr.push({...newObjSell, Quantity: Math.abs(runningLotForSymbol), amount: (Math.abs(runningLotForSymbol)*average_price)});
+                newObjBuy.Quantity = (Math.abs(Quantity)-Math.abs(runningLotForSymbol)); 
+                newObjBuy.amount = ((Math.abs(Quantity)-Math.abs(runningLotForSymbol))*average_price);
+                buyArr.push(newObjBuy);
+            }
         } else if (Math.abs(runningLotForSymbol) === Math.abs(quantity) && transactionTypeForSymbol !== transaction_type) {
             // if squaring off all quantity
+            if(transactionTypeForSymbol === 'BUY'){
+                buyArr.push(elem);
+            } else{
+                sellArr.push(elem);
+            }
         } else if (transactionTypeForSymbol === transaction_type) {
             // if adding more quantity
             totalEntryLotsFrequency += 1;
             totalEntryLots += Quantity;
+
+            if(transactionTypeForSymbol === 'BUY'){
+                buyArr.push(elem);
+            } else{
+                sellArr.push(elem);
+            }
         } else {
             totalEntryLotsFrequency += 1;
             totalEntryLots += Quantity;
-        }
 
+            if(buyOrSell === 'BUY'){
+                buyArr.push(elem);
+            } else{
+                sellArr.push(elem);
+            }
+        }
     }
 
     const averageEntryLots = Math.ceil(totalEntryLots/totalEntryLotsFrequency) || 0;
-    return averageEntryLots;
+    return {averageEntryLots, buyArr, sellArr};
 }
 
 const formatTradeData = async (tradeData) => {
