@@ -54,6 +54,7 @@ const {
   creditAmount,
   changeStatus,
   changeBattleStatus,
+  autoCutMainManuallyMockBySelf
 } = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema");
 const InternTrade = require("../../models/mock-trade/internshipTrade");
@@ -4663,6 +4664,12 @@ router.get("/autotrade", async (req, res) => {
   // console.log(arr, arr1, arr2);
   await autoCutMainManually();
   await autoCutMainManuallyMock();
+  res.send("ok");
+});
+
+router.get("/payout", async (req, res) => {
+  await autoCutMainManually();
+  await autoCutMainManuallyMockBySelf();
   res.send("ok");
 });
 

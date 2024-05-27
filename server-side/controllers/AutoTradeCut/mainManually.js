@@ -108,6 +108,76 @@ const autoCutMainManuallyMock = async () => {
     await autoCutMainManuallyMock();
 }
 
+const autoCutMainManuallyMockBySelf = async () => {
+    console.log("cronjob running 2nd")
+    let date = new Date();
+    let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    todayDate = todayDate + "T00:00:00.000Z";
+    const today = new Date(todayDate);
+
+    const data = await dailyContestLiveCompany.aggregate([
+        {
+            $match: {
+                trade_time: {
+                    $gte: new Date(today),
+                },
+                status: "COMPLETE",
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    userId: "$trader",
+                    // subscriptionId: "$subscriptionId",
+                    exchange: "$exchange",
+                    symbol: "$symbol",
+                    instrumentToken: "$instrumentToken",
+                    exchangeInstrumentToken:
+                        "$exchangeInstrumentToken",
+                    variety: "$variety",
+                    validity: "$validity",
+                    order_type: "$order_type",
+                    Product: "$Product",
+                    algoBoxId: "$algoBox",
+                },
+                runningLots: {
+                    $sum: "$Quantity",
+                },
+                takeTradeQuantity: {
+                    $sum: {
+                        $multiply: ["$Quantity", -1],
+                    },
+                },
+            },
+        },
+        {
+            $match: {
+                runningLots: {
+                    $ne: 0,
+                },
+            },
+        },
+    ]);
+
+    if (data.length === 0) {
+        // await tenx();
+        // await paperTradeMod();
+        // await internshipTradeMod();
+        // await dailyContestMockMod();
+        // await marginXMockMod();
+        // await stockTradeMod();
+        // await saveLeaderboardData();
+        await changeStatus();
+        await changeMarginXStatus();
+        
+        await PendingOrder.updateMany({ status:'Pending'},{ $set: {status: "Cancelled" }})
+        
+        return;
+    }
+
+    await autoCutMainManuallyMock();
+}
+
 // contest status change and payout process
 const changeStatus = async () => {
     let date = new Date();
@@ -653,4 +723,4 @@ const creditBattleAmount = async () => {
 
 
 
-module.exports = { autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus, changeBattleStatus }
+module.exports = {autoCutMainManuallyMockBySelf, autoCutMainManually, autoCutMainManuallyMock, creditAmount, changeStatus, changeMarginXStatus, changeBattleStatus }
