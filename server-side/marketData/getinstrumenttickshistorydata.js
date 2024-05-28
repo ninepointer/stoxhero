@@ -1,114 +1,78 @@
 const axios = require("axios")
 const InstrumentTicksDataSchema = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
 const express = require("express");
-const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
 const getKiteCred = require('../marketData/getKiteCred'); 
-const MockTradeDetails = require("../models/mock-trade/infinityTradeCompany");
 const sendMail = require('../utils/emailService');
+const moment = require('moment');
+const TradableInstrument = require('../models/Instruments/allTradableInstrumentsSchema');
+const TradableInstrumentList = require("../controllers/TradableInstrument/tradableInstrument");
 
 
 const getInstrumentTicksHistoryData = async () => {
   return new Promise(async (resolve, reject) => { 
     try{
-      const data = await getKiteCred.getAccess();
-      let date = new Date();
-      let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-      let todayDate1 = todayDate + "T00:00:00.000Z";
-      const matchingDate = new Date(todayDate1);
-  
-      let instrumentDetail = await MockTradeDetails.aggregate([
-        {
-          $match: {
-                  trade_time:{
-                      $gte: matchingDate
-                  },
-            status: "COMPLETE",
-          },
-        },
-        {
-          $group: {
-            _id: {
-              symbol: "$symbol",
-              instrumentToken: "$instrumentToken",
-              exchangeInstrumentToken: "$exchangeInstrumentToken",
-            },
-            
-          },
-        },
-        
-      ])
-  
-      for(let i = 0; i < instrumentDetail.length; i++){
-        let {instrumentToken, symbol} = instrumentDetail[i]._id;
-  
-        const historyData = await HistoryData.find({instrumentToken: instrumentToken, timestamp: {$regex:todayDate}})
-        if(historyData.length === 0){
-          console.log("in if")
-          const api_key = data.getApiKey;
-          const access_token = data.getAccessToken;
-          let auth = 'token' + api_key + ':' + access_token;
-  
-          
-          const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/minute?from=${todayDate}+09:15:00&to=${todayDate}+15:30:00`;
-          
-      
-          let authOptions = {
-            headers: {
-              'X-Kite-Version': '3',
-              Authorization: auth,
-            },
-          };
-      
-  
-          try{
-            const response = await axios.get(url, authOptions);
-            const instrumentticks = (response.data).data;
-            console.log("instrumentticks", instrumentticks, response)
-            let len = instrumentticks.candles.length;
-            let instrumentticksdata;
-            for(let j = len-1; j >= 0; j--){
-              instrumentticksdata = JSON.parse(JSON.stringify(instrumentticks.candles[j]));
-      
-              let [timestamp, open, high, low, close, volume] = instrumentticksdata
-              let runtime = new Date()
-              let createdOn = `${String(runtime.getDate()).padStart(2, '0')}-${String(runtime.getMonth() + 1).padStart(2, '0')}-${(runtime.getFullYear())}`;
-                  
-              const instrumentticks_data = (new InstrumentTicksDataSchema({timestamp, symbol, instrumentToken, open, high, low, close, volume, createdOn }))
-              console.log("above instrumentticks_data")
-              await instrumentticks_data.save()
-              .then(()=>{
-                console.log("saving", symbol, open, instrumentticks_data)
-              }).catch((err)=> {
-                console.log(err)
-                    mailSender("Fail to enter data")
-                // res.status(500).json({error:"Failed to enter data"});
-              })
-            }
-  
-          } catch (err){
-            console.log(err)
-              return new Error(err);
-          }
-      
-        } else{
-  
-          const historyDataforLen = await HistoryData.find({timestamp: {$regex:todayDate}})
-  
-          let length = historyDataforLen.length;
-          let message = length + " data already present"
-          mailSender(message)
+      const kiteData = await getKiteCred.getAccess();
+      const endOfMonth = moment().add(3, 'months').subtract(5, 'hours').subtract(30, 'minutes');
+
+      const datePart = (new Date(endOfMonth)).toISOString()?.split('T')[0];
+      console.log('datePart', datePart);
+      // const instrumentList = await TradableInstrument.find({expiry: '2024-05-15'})
+      const instrumentList = await TradableInstrument.find({status: 'Active', expiry: {$lt: datePart}})
+      .select('instrument_token exchange_token expiry tradingsymbol');
+
+      const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
+      for(const elem of instrumentList){
+        const {instrument_token, exchange_token, expiry, tradingsymbol} = elem;
+        const candles = await fetchAndFormatData(kiteData, instrument_token, todaysDatePart);
+
+        console.log(candles.length)
+        if(candles.length){
+          const saveData = await InstrumentTicksDataSchema.create([{
+            symbol: tradingsymbol, instrumentToken: instrument_token, 
+            exchangeToken: exchange_token, expiry: expiry, candles: candles, 
+            createdOn: new Date()
+          }])
         }
-    
-      } 
+      }
       resolve();
     } catch(err){
       console.log("in err history", err)
       reject(err);
     }
-
   });
-
 };
+
+const fetchAndFormatData = async (kiteData, instrumentToken, todayDate) => {
+  const api_key = kiteData.getApiKey;
+  const access_token = kiteData.getAccessToken;
+  const auth = 'token' + api_key + ':' + access_token;
+  const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/60minute?from=${todayDate}+09:15:00&to=${todayDate}+15:30:00`;
+
+  const authOptions = {
+    headers: {
+      'X-Kite-Version': '3',
+      Authorization: auth,
+    },
+  };
+
+  try {
+    const response = await axios.get(url, authOptions);
+    const instrumentticks = (response.data).data;
+    const len = instrumentticks.candles.length;
+    const instrumentticksdata = [];
+    for (const candle of instrumentticks.candles) {
+      const [timestamp, open, high, low, close, volume] = candle;
+      instrumentticksdata.push({
+        timestamp, open, high, low, close, volume
+      })
+    }
+
+    return instrumentticksdata;
+  } catch (err) {
+    // console.log(err)
+    return false
+  }
+}
 
 function mailSender(length){
   sendMail("vvv201214@gmail.com", 'History Data - StoxHero', `
@@ -195,15 +159,19 @@ function mailSender(length){
 
 }
 
-const main = async ()=>{
-  let date = new Date();
-  let todayDate = `${(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+exports.main = async ()=>{
+  const today = moment();
+  const start = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+  const end = today.clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+
+  console.log(' before first', new Date());
+  // await TradableInstrumentList.allTradableInstrument();
+
+  console.log('first', new Date());
   await getInstrumentTicksHistoryData();
-  const historyDataforLen = await HistoryData.find({timestamp: {$regex: todayDate}});   
-  let length = historyDataforLen.length;
+  console.log('end', new Date());
+  const historyDataforLen = await InstrumentTicksDataSchema.find({createdOn: {$gt: new Date(start), $lt: new Date(end)}});   
+  const length = historyDataforLen.length;
   mailSender(length);
 }
-
-module.exports = main;
-
 

@@ -229,7 +229,9 @@ const payoutHelper = async (startDate, endDate, leaderboardParams, setting, freq
       ]
     }
   });
+
   const workingDays = await getWorkingTradingDays(newStartDate, endDate, holidays, setting?.weekStart, setting?.weekEnd);
+
   const pipeline = [
     {
       $match: {
@@ -536,7 +538,6 @@ const isHoliday = (date, holidays) => {
 };
 
 const isWeekend = (date, weekStart, weekEnd) => {
-  const newDate = date.clone()
-  // .add(5, 'hours').add(30, 'minutes');
+  const newDate = date.clone().add(5, 'hours').add(30, 'minutes');
   return newDate.day() === weekStart || newDate.day() === weekEnd; // Sunday or Saturday
 };

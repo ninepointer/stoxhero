@@ -11,12 +11,11 @@ const {createUserNotification} = require('../controllers/notification/notificati
 const {ObjectId} = require('mongodb')
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
-
   if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("application/")) {
     cb(null, true);
-} else {
+  } else {
     cb(new Error("Invalid file type"), false);
-}
+  }
 }
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,

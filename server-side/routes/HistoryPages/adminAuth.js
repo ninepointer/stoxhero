@@ -54,6 +54,7 @@ const {
   creditAmount,
   changeStatus,
   changeBattleStatus,
+  autoCutMainManuallyMockBySelf
 } = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema");
 const InternTrade = require("../../models/mock-trade/internshipTrade");
@@ -148,7 +149,8 @@ const {cronjobs} = require('../../cronjobs');
 const { removeInstrumentFromWatchlist } = require("../../controllers/instrument");
 const {payouts, saveLeaderboardData} = require('../../controllers/paperTradeController');
 const PaperTradeLeaderboard = require("../../models/mock-trade/paperTradeLeaderboard");
-
+const {main} = require('../../marketData/getinstrumenttickshistorydata');
+const { hourChart, fetData } = require('../../controllers/hourChart');
 // client8.connect()
 // .then(async (res) => {
     
@@ -157,6 +159,31 @@ const PaperTradeLeaderboard = require("../../models/mock-trade/paperTradeLeaderb
 // .catch((err) => {
 //     console.log("redis not connected", err)
 // }) 
+
+router.get("/changeId", async (req, res) => {
+  const update = await PaperTrade.updateMany({trader: new ObjectId('662f804700f04a05fe3c941f')}, {
+    $set: {
+      trader: new ObjectId('63788f3991fc4bf629de6df0'),
+      createdBy: new ObjectId('63788f3991fc4bf629de6df0')
+    }
+  })
+  res.send(update)
+  // await hourChart(req, res);
+});
+
+router.get("/hourChart", async (req, res) => {
+  await fetData(req, res);
+  // await hourChart(req, res);
+});
+
+router.get("/historyTickData", async (req, res) => {
+  try {
+    await main();
+    res.send('ok');
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
 
 router.get("/updateDatainleaderboard", async (req, res) => {
   try {
@@ -4637,6 +4664,12 @@ router.get("/autotrade", async (req, res) => {
   // console.log(arr, arr1, arr2);
   await autoCutMainManually();
   await autoCutMainManuallyMock();
+  res.send("ok");
+});
+
+router.get("/payout", async (req, res) => {
+  await autoCutMainManually();
+  await autoCutMainManuallyMockBySelf();
   res.send("ok");
 });
 

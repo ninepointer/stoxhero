@@ -2,11 +2,16 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 // @mui material components
 import Card from "@mui/material/Card";
+import Icon from "@mui/material/Icon";
+import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import ViewOrders from '@mui/icons-material/ViewList';
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
+import MDButton from "../../../../components/MDButton";
 import MDTypography from "../../../../components/MDTypography";
+import Button from '@mui/material/Button';
 
 // Material Dashboard 2 React examples
 import DataTable from "../../../../examples/Tables/DataTable";
@@ -82,6 +87,25 @@ function TraderwiseTraderPNL({ socket }) {
         return new Error(err);
       });
   }, [selectedSubscription]);
+
+  // useEffect(()=>{
+  //         // Get Lastest Trade timestamp
+  //         axios.get(`${baseUrl}api/v1/getlastestmocktradecompany`)
+  //         // axios.get(`${baseUrl}api/v1/readmocktradecompany`)
+  //         .then((res)=>{
+  //             //console.log(res.data);
+  //             setLatestTradeTimearr(res.data);
+  //             setLatestTradeTime(res.data.trade_time) ;
+  //             setLatestTradeBy(res.data.createdBy) ;
+  //             setLatestTradeType(res.data.buyOrSell) ;
+  //             setLatestTradeQuantity(res.data.Quantity) ;
+  //             setLatestTradeSymbol(res.data.symbol) ;
+  //             setLatestTradeStatus(res.data.status);
+  //               //console.log(lastestTradeTimearr);
+  //         }).catch((err) => {
+  //           return new Error(err);
+  //         })
+  // }, [marketData])
 
   let mapForParticularUser = new Map();
   for (let i = 0; i < allTrade.length; i++) {
@@ -272,6 +296,12 @@ function TraderwiseTraderPNL({ socket }) {
       </MDTypography>
     );
 
+    obj.userId = (
+      <MDTypography component="a" variant="caption" fontWeight="medium">
+        {subelem.userId}
+      </MDTypography>
+    );
+
     rows.push(obj);
   });
 
@@ -280,6 +310,8 @@ function TraderwiseTraderPNL({ socket }) {
   const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error";
   const totalnetPnlcolor =
     totalGrossPnl - totalTransactionCost >= 0 ? "success" : "error";
+
+
 
   obj.traderName = (
     <MDTypography
@@ -404,6 +436,20 @@ function TraderwiseTraderPNL({ socket }) {
           <MDTypography variant="h6" gutterBottom p={3}>
             TenX Traders Position
           </MDTypography>
+          <MDBox display="flex" alignItems="center" lineHeight={0}>
+            {/* <Icon
+              sx={{
+                fontWeight: "bold",
+                color: ({ palette: { info } }) => info.main,
+                mt: -0.5,
+              }}
+            >
+              done
+            </Icon>
+            <MDTypography variant="button" fontWeight="regular" color="text">
+            &nbsp;<strong>last trade</strong> {lastestTradeBy} {lastestTradeType === "BUY" ? "bought" : "sold"} {Math.abs(lastestTradeQunaity)} quantity of {lastestTradeSymbol} at {lastestTradeTime} - {lastestTradeStatus}
+            </MDTypography> */}
+          </MDBox>
         </MDBox>
       </MDBox>
 

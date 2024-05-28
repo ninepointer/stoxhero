@@ -1,43 +1,36 @@
 const mongoose = require("mongoose");
 
 const instrumentHistoricalDataSchema = new mongoose.Schema({
-    timestamp:{
+    symbol: {
         type: String,
         required: true
     },
-    symbol:{
+    instrumentToken: {
         type: String,
         required: true
     },
-    instrumentToken:{
+    exchangeToken: {
         type: String,
         required: true
     },
-    open:{
-        type: Number,
-        required : true
+    expiry: {
+        type: Date
     },
-    high:{
-        type: Number,
-        required : true
-    },
-    low:{
-        type: Number,
-        required : true
-    },
-    close:{
-        type: Number,
-        required : true
-    },
-    volume:{
-        type: Number,
-        required : true
-    },
-    createdOn:{
-        type: String,
-        required : true
+    candles: [
+        {
+            timestamp: Date,
+            open: Number,
+            high: Number,
+            close: Number,
+            low: Number,
+            volume: Number
+        }
+    ],
+    createdOn: {
+        type: Date,
+        required: true
     }
 })
 
-const instrumentHistoricalData = mongoose.model("instrument-ticks-history", instrumentHistoricalDataSchema);
+const instrumentHistoricalData = mongoose.model("history-tick", instrumentHistoricalDataSchema);
 module.exports = instrumentHistoricalData;

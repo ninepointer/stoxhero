@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const {xtsAccountType, zerodhaAccountType} = require("../../constant");
 
 
-const tradableInstrumentSchema = new mongoose.Schema({
+const alltradableInstrumentSchema = new mongoose.Schema({
     instrument_token:{
         type: Number,
         required: true
@@ -81,21 +81,10 @@ const tradableInstrumentSchema = new mongoose.Schema({
         type: String,
         required : true,
         default: "Active"
-    },
-    infinityVisibility: {
-        type: Boolean,
-    },
-    earlySubscription: {
-        type: Boolean,
-    },
-    chartInstrument: {
-        type: String,
-    },
-    isEquity: {
-        type: Boolean
-    },
-    max_lot: Number
+    }
 })
 
-const TradableInstrumentDetail = mongoose.model("tradable-instrument", tradableInstrumentSchema);
-module.exports = TradableInstrumentDetail;
+const AllTradableInstrumentDetail = mongoose.model("all-tradable-instrument", alltradableInstrumentSchema);
+module.exports = AllTradableInstrumentDetail;
+
+

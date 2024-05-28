@@ -91,6 +91,7 @@ exports.apiRoutes = async (app) => {
   app.use("/api/v1", require("./routes/CronJobsRouter/getHistoryData"));
   app.use("/api/v1", require("./routes/CronJobsRouter/historyTrade"));
   app.use("/api/v1", require("./routes/AlgoBox/tradingAlgoAuth"));
+
   app.use(
     "/api/v1/dailycontest",
     require("./routes/DailyContest/dailyContestLiveTrade")
