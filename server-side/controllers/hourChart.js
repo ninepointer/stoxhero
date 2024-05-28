@@ -72,7 +72,8 @@ exports.hourChart = async (req, res) => {
             `${todaysDatePart}T12:15:00.000+00:00`,
             `${todaysDatePart}T13:15:00.000+00:00`,
             `${todaysDatePart}T14:15:00.000+00:00`,
-            `${todaysDatePart}T15:15:00.000+00:00`
+            `${todaysDatePart}T15:15:00.000+00:00`,
+            `${todaysDatePart}T15:30:00.000+00:00`
         ];
 
         for (let i = 0; i < timeArr.length; i++) {
@@ -267,7 +268,7 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
             return new Date(subelem?.timestamp)?.toISOString() === utcTimeStamp?.toISOString();
         });
 
-        const ltp = ltpCandle?.close || 100;
+        const ltp = ltpCandle?.close || 0;
 
         if (ltp === undefined) continue;
 
