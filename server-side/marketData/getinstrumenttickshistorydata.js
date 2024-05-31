@@ -6,6 +6,7 @@ const sendMail = require("../utils/emailService");
 const moment = require("moment");
 const TradableInstrument = require("../models/Instruments/allTradableInstrumentsSchema");
 const TradableInstrumentList = require("../controllers/TradableInstrument/tradableInstrument");
+const IndiaVix = require('../models/Instruments/indiaVix');
 
 const getInstrumentTicksHistoryData = async () => {
   return new Promise(async (resolve, reject) => {
@@ -17,24 +18,17 @@ const getInstrumentTicksHistoryData = async () => {
         .subtract(5, "hours")
         .subtract(30, "minutes");
 
-      const datePart = new Date(endOfMonth).toISOString()?.split("T")[0];
-      console.log("datePart", datePart);
-      // const instrumentList = await TradableInstrument.find({expiry: '2024-05-15'})
-      const instrumentList = await TradableInstrument.find({
-        status: "Active",
-        expiry: { $lt: datePart },
-      }).select("instrument_token exchange_token expiry tradingsymbol");
-      console.log("instrumentList", instrumentList);
+      const datePart = (new Date(endOfMonth)).toISOString()?.split('T')[0];
+      console.log('datePart', datePart);
 
-      const todaysDatePart = new Date()?.toISOString()?.split("T")?.[0];
-      for (const elem of instrumentList) {
-        const { instrument_token, exchange_token, expiry, tradingsymbol } =
-          elem;
-        const candles = await fetchAndFormatData(
-          kiteData,
-          instrument_token,
-          todaysDatePart
-        );
+      const instrumentList = await TradableInstrument.find({status: 'Active', expiry: {$lt: datePart}})
+      .select('instrument_token exchange_token expiry tradingsymbol');
+
+
+      const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
+      for(const elem of instrumentList){
+        const {instrument_token, exchange_token, expiry, tradingsymbol} = elem;
+        const candles = await fetchAndFormatData(kiteData, instrument_token, todaysDatePart);
 
         console.log(candles.length);
         if (candles.length) {
@@ -95,11 +89,63 @@ const fetchAndFormatData = async (kiteData, instrumentToken, todayDate) => {
   }
 };
 
-function mailSender(length) {
-  sendMail(
-    "vvv201214@gmail.com",
-    "History Data - StoxHero",
-    `
+const saveIndiaVix = async ()=>{
+  const kiteData = await getKiteCred.getAccess();
+  const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
+  const api_key = kiteData.getApiKey;
+  const access_token = kiteData.getAccessToken;
+  const auth = 'token' + api_key + ':' + access_token;
+  const authOptions = {
+    headers: {
+      'X-Kite-Version': '3',
+      Authorization: auth,
+    },
+  };
+
+  const url = `https://api.kite.trade/instruments/historical/${'264969'}/60minute?from=${todaysDatePart}+09:15:00&to=${todaysDatePart}+15:30:00`;
+  const urlForEnd = `https://api.kite.trade/instruments/historical/264969/day?from=${todaysDatePart}+09:15:00&to=${todaysDatePart}+15:30:00`;
+
+
+
+  try {
+    if(urlForEnd){
+      await vixHelper(urlForEnd, authOptions)
+    }
+    await vixHelper(url, authOptions)
+  } catch (err) {
+    // console.log(err)
+    return false
+  }
+}
+
+async function vixHelper(url, authOptions){
+  const response = await axios.get(url, authOptions);
+  const instrumentticks = (response.data).data;
+  const len = instrumentticks.candles.length;
+  const instrumentticksdata = [];
+  for (const candle of instrumentticks.candles) {
+    const [timestamp, open, high, low, close, volume] = candle;
+    let newTime;
+    const newTimestamp = new Date(timestamp);
+    if(instrumentticks.candles?.length === 1){
+      newTime = new Date(moment(timestamp).add(15, 'hours').add(30, 'minutes'));
+      instrumentticksdata.push({
+        timestamp: newTime, open, high, low, close, volume, instrument_token: 264969,
+        exchange_token: 264969, tradingsymbol: 'INDIA VIX'
+      })
+    } else{
+      instrumentticksdata.push({
+        timestamp: newTimestamp, open, high, low, close, volume, instrument_token: 264969,
+        exchange_token: 264969, tradingsymbol: 'INDIA VIX'
+      })
+    }
+  }
+
+  const data = await IndiaVix.create(instrumentticksdata);
+}
+
+async function mailSender(length){
+  await sendMail("vvv201214@gmail.com", 'History Data - StoxHero', `
   <!DOCTYPE html>
   <html>
   <head>
@@ -195,16 +241,15 @@ exports.main = async () => {
     .subtract(5, "hours")
     .subtract(30, "minutes");
 
-  console.log(" before first", new Date());
+  console.log(' before first', new Date());
   await TradableInstrumentList.allTradableInstrument();
 
-  console.log("first", new Date());
+  console.log('first', new Date());
   await getInstrumentTicksHistoryData();
-  console.log("end", new Date());
-  const historyDataforLen = await InstrumentTicksDataSchema.find({
-    createdOn: { $gt: new Date(start), $lt: new Date(end) },
-  });
+  await saveIndiaVix();
+  console.log('end', new Date());
+  const historyDataforLen = await InstrumentTicksDataSchema.find({createdOn: {$gt: new Date(start), $lt: new Date(end)}});   
   const length = historyDataforLen.length;
-  console.log("length", length);
-  // mailSender(length);
-};
+  await mailSender(length);
+}
+
