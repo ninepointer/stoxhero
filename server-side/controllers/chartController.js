@@ -1,6 +1,7 @@
 const axios = require("axios");
 const getKiteCred = require("../marketData/getKiteCred");
 const TradableInstrument = require("../models/Instruments/tradableInstrumentsSchema");
+const Index = require("../models/StockIndex/stockIndexSchema");
 const moment = require("moment");
 
 exports.getHistoricalData = async (req, res) => {
@@ -85,7 +86,7 @@ exports.getHistoricalDataAdv = async (req, res) => {
       },
     });
     const formattedData = response.data.data.candles.map((candle) => ({
-      time: new Date(candle[0]).getTime() + 19800000,
+      time: new Date(candle[0]).getTime(),
       open: candle[1],
       high: candle[2],
       low: candle[3],
@@ -153,18 +154,35 @@ exports.getHistoricalDataUDF = async (req, res) => {
 exports.getAllSymbols = async (req, res) => {
   try {
     const tradable = await TradableInstrument.find({ status: "Active" });
+    const indices = await Index.find({ accountType: "ZERODHA" });
     // console.log("tradable", tradable);
     let allSymbols = [];
     for (let item of tradable) {
       allSymbols.push({
         instrument_token: item?.instrument_token,
+        exchange_instrument_token: item?.exchange_token,
         symbol: item?.tradingsymbol,
         full_name: `${item?.tradingsymbol}`,
-        description: item?.tradingsymbol,
+        description: `${item?.tradingsymbol} - EXP.${moment(
+          item?.expiry
+        ).format("DD-MMM-YY")}`,
         exchange: item?.exchange,
         type: "Options",
       });
     }
+    for (let item of indices) {
+      allSymbols.push({
+        instrument_token: item?.instrumentToken,
+        exchange_instrument_token: item?.exchange_token ?? "NA",
+        symbol: item?.instrumentSymbol,
+        full_name: `${item?.displayName}`,
+        description: `${item?.displayName}`,
+        exchange: item?.exchange,
+        type: "Stock",
+      });
+    }
     res.status(200).json({ data: allSymbols });
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };

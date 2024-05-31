@@ -6,7 +6,6 @@ const otpGenerator = require("otp-generator");
 const moment = require("moment");
 const SignedUpUser = require("../../models/User/signedUpUser");
 
-
 exports.login = async (req, res) => {
   const { userId, pass } = req.body;
 
@@ -22,14 +21,12 @@ exports.login = async (req, res) => {
   });
 
   if (deactivatedUser) {
-    return res
-      .status(422)
-      .json({
-        status: "error",
-        message:
-          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-        error: "deactivated",
-      });
+    return res.status(422).json({
+      status: "error",
+      message:
+        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+      error: "deactivated",
+    });
   }
 
   const userLogin = await UserDetail.findOne({
@@ -58,13 +55,11 @@ exports.login = async (req, res) => {
       res.cookie("jwtoken", token, {
         expires: new Date(Date.now() + 25892000000),
       });
-      res
-        .status(201)
-        .json({
-          status: "success",
-          message: "user logged in succesfully",
-          token: token,
-        });
+      res.status(201).json({
+        status: "success",
+        message: "user logged in succesfully",
+        token: token,
+      });
     }
   }
 };
@@ -84,14 +79,12 @@ exports.studentPinLogin = async (req, res) => {
   });
 
   if (deactivatedUser) {
-    return res
-      .status(422)
-      .json({
-        status: "error",
-        message:
-          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-        error: "deactivated",
-      });
+    return res.status(422).json({
+      status: "error",
+      message:
+        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+      error: "deactivated",
+    });
   }
 
   const userLogin = await UserDetail.findOne({
@@ -103,12 +96,10 @@ exports.studentPinLogin = async (req, res) => {
     !userLogin ||
     !(await userLogin.correctPassword(pin, userLogin.schoolDetails.pin))
   ) {
-    return res
-      .status(422)
-      .json({
-        error: "invalid details",
-        message: "Mobile or pin is not correct",
-      });
+    return res.status(422).json({
+      error: "invalid details",
+      message: "Mobile or pin is not correct",
+    });
   } else {
     if (!userLogin) {
       return res
@@ -125,16 +116,14 @@ exports.studentPinLogin = async (req, res) => {
       res.cookie("jwtoken", token, {
         expires: new Date(Date.now() + 25892000000),
       });
-      res
-        .status(201)
-        .json({
-          status: "success",
-          message: "user logged in succesfully",
-          token: token,
-        });
+      res.status(201).json({
+        status: "success",
+        message: "user logged in succesfully",
+        token: token,
+      });
     }
   }
-}
+};
 
 exports.schoolLogin = async (req, res) => {
   const { userId, pass } = req.body;
@@ -151,14 +140,12 @@ exports.schoolLogin = async (req, res) => {
   });
 
   if (inactiveSchool) {
-    return res
-      .status(422)
-      .json({
-        status: "error",
-        message:
-          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-        error: "deactivated",
-      });
+    return res.status(422).json({
+      status: "error",
+      message:
+        "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+      error: "deactivated",
+    });
   }
 
   const schoolLogin = await School.findOne({
@@ -182,16 +169,14 @@ exports.schoolLogin = async (req, res) => {
       res.cookie("jwtoken", token, {
         expires: new Date(Date.now() + 25892000000),
       });
-      res
-        .status(201)
-        .json({
-          status: "success",
-          message: "logged in succesfully",
-          token: token,
-        });
+      res.status(201).json({
+        status: "success",
+        message: "logged in succesfully",
+        token: token,
+      });
     }
   }
-}
+};
 
 exports.schoolUserLogin = async (req, res) => {
   const { mobile } = req.body;
@@ -202,24 +187,20 @@ exports.schoolUserLogin = async (req, res) => {
     });
 
     if (deactivatedUser) {
-      return res
-        .status(422)
-        .json({
-          status: "error",
-          message:
-            "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-          error: "deactivated",
-        });
+      return res.status(422).json({
+        status: "error",
+        message:
+          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+        error: "deactivated",
+      });
     }
 
     const user = await UserDetail.findOne({ mobile });
     if (!user?.schoolDetails?.grade) {
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "The mobile number is not registered. Please signup.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "The mobile number is not registered. Please signup.",
+      });
     }
     if (
       user?.lastOtpTime &&
@@ -248,22 +229,18 @@ exports.schoolUserLogin = async (req, res) => {
       sendOTP("9319671094", mobile_otp);
     }
 
-    res
-      .status(200)
-      .json({
-        status: "Success",
-        message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
-      });
+    res.status(200).json({
+      status: "Success",
+      message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
+    });
   } catch (e) {
     console.log(e);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: `Something went wrong. Please try again.`,
-      });
+    res.status(500).json({
+      status: "error",
+      message: `Something went wrong. Please try again.`,
+    });
   }
-}
+};
 
 exports.resetPinOtp = async (req, res) => {
   const { mobile } = req.body;
@@ -279,25 +256,21 @@ exports.resetPinOtp = async (req, res) => {
     });
 
     if (deactivatedUser) {
-      return res
-        .status(422)
-        .json({
-          status: "error",
-          message:
-            "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-          error: "deactivated",
-        });
+      return res.status(422).json({
+        status: "error",
+        message:
+          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+        error: "deactivated",
+      });
     }
 
     const user = await UserDetail.findOne({ mobile });
 
     if (!user?.schoolDetails?.grade) {
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "The mobile number is not registered. Please signup.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "The mobile number is not registered. Please signup.",
+      });
     }
     if (
       user?.lastOtpTime &&
@@ -327,22 +300,18 @@ exports.resetPinOtp = async (req, res) => {
       sendOTP("9319671094", mobile_otp);
     }
 
-    res
-      .status(200)
-      .json({
-        status: "Success",
-        message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
-      });
+    res.status(200).json({
+      status: "Success",
+      message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
+    });
   } catch (e) {
     console.log(e);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: `Something went wrong. Please try again.`,
-      });
+    res.status(500).json({
+      status: "error",
+      message: `Something went wrong. Please try again.`,
+    });
   }
-}
+};
 
 exports.phoneLogin = async (req, res) => {
   const { mobile } = req.body;
@@ -353,34 +322,27 @@ exports.phoneLogin = async (req, res) => {
     });
 
     if (deactivatedUser) {
-      return res
-        .status(422)
-        .json({
-          status: "error",
-          message:
-            "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-          error: "deactivated",
-        });
+      return res.status(422).json({
+        status: "error",
+        message:
+          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+        error: "deactivated",
+      });
     }
 
     const user = await UserDetail.findOne({ mobile });
 
     if (user?.creationProcess === "School SignUp") {
-
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "The mobile number is not registered. Please signup.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "The mobile number is not registered. Please signup.",
+      });
     }
     if (!user) {
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "The mobile number is not registered. Please signup.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "The mobile number is not registered. Please signup.",
+      });
     }
     if (
       user?.lastOtpTime &&
@@ -410,22 +372,18 @@ exports.phoneLogin = async (req, res) => {
       sendOTP("9319671094", mobile_otp);
     }
 
-    res
-      .status(200)
-      .json({
-        status: "Success",
-        message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
-      });
+    res.status(200).json({
+      status: "Success",
+      message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
+    });
   } catch (e) {
     console.log(e);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: `Something went wrong. Please try again.`,
-      });
+    res.status(500).json({
+      status: "error",
+      message: `Something went wrong. Please try again.`,
+    });
   }
-}
+};
 
 exports.phoneLoginMobile = async (req, res) => {
   const { mobile, code } = req.body;
@@ -436,14 +394,12 @@ exports.phoneLoginMobile = async (req, res) => {
     });
 
     if (deactivatedUser) {
-      return res
-        .status(422)
-        .json({
-          status: "error",
-          message:
-            "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
-          error: "deactivated",
-        });
+      return res.status(422).json({
+        status: "error",
+        message:
+          "Your account has been deactivated. Please contact StoxHero admin @ team@stoxhero.com.",
+        error: "deactivated",
+      });
     }
 
     const user = await UserDetail.findOne({ mobile });
@@ -456,36 +412,36 @@ exports.phoneLoginMobile = async (req, res) => {
         specialChars: false,
       });
       //Create signedup user document
-      let signedUpUser = await SignedUpUser.findOne({ mobile: mobile }).sort({_id: -1})
+      let signedUpUser = await SignedUpUser.findOne({ mobile: mobile }).sort({
+        _id: -1,
+      });
       if (signedUpUser) {
         signedUpUser.mobile_otp = mobile_otp;
-        if(code) signedUpUser.code = code;
+        if (code) signedUpUser.code = code;
         signedUpUser.lastOtpTime = new Date();
         await signedUpUser.save({ new: true });
       } else {
         signedUpUser = await SignedUpUser.create({
           mobile: mobile,
           mobile_otp: mobile_otp,
-          code:code?code:"",
+          code: code ? code : "",
           status: "OTP Verification Pending",
           lastOtpTime: new Date(),
         });
       }
 
       //send response
-      if(process.env.PROD=='true') sendOTP(mobile.toString(), mobile_otp);
+      if (process.env.PROD == "true") sendOTP(mobile.toString(), mobile_otp);
       console.log(process.env.PROD, mobile_otp, "sending");
       if (process.env.PROD !== "true") {
         sendOTP("8076284368", mobile_otp);
         sendOTP("9319671094", mobile_otp);
       }
 
-      return res
-        .status(200)
-        .json({
-          status: "Success",
-          message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
-        });
+      return res.status(200).json({
+        status: "Success",
+        message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
+      });
     }
     if (
       user?.lastOtpTime &&
@@ -515,58 +471,50 @@ exports.phoneLoginMobile = async (req, res) => {
       sendOTP("9319671094", mobile_otp);
     }
 
-    res
-      .status(200)
-      .json({
-        status: "Success",
-        message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
-      });
+    res.status(200).json({
+      status: "Success",
+      message: `OTP sent to ${mobile}. OTP is valid for 30 minutes.`,
+    });
   } catch (e) {
     console.log(e);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: `Something went wrong. Please try again.`,
-      });
+    res.status(500).json({
+      status: "error",
+      message: `Something went wrong. Please try again.`,
+    });
   }
-}
+};
 
 exports.codeSaveToSignup = async (req, res) => {
-  const { mobile, college, referrerCode, first_name, last_name} = req.body;
+  const { mobile, college, referrerCode, first_name, last_name } = req.body;
   try {
     const user = await SignedUpUser.findOne({
       mobile: mobile,
-    }).sort({_id: -1});
-  
+    }).sort({ _id: -1 });
+
     if (!user) {
       return res
         .status(429)
-        .json({status: 'error', message: "The user has not signed up yet." });
+        .json({ status: "error", message: "The user has not signed up yet." });
     }
 
     user.code = referrerCode;
     user.collegeName = college;
-    user.first_name = first_name; 
+    user.first_name = first_name;
     user.last_name = last_name;
     await user.save({ validateBeforeSave: false });
 
-    res
-      .status(200)
-      .json({
-        status: "Success",
-        message: `Data Saved`,
-      });
+    res.status(200).json({
+      status: "Success",
+      message: `Data Saved`,
+    });
   } catch (e) {
     console.log(e);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: `Something went wrong. Please try again.`,
-      });
+    res.status(500).json({
+      status: "error",
+      message: `Something went wrong. Please try again.`,
+    });
   }
-}
+};
 
 exports.verifyPhoneLogin = async (req, res) => {
   const { mobile, mobile_otp, fcmTokenData, college, rollno } = req.body;
@@ -574,34 +522,28 @@ exports.verifyPhoneLogin = async (req, res) => {
   try {
     const user = await UserDetail.findOne({ mobile });
     if (!user) {
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "The mobile number is not registered. Please signup.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "The mobile number is not registered. Please signup.",
+      });
     }
     if (!user?.collegeDetails?.college && college) {
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "The mobile number is not registered. Please signup.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "The mobile number is not registered. Please signup.",
+      });
     }
-    
+
     if (
       college &&
       user?.collegeDetails?.college &&
       user?.collegeDetails?.college?.toString() !== college?.toString()
     ) {
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message:
-            "Kindly access your account by logging in through the designated URL associated with your registration.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message:
+          "Kindly access your account by logging in through the designated URL associated with your registration.",
+      });
     }
     if (
       process.env.PROD != "true" &&
@@ -627,22 +569,19 @@ exports.verifyPhoneLogin = async (req, res) => {
         // httpOnly: true
       });
 
-      return res
-        .status(200)
-        .json({
-          status: "success",
-          message: "User login successful",
-          token: token,
-        });
+      return res.status(200).json({
+        status: "success",
+        message: "User login successful",
+        token: token,
+        uId: user?._id,
+      });
     }
 
     if (user.mobile_otp != mobile_otp) {
-      return res
-        .status(400)
-        .json({
-          status: "error",
-          message: "OTP didn't match. Please check again.",
-        });
+      return res.status(400).json({
+        status: "error",
+        message: "OTP didn't match. Please check again.",
+      });
     }
 
     const token = await user.generateAuthToken();
@@ -663,29 +602,25 @@ exports.verifyPhoneLogin = async (req, res) => {
       expires: new Date(Date.now() + 25892000000),
       // httpOnly: true
     });
-    res
-      .status(200)
-      .json({
-        status: "success",
-        message: "User login successful",
-        token: token,
-      });
+    res.status(200).json({
+      status: "success",
+      message: "User login successful",
+      token: token,
+      uId: user?._id,
+    });
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: `Something went wrong. Please try again.`,
-      });
+    res.status(500).json({
+      status: "error",
+      message: `Something went wrong. Please try again.`,
+    });
   }
-}
+};
 
 exports.verifyPhoneLoginMobile = async (req, res) => {
   const { mobile, mobile_otp, fcmTokenData, college, rollno } = req.body;
 
   try {
-
     const user = await UserDetail.findOne({ mobile });
     if (!user) {
       //check signedup user exists
@@ -694,38 +629,30 @@ exports.verifyPhoneLoginMobile = async (req, res) => {
       });
       //if not send error message
       if (!signedUpUser) {
-        return res
-          .status(404)
-          .json({
-            status: "error",
-            message: "The mobile number is not registered. Please try again.",
-          });
+        return res.status(404).json({
+          status: "error",
+          message: "The mobile number is not registered. Please try again.",
+        });
       }
       //check mobile_otp with signedUpUser mobile_otp
       if (signedUpUser?.mobile_otp != mobile_otp) {
-        return res
-          .status(400)
-          .json({
-            status: "error",
-            message: "Incorrect OTP entered. Please try again",
-          });
+        return res.status(400).json({
+          status: "error",
+          message: "Incorrect OTP entered. Please try again",
+        });
       }
 
-      return res
-        .status(200)
-        .json({
-          status: "success",
-          message: "OTP verification successful",
-          login: false,
-        });
+      return res.status(200).json({
+        status: "success",
+        message: "OTP verification successful",
+        login: false,
+      });
     }
     if (!user?.collegeDetails?.college && college) {
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "The mobile number is not registered. Please signup.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "The mobile number is not registered. Please signup.",
+      });
     }
     console.log(
       college &&
@@ -739,13 +666,11 @@ exports.verifyPhoneLoginMobile = async (req, res) => {
       user?.collegeDetails?.college &&
       user?.collegeDetails?.college?.toString() !== college?.toString()
     ) {
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message:
-            "Kindly access your account by logging in through the designated URL associated with your registration.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message:
+          "Kindly access your account by logging in through the designated URL associated with your registration.",
+      });
     }
     if (
       process.env.PROD != "true" &&
@@ -771,32 +696,27 @@ exports.verifyPhoneLoginMobile = async (req, res) => {
         // httpOnly: true
       });
 
-      return res
-        .status(200)
-        .json({
-          status: "success",
-          message: "User login successful",
-          token: token,
-          login: true,
-        });
+      return res.status(200).json({
+        status: "success",
+        message: "User login successful",
+        token: token,
+        login: true,
+      });
     }
 
     if (
       user?.mobile_otp != mobile_otp &&
       !(mobile == "9999992424" && mobile_otp == "123456")
     ) {
-      return res
-        .status(400)
-        .json({
-          status: "error",
-          message: "OTP didn't match. Please check again.",
-        });
+      return res.status(400).json({
+        status: "error",
+        message: "OTP didn't match. Please check again.",
+      });
     }
 
     const token = await user.generateAuthToken();
 
     if (fcmTokenData?.token) {
-
       const tokenExists = user?.fcmTokens?.some(
         (token) => token?.token === fcmTokenData.token
       );
@@ -812,24 +732,20 @@ exports.verifyPhoneLoginMobile = async (req, res) => {
     res.cookie("jwtoken", token, {
       expires: new Date(Date.now() + 25892000000),
     });
-    res
-      .status(200)
-      .json({
-        status: "success",
-        message: "User login successful",
-        token: token,
-        login: true,
-      });
+    res.status(200).json({
+      status: "success",
+      message: "User login successful",
+      token: token,
+      login: true,
+    });
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: `Something went wrong. Please try again.`,
-      });
+    res.status(500).json({
+      status: "error",
+      message: `Something went wrong. Please try again.`,
+    });
   }
-}
+};
 
 exports.resendMobileOTP = async (req, res) => {
   const { mobile } = req.body;
@@ -887,14 +803,12 @@ exports.resendMobileOTP = async (req, res) => {
       .json({ status: "success", message: "Otp sent. Check again." });
   } catch (e) {
     console.log(e);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: `Something went wrong. Please try again.`,
-      });
+    res.status(500).json({
+      status: "error",
+      message: `Something went wrong. Please try again.`,
+    });
   }
-}
+};
 
 exports.loginDetail = async (req, res) => {
   const id = req.user._id;
@@ -946,7 +860,7 @@ exports.loginDetail = async (req, res) => {
     );
 
   res.json(user);
-}
+};
 
 exports.schoolDetails = async (req, res) => {
   try {
@@ -964,21 +878,21 @@ exports.schoolDetails = async (req, res) => {
   } catch (err) {
     console.log(err);
   }
-}
+};
 
 exports.logOut = async (req, res) => {
   res.clearCookie("jwtoken", { path: "/" });
   res
     .status(200)
     .json({ success: true, message: "User logged out successfully" });
-}
+};
 
 exports.schoolLogout = async (req, res) => {
   res.clearCookie("jwtoken", { path: "/" });
   res
     .status(200)
     .json({ success: true, message: "User logged out successfully" });
-}
+};
 
 exports.addFcmToken = async (req, res) => {
   const { fcmTokenData } = req.body;
@@ -1002,12 +916,10 @@ exports.addFcmToken = async (req, res) => {
     }
   } catch (e) {
     console.log(e);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: "Something went wrong.",
-        error: e?.message,
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong.",
+      error: e?.message,
+    });
   }
-}
+};

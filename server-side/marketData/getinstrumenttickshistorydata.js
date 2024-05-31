@@ -196,7 +196,7 @@ exports.main = async () => {
     .subtract(30, "minutes");
 
   console.log(" before first", new Date());
-  // await TradableInstrumentList.allTradableInstrument();
+  await TradableInstrumentList.allTradableInstrument();
 
   console.log("first", new Date());
   await getInstrumentTicksHistoryData();
