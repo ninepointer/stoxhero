@@ -5,17 +5,17 @@ const instrumentHistoricalDataSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    instrumentToken: {
-        type: String,
-        required: true
-    },
-    exchangeToken: {
-        type: String,
-        required: true
-    },
-    expiry: {
-        type: Date
-    },
+    // instrumentToken: {
+    //     type: String,
+    //     required: true
+    // },
+    // exchangeToken: {
+    //     type: String,
+    //     required: true
+    // },
+    // expiry: {
+    //     type: Date
+    // },
     candles: [
         {
             timestamp: Date,
@@ -32,5 +32,5 @@ const instrumentHistoricalDataSchema = new mongoose.Schema({
     }
 })
 
-const instrumentHistoricalData = mongoose.model("history-tick", instrumentHistoricalDataSchema);
+const instrumentHistoricalData = mongoose.model("history-tick-new", instrumentHistoricalDataSchema);
 module.exports = instrumentHistoricalData;

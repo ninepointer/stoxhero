@@ -2,6 +2,8 @@ const TradeData = require("../models/mock-trade/paperTrade");
 const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
 const moment = require('moment');
 const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
+const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
+
 const IndiaVix = require("../models/Instruments/indiaVix");
 
 const ThirdPartyTrades = require('../models/mock-trade/thirdPartyTrades');
@@ -319,9 +321,12 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
 exports.uploadCSV = async (req, res) => {
     try {
         const userId = req?.user?._id || '662f804700f04a05fe3c941f';
-        const data = await uploadFileToAzure(req.file)
-        const url = data.fileUrl.split('/')[data.fileUrl.split('/').length - 1];
-        const savedData = await saveDataToDB(url, userId);
+        // const data = await uploadFileToAzure(req.file);
+        // console.log(data);
+        const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8375248682662133-NSEFO_1hr_4months.csv';
+        // data?.fileUrl;
+        const url = originalUrl?.split('/')[originalUrl?.split('/').length - 1];
+        const savedData = await saveDataToDBNew(url, userId);
 
         res.status(200).json({
             status: "success",
@@ -353,14 +358,87 @@ async function downloadCsvBlob(url) {
 async function parseCsvStream(stream) {
     return new Promise((resolve, reject) => {
         const results = [];
+        let pointer = 0;
         stream
             .pipe(csv())
             .on('data', ((data) => {
+                console.log(pointer)
+                pointer++;
                 results.push(data)
             }))
             .on('end', () => resolve(results))
             .on('error', (error) => reject(error));
     });
+}
+
+const saveDataToDBNew = async (url, userId) => {
+    try {
+        // const url = 'https://stagingdmt.blob.core.windows.net/dmt-trade/06501232945102076-data_hour_calcluation.csv'
+        // const userId = '662f804700f04a05fe3c941f';
+        // const url = '06501232945102076-data_hour_calcluation.csv'
+        const csvStream = await downloadCsvBlob(url);
+        const csvData = await parseCsvStream(csvStream);
+
+        console.log("csvData", csvData.length);
+        // const uniqueTrades = csvData.filter((trade, index, self) =>
+        //     index === self.findIndex((t) => (
+        //         t.Symbol === trade.Symbol &&
+        //         t["Date"] === trade["Date"] &&
+        //         t["Time"] === trade["Time"] &&
+        //         t["Ticker"] === trade["Ticker"]
+        //     ))
+        // );
+
+        // console.log("uniqueTrades", uniqueTrades);
+
+        const finalData = [];
+        for(const trade of csvData){
+            const symbol = trade['Ticker']?.split('.')?.[0];
+            console.log(symbol, trade['Ticker']?.split('.')?.[0]);
+            // const instrumentData = await AllTradableInstrumentSchema.findOne({tradingsymbol: symbol});
+            const filterdArr = csvData.filter((elem)=>{
+                return elem['Date']===trade['Date'] && elem['Ticker']===trade['Ticker'];
+            })
+
+            const candles = [];
+            // filterdArr.sort((a, b) => {
+            //     if (a['Time'] > b['Time']) {
+            //         return 1;
+            //     }
+            //     if (a['Time'] <= b['Time']) {
+            //         return -1;
+            //     }
+            // })
+            for(const arr of filterdArr){
+                candles.push({
+                    timestamp: new Date(`${arr['Date']}T${arr['Time']}`),
+                    open: arr['Open'],
+                    high: arr['High'],
+                    close: arr['Close'],
+                    low: arr['Low'],
+                    volume: arr['Volume']
+                })
+            }
+
+            finalData.push({
+              symbol,
+            //   instrumentToken: instrumentData?.instrument_token,
+            //   exchangeToken: instrumentData?.exchange_token,
+            //   expiry: instrumentData?.expiry,
+              candles: candles,
+              createdOn: new Date(),
+            })
+        }
+
+        console.log(finalData);
+
+        const save = await HistoryData.create(finalData)
+        return save;
+
+    } catch (error) {
+        console.error(error);
+        throw new Error(error);
+    }
 }
 
 const saveDataToDB = async (url, userId) => {

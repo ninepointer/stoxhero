@@ -1,8 +1,11 @@
 const axios = require("axios");
 const getKiteCred = require("../marketData/getKiteCred");
+const TradableInstrument = require("../models/Instruments/tradableInstrumentsSchema");
+const moment = require("moment");
 
 exports.getHistoricalData = async (req, res) => {
-  const { instrumentToken, from, to, interval, continuous } = req.query;
+  const { instrumentToken, from, to, interval, continuous, countBack } =
+    req.query;
   console.log(req.query);
   const data = await getKiteCred.getAccess();
   // Validate input
@@ -28,6 +31,61 @@ exports.getHistoricalData = async (req, res) => {
     });
     const formattedData = response.data.data.candles.map((candle) => ({
       time: new Date(candle[0]).getTime() / 1000 + 19800,
+      open: candle[1],
+      high: candle[2],
+      low: candle[3],
+      close: candle[4],
+    }));
+
+    // Send the data back to the client
+    res.status(200).json({ status: "success", data: formattedData });
+  } catch (error) {
+    console.error("Error fetching historical data:", error.message, error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching historical data" });
+  }
+};
+exports.getHistoricalDataAdv = async (req, res) => {
+  const { instrumentToken, from, to, interval, continuous, countBack } =
+    req.query;
+  console.log(req.query);
+  let fromDate = moment.unix(from);
+  const toDate = moment.unix(to);
+
+  // Adjust fromDate if the difference is more than 59 days
+  if (toDate.diff(fromDate, "days") > 59) {
+    fromDate = toDate.clone().subtract(59, "days");
+  }
+
+  // Format the dates as required
+  const formattedFromDate = fromDate.format("YYYY-MM-DD HH:mm:ss");
+  const formattedToDate = toDate.format("YYYY-MM-DD HH:mm:ss");
+  console.log("to from", formattedToDate, formattedFromDate);
+  const data = await getKiteCred.getAccess();
+  // Validate input
+  if (!instrumentToken || !from || !to || !interval) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    // Construct the API endpoint
+    const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/${interval}`;
+
+    // Make the API call
+    const response = await axios.get(url, {
+      params: {
+        from: formattedFromDate,
+        to: formattedToDate,
+        // continuous: true,
+      },
+      headers: {
+        "X-Kite-Version": "3",
+        Authorization: `token ${data.getApiKey}:${data.getAccessToken}`,
+      },
+    });
+    const formattedData = response.data.data.candles.map((candle) => ({
+      time: new Date(candle[0]).getTime() + 19800000,
       open: candle[1],
       high: candle[2],
       low: candle[3],
@@ -90,4 +148,23 @@ exports.getHistoricalDataUDF = async (req, res) => {
     console.error("Error fetching historical data", error);
     res.status(500).json({ s: "error", errmsg: error.message });
   }
+};
+
+exports.getAllSymbols = async (req, res) => {
+  try {
+    const tradable = await TradableInstrument.find({ status: "Active" });
+    // console.log("tradable", tradable);
+    let allSymbols = [];
+    for (let item of tradable) {
+      allSymbols.push({
+        instrument_token: item?.instrument_token,
+        symbol: item?.tradingsymbol,
+        full_name: `${item?.tradingsymbol}`,
+        description: item?.tradingsymbol,
+        exchange: item?.exchange,
+        type: "Options",
+      });
+    }
+    res.status(200).json({ data: allSymbols });
+  } catch (e) {}
 };

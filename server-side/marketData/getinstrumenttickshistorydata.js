@@ -1,19 +1,22 @@
-const axios = require("axios")
+const axios = require("axios");
 const InstrumentTicksDataSchema = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
 const express = require("express");
-const getKiteCred = require('../marketData/getKiteCred'); 
-const sendMail = require('../utils/emailService');
-const moment = require('moment');
-const TradableInstrument = require('../models/Instruments/allTradableInstrumentsSchema');
+const getKiteCred = require("../marketData/getKiteCred");
+const sendMail = require("../utils/emailService");
+const moment = require("moment");
+const TradableInstrument = require("../models/Instruments/allTradableInstrumentsSchema");
 const TradableInstrumentList = require("../controllers/TradableInstrument/tradableInstrument");
 const IndiaVix = require('../models/Instruments/indiaVix');
 
-
 const getInstrumentTicksHistoryData = async () => {
-  return new Promise(async (resolve, reject) => { 
-    try{
+  return new Promise(async (resolve, reject) => {
+    console.log("aight we here");
+    try {
       const kiteData = await getKiteCred.getAccess();
-      const endOfMonth = moment().add(3, 'months').subtract(5, 'hours').subtract(30, 'minutes');
+      const endOfMonth = moment()
+        .add(3, "months")
+        .subtract(5, "hours")
+        .subtract(30, "minutes");
 
       const datePart = (new Date(endOfMonth)).toISOString()?.split('T')[0];
       console.log('datePart', datePart);
@@ -27,18 +30,23 @@ const getInstrumentTicksHistoryData = async () => {
         const {instrument_token, exchange_token, expiry, tradingsymbol} = elem;
         const candles = await fetchAndFormatData(kiteData, instrument_token, todaysDatePart);
 
-        console.log(candles.length)
-        if(candles.length){
-          const saveData = await InstrumentTicksDataSchema.create([{
-            symbol: tradingsymbol, instrumentToken: instrument_token, 
-            exchangeToken: exchange_token, expiry: expiry, candles: candles, 
-            createdOn: new Date()
-          }])
+        console.log(candles.length);
+        if (candles.length) {
+          const saveData = await InstrumentTicksDataSchema.create([
+            {
+              symbol: tradingsymbol,
+              instrumentToken: instrument_token,
+              exchangeToken: exchange_token,
+              expiry: expiry,
+              candles: candles,
+              createdOn: new Date(),
+            },
+          ]);
         }
       }
       resolve();
-    } catch(err){
-      console.log("in err history", err)
+    } catch (err) {
+      console.log("in err history", err);
       reject(err);
     }
   });
@@ -47,34 +55,39 @@ const getInstrumentTicksHistoryData = async () => {
 const fetchAndFormatData = async (kiteData, instrumentToken, todayDate) => {
   const api_key = kiteData.getApiKey;
   const access_token = kiteData.getAccessToken;
-  const auth = 'token' + api_key + ':' + access_token;
+  const auth = "token" + api_key + ":" + access_token;
   const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/60minute?from=${todayDate}+09:15:00&to=${todayDate}+15:30:00`;
 
   const authOptions = {
     headers: {
-      'X-Kite-Version': '3',
+      "X-Kite-Version": "3",
       Authorization: auth,
     },
   };
 
   try {
     const response = await axios.get(url, authOptions);
-    const instrumentticks = (response.data).data;
+    const instrumentticks = response.data.data;
     const len = instrumentticks.candles.length;
     const instrumentticksdata = [];
     for (const candle of instrumentticks.candles) {
       const [timestamp, open, high, low, close, volume] = candle;
       instrumentticksdata.push({
-        timestamp, open, high, low, close, volume
-      })
+        timestamp,
+        open,
+        high,
+        low,
+        close,
+        volume,
+      });
     }
 
     return instrumentticksdata;
   } catch (err) {
     // console.log(err)
-    return false
+    return false;
   }
-}
+};
 
 const saveIndiaVix = async ()=>{
   const kiteData = await getKiteCred.getAccess();
@@ -112,17 +125,27 @@ async function vixHelper(url, authOptions){
   const instrumentticksdata = [];
   for (const candle of instrumentticks.candles) {
     const [timestamp, open, high, low, close, volume] = candle;
-    instrumentticksdata.push({
-      timestamp: new Date(moment(timestamp).add(15, 'hours').add(30, 'minutes')), open, high, low, close, volume, instrument_token: 264969,
-      exchange_token: 264969, tradingsymbol: 'INDIA VIX'
-    })
+    let newTime;
+    const newTimestamp = new Date(timestamp);
+    if(instrumentticks.candles?.length === 1){
+      newTime = new Date(moment(timestamp).add(15, 'hours').add(30, 'minutes'));
+      instrumentticksdata.push({
+        timestamp: newTime, open, high, low, close, volume, instrument_token: 264969,
+        exchange_token: 264969, tradingsymbol: 'INDIA VIX'
+      })
+    } else{
+      instrumentticksdata.push({
+        timestamp: newTimestamp, open, high, low, close, volume, instrument_token: 264969,
+        exchange_token: 264969, tradingsymbol: 'INDIA VIX'
+      })
+    }
   }
 
   const data = await IndiaVix.create(instrumentticksdata);
 }
 
 async function mailSender(length){
-  sendMail("vvv201214@gmail.com", 'History Data - StoxHero', `
+  await sendMail("vvv201214@gmail.com", 'History Data - StoxHero', `
   <!DOCTYPE html>
   <html>
   <head>
@@ -201,25 +224,32 @@ async function mailSender(length){
       </div>
   </body>
   </html>
-  `);
-
-
+  `
+  );
 }
 
-exports.main = async ()=>{
+exports.main = async () => {
   const today = moment();
-  const start = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
-  const end = today.clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+  const start = today
+    .clone()
+    .startOf("day")
+    .subtract(5, "hours")
+    .subtract(30, "minutes");
+  const end = today
+    .clone()
+    .endOf("day")
+    .subtract(5, "hours")
+    .subtract(30, "minutes");
 
-  // console.log(' before first', new Date());
-  // await TradableInstrumentList.allTradableInstrument();
+  console.log(' before first', new Date());
+  await TradableInstrumentList.allTradableInstrument();
 
-  // console.log('first', new Date());
-  // await getInstrumentTicksHistoryData();
+  console.log('first', new Date());
+  await getInstrumentTicksHistoryData();
   await saveIndiaVix();
-  // console.log('end', new Date());
-  // const historyDataforLen = await InstrumentTicksDataSchema.find({createdOn: {$gt: new Date(start), $lt: new Date(end)}});   
-  // const length = historyDataforLen.length;
-  // mailSender(length);
+  console.log('end', new Date());
+  const historyDataforLen = await InstrumentTicksDataSchema.find({createdOn: {$gt: new Date(start), $lt: new Date(end)}});   
+  const length = historyDataforLen.length;
+  await mailSender(length);
 }
 
