@@ -60,14 +60,16 @@ exports.hourChart = async (req, res) => {
         const tradeData = await TradeData.find({ status: "COMPLETE", trader: new ObjectId(userId), trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) } })
         const vixData = await IndiaVix.find({ timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) } })
 
-        // console.log('vixData', vixData)
         const symbolArr = tradeData.map((elem) => {
             return elem?.symbol;
         })
 
         const uniqueSymbolArr = [...new Set(symbolArr)];
 
-        const historyTicksInstrument = await HistoryData.find({ createdOn: { $gt: new Date(startToday), $lt: new Date(endToday) }, symbol: { $in: uniqueSymbolArr } })
+        console.log(startToday, endToday, uniqueSymbolArr)
+        const historyTicksInstrument = await HistoryData.find({ createdOn: { $gt: new Date(startToday), $lt: new Date(endToday) }, symbol: { $in: uniqueSymbolArr } });
+        // console.log('vixData', vixData.length, tradeData.length)
+
         const uniqueTicksArr = [...new Map(historyTicksInstrument.map(item => [item.symbol, item])).values()];
 
         const todaysDatePart = (new Date(endToday)).toISOString()?.split('T')?.[0];
@@ -109,6 +111,7 @@ exports.hourChart = async (req, res) => {
             const formatedBuyArr = await formatTradeData(newData?.buyArr);
             const formatedSellArr = await formatTradeData(newData?.sellArr);
 
+            console.log(tradeData.length , uniqueTicksArr.length)
             if(tradeData.length && uniqueTicksArr.length){
                 const buyPnlObj = await calculatePnl(formatedBuyArr, uniqueTicksArr, timeArr[i])
                 const sellPnlObj = await calculatePnl(formatedSellArr, uniqueTicksArr, timeArr[i]);
@@ -125,7 +128,7 @@ exports.hourChart = async (req, res) => {
             
         }
 
-        let pnl1PM, pnl3PM;
+        let pnl1PM={}, pnl3PM={};
         for(const pnl of pnlObjArr){
             new Date(pnl.timestamp) , new Date(`${todaysDatePart}T13:15:00.000+00:00`)
             if(new Date(pnl.timestamp).getTime() === new Date(`${todaysDatePart}T13:15:00.000+00:00`).getTime()){
