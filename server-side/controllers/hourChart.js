@@ -371,6 +371,22 @@ async function parseCsvStream(stream) {
     });
 }
 
+async function parseCsvStreamNew(stream) {
+    return new Promise((resolve, reject) => {
+        const results = [];
+        let pointer = 0;
+        stream
+            .pipe(csv())
+            .on('data', ((data) => {
+                console.log(pointer)
+                pointer++;
+                results.push(data)
+            }))
+            .on('end', () => resolve(results))
+            .on('error', (error) => reject(error));
+    });
+}
+
 const saveDataToDBNew = async (url, userId) => {
     try {
         // const url = 'https://stagingdmt.blob.core.windows.net/dmt-trade/06501232945102076-data_hour_calcluation.csv'
