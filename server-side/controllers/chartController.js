@@ -51,8 +51,8 @@ exports.getHistoricalDataAdv = async (req, res) => {
   const { instrumentToken, from, to, interval, continuous, countBack } =
     req.query;
   console.log(req.query);
-  let fromDate = moment.unix(from);
-  const toDate = moment.unix(to);
+  let fromDate = moment.unix(from).add(5, 'hours').add(30, 'minutes');
+  const toDate = moment.unix(to).add(5, 'hours').add(30, 'minutes');
 
   // Adjust fromDate if the difference is more than 59 days
   if (toDate.diff(fromDate, "days") > 59) {
