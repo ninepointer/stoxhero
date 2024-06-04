@@ -45,6 +45,8 @@ exports.uploadMulter = uploadStrategy;
 exports.hourChart = async (req, res) => {
     try {
         const date = req.query.date;
+        const thirdParty = req.query.thirdParty ?? 'false';
+        const TradeModel = thirdParty == 'true' ? ThirdPartyTrades : TradeData;
         // const userId = '662f804700f04a05fe3c941f';
         // const today = moment('2024-05-22');
         // const startToday = '2024-05-22';
@@ -55,11 +57,10 @@ exports.hourChart = async (req, res) => {
         const startToday = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
         const endToday = today.clone().endOf('day')
         // .subtract(5, 'hours').subtract(30, 'minutes');
-
-        const pnlObjArr = [];        
-        const tradeData = await TradeData.find({ status: "COMPLETE", trader: new ObjectId(userId), trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) } })
+        const pnlObjArr = [];       
+        const tradeData = await TradeModel.find({ status: "COMPLETE", trader: new ObjectId(userId), trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) } })
         const vixData = await IndiaVix.find({ timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) } })
-
+        console.log('trade data', tradeData.length)
         const symbolArr = tradeData.map((elem) => {
             return elem?.symbol;
         })
@@ -324,12 +325,15 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
 exports.uploadCSV = async (req, res) => {
     try {
         const userId = req?.user?._id || '662f804700f04a05fe3c941f';
-        // const data = await uploadFileToAzure(req.file);
-        // console.log(data);
-        const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8375248682662133-NSEFO_1hr_4months.csv';
-        // data?.fileUrl;
+        const data = await uploadFileToAzure(req.file);
+        console.log('uploaded to cloud', data);
+        // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8375248682662133-NSEFO_1hr_4months.csv';
+        'https://stagingdmt.blob.core.windows.net/dmt-trade/07252194481784469-Untitled spreadsheet - Sheet1.csv'
+         const originalUrl = data?.fileUrl;
+        // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8901355588917994-Untitled%2520spreadsheet%2520-%2520Sheet1.csv'
         const url = originalUrl?.split('/')[originalUrl?.split('/').length - 1];
-        const savedData = await saveDataToDBNew(url, userId);
+        const savedData = await saveDataToDB(url, userId);
+        console.log('saved data', url, savedData);
 
         res.status(200).json({
             status: "success",
@@ -350,7 +354,9 @@ async function downloadCsvBlob(url) {
             containerName,
             url
         );
+        console.log('blob service', blobService);
         const downloadBlockBlobResponse = await blobService.download();
+        console.log('downloade Block blob', downloadBlockBlobResponse)
         return downloadBlockBlobResponse.readableStreamBody;
 
     } catch (err) {
@@ -449,8 +455,10 @@ const saveDataToDB = async (url, userId) => {
         // const url = 'https://stagingdmt.blob.core.windows.net/dmt-trade/06501232945102076-data_hour_calcluation.csv'
         // const userId = '662f804700f04a05fe3c941f';
         // const url = '06501232945102076-data_hour_calcluation.csv'
+        console.log('we\'re here in save data to db');
         const csvStream = await downloadCsvBlob(url);
         const csvData = await parseCsvStream(csvStream);
+        console.log('processed', csvStream, csvData)
 
         const uniqueTrades = csvData.filter((trade, index, self) =>
             index === self.findIndex((t) => (
