@@ -225,7 +225,7 @@ exports.schoolUserLogin = async (req, res) => {
     if (process.env.PROD == "true") sendOTP(mobile.toString(), mobile_otp);
     console.log(process.env.PROD, mobile_otp, "sending");
     if (process.env.PROD !== "true") {
-      sendOTP("8076284368", mobile_otp);
+      // sendOTP("8076284368", mobile_otp);
       sendOTP("9319671094", mobile_otp);
     }
 
@@ -296,7 +296,7 @@ exports.resetPinOtp = async (req, res) => {
     if (process.env.PROD == "true") sendOTP(mobile.toString(), mobile_otp);
     console.log(process.env.PROD, mobile_otp, "sending");
     if (process.env.PROD !== "true") {
-      sendOTP("8076284368", mobile_otp);
+      // sendOTP("8076284368", mobile_otp);
       sendOTP("9319671094", mobile_otp);
     }
 
@@ -368,7 +368,7 @@ exports.phoneLogin = async (req, res) => {
     if (process.env.PROD == "true") sendOTP(mobile.toString(), mobile_otp);
     console.log(process.env.PROD, mobile_otp, "sending");
     if (process.env.PROD !== "true") {
-      sendOTP("8076284368", mobile_otp);
+      // sendOTP("8076284368", mobile_otp);
       sendOTP("9319671094", mobile_otp);
     }
 
@@ -434,7 +434,7 @@ exports.phoneLoginMobile = async (req, res) => {
       if (process.env.PROD == "true") sendOTP(mobile.toString(), mobile_otp);
       console.log(process.env.PROD, mobile_otp, "sending");
       if (process.env.PROD !== "true") {
-        sendOTP("8076284368", mobile_otp);
+        // sendOTP("8076284368", mobile_otp);
         sendOTP("9319671094", mobile_otp);
       }
 
@@ -467,7 +467,7 @@ exports.phoneLoginMobile = async (req, res) => {
     if (process.env.PROD == "true") sendOTP(mobile.toString(), mobile_otp);
     console.log(process.env.PROD, mobile_otp, "sending");
     if (process.env.PROD !== "true") {
-      sendOTP("8076284368", mobile_otp);
+      // sendOTP("8076284368", mobile_otp);
       sendOTP("9319671094", mobile_otp);
     }
 
