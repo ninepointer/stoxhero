@@ -11,8 +11,9 @@ router.route("/allsymbols").get(chartController.getAllSymbols);
 router
   .route("/historicaludf")
   .get(Authenticate, chartController.getHistoricalDataUDF);
-
+  
 router.route('/uploadcsv').post(Authenticate, pnlChart.uploadMulter, pnlChart.uploadCSV);
 router.route('/hourly').get(Authenticate, pnlChart.hourChart);
+router.route('/isexist').get(Authenticate, pnlChart.isThirdPartyDataExist);
 
 module.exports = router;
