@@ -11,10 +11,10 @@ const instrumentHistoricalDataSchema = new mongoose.Schema({
     close: Number,
     low: Number,
     volume: Number,
-    createdOn: {
-        type: Date,
-        required: true
-    }
+    // createdOn: {
+    //     type: Date,
+    //     required: true
+    // }
 })
 
 const instrumentHistoricalData = mongoose.model("history-tick-new", instrumentHistoricalDataSchema);

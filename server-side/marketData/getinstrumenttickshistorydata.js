@@ -8,7 +8,7 @@ const TradableInstrument = require("../models/Instruments/allTradableInstruments
 const TradableInstrumentList = require("../controllers/TradableInstrument/tradableInstrument");
 const IndiaVix = require('../models/Instruments/indiaVix');
 
-const getInstrumentTicksHistoryData = async () => {
+const getInstrumentTicksHistoryData = async (todaysDatePart) => {
   return new Promise(async (resolve, reject) => {
     console.log("aight we here");
     try {
@@ -25,7 +25,6 @@ const getInstrumentTicksHistoryData = async () => {
       .select('instrument_token exchange_token expiry tradingsymbol');
 
 
-      const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
       for(const elem of instrumentList){
         const {instrument_token, exchange_token, expiry, tradingsymbol} = elem;
         const candles = await fetchAndFormatData(kiteData, instrument_token, todaysDatePart);
@@ -89,9 +88,8 @@ const fetchAndFormatData = async (kiteData, instrumentToken, todayDate) => {
   }
 };
 
-const saveIndiaVix = async ()=>{
+const saveIndiaVix = async (todaysDatePart)=>{
   const kiteData = await getKiteCred.getAccess();
-  const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
   const api_key = kiteData.getApiKey;
   const access_token = kiteData.getAccessToken;
   const auth = 'token' + api_key + ':' + access_token;
@@ -242,11 +240,13 @@ exports.main = async () => {
     .subtract(30, "minutes");
 
   console.log(' before first', new Date());
+  const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
+  // const todaysDatePart = '2024-05-31';
   await TradableInstrumentList.allTradableInstrument();
 
   console.log('first', new Date());
-  await getInstrumentTicksHistoryData();
-  await saveIndiaVix();
+  await getInstrumentTicksHistoryData(todaysDatePart);
+  await saveIndiaVix(todaysDatePart);
   console.log('end', new Date());
   const historyDataforLen = await InstrumentTicksDataSchema.find({createdOn: {$gt: new Date(start), $lt: new Date(end)}});   
   const length = historyDataforLen.length;
