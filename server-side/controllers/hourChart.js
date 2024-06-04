@@ -1,5 +1,7 @@
 const TradeData = require("../models/mock-trade/paperTrade");
 const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
+const HistoryDataNew = require("../models/InstrumentHistoricalData/InstrumentHistoricalDataNew");
+
 const moment = require('moment');
 const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
 const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
@@ -42,6 +44,24 @@ const uploadFileToAzure = async (file) => {
 
 exports.uploadMulter = uploadStrategy;
 
+exports.isThirdPartyDataExist = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const data = await ThirdPartyTrades.findOne({trader: new ObjectId(userId)});
+        res.status(200).json({
+            status: "success",
+            isExist: data ? true : false, 
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            status: "error",
+            message: "Something went wrong",
+            error: err.message,
+        });
+    }
+};
+
 exports.hourChart = async (req, res) => {
     try {
         const date = req.query.date;
@@ -60,16 +80,13 @@ exports.hourChart = async (req, res) => {
         const pnlObjArr = [];       
         const tradeData = await TradeModel.find({ status: "COMPLETE", trader: new ObjectId(userId), trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) } })
         const vixData = await IndiaVix.find({ timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) } })
-        console.log('trade data', tradeData.length)
         const symbolArr = tradeData.map((elem) => {
             return elem?.symbol;
         })
 
         const uniqueSymbolArr = [...new Set(symbolArr)];
 
-        console.log(startToday, endToday, uniqueSymbolArr)
         const historyTicksInstrument = await HistoryData.find({ createdOn: { $gt: new Date(startToday), $lt: new Date(endToday) }, symbol: { $in: uniqueSymbolArr } });
-        // console.log('vixData', vixData.length, tradeData.length)
 
         const uniqueTicksArr = [...new Map(historyTicksInstrument.map(item => [item.symbol, item])).values()];
 
@@ -112,7 +129,6 @@ exports.hourChart = async (req, res) => {
             const formatedBuyArr = await formatTradeData(newData?.buyArr);
             const formatedSellArr = await formatTradeData(newData?.sellArr);
 
-            console.log(tradeData.length , uniqueTicksArr.length)
             if(tradeData.length && uniqueTicksArr.length){
                 const buyPnlObj = await calculatePnl(formatedBuyArr, uniqueTicksArr, timeArr[i])
                 const sellPnlObj = await calculatePnl(formatedSellArr, uniqueTicksArr, timeArr[i]);
@@ -326,18 +342,17 @@ exports.uploadCSV = async (req, res) => {
     try {
         const userId = req?.user?._id || '662f804700f04a05fe3c941f';
         const data = await uploadFileToAzure(req.file);
-        console.log('uploaded to cloud', data);
         // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8375248682662133-NSEFO_1hr_4months.csv';
-        'https://stagingdmt.blob.core.windows.net/dmt-trade/07252194481784469-Untitled spreadsheet - Sheet1.csv'
+        // 'https://stagingdmt.blob.core.windows.net/dmt-trade/07252194481784469-Untitled spreadsheet - Sheet1.csv'
          const originalUrl = data?.fileUrl;
         // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8901355588917994-Untitled%2520spreadsheet%2520-%2520Sheet1.csv'
         const url = originalUrl?.split('/')[originalUrl?.split('/').length - 1];
         const savedData = await saveDataToDB(url, userId);
-        console.log('saved data', url, savedData);
 
         res.status(200).json({
             status: "success",
-            data: savedData
+            data: savedData,
+            url: data
         });
     } catch (err) {
         res.status(200).json({
@@ -354,9 +369,7 @@ async function downloadCsvBlob(url) {
             containerName,
             url
         );
-        console.log('blob service', blobService);
         const downloadBlockBlobResponse = await blobService.download();
-        console.log('downloade Block blob', downloadBlockBlobResponse)
         return downloadBlockBlobResponse.readableStreamBody;
 
     } catch (err) {
@@ -371,9 +384,51 @@ async function parseCsvStream(stream) {
         stream
             .pipe(csv())
             .on('data', ((data) => {
-                console.log(pointer)
                 pointer++;
                 results.push(data)
+            }))
+            .on('end', () => resolve(results))
+            .on('error', (error) => reject(error));
+    });
+}
+
+async function parseCsvStreamNew(stream) {
+    return new Promise((resolve, reject) => {
+        const results = [];
+        let pointer = 0;
+        stream
+            .pipe(csv())
+            .on('data', ( async (data) => {
+                pointer++;
+                results.push({
+                    timestamp: new Date(`${data['Date']}T${data['Time']}`),
+                    open: data['Open'],
+                    high: data['High'],
+                    close: data['Close'],
+                    low: data['Low'],
+                    volume: data['Volume'],
+                    symbol: data['Ticker']?.split('.')?.[0]
+                })
+
+                // const save = await HistoryDataNew.create([
+                //     {
+                //         timestamp: new Date(`${data['Date']}T${data['Time']}`),
+                //         open: data['Open'],
+                //         high: data['High'],
+                //         close: data['Close'],
+                //         low: data['Low'],
+                //         volume: data['Volume'],
+                //         symbol: data['Ticker']?.split('.')?.[0]
+                //     }
+                // ]);
+
+                // console.log(save)
+
+
+                // if (pointer === 100) {
+                //     stream.unpipe(); // Stop the stream from reading more data
+                //     resolve(results); // Resolve the promise with the results
+                // }
             }))
             .on('end', () => resolve(results))
             .on('error', (error) => reject(error));
@@ -386,9 +441,11 @@ const saveDataToDBNew = async (url, userId) => {
         // const userId = '662f804700f04a05fe3c941f';
         // const url = '06501232945102076-data_hour_calcluation.csv'
         const csvStream = await downloadCsvBlob(url);
-        const csvData = await parseCsvStream(csvStream);
+        const csvData = await parseCsvStreamNew(csvStream);
 
-        console.log("csvData", csvData.length);
+        // HistoryDataNew
+
+        const save = await HistoryDataNew.create(csvData);
         // const uniqueTrades = csvData.filter((trade, index, self) =>
         //     index === self.findIndex((t) => (
         //         t.Symbol === trade.Symbol &&
@@ -400,49 +457,49 @@ const saveDataToDBNew = async (url, userId) => {
 
         // console.log("uniqueTrades", uniqueTrades);
 
-        const finalData = [];
-        for(const trade of csvData){
-            const symbol = trade['Ticker']?.split('.')?.[0];
-            console.log(symbol, trade['Ticker']?.split('.')?.[0]);
-            // const instrumentData = await AllTradableInstrumentSchema.findOne({tradingsymbol: symbol});
-            const filterdArr = csvData.filter((elem)=>{
-                return elem['Date']===trade['Date'] && elem['Ticker']===trade['Ticker'];
-            })
+        // const finalData = [];
+        // for(const trade of csvData){
+        //     const symbol = trade['Ticker']?.split('.')?.[0];
+        //     console.log(symbol, trade['Ticker']?.split('.')?.[0]);
+        //     // const instrumentData = await AllTradableInstrumentSchema.findOne({tradingsymbol: symbol});
+        //     const filterdArr = csvData.filter((elem)=>{
+        //         return elem['Date']===trade['Date'] && elem['Ticker']===trade['Ticker'];
+        //     })
 
-            const candles = [];
-            // filterdArr.sort((a, b) => {
-            //     if (a['Time'] > b['Time']) {
-            //         return 1;
-            //     }
-            //     if (a['Time'] <= b['Time']) {
-            //         return -1;
-            //     }
-            // })
-            for(const arr of filterdArr){
-                candles.push({
-                    timestamp: new Date(`${arr['Date']}T${arr['Time']}`),
-                    open: arr['Open'],
-                    high: arr['High'],
-                    close: arr['Close'],
-                    low: arr['Low'],
-                    volume: arr['Volume']
-                })
-            }
+        //     const candles = [];
+        //     // filterdArr.sort((a, b) => {
+        //     //     if (a['Time'] > b['Time']) {
+        //     //         return 1;
+        //     //     }
+        //     //     if (a['Time'] <= b['Time']) {
+        //     //         return -1;
+        //     //     }
+        //     // })
+        //     for(const arr of filterdArr){
+        //         candles.push({
+        //             timestamp: new Date(`${arr['Date']}T${arr['Time']}`),
+        //             open: arr['Open'],
+        //             high: arr['High'],
+        //             close: arr['Close'],
+        //             low: arr['Low'],
+        //             volume: arr['Volume']
+        //         })
+        //     }
 
-            finalData.push({
-              symbol,
-            //   instrumentToken: instrumentData?.instrument_token,
-            //   exchangeToken: instrumentData?.exchange_token,
-            //   expiry: instrumentData?.expiry,
-              candles: candles,
-              createdOn: new Date(),
-            })
-        }
+        //     finalData.push({
+        //       symbol,
+        //     //   instrumentToken: instrumentData?.instrument_token,
+        //     //   exchangeToken: instrumentData?.exchange_token,
+        //     //   expiry: instrumentData?.expiry,
+        //       candles: candles,
+        //       createdOn: new Date(),
+        //     })
+        // }
 
-        console.log(finalData);
+        // console.log(finalData);
 
-        const save = await HistoryData.create(finalData)
-        return save;
+        // const save = await HistoryData.create(finalData)
+        return 'ok';
 
     } catch (error) {
         console.error(error);
@@ -455,10 +512,8 @@ const saveDataToDB = async (url, userId) => {
         // const url = 'https://stagingdmt.blob.core.windows.net/dmt-trade/06501232945102076-data_hour_calcluation.csv'
         // const userId = '662f804700f04a05fe3c941f';
         // const url = '06501232945102076-data_hour_calcluation.csv'
-        console.log('we\'re here in save data to db');
         const csvStream = await downloadCsvBlob(url);
         const csvData = await parseCsvStream(csvStream);
-        console.log('processed', csvStream, csvData)
 
         const uniqueTrades = csvData.filter((trade, index, self) =>
             index === self.findIndex((t) => (
@@ -531,7 +586,8 @@ const convertToTradingData = async (data, instrumentData, userId) => {
                 instrumentToken: instrument_token,
                 exchangeInstrumentToken: exchange_token,
                 amount: amount,
-                trade_time: moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss").add(5, 'hours').add(30, 'minutes').utc().format(),
+                trade_time: moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss"),
+                // .add(5, 'hours').add(30, 'minutes').utc().format()
                 account_number: elem?.["Account Number"],
                 cp_id: elem?.['CP ID'],
                 ctcl_id: elem?.["CTCL ID"],
