@@ -349,13 +349,19 @@ exports.uploadCSV = async (req, res) => {
         const url = originalUrl?.split('/')[originalUrl?.split('/').length - 1];
         const savedData = await saveDataToDB(url, userId);
 
+        if(savedData === 'Data Exist'){
+            return res.status(400).json({
+                status: "error",
+                message: 'Uploaded data already exist!'
+            });
+        }
+
         res.status(200).json({
             status: "success",
             data: savedData,
-            url: data
         });
     } catch (err) {
-        res.status(200).json({
+        res.status(400).json({
             status: "error",
             message: err?.message
         });
@@ -599,6 +605,15 @@ const convertToTradingData = async (data, instrumentData, userId) => {
             })
         }
 
+        const getStartDate = moment(tradeData?.[0]?.trade_time).startOf('day').add(5, 'hours').add(30, 'minutes');
+        const getEndDate = moment(tradeData?.[0]?.trade_time).endOf('day').add(5, 'hours').add(30, 'minutes');
+
+        const checkExist = await ThirdPartyTrades.findOne({order_id: tradeData?.[0]?.order_id, trade_time: {$gt: new Date(getStartDate), $lt: new Date(getEndDate)}});
+
+        console.log(new Date(getStartDate), new Date(getEndDate), checkExist)
+        if(checkExist){
+            return 'Data Exist'
+        }
         const savedData = await ThirdPartyTrades.create(tradeData);
         return savedData;
     } catch (err) {
