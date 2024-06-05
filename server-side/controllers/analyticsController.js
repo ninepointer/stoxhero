@@ -5,6 +5,7 @@ const TraderDailyPnlData = require("../models/InstrumentHistoricalData/TraderDai
 const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const { ObjectId } = require("mongodb");
 const TradingHoliday = require("../models/TradingHolidays/tradingHolidays");
+const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
 
 exports.getPaperTradesOverview = async (req, res, next) => {
   let userId = req.params.id;
@@ -187,13 +188,15 @@ exports.getPaperTradesOverview = async (req, res, next) => {
 exports.getPaperTradesDateWiseStats = async (req, res) => {
   const { id } = req.params;
   const { to, from } = req.query;
+  const thirdParty = req.query.thirdParty ?? "false";
   let date = new Date();
   const fromDate = new Date(from);
   fromDate.setHours(0, 0, 0, 0);
   const toDate = new Date(to);
   toDate.setHours(23, 59, 59, 999);
+  const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
 
-  let pnlDetails = await PaperTrade.aggregate([
+  let pnlDetails = await TradeModel.aggregate([
     {
       $match: {
         trade_time: { $gte: fromDate, $lte: toDate },
@@ -249,6 +252,8 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
 exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
   const { id } = req.params;
   const { to, from } = req.query;
+  const thirdParty = req.query.thirdParty ?? "false";
+  const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
   const fromDate = new Date(from);
   fromDate.setHours(0, 0, 0, 0);
   const toDate = new Date(to);
@@ -270,7 +275,7 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
   //   dayCounts[day] = (dayCounts[day] || 0) + 1;
   // }
 
-  let pnlDetails = await PaperTrade.aggregate([
+  let pnlDetails = await TradeModel.aggregate([
     {
       $match: {
         trade_time: { $gte: fromDate, $lte: toDate },
@@ -369,6 +374,8 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
 exports.getPaperTradesOverallStats = async (req, res) => {
   const { id } = req.params;
   const { to, from } = req.query;
+  const thirdParty = req.query.thirdParty ?? "false";
+  const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
   const fromDate = new Date(from);
   fromDate.setHours(0, 0, 0, 0);
   const toDate = new Date(to);
@@ -408,7 +415,7 @@ exports.getPaperTradesOverallStats = async (req, res) => {
   const totalWeekDays = countWeekdays(fromDate, toDate);
   const totalMarketDays = totalWeekDays - holidayCount;
 
-  let pnlDetails = await PaperTrade.aggregate([
+  let pnlDetails = await TradeModel.aggregate([
     {
       $match: {
         trade_time: { $gte: fromDate, $lte: toDate },
@@ -562,11 +569,13 @@ exports.getPaperTradesDailyPnlData = async (req, res, next) => {
 
 exports.getPaperTradesMonthlyPnlData = async (req, res, next) => {
   const { id } = req.params;
+  const thirdParty = req.query.thirdParty ?? "false";
+  const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
   const today = new Date();
   const pastYear = new Date();
   pastYear.setFullYear(today.getFullYear() - 1);
   // console.log(pastYear,today);
-  let pnlDetails = await PaperTrade.aggregate([
+  let pnlDetails = await TradeModel.aggregate([
     {
       $match: {
         trade_time: { $gte: pastYear, $lte: today },
