@@ -100,15 +100,12 @@ exports.allTradableInstrument = async (req, res, next) => {
     return new Promise(async (resolve, reject) => {
         let userId = "63ecbc570302e7cf0153370c";
         getKiteCred.getAccess().then((data) => {
-            const url = 'https://api.kite.trade/instruments/NFO';
+            const url = 'https://api.kite.trade/instruments';
 
             const api_key = data.getApiKey;
             const access_token = data.getAccessToken;
             let auth = 'token ' + api_key + ':' + access_token;
 
-            const niftyMaxLot = 1800;
-            const bankniftyMaxLot = 900;
-            const finniftyMaxLot = 1800;
             const options = {
                 headers: {
                     'X-Kite-Version': '3',
@@ -141,39 +138,6 @@ exports.allTradableInstrument = async (req, res, next) => {
                                 } catch (err) {
                                     // console.log(err);
                                 }
-                                // if ((row.name == "NIFTY" || row.name == "BANKNIFTY" || row.name == "FINNIFTY") && row.segment == "NFO-OPT") {
-
-
-                                //     row.lastModifiedBy = userId;
-                                //     row.createdBy = userId;
-                                //     let date = changeDate(row.expiry);
-                                //     let prefix = "OPTIDX_" + row.name;
-                                //     let type = row.instrument_type;
-                                //     let strike = row.strike;
-
-                                //     row.chartInstrument = `${prefix}_${date}_${type}_${strike}`;
-                                //     if (row.name === "NIFTY") {
-                                //         row.name = row.name + "50";
-                                //         row.max_lot = niftyMaxLot;
-                                //     }
-
-                                //     if (row.name === "BANKNIFTY") {
-                                //         row.max_lot = bankniftyMaxLot;
-                                //     }
-
-                                //     if (row.name === "FINNIFTY") {
-                                //         row.max_lot = finniftyMaxLot;
-                                //     }
-
-
-                                //     try {
-                                //         const x = await TradableInstrument.create([row]);
-                                //         console.log(x);
-                                //     } catch (err) {
-                                //         // console.log(err);
-                                //     }
-
-                                // }
                             }
                         })
                         .on('end', () => {

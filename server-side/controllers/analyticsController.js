@@ -237,7 +237,9 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
         gpnl: 1,
         brokerage: 1,
         npnl: {
-          $subtract: ["$gpnl", "$brokerage"],
+          $subtract: ["$gpnl", {
+            $ifNull: ["$brokerage", 0]
+          }],
         },
         lots: 1,
         noOfTrade: 1,
@@ -292,7 +294,9 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         totalGpnl: { $sum: { $multiply: ["$amount", -1] } },
         totalBrokerage: { $sum: "$brokerage" },
         totalNpnl: {
-          $sum: { $subtract: [{ $multiply: ["$amount", -1] }, "$brokerage"] },
+          $sum: { $subtract: [{ $multiply: ["$amount", -1] }, {
+            $ifNull: ["$brokerage", 0]
+          }] },
         },
         totalTrades: { $sum: 1 },
         totalLots: { $sum: { $toInt: "$Quantity" } },
@@ -431,7 +435,9 @@ exports.getPaperTradesOverallStats = async (req, res) => {
         totalGpnl: { $sum: { $multiply: ["$amount", -1] } },
         totalBrokerage: { $sum: "$brokerage" },
         totalNpnl: {
-          $sum: { $subtract: [{ $multiply: ["$amount", -1] }, "$brokerage"] },
+          $sum: { $subtract: [{ $multiply: ["$amount", -1] }, {
+            $ifNull: ["$brokerage", 0]
+          }] },
         },
         totalTrades: { $sum: 1 },
         totalLots: { $sum: { $toInt: "$Quantity" } },
