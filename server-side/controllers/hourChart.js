@@ -306,7 +306,9 @@ const formatTradeData = async (tradeData) => {
 const calculatePnl = async (tradeData, ltpData, timestamp) => {
     let totalGpnl = 0;
     let totalRunningLots = 0;
-
+    let pnlNifty = 0;
+    let pnlBankNifty = 0;
+    let pnlFinNifty = 0;
 
     for (const elem of tradeData) {
         
@@ -317,13 +319,17 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
         const utcTimeStamp = new Date(timestamp);
         utcTimeStamp.setHours(utcTimeStamp.getHours() - 5);
         utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 30);
-
+        let isDayEnd = false;
+        
+        if(utcTimeStamp.getUTCHours() === 10){
+            isDayEnd = true;
+            utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 15);
+        }
         const ltpCandle = getCandleArray?.find((subelem) => {
             return new Date(subelem?.timestamp)?.toISOString() === utcTimeStamp?.toISOString();
         });
 
-        const ltp = ltpCandle?.close || 0;
-
+        const ltp = isDayEnd ? (ltpCandle?.close || 0) : (ltpCandle?.open || 0);
         if (ltp === undefined) continue;
 
         const gpnl = elem.Quantity !== 0
@@ -332,10 +338,13 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
 
         totalGpnl += gpnl;
         totalRunningLots += elem.Quantity
+        pnlNifty += elem?.symbol?.startsWith('NIFTY') ? gpnl : 0
+        pnlBankNifty += elem?.symbol?.startsWith('BANKNIFTY') ? gpnl : 0
+        pnlFinNifty += elem?.symbol?.startsWith('FINNIFTY') ? gpnl : 0
     }
 
 
-    return { gpnl: totalGpnl, timestamp, runningLots: totalRunningLots };
+    return { gpnl: totalGpnl, timestamp, runningLots: totalRunningLots, pnlNifty, pnlBankNifty, pnlFinNifty};
 };
 
 exports.uploadCSV = async (req, res) => {
