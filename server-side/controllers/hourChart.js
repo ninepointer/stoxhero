@@ -67,17 +67,12 @@ exports.hourChart = async (req, res) => {
         const date = req.query.date;
         const thirdParty = req.query.thirdParty ?? 'false';
         const TradeModel = thirdParty == 'true' ? ThirdPartyTrades : TradeData;
-        // const userId = '662f804700f04a05fe3c941f';
-        // const today = moment('2024-05-22');
-        // const startToday = '2024-05-22';
-        // const endToday = '2024-05-23'
 
         const userId = req?.user?._id;
         const today = moment(date);
         const startToday = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
         const endToday = today.clone().endOf('day')
-        // .subtract(5, 'hours').subtract(30, 'minutes');
-        const pnlObjArr = [];       
+        const pnlObjArr = [];
         const tradeData = await TradeModel.find({ status: "COMPLETE", trader: new ObjectId(userId), trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) } })
         const vixData = await IndiaVix.find({ timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) } })
         const symbolArr = tradeData.map((elem) => {
@@ -306,7 +301,9 @@ const formatTradeData = async (tradeData) => {
 const calculatePnl = async (tradeData, ltpData, timestamp) => {
     let totalGpnl = 0;
     let totalRunningLots = 0;
-
+    let pnlNifty = 0;
+    let pnlBankNifty = 0;
+    let pnlFinNifty = 0;
 
     for (const elem of tradeData) {
         
@@ -317,13 +314,17 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
         const utcTimeStamp = new Date(timestamp);
         utcTimeStamp.setHours(utcTimeStamp.getHours() - 5);
         utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 30);
-
+        let isDayEnd = false;
+        
+        if(utcTimeStamp.getUTCHours() === 10){
+            isDayEnd = true;
+            utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 15);
+        }
         const ltpCandle = getCandleArray?.find((subelem) => {
             return new Date(subelem?.timestamp)?.toISOString() === utcTimeStamp?.toISOString();
         });
 
-        const ltp = ltpCandle?.close || 0;
-
+        const ltp = isDayEnd ? (ltpCandle?.close || 0) : (ltpCandle?.open || 0);
         if (ltp === undefined) continue;
 
         const gpnl = elem.Quantity !== 0
@@ -332,10 +333,13 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
 
         totalGpnl += gpnl;
         totalRunningLots += elem.Quantity
+        pnlNifty += elem?.symbol?.startsWith('NIFTY') ? gpnl : 0
+        pnlBankNifty += elem?.symbol?.startsWith('BANKNIFTY') ? gpnl : 0
+        pnlFinNifty += elem?.symbol?.startsWith('FINNIFTY') ? gpnl : 0
     }
 
 
-    return { gpnl: totalGpnl, timestamp, runningLots: totalRunningLots };
+    return { gpnl: totalGpnl, timestamp, runningLots: totalRunningLots, pnlNifty, pnlBankNifty, pnlFinNifty};
 };
 
 exports.uploadCSV = async (req, res) => {
@@ -392,6 +396,170 @@ async function parseCsvStream(stream) {
             .on('data', ((data) => {
                 pointer++;
                 results.push(data)
+            }))
+            .on('end', () => resolve(results))
+            .on('error', (error) => reject(error));
+    });
+}
+
+const saveDataToDB = async (url, userId) => {
+    try {
+        // const url = 'https://stagingdmt.blob.core.windows.net/dmt-trade/06501232945102076-data_hour_calcluation.csv'
+        // const userId = '662f804700f04a05fe3c941f';
+        // const url = '06501232945102076-data_hour_calcluation.csv'
+        const csvStream = await downloadCsvBlob(url);
+        const csvData = await parseCsvStream(csvStream);
+
+        const uniqueTrades = csvData.filter((trade, index, self) =>
+            index === self.findIndex((t) => (
+                t.Symbol === trade.Symbol &&
+                t["Expiry Date"] === trade["Expiry Date"] &&
+                t["Strike Price"] === trade["Strike Price"] &&
+                t["Option Type"] === trade["Option Type"]
+            ))
+        );
+
+        const indexName = [];
+        const strike = [];
+        const expiry = [];
+        const optionType = [];
+
+        for (const elem of uniqueTrades) {
+            indexName.push(elem.Symbol);
+            strike.push(elem['Strike Price']);
+            expiry.push(moment(elem['Expiry Date'], "DD MMMM YYYY").format("YYYY-MM-DD"));
+            optionType.push(elem['Option Type']);
+        }
+
+        // const filter = {
+        //     name: { $in: [...new Set(indexName)] },
+        //     expiry: { $in: [...new Set(expiry)] },
+        //     strike: { $in: [...new Set(strike)] },
+        //     instrument_type: { $in: [...new Set(optionType)] }
+        // };
+
+        // const data = await TradableInstrumentSchema.find(filter);
+
+        return (await convertToTradingData(csvData, userId));
+
+    } catch (error) {
+        console.error(error);
+        throw new Error(error);
+    }
+}
+
+const convertToTradingData = async (data, instrumentData, userId) => {
+    try {
+        let checkOption = false;
+        if ((data?.['Option Type'] == 'CE') || (data?.['Option Type'] == 'PE')) {
+            checkOption = true;
+        }
+
+        let instrument;
+        if (!checkOption) {
+            const newExpiry = moment(data?.['Expiry Date'], "DD MMMM YYYY").clone().format("DDMMMYY");
+            instrument = `${data?.['Symbol']}${newExpiry}FUT`;
+        } else {
+            const newExpiry = moment(data?.['Expiry Date'], "DD MMMM YYYY").clone().format("DDMMMYY");
+            instrument = `${data?.['Symbol']}${newExpiry}${data?.['Strike Price']}${data?.['Option Type']}`;
+        }
+
+        const tradeData = [];
+        for (const elem of data) {
+            // const particularInstrument = instrumentData.filter((instrument) => {
+            //     return (instrument?.name === elem?.['Symbol'] && instrument?.strike == elem?.['Strike Price']
+            //         && instrument?.instrument_type === elem?.['Option Type'] && instrument.expiry === (moment(elem?.['Expiry Date'], "DD MMMM YYYY").format("YYYY-MM-DD"))
+            //     )
+            // })?.[0];
+
+            // const { tradingsymbol, instrument_token, exchange_token } = particularInstrument;
+            let buyOrSell, quantity, amount;
+            if (elem?.["Buy/Sell"] === '2') {
+                buyOrSell = 'SELL';
+                quantity = 0 - Number(elem?.['Quantity']);
+                amount = (Number(elem?.['Price']) * quantity)
+            } else {
+                buyOrSell = 'BUY';
+                quantity = Number(elem?.['Quantity']);
+                amount = (Number(elem?.['Price']) * quantity)
+            }
+
+            tradeData.push({
+                order_id: elem['Trade Id'],
+                status: 'COMPLETE',
+                average_price: Number(elem?.['Price']),
+                Quantity: quantity,
+                buyOrSell,
+                exchange: 'NFO',
+                symbol: instrument,
+                // instrumentToken: instrument_token,
+                // exchangeInstrumentToken: exchange_token,
+                amount: amount,
+                trade_time: moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss"),
+                // .add(5, 'hours').add(30, 'minutes').utc().format()
+                account_number: elem?.["Account Number"],
+                cp_id: elem?.['CP ID'],
+                ctcl_id: elem?.["CTCL ID"],
+                user_id: elem?.["User Id"],
+                modify_date: moment(elem?.["Modified Date/Time"], "DD MMMM YYYY HH:mm:ss").add(5, 'hours').add(30, 'minutes').utc().format(),
+                trader: userId,
+                createdOn: new Date(),
+                createdBy: userId
+            })
+        }
+
+        const getStartDate = moment(tradeData?.[0]?.trade_time).startOf('day').add(5, 'hours').add(30, 'minutes');
+        const getEndDate = moment(tradeData?.[0]?.trade_time).endOf('day').add(5, 'hours').add(30, 'minutes');
+
+        const checkExist = await ThirdPartyTrades.findOne({order_id: tradeData?.[0]?.order_id, trade_time: {$gt: new Date(getStartDate), $lt: new Date(getEndDate)}});
+
+        console.log(new Date(getStartDate), new Date(getEndDate), checkExist)
+        if(checkExist){
+            return 'Data Exist'
+        }
+        const savedData = await ThirdPartyTrades.create(tradeData);
+        return savedData;
+    } catch (err) {
+        console.log(err);
+        throw new Error(err);
+    }
+}
+
+
+
+async function parseCsvStreamForTesting(stream) {
+    return new Promise((resolve, reject) => {
+        const results = [];
+        const symbolsArr = [];
+        let pointer = 0;
+        stream
+            .pipe(csv())
+            .on('data', (async (data) => {
+
+                let checkOption = false;
+                if ((data?.['Option Type'] == 'CE') || (data?.['Option Type'] == 'PE')) {
+                    checkOption = true;
+                }
+                // GNFC30MAYFUT
+                // GNFC30MAY24FUT
+
+                //GNFC30MAY24700CE
+                //GNFC30MAYOPT
+                let instrument;
+                if (!checkOption) {
+                    const newExpiry = moment(data?.['Expiry Date'], "DD MMMM YYYY").clone().format("DDMMMYY");
+                    instrument = `${data?.['Symbol']}${newExpiry}FUT`;
+                } else {
+                    const newExpiry = moment(data?.['Expiry Date'], "DD MMMM YYYY").clone().format("DDMMMYY");
+                    instrument = `${data?.['Symbol']}${newExpiry}${data?.['Strike Price']}${data?.['Option Type']}`;
+                }
+                // results.push({
+                //     symbol: instrument,
+                //     order_id: data?.['Trade Id'],
+
+                // })
+                results.push(data);
+                symbolsArr.push(instrument);
             }))
             .on('end', () => resolve(results))
             .on('error', (error) => reject(error));
@@ -510,114 +678,5 @@ const saveDataToDBNew = async (url, userId) => {
     } catch (error) {
         console.error(error);
         throw new Error(error);
-    }
-}
-
-const saveDataToDB = async (url, userId) => {
-    try {
-        // const url = 'https://stagingdmt.blob.core.windows.net/dmt-trade/06501232945102076-data_hour_calcluation.csv'
-        // const userId = '662f804700f04a05fe3c941f';
-        // const url = '06501232945102076-data_hour_calcluation.csv'
-        const csvStream = await downloadCsvBlob(url);
-        const csvData = await parseCsvStream(csvStream);
-
-        const uniqueTrades = csvData.filter((trade, index, self) =>
-            index === self.findIndex((t) => (
-                t.Symbol === trade.Symbol &&
-                t["Expiry Date"] === trade["Expiry Date"] &&
-                t["Strike Price"] === trade["Strike Price"] &&
-                t["Option Type"] === trade["Option Type"]
-            ))
-        );
-
-        const indexName = [];
-        const strike = [];
-        const expiry = [];
-        const optionType = [];
-
-        for (const elem of uniqueTrades) {
-            indexName.push(elem.Symbol);
-            strike.push(elem['Strike Price']);
-            expiry.push(moment(elem['Expiry Date'], "DD MMMM YYYY").format("YYYY-MM-DD"));
-            optionType.push(elem['Option Type']);
-        }
-
-        const filter = {
-            name: { $in: [...new Set(indexName)] },
-            expiry: { $in: [...new Set(expiry)] },
-            strike: { $in: [...new Set(strike)] },
-            instrument_type: { $in: [...new Set(optionType)] }
-        };
-
-        const data = await TradableInstrumentSchema.find(filter);
-
-        return (await convertToTradingData(csvData, data, userId));
-
-    } catch (error) {
-        console.error(error);
-        throw new Error(error);
-    }
-}
-
-const convertToTradingData = async (data, instrumentData, userId) => {
-    try {
-        const tradeData = [];
-        for (const elem of data) {
-            const particularInstrument = instrumentData.filter((instrument) => {
-                return (instrument?.name === elem?.['Symbol'] && instrument?.strike == elem?.['Strike Price']
-                    && instrument?.instrument_type === elem?.['Option Type'] && instrument.expiry === (moment(elem?.['Expiry Date'], "DD MMMM YYYY").format("YYYY-MM-DD"))
-                )
-            })?.[0];
-
-            const { tradingsymbol, instrument_token, exchange_token } = particularInstrument;
-            let buyOrSell, quantity, amount;
-            if (elem?.["Buy/Sell"] === '2') {
-                buyOrSell = 'SELL';
-                quantity = 0 - Number(elem?.['Quantity']);
-                amount = (Number(elem?.['Price']) * quantity)
-            } else {
-                buyOrSell = 'BUY';
-                quantity = Number(elem?.['Quantity']);
-                amount = (Number(elem?.['Price']) * quantity)
-            }
-
-            tradeData.push({
-                order_id: elem['Trade Id'],
-                status: 'COMPLETE',
-                average_price: Number(elem?.['Price']),
-                Quantity: quantity,
-                buyOrSell,
-                exchange: 'NFO',
-                symbol: tradingsymbol,
-                instrumentToken: instrument_token,
-                exchangeInstrumentToken: exchange_token,
-                amount: amount,
-                trade_time: moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss"),
-                // .add(5, 'hours').add(30, 'minutes').utc().format()
-                account_number: elem?.["Account Number"],
-                cp_id: elem?.['CP ID'],
-                ctcl_id: elem?.["CTCL ID"],
-                user_id: elem?.["User Id"],
-                modify_date: moment(elem?.["Modified Date/Time"], "DD MMMM YYYY HH:mm:ss").add(5, 'hours').add(30, 'minutes').utc().format(),
-                trader: userId,
-                createdOn: new Date(),
-                createdBy: userId
-            })
-        }
-
-        const getStartDate = moment(tradeData?.[0]?.trade_time).startOf('day').add(5, 'hours').add(30, 'minutes');
-        const getEndDate = moment(tradeData?.[0]?.trade_time).endOf('day').add(5, 'hours').add(30, 'minutes');
-
-        const checkExist = await ThirdPartyTrades.findOne({order_id: tradeData?.[0]?.order_id, trade_time: {$gt: new Date(getStartDate), $lt: new Date(getEndDate)}});
-
-        console.log(new Date(getStartDate), new Date(getEndDate), checkExist)
-        if(checkExist){
-            return 'Data Exist'
-        }
-        const savedData = await ThirdPartyTrades.create(tradeData);
-        return savedData;
-    } catch (err) {
-        console.log(err);
-        throw new Error(err);
     }
 }
