@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 const ThirdPartyTrade = new mongoose.Schema({
     order_id:{
         type: String,
-        required: true
+        // required: true
     },
     status:{
         type: String,
@@ -48,11 +48,11 @@ const ThirdPartyTrade = new mongoose.Schema({
     },
     instrumentToken:{
         type: Number, 
-        required: true 
+        // required: true 
     },
     exchangeInstrumentToken:{
         type: Number,
-        required : true
+        // required : true
     },
     amount:{
         type: Number,

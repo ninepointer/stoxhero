@@ -15,5 +15,6 @@ router
 router.route('/uploadcsv').post(Authenticate, pnlChart.uploadMulter, pnlChart.uploadCSV);
 router.route('/hourly').get(Authenticate, pnlChart.hourChart);
 router.route('/isexist').get(Authenticate, pnlChart.isThirdPartyDataExist);
+router.route('/uploadeddata').get(Authenticate, pnlChart.getUploadedData);
 
 module.exports = router;
