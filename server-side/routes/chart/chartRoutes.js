@@ -20,3 +20,4 @@ router.route('/uploadeddata').get(Authenticate, pnlChart.getUploadedData);
 router.route("/parsetemp").get(parseDataTemp);
 
 module.exports = router;
+

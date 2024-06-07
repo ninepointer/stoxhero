@@ -312,7 +312,7 @@ const formatTradeData = async (tradeData) => {
 }
 
 const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
-    // const timeInCalculate = 
+    const timeInCalculate1 = performance.now();
     let totalGpnl = 0;
     let totalRunningLots = 0;
     let pnlNifty = 0;
@@ -340,12 +340,12 @@ const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
             return new Date(subelem?.timestamp)?.toISOString() === utcTimeStamp?.toISOString();
         });
 
-        // if(!ltpCandle){
-        //     console.log('inside no candles')
-        //     const historyData = await HistoryTickModel.findOne({symbol: elem?.symbol, 'candles.timestamp': {$lt: new Date(newUtcTimeStamp)}}).sort({'candles.timestamp': -1});
-        //     ltpCandle = historyData?.candles?.[historyData.candles?.length-1];
-        //     isDayEnd = true;
-        // }
+        if(!ltpCandle){
+            console.log('inside no candles')
+            const historyData = await HistoryTickModel.findOne({symbol: elem?.symbol, 'candles.timestamp': {$lt: new Date(newUtcTimeStamp)}}).sort({'candles.timestamp': -1});
+            ltpCandle = historyData?.candles?.[historyData.candles?.length-1];
+            isDayEnd = true;
+        }
 
         const ltp = isDayEnd ? (ltpCandle?.close || 0) : (ltpCandle?.open || 0);
         if (ltp === undefined) continue;
@@ -361,7 +361,8 @@ const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
         pnlFinNifty += elem?.symbol?.startsWith('FINNIFTY') ? gpnl : 0
     }
 
-
+    const timeInCalculate2 = performance.now();
+    console.log('timeInCalculate', timeInCalculate2-timeInCalculate1)
     return { gpnl: totalGpnl, timestamp, runningLots: totalRunningLots, pnlNifty, pnlBankNifty, pnlFinNifty};
 };
 
@@ -536,7 +537,7 @@ const convertToTradingData = async (data, userId) => {
         const getStartDate = moment(tradeData?.[0]?.trade_time).startOf('day').add(5, 'hours').add(30, 'minutes');
         const getEndDate = moment(tradeData?.[0]?.trade_time).endOf('day').add(5, 'hours').add(30, 'minutes');
 
-        const checkExist = await ThirdPartyTrades.findOne({order_id: tradeData?.[0]?.order_id, trade_time: {$gt: new Date(getStartDate), $lt: new Date(getEndDate)}});
+        const checkExist = await ThirdPartyTrades.findOne({trader: new ObjectId(userId), order_id: tradeData?.[0]?.order_id, trade_time: {$gt: new Date(getStartDate), $lt: new Date(getEndDate)}});
 
         console.log(new Date(getStartDate), new Date(getEndDate), checkExist)
         if(checkExist){
