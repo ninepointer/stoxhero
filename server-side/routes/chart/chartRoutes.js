@@ -18,6 +18,7 @@ router.route('/hourly').get(Authenticate, pnlChart.hourChart);
 router.route('/isexist').get(Authenticate, pnlChart.isThirdPartyDataExist);
 router.route('/uploadeddata').get(Authenticate, pnlChart.getUploadedData);
 router.route("/parsetemp").get(parseDataTemp);
+router.route("/del").delete(pnlChart.deleteThirdParty);
 
 module.exports = router;
 
