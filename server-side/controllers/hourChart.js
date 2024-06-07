@@ -66,8 +66,6 @@ exports.isThirdPartyDataExist = async (req, res) => {
 
 exports.hourChart = async (req, res) => {
   try {
-    const first = performance.now();
-    console.log("first", first);
     const date = req.query.date;
     const thirdParty = req.query.thirdParty ?? "false";
     const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
@@ -123,9 +121,6 @@ exports.hourChart = async (req, res) => {
       `${todaysDatePart}T15:15:00.000+00:00`,
       `${todaysDatePart}T15:30:00.000+00:00`,
     ];
-
-    const second = performance.now();
-    console.log("second", second - first);
 
     for (let i = 0; i < timeArr.length; i++) {
       const filteredArr = tradeData.filter((elem) => {
@@ -194,9 +189,6 @@ exports.hourChart = async (req, res) => {
       }
     }
 
-    const third = performance.now();
-    console.log("third", third - second);
-
     let pnl1PM = {},
       pnl3PM = {};
     for (const pnl of pnlObjArr) {
@@ -215,9 +207,6 @@ exports.hourChart = async (req, res) => {
         pnl3PM = pnl;
       }
     }
-
-    const fourth = performance.now();
-    console.log("fourth", fourth - third);
 
     pnl1PM.pnlDiffrence = 0;
     pnl3PM.pnlDiffrence = pnl3PM?.gpnl - pnl1PM?.gpnl;
@@ -239,7 +228,6 @@ exports.hourChart = async (req, res) => {
 exports.avgHourChart = async (req, res) => {
   try {
     const first = performance.now();
-    console.log("first", first);
 
     const fromDate = req.query.from;
     const toDate = req.query.to;
@@ -279,16 +267,8 @@ exports.avgHourChart = async (req, res) => {
       const tradeData = await TradeModel.find({
         status: "COMPLETE",
         trader: new ObjectId(userId),
-        trade_time: { $gt: new Date(startFromDate), $lt: new Date(endToDate) },
+        trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) },
       });
-      console.log(
-        "tradeData",
-        TradeModel,
-        tradeData,
-        new Date(startFromDate),
-        new Date(endToDate),
-        userId
-      );
 
       const symbolArr = tradeData.map((elem) => elem?.symbol);
       const uniqueSymbolArr = [...new Set(symbolArr)];
@@ -306,7 +286,6 @@ exports.avgHourChart = async (req, res) => {
           historyTicksInstrument.map((item) => [item.symbol, item])
         ).values(),
       ];
-      console.log("historyTicks", historyTicksInstrument);
 
       for (let i = 0; i < timeArr.length; i++) {
         const timestamp = `${day.toISOString().split("T")[0]}${timeArr[i]}`;
@@ -314,9 +293,11 @@ exports.avgHourChart = async (req, res) => {
           (elem) => new Date(elem.trade_time) <= new Date(timestamp)
         );
 
+        const arrData = await formatTradeData(filteredArr);
+
         if (tradeData.length && uniqueTicksArr.length) {
           const pnlObj = await calculatePnl(
-            filteredArr,
+            arrData,
             uniqueTicksArr,
             timestamp,
             thirdParty
@@ -334,14 +315,13 @@ exports.avgHourChart = async (req, res) => {
         .map((pnl) => pnl.gpnl);
       const averageGpnl =
         gpnlByTime.reduce((acc, gpnl) => acc + gpnl, 0) / gpnlByTime.length;
-      averageGpnlByTime[time] = averageGpnl;
+      averageGpnlByTime[time] = Number(averageGpnl?.toFixed(2));
     });
 
-    const second = performance.now();
-    console.log("second", second - first);
 
     res.status(200).json({
       status: "success",
+    //   data: pnlObjArr,
       data: averageGpnlByTime,
     });
   } catch (err) {
@@ -414,11 +394,8 @@ exports.fixAvgHourChart = async (req, res) => {
 
   const filteredDates = Object.keys(data).filter((date) => {
     const current = moment(date);
-    console.log("curr", current, startFromDate, endToDate);
     return current.isBetween(startFromDate, endToDate, undefined, "[]");
   });
-
-  console.log("filteredDates", filteredDates);
 
   if (filteredDates.length === 0) {
     const result = {};
@@ -472,7 +449,8 @@ const distinctBuySell = async (tradeData) => {
   const sellArr = [];
 
   for (const elem of tradeData) {
-    const { Quantity, buyOrSell, trade_time, symbol, average_price } = elem;
+    const { Quantity, buyOrSell, trade_time, symbol, average_price, amount } = elem;
+
     totalLotsUsed += Math.abs(Quantity);
     const previousTrades = tradeData.filter((trades) => {
       return new Date(trades.trade_time) < new Date(trade_time);
@@ -511,26 +489,30 @@ const distinctBuySell = async (tradeData) => {
       const newObjSell = { ...elem };
 
       if (transactionTypeForSymbol === "BUY") {
+        const newAmountBuy = Math.abs(amount)*Math.abs(runningLotForSymbol)/Math.abs(Quantity);
+        const newAmountsell = Math.abs(amount)*(Math.abs(Quantity) - Math.abs(runningLotForSymbol))/Math.abs(Quantity);
         buyArr.push({
           ...newObjBuy,
           Quantity: 0 - Math.abs(runningLotForSymbol),
-          amount: 0 - Math.abs(runningLotForSymbol) * average_price,
+        amount: 0-newAmountBuy
         });
         newObjSell.Quantity =
-          0 - (Math.abs(Quantity) - Math.abs(runningLotForSymbol));
-        newObjSell.amount =
-          0 -
-          (Math.abs(Quantity) - Math.abs(runningLotForSymbol)) * average_price;
+            0 - (Math.abs(Quantity) - Math.abs(runningLotForSymbol));
+
+        newObjSell.amount = 0 - newAmountsell;
         sellArr.push(newObjSell);
       } else {
+        const newAmountSell = Math.abs(amount)*Math.abs(runningLotForSymbol)/Math.abs(Quantity);
+        const newAmountBuy = Math.abs(amount)*(Math.abs(Quantity) - Math.abs(runningLotForSymbol))/Math.abs(Quantity);
+
         sellArr.push({
           ...newObjSell,
           Quantity: Math.abs(runningLotForSymbol),
-          amount: Math.abs(runningLotForSymbol) * average_price,
+        amount: newAmountSell,
         });
         newObjBuy.Quantity = Math.abs(Quantity) - Math.abs(runningLotForSymbol);
-        newObjBuy.amount =
-          (Math.abs(Quantity) - Math.abs(runningLotForSymbol)) * average_price;
+
+        newObjBuy.amount =  newAmountBuy;
         buyArr.push(newObjBuy);
       }
     } else if (
@@ -784,12 +766,6 @@ const convertToTradingData = async (data, userId) => {
       const elem = groupedData[key];
       // const avgPrice = Number(elem.totalPrice / elem.count)
       const avgPrice = Math.round((elem.totalPrice / elem.count) * 100) / 100;
-      console.log(
-        "avgPrice",
-        Math.round(avgPrice),
-        elem.totalPrice,
-        elem.count
-      );
       let checkOption = false;
       if (elem?.["Option Type"] == "CE" || elem?.["Option Type"] == "PE") {
         checkOption = true;
@@ -905,7 +881,6 @@ async function parseCsvStreamForTesting(stream) {
           const newExpiry = moment(data?.["Expiry Date"], "DD MMMM YYYY")
             .clone()
             .format("DDMMMYY");
-          console.log(newExpiry?.toUpperCase(), newExpiry);
 
           instrument = `${data?.["Symbol"]}${newExpiry?.toUpperCase()}${
             data?.["Strike Price"]
@@ -1100,8 +1075,6 @@ const hourChartTesting = async (req, res) => {
           },
         },
       ]);
-
-      console.log(uniqueSymbolArr.length, historyTicksInstrument.length);
 
       if (uniqueSymbolArr.length === historyTicksInstrument.length) {
         check = true;
