@@ -21,7 +21,10 @@ router
   .post(Authenticate, pnlChart.uploadMulter, pnlChart.uploadCSV);
 router.route("/hourly").get(Authenticate, pnlChart.hourChart);
 router.route("/isexist").get(Authenticate, pnlChart.isThirdPartyDataExist);
+router.route("/uploadeddata").get(Authenticate, pnlChart.getUploadedData);
 router.route("/parsetemp").get(parseDataTemp);
 router.route("/addnewraw").get(addRawDataFromCSV);
+router.route("/del").delete(pnlChart.deleteThirdParty);
+router.route("/avghour").get(Authenticate, pnlChart.fixAvgHourChart);
 
 module.exports = router;
