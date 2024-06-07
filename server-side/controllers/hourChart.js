@@ -522,7 +522,9 @@ const convertToTradingData = async (data, userId) => {
                 // instrumentToken: instrument_token,
                 // exchangeInstrumentToken: exchange_token,
                 amount: amount,
-                trade_time: moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss").add(5, 'hours').add(30, 'minutes').utc().format(),
+                //todo-vijay
+                trade_time: moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss"),
+                // .add(5, 'hours').add(30, 'minutes').utc().format(),
                 account_number: elem?.["Account Number"],
                 cp_id: elem?.['CP ID'],
                 ctcl_id: elem?.["CTCL ID"],
