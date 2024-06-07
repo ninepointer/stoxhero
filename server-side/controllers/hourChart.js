@@ -307,23 +307,32 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
     let pnlFinNifty = 0;
 
     for (const elem of tradeData) {
-        
-        const getCandleArray = ltpData?.find((subelem) => subelem?.symbol === elem?.symbol)?.candles;
-
-        if (!getCandleArray) continue;
-
         const utcTimeStamp = new Date(timestamp);
         utcTimeStamp.setHours(utcTimeStamp.getHours() - 5);
         utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 30);
+        const newUtcTimeStamp = new Date(utcTimeStamp);
         let isDayEnd = false;
+/*
+1. jab stoxhero users graph dekhenge 22 may se pahle ka then unka symbol match nhi hoga
+2. stoxhero users ka symbol bnane ke liye unhe tradable instruments se us symbol me convert krna hoga
+*/
+        const getCandleArray = ltpData?.find((subelem) => subelem?.symbol === elem?.symbol)?.candles;
+
+        if (!getCandleArray) continue;
         
         if(utcTimeStamp.getUTCHours() === 10){
             isDayEnd = true;
             utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 15);
         }
-        const ltpCandle = getCandleArray?.find((subelem) => {
+        let ltpCandle = getCandleArray?.find((subelem) => {
             return new Date(subelem?.timestamp)?.toISOString() === utcTimeStamp?.toISOString();
         });
+
+        if(!ltpCandle){
+            const historyData = await HistoryData.findOne({symbol: elem?.symbol, 'candles.timestamp': {$lt: new Date(newUtcTimeStamp)}}).sort({'candles.timestamp': -1});
+            ltpCandle = historyData.candles?.[historyData.candles?.length-1];
+            isDayEnd = true;
+        }
 
         const ltp = isDayEnd ? (ltpCandle?.close || 0) : (ltpCandle?.open || 0);
         if (ltp === undefined) continue;
