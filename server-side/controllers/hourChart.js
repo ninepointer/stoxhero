@@ -1,6 +1,6 @@
 const TradeData = require("../models/mock-trade/paperTrade");
 const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
-const HistoryDataNew = require("../models/InstrumentHistoricalData/InstrumentHistoricalDataNew");
+const HistoryDataNew = require("../models/InstrumentHistoricalData/InstrumentHistoricalDataTemp");
 
 const moment = require('moment');
 const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
@@ -64,9 +64,12 @@ exports.isThirdPartyDataExist = async (req, res) => {
 
 exports.hourChart = async (req, res) => {
     try {
+        const first = performance.now();
+        console.log('first', first)
         const date = req.query.date;
         const thirdParty = req.query.thirdParty ?? 'false';
         const TradeModel = thirdParty == 'true' ? ThirdPartyTrades : TradeData;
+        const HistoryTickModel = thirdParty == 'true' ? HistoryDataNew : HistoryData;
 
         const userId = req?.user?._id;
         const today = moment(date);
@@ -82,7 +85,7 @@ exports.hourChart = async (req, res) => {
 
         const uniqueSymbolArr = [...new Set(symbolArr)];
 
-        const historyTicksInstrument = await HistoryData.find({ 'candles.timestamp': { $gt: new Date(startToday), $lt: new Date(endToday) }, symbol: { $in: uniqueSymbolArr } });
+        const historyTicksInstrument = await HistoryTickModel.find({ 'candles.timestamp': { $gt: new Date(startToday), $lt: new Date(endToday) }, symbol: { $in: uniqueSymbolArr } });
 
         const uniqueTicksArr = [...new Map(historyTicksInstrument.map(item => [item.symbol, item])).values()];
 
@@ -97,6 +100,9 @@ exports.hourChart = async (req, res) => {
             `${todaysDatePart}T15:15:00.000+00:00`,
             `${todaysDatePart}T15:30:00.000+00:00`
         ];
+
+        const second = performance.now();
+        console.log('second', second - first)
 
         for (let i = 0; i < timeArr.length; i++) {
             const filteredArr = tradeData.filter((elem) => {
@@ -126,9 +132,9 @@ exports.hourChart = async (req, res) => {
             const formatedSellArr = await formatTradeData(newData?.sellArr);
 
             if(tradeData.length && uniqueTicksArr.length){
-                const buyPnlObj = await calculatePnl(formatedBuyArr, uniqueTicksArr, timeArr[i])
-                const sellPnlObj = await calculatePnl(formatedSellArr, uniqueTicksArr, timeArr[i]);
-                const pnlObj = await calculatePnl(arrData, uniqueTicksArr, timeArr[i])
+                const buyPnlObj = await calculatePnl(formatedBuyArr, uniqueTicksArr, timeArr[i], thirdParty)
+                const sellPnlObj = await calculatePnl(formatedSellArr, uniqueTicksArr, timeArr[i], thirdParty);
+                const pnlObj = await calculatePnl(arrData, uniqueTicksArr, timeArr[i], thirdParty)
 
                 pnlObj.averageEntryLots = averageEntryLots;
                 pnlObj.marginUtilise = marginUtilise;
@@ -140,6 +146,9 @@ exports.hourChart = async (req, res) => {
             }
             
         }
+
+        const third = performance.now();
+        console.log('third', third - second);
 
         let pnl1PM={}, pnl3PM={};
         for(const pnl of pnlObjArr){
@@ -153,6 +162,9 @@ exports.hourChart = async (req, res) => {
             }
 
         }
+
+        const fourth = performance.now();
+        console.log('fourth', fourth - third);
 
         pnl1PM.pnlDiffrence = 0;
         pnl3PM.pnlDiffrence = (pnl3PM?.gpnl - pnl1PM?.gpnl);
@@ -299,12 +311,15 @@ const formatTradeData = async (tradeData) => {
     return formattedData;
 }
 
-const calculatePnl = async (tradeData, ltpData, timestamp) => {
+const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
+    // const timeInCalculate = 
     let totalGpnl = 0;
     let totalRunningLots = 0;
     let pnlNifty = 0;
     let pnlBankNifty = 0;
     let pnlFinNifty = 0;
+
+    const HistoryTickModel = thirdParty == 'true' ? HistoryDataNew : HistoryData;
 
     for (const elem of tradeData) {
         const utcTimeStamp = new Date(timestamp);
@@ -312,10 +327,7 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
         utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 30);
         const newUtcTimeStamp = new Date(utcTimeStamp);
         let isDayEnd = false;
-/*
-1. jab stoxhero users graph dekhenge 22 may se pahle ka then unka symbol match nhi hoga
-2. stoxhero users ka symbol bnane ke liye unhe tradable instruments se us symbol me convert krna hoga
-*/
+
         const getCandleArray = ltpData?.find((subelem) => subelem?.symbol === elem?.symbol)?.candles;
 
         if (!getCandleArray) continue;
@@ -328,11 +340,12 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
             return new Date(subelem?.timestamp)?.toISOString() === utcTimeStamp?.toISOString();
         });
 
-        if(!ltpCandle){
-            const historyData = await HistoryData.findOne({symbol: elem?.symbol, 'candles.timestamp': {$lt: new Date(newUtcTimeStamp)}}).sort({'candles.timestamp': -1});
-            ltpCandle = historyData.candles?.[historyData.candles?.length-1];
-            isDayEnd = true;
-        }
+        // if(!ltpCandle){
+        //     console.log('inside no candles')
+        //     const historyData = await HistoryTickModel.findOne({symbol: elem?.symbol, 'candles.timestamp': {$lt: new Date(newUtcTimeStamp)}}).sort({'candles.timestamp': -1});
+        //     ltpCandle = historyData?.candles?.[historyData.candles?.length-1];
+        //     isDayEnd = true;
+        // }
 
         const ltp = isDayEnd ? (ltpCandle?.close || 0) : (ltpCandle?.open || 0);
         if (ltp === undefined) continue;
@@ -355,12 +368,12 @@ const calculatePnl = async (tradeData, ltpData, timestamp) => {
 exports.uploadCSV = async (req, res) => {
     try {
         const userId = req?.user?._id || '662f804700f04a05fe3c941f';
-        // const data = await uploadFileToAzure(req.file);
-        //  const originalUrl = data?.fileUrl;
-        const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/17928189491390656-third_party_datacheck.csv';
+        const data = await uploadFileToAzure(req.file);
+         const originalUrl = data?.fileUrl;
+        // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/17928189491390656-third_party_datacheck.csv';
         const url = originalUrl?.split('/')[originalUrl?.split('/').length - 1];
-        // const savedData = await saveDataToDB(url, userId);
-        const savedData = await saveDataToDBTesting(url, userId);
+        const savedData = await saveDataToDB(url, userId);
+        // const savedData = await saveDataToDBTesting(url, userId);
         
         if(savedData === 'Data Exist'){
             return res.status(400).json({
@@ -423,26 +436,26 @@ const saveDataToDB = async (url, userId) => {
         const csvStream = await downloadCsvBlob(url);
         const csvData = await parseCsvStream(csvStream);
 
-        const uniqueTrades = csvData.filter((trade, index, self) =>
-            index === self.findIndex((t) => (
-                t.Symbol === trade.Symbol &&
-                t["Expiry Date"] === trade["Expiry Date"] &&
-                t["Strike Price"] === trade["Strike Price"] &&
-                t["Option Type"] === trade["Option Type"]
-            ))
-        );
+        // const uniqueTrades = csvData.filter((trade, index, self) =>
+        //     index === self.findIndex((t) => (
+        //         t.Symbol === trade.Symbol &&
+        //         t["Expiry Date"] === trade["Expiry Date"] &&
+        //         t["Strike Price"] === trade["Strike Price"] &&
+        //         t["Option Type"] === trade["Option Type"]
+        //     ))
+        // );
 
-        const indexName = [];
-        const strike = [];
-        const expiry = [];
-        const optionType = [];
+        // const indexName = [];
+        // const strike = [];
+        // const expiry = [];
+        // const optionType = [];
 
-        for (const elem of uniqueTrades) {
-            indexName.push(elem.Symbol);
-            strike.push(elem['Strike Price']);
-            expiry.push(moment(elem['Expiry Date'], "DD MMMM YYYY").format("YYYY-MM-DD"));
-            optionType.push(elem['Option Type']);
-        }
+        // for (const elem of uniqueTrades) {
+        //     indexName.push(elem.Symbol);
+        //     strike.push(elem['Strike Price']);
+        //     expiry.push(moment(elem['Expiry Date'], "DD MMMM YYYY").format("YYYY-MM-DD"));
+        //     optionType.push(elem['Option Type']);
+        // }
 
         // const filter = {
         //     name: { $in: [...new Set(indexName)] },
@@ -463,8 +476,6 @@ const saveDataToDB = async (url, userId) => {
 
 const convertToTradingData = async (data, userId) => {
     try {
-
-
         const tradeData = [];
         for (const elem of data) {
 
@@ -786,3 +797,8 @@ const hourChartTesting = async (req, res) => {
         });
     }
 };
+
+/*
+1. jab stoxhero users graph dekhenge 22 may se pahle ka then unka symbol match nhi hoga
+2. stoxhero users ka symbol bnane ke liye unhe tradable instruments se us symbol me convert krna hoga
+*/

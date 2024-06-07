@@ -1,8 +1,9 @@
 const express = require("express");
 const chartController = require("../../controllers/chartController");
 const Authenticate = require("../../authentication/authentication");
-const pnlChart = require('../../controllers/hourChart');
+const pnlChart = require("../../controllers/hourChart");
 const restrictTo = require("../../authentication/authorization");
+const { parseDataTemp } = require("../../controllers/historyDataHelper");
 const router = express.Router();
 
 router.route("/historical").get(chartController.getHistoricalData);
@@ -16,5 +17,6 @@ router.route('/uploadcsv').post(Authenticate, pnlChart.uploadMulter, pnlChart.up
 router.route('/hourly').get(Authenticate, pnlChart.hourChart);
 router.route('/isexist').get(Authenticate, pnlChart.isThirdPartyDataExist);
 router.route('/uploadeddata').get(Authenticate, pnlChart.getUploadedData);
+router.route("/parsetemp").get(parseDataTemp);
 
 module.exports = router;
