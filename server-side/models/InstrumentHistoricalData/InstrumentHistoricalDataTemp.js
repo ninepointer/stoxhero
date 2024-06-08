@@ -33,7 +33,7 @@ const instrumentHistoricalDataSchema = new mongoose.Schema({
 });
 
 const instrumentHistoricalData = mongoose.model(
-  "history-tick-temp",
+  "history-tick-minute-temp",
   instrumentHistoricalDataSchema
 );
 module.exports = instrumentHistoricalData;
