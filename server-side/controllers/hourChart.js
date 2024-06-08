@@ -64,10 +64,107 @@ exports.isThirdPartyDataExist = async (req, res) => {
   }
 };
 
+
+const timeArray = async (todaysDatePart, timePeriod, frequency) => {
+    const startTime = new Date(`${todaysDatePart}T09:15:59.000+00:00`);
+    const endTime = new Date(`${todaysDatePart}T15:30:59.000+00:00`);
+    const timeArr = [];
+
+    // Function to increment the time based on frequency
+    const incrementTime = (time, period, freq) => {
+        const newTime = new Date(time);
+        switch (freq) {
+            case 'Min':
+                newTime.setMinutes(newTime.getMinutes() + period);
+                break;
+            case 'Hour':
+                newTime.setHours(newTime.getHours() + period);
+                break;
+            case 'Day':
+                newTime.setDate(newTime.getDate() + period);
+                break;
+            default:
+                throw new Error('Invalid frequency');
+        }
+        return newTime;
+    }
+
+    for (let time = startTime; time < endTime; time = incrementTime(time, timePeriod, frequency)) {
+        timeArr.push(time.toISOString());
+    }
+
+    return [...timeArr, endTime.toISOString()];
+}
+
+
+const newPriceArray = async (timeArray, candlesArray, HistoryTickModel, timePeriod, frequency) => {
+    const priceObj = {};
+    const symbolWiseArray = {};
+    for(const [timeIndex, time] of timeArray.entries()){
+        if(!priceObj[time]){
+            priceObj[time] = [];
+        }
+        const utcTime = new Date(time);
+        utcTime.setHours(utcTime.getHours() - 5);
+        utcTime.setMinutes(utcTime.getMinutes() - 30);
+        // utcTime.setHours(utcTime.getHours() - 5);
+        // utcTime.setMinutes(utcTime.getMinutes() - 29);
+        // utcTime.setSeconds(utcTime.getSeconds() - 1);
+    
+        for (const [candleIndex, candleObj] of candlesArray.entries()) {
+            const candles = candleObj?.candles;
+            if(!symbolWiseArray[candleObj?.symbol]){
+                symbolWiseArray[candleObj?.symbol] = [];
+            }
+            // const newCandleArr = [];
+            // let particularCandle = candles[timeIndex];
+            let particularCandle = candles.filter((elem)=>{
+                return elem?.timestamp?.getTime() === new Date(utcTime)?.getTime()
+            })?.[0];
+
+            if((!particularCandle) && timeIndex === 0){
+                const historyData = await HistoryTickModel.findOne({symbol: candleObj?.symbol, 'candles.timestamp': {$lt: new Date(utcTime)}}).sort({'candles.timestamp': -1});
+                console.log( 'in db call');
+                const lastCandleHistoryData = historyData?.candles?.[historyData.candles?.length-1];
+                lastCandleHistoryData.open = lastCandleHistoryData.close;
+                symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
+                priceObj[time].push({
+                    time: lastCandleHistoryData?.timestamp,
+                    symbol: candleObj?.symbol,
+                    open: lastCandleHistoryData?.open,
+                    close: lastCandleHistoryData?.close
+                })
+            }else if(!particularCandle){
+                const arr = symbolWiseArray[candleObj?.symbol];
+                const lastCandleHistoryData = JSON.parse(JSON.stringify(arr?.[arr?.length-1]));
+                lastCandleHistoryData.open = lastCandleHistoryData.close;
+                symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
+                priceObj[time].push({
+                    time: lastCandleHistoryData?.timestamp,
+                    symbol: candleObj?.symbol,
+                    open: lastCandleHistoryData?.open,
+                    close: lastCandleHistoryData?.close
+                })
+            } else{
+                symbolWiseArray[candleObj?.symbol].push(particularCandle);
+                priceObj[time].push({
+                    time: particularCandle?.timestamp,
+                    symbol: candleObj?.symbol,
+                    open: particularCandle?.open,
+                    close: particularCandle?.close
+                })
+            }
+        }
+    }
+    return priceObj
+}
+
 exports.hourChart = async (req, res) => {
   try {
     const date = req.query.date;
     const thirdParty = req.query.thirdParty ?? "false";
+    const timePeriod = Number(req.query.timePeriod) ?? 1;
+    const frequency = req.query.frequency ?? 'Hour';
     const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
     const HistoryTickModel =
       thirdParty == "true" ? HistoryDataNew : HistoryData;
@@ -96,6 +193,8 @@ exports.hourChart = async (req, res) => {
 
     const uniqueSymbolArr = [...new Set(symbolArr)];
 
+    const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
+    const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
     const historyTicksInstrument = await HistoryTickModel.find({
       "candles.timestamp": {
         $gt: new Date(startToday),
@@ -104,25 +203,72 @@ exports.hourChart = async (req, res) => {
       symbol: { $in: uniqueSymbolArr },
     });
 
+    const timeArrUtc = timeArr.map((elem)=>{
+        const utcTime = new Date(elem);
+        utcTime.setHours(utcTime.getHours() - 5);
+        utcTime.setMinutes(utcTime.getMinutes() - 30);
+        return utcTime
+    })
+
+    // console.log(uniqueSymbolArr, new Date(startToday), new Date(endToday), timeArrUtc)
+    // const historyTicksInstrument = await HistoryTickModel.aggregate([
+    //     {
+    //         $match:
+    //         {
+    //             symbol: {
+    //                 $in: uniqueSymbolArr,
+    //             },
+    //             "candles.timestamp": {
+    //                 $gt: new Date(startToday),
+    //                 $lt: new Date(endToday),
+    //               },
+    //         },
+    //     },
+    //     {
+    //         $unwind: "$candles",
+    //     },
+    //     {
+    //         $match: {
+    //             "candles.timestamp": {
+    //                 $in: timeArrUtc,
+    //             },
+    //         },
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 id: "$_id",
+    //                 symbol: "$symbol",
+    //             },
+    //             candles: {
+    //                 $push: "$candles",
+    //             },
+    //         },
+    //     },
+    //     {
+    //         $project: {
+    //             candles: 1,
+    //             symbol: '$_id.symbol',
+    //             _id: 0
+    //         }
+    //     }
+    // ])
+
+    // console.log(historyTicksInstrument)
+
     const uniqueTicksArr = [
       ...new Map(
         historyTicksInstrument.map((item) => [item.symbol, item])
       ).values(),
     ];
 
-    const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
-    const timeArr = [
-      `${todaysDatePart}T09:15:00.000+00:00`,
-      `${todaysDatePart}T10:15:00.000+00:00`,
-      `${todaysDatePart}T11:15:00.000+00:00`,
-      `${todaysDatePart}T12:15:00.000+00:00`,
-      `${todaysDatePart}T13:15:00.000+00:00`,
-      `${todaysDatePart}T14:15:00.000+00:00`,
-      `${todaysDatePart}T15:15:00.000+00:00`,
-      `${todaysDatePart}T15:30:00.000+00:00`,
-    ];
+
+    const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, timePeriod, frequency);
+
+    
 
     for (let i = 0; i < timeArr.length; i++) {
+        const timePriceArr = newHistoryTicks[timeArr[i]];
       const filteredArr = tradeData.filter((elem) => {
         return (
           new Date(elem.trade_time) >= new Date(timeArr[0]) &&
@@ -159,22 +305,22 @@ exports.hourChart = async (req, res) => {
       const formatedBuyArr = await formatTradeData(newData?.buyArr);
       const formatedSellArr = await formatTradeData(newData?.sellArr);
 
-      if (tradeData.length && uniqueTicksArr.length) {
+      if (tradeData.length && timePriceArr.length) {
         const buyPnlObj = await calculatePnl(
           formatedBuyArr,
-          uniqueTicksArr,
+          timePriceArr,
           timeArr[i],
           thirdParty
         );
         const sellPnlObj = await calculatePnl(
           formatedSellArr,
-          uniqueTicksArr,
+          timePriceArr,
           timeArr[i],
           thirdParty
         );
         const pnlObj = await calculatePnl(
           arrData,
-          uniqueTicksArr,
+          timePriceArr,
           timeArr[i],
           thirdParty
         );
@@ -597,29 +743,30 @@ const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
 
     const getCandleArray = ltpData?.find(
       (subelem) => subelem?.symbol === elem?.symbol
-    )?.candles;
+    );
 
     if (!getCandleArray) continue;
 
-    if (utcTimeStamp.getUTCHours() === 10) {
-      isDayEnd = true;
-      utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 15);
-    }
-    let ltpCandle = getCandleArray?.find((subelem) => {
-      return (
-        new Date(subelem?.timestamp)?.toISOString() ===
-        utcTimeStamp?.toISOString()
-      );
-    });
-
-    // if(!ltpCandle){
-    //     console.log('inside no candles')
-    //     const historyData = await HistoryTickModel.findOne({symbol: elem?.symbol, 'candles.timestamp': {$lt: new Date(newUtcTimeStamp)}}).sort({'candles.timestamp': -1});
-    //     ltpCandle = historyData?.candles?.[historyData.candles?.length-1];
-    //     isDayEnd = true;
+    // if (utcTimeStamp.getUTCHours() === 10) {
+    //   isDayEnd = true;
+    //   utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 15);
     // }
+    // let ltpCandle = getCandleArray?.find((subelem) => {
+    //   return (
+    //     new Date(subelem?.timestamp)?.toISOString() ===
+    //     utcTimeStamp?.toISOString()
+    //   );
+    // });
 
-    const ltp = isDayEnd ? ltpCandle?.close || 0 : ltpCandle?.open || 0;
+    // // if(!ltpCandle){
+    // //     console.log('inside no candles')
+    // //     const historyData = await HistoryTickModel.findOne({symbol: elem?.symbol, 'candles.timestamp': {$lt: new Date(newUtcTimeStamp)}}).sort({'candles.timestamp': -1});
+    // //     ltpCandle = historyData?.candles?.[historyData.candles?.length-1];
+    // //     isDayEnd = true;
+    // // }
+
+    const ltp = getCandleArray?.open;
+    // isDayEnd ? ltpCandle?.close || 0 : ltpCandle?.open || 0;
     if (ltp === undefined) continue;
 
     const gpnl =
@@ -1114,3 +1261,45 @@ exports.deleteThirdParty = async (req, res) => {
 1. jab stoxhero users graph dekhenge 22 may se pahle ka then unka symbol match nhi hoga
 2. stoxhero users ka symbol bnane ke liye unhe tradable instruments se us symbol me convert krna hoga
 */
+
+
+// for (const [candleIndex, candleObj] of candlesArray.entries()) {
+//     const candles = candleObj?.candles;
+//     if(!symbolWiseArray[candleObj?.symbol]){
+//         symbolWiseArray[candleObj?.symbol] = [];
+//     }
+//     // const newCandleArr = [];
+//     let particularCandle = candles[timeIndex];
+//     if((particularCandle?.timestamp?.getTime() !== new Date(utcTime)?.getTime()) && timeIndex === 0){
+//         const historyData = await HistoryTickModel.findOne({symbol: candleObj?.symbol, 'candles.timestamp': {$lt: new Date(utcTime)}}).sort({'candles.timestamp': -1});
+//         console.log( 'in db call');
+//         const lastCandleHistoryData = historyData?.candles?.[historyData.candles?.length-1];
+//         lastCandleHistoryData.open = lastCandleHistoryData.close;
+//         symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
+//         priceObj[time].push({
+//             time: lastCandleHistoryData?.timestamp,
+//             symbol: candleObj?.symbol,
+//             open: lastCandleHistoryData?.open,
+//             close: lastCandleHistoryData?.close
+//         })
+//     }else if(particularCandle?.timestamp?.getTime() !== new Date(utcTime)?.getTime()){
+//         const arr = symbolWiseArray[candleObj?.symbol];
+//         const lastCandleHistoryData = JSON.parse(JSON.stringify(arr?.[arr?.length-1]));
+//         lastCandleHistoryData.open = lastCandleHistoryData.close;
+//         symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
+//         priceObj[time].push({
+//             time: lastCandleHistoryData?.timestamp,
+//             symbol: candleObj?.symbol,
+//             open: lastCandleHistoryData?.open,
+//             close: lastCandleHistoryData?.close
+//         })
+//     } else{
+//         symbolWiseArray[candleObj?.symbol].push(particularCandle);
+//         priceObj[time].push({
+//             time: particularCandle?.timestamp,
+//             symbol: candleObj?.symbol,
+//             open: particularCandle?.open,
+//             close: particularCandle?.close
+//         })
+//     }
+// }
