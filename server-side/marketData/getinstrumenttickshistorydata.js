@@ -100,15 +100,15 @@ const saveIndiaVix = async (todaysDatePart)=>{
     },
   };
 
-  const url = `https://api.kite.trade/instruments/historical/${'264969'}/60minute?from=${todaysDatePart}+09:15:00&to=${todaysDatePart}+15:30:00`;
-  const urlForEnd = `https://api.kite.trade/instruments/historical/264969/day?from=${todaysDatePart}+09:15:00&to=${todaysDatePart}+15:30:00`;
+  const url = `https://api.kite.trade/instruments/historical/${'264969'}/minute?from=${todaysDatePart}+09:15:00&to=${todaysDatePart}+15:30:00`;
+  // const urlForEnd = `https://api.kite.trade/instruments/historical/264969/day?from=${todaysDatePart}+09:15:00&to=${todaysDatePart}+15:30:00`;
 
 
 
   try {
-    if(urlForEnd){
-      await vixHelper(urlForEnd, authOptions)
-    }
+    // if(urlForEnd){
+    //   await vixHelper(urlForEnd, authOptions)
+    // }
     await vixHelper(url, authOptions)
   } catch (err) {
     // console.log(err)
