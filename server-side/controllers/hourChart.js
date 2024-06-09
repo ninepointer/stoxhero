@@ -97,7 +97,7 @@ const timeArray = async (todaysDatePart, timePeriod, frequency) => {
 }
 
 
-const newPriceArray = async (timeArray, candlesArray, HistoryTickModel, timePeriod, frequency) => {
+const newPriceArray = async (timeArray, candlesArray, HistoryTickModel, thirdParty) => {
     const priceObj = {};
     const symbolWiseArray = {};
     for(const [timeIndex, time] of timeArray.entries()){
@@ -118,9 +118,19 @@ const newPriceArray = async (timeArray, candlesArray, HistoryTickModel, timePeri
             }
             // const newCandleArr = [];
             // let particularCandle = candles[timeIndex];
-            let particularCandle = candles.filter((elem)=>{
-                return elem?.timestamp?.getTime() === new Date(utcTime)?.getTime()
-            })?.[0];
+            let particularCandle = candles.filter((elem) => {
+              if (thirdParty === 'false') {
+                  // Create a new Date object to avoid mutating the original timestamp
+                  const adjustedTimestamp = new Date(elem.timestamp);
+                  adjustedTimestamp.setSeconds(adjustedTimestamp.getSeconds() + 59);
+                  console.log(adjustedTimestamp, new Date(utcTime))
+                  return adjustedTimestamp.getTime() === new Date(utcTime).getTime();
+              } else {
+                  // Handle the case where thirdParty is not 'false'
+                  return new Date(elem.timestamp).getTime() === new Date(utcTime).getTime();
+              }
+          })?.[0];
+          
 
             if((!particularCandle) && timeIndex === 0){
                 // const historyData = await HistoryTickModel.findOne({symbol: candleObj?.symbol, 'candles.timestamp': {$lt: new Date(utcTime)}}).sort({'candles.timestamp': -1});
@@ -166,12 +176,13 @@ exports.hourChart = async (req, res) => {
     const now = performance.now();
     const date = req.query.date;
     const thirdParty = req.query.thirdParty ?? "false";
-    const timePeriod = Number(req.query.timePeriod) ?? 1;
-    const frequency = req.query.frequency ?? 'Hour';
+    const timePeriod = Number(req.query.timePeriod) || 1;
+    const frequency = req.query.frequency==='undefined' ? 'Hour' : req.query.frequency;
     const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
     const HistoryTickModel =
       thirdParty == "true" ? HistoryDataNew : HistoryData;
 
+      console.log(frequency, timePeriod)
     const userId = req?.user?._id;
     const today = moment(date);
     const startToday = today
@@ -201,13 +212,6 @@ exports.hourChart = async (req, res) => {
     const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
     const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
     console.log('case2', performance.now()-now)
-    // const historyTicksInstrument = await HistoryTickModel.find({
-    //   "candles.timestamp": {
-    //     $gt: new Date(startToday),
-    //     $lt: new Date(endToday),
-    //   },
-    //   symbol: { $in: uniqueSymbolArr },
-    // });
 
     const timeArrUtc = timeArr.map((elem)=>{
         const utcTime = new Date(elem);
@@ -217,7 +221,8 @@ exports.hourChart = async (req, res) => {
     })
 
     // console.log(uniqueSymbolArr, new Date(startToday), new Date(endToday), timeArrUtc)
-    const historyTicksInstrument = await HistoryTickModel.aggregate([
+    const historyTicksInstrument = (thirdParty == "true") ?
+    await HistoryTickModel.aggregate([
         {
             $match:
             {
@@ -259,6 +264,14 @@ exports.hourChart = async (req, res) => {
             }
         }
     ])
+    :
+    await HistoryTickModel.find({
+      "candles.timestamp": {
+        $gt: new Date(startToday),
+        $lt: new Date(endToday),
+      },
+      symbol: { $in: uniqueSymbolArr },
+    });
 
     console.log('case3', performance.now()-now)
     console.log(historyTicksInstrument)
@@ -270,7 +283,7 @@ exports.hourChart = async (req, res) => {
     ];
 
     
-    const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, timePeriod, frequency);
+    const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, thirdParty);
 
     console.log('check performance', performance.now() - now);
     
@@ -289,11 +302,14 @@ exports.hourChart = async (req, res) => {
           moment(elem.timestamp)
             .add(5, "hours")
             .add(30, "minutes")
+            .add(59, "seconds")
             .toISOString()
         );
+
+        
         const timeArrDate = new Date(timeArr[i]);
         return elemDate.getTime() === timeArrDate.getTime();
-      })?.[0]?.close;
+      })?.[0]?.open;
 
       filteredArr.sort((a, b) => {
         if (a.trade_time > b.trade_time) {
