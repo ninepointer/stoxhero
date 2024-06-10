@@ -794,6 +794,7 @@ exports.uploadCSV = async (req, res) => {
     const userId = req?.user?._id || "662f804700f04a05fe3c941f";
     const data = await uploadFileToAzure(req.file);
     const originalUrl = data?.fileUrl;
+    console.log(data)
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/045115758852909416-shareIndia46099Aprtrunc.csv'
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
     const savedData = await saveDataToDB(url, userId);
@@ -839,11 +840,9 @@ async function downloadCsvBlob(url) {
 async function parseCsvStream(stream) {
   return new Promise((resolve, reject) => {
     const results = [];
-    let pointer = 0;
     stream
       .pipe(csv())
       .on("data", (data) => {
-        pointer++;
         results.push(data);
       })
       .on("end", () => resolve(results))
@@ -857,8 +856,9 @@ const saveDataToDB = async (url, userId) => {
     // const userId = '662f804700f04a05fe3c941f';
     // const url = '06501232945102076-data_hour_calcluation.csv'
     const csvStream = await downloadCsvBlob(url);
+    console.log('downloaded')
     const csvData = await parseCsvStream(csvStream);
-
+    console.log('parsed')
     return await convertToTradingData(csvData, userId);
   } catch (error) {
     console.error(error);
@@ -1138,10 +1138,10 @@ exports.getUploadedData = async (req, res) => {
     // const data = await uploadFileToAzure(req.file);
     //  const originalUrl = data?.fileUrl;
     const originalUrl =
-      "https://stagingdmt.blob.core.windows.net/dmt-trade/045115758852909416-shareIndia46099Aprtrunc.csv";
+    'https://stagingdmt.blob.core.windows.net/dmt-trade/04333819805877015-OPTNewData-44090.csv';
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
     // const savedData = await saveDataToDB(url, userId);
-    const savedData = await saveDataToDBTesting(url, userId);
+    const savedData = await saveDataToDB(url, userId);
 
     if (savedData === "Data Exist") {
       return res.status(400).json({
@@ -1170,7 +1170,9 @@ exports.getUploadedData = async (req, res) => {
 
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
-    trader: new ObjectId("63788f3991fc4bf629de6df0"),
+    trader: 
+    new ObjectId("63788f3991fc4bf629de6df0"),
+    // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
   res.status(200).json({
