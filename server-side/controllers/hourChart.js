@@ -64,111 +64,121 @@ exports.isThirdPartyDataExist = async (req, res) => {
   }
 };
 
-
 const timeArray = async (todaysDatePart, timePeriod, frequency) => {
-    const startTime = new Date(`${todaysDatePart}T09:15:59.000+00:00`);
-    const endTime = new Date(`${todaysDatePart}T15:30:59.000+00:00`);
-    const timeArr = [];
+  const startTime = new Date(`${todaysDatePart}T09:15:59.000+00:00`);
+  const endTime = new Date(`${todaysDatePart}T15:30:59.000+00:00`);
+  const timeArr = [];
 
-    // Function to increment the time based on frequency
-    const incrementTime = (time, period, freq) => {
-        const newTime = new Date(time);
-        switch (freq) {
-            case 'Min':
-                newTime.setMinutes(newTime.getMinutes() + period);
-                break;
-            case 'Hour':
-                newTime.setHours(newTime.getHours() + period);
-                break;
-            case 'Day':
-                newTime.setDate(newTime.getDate() + period);
-                break;
-            default:
-                throw new Error('Invalid frequency');
-        }
-        return newTime;
+  // Function to increment the time based on frequency
+  const incrementTime = (time, period, freq) => {
+    const newTime = new Date(time);
+    switch (freq) {
+      case "Min":
+        newTime.setMinutes(newTime.getMinutes() + period);
+        break;
+      case "Hour":
+        newTime.setHours(newTime.getHours() + period);
+        break;
+      case "Day":
+        newTime.setDate(newTime.getDate() + period);
+        break;
+      default:
+        throw new Error("Invalid frequency");
     }
+    return newTime;
+  };
 
-    for (let time = startTime; time < endTime; time = incrementTime(time, timePeriod, frequency)) {
-        timeArr.push(time.toISOString());
+  for (
+    let time = startTime;
+    time < endTime;
+    time = incrementTime(time, timePeriod, frequency)
+  ) {
+    timeArr.push(time.toISOString());
+  }
+
+  return [...timeArr, endTime.toISOString()];
+};
+
+const newPriceArray = async (
+  timeArray,
+  candlesArray,
+  HistoryTickModel,
+  thirdParty
+) => {
+  const priceObj = {};
+  const symbolWiseArray = {};
+  for (const [timeIndex, time] of timeArray.entries()) {
+    if (!priceObj[time]) {
+      priceObj[time] = [];
     }
+    const utcTime = new Date(time);
+    utcTime.setHours(utcTime.getHours() - 5);
+    utcTime.setMinutes(utcTime.getMinutes() - 30);
+    // utcTime.setHours(utcTime.getHours() - 5);
+    // utcTime.setMinutes(utcTime.getMinutes() - 29);
+    // utcTime.setSeconds(utcTime.getSeconds() - 1);
 
-    return [...timeArr, endTime.toISOString()];
-}
-
-
-const newPriceArray = async (timeArray, candlesArray, HistoryTickModel, thirdParty) => {
-    const priceObj = {};
-    const symbolWiseArray = {};
-    for(const [timeIndex, time] of timeArray.entries()){
-        if(!priceObj[time]){
-            priceObj[time] = [];
+    for (const [candleIndex, candleObj] of candlesArray.entries()) {
+      const candles = candleObj?.candles;
+      if (!symbolWiseArray[candleObj?.symbol]) {
+        symbolWiseArray[candleObj?.symbol] = [];
+      }
+      // const newCandleArr = [];
+      // let particularCandle = candles[timeIndex];
+      let particularCandle = candles.filter((elem) => {
+        if (thirdParty === "false") {
+          // Create a new Date object to avoid mutating the original timestamp
+          const adjustedTimestamp = new Date(elem.timestamp);
+          adjustedTimestamp.setSeconds(adjustedTimestamp.getSeconds() + 59);
+          console.log(adjustedTimestamp, new Date(utcTime));
+          return adjustedTimestamp.getTime() === new Date(utcTime).getTime();
+        } else {
+          // Handle the case where thirdParty is not 'false'
+          return (
+            new Date(elem.timestamp).getTime() === new Date(utcTime).getTime()
+          );
         }
-        const utcTime = new Date(time);
-        utcTime.setHours(utcTime.getHours() - 5);
-        utcTime.setMinutes(utcTime.getMinutes() - 30);
-        // utcTime.setHours(utcTime.getHours() - 5);
-        // utcTime.setMinutes(utcTime.getMinutes() - 29);
-        // utcTime.setSeconds(utcTime.getSeconds() - 1);
-    
-        for (const [candleIndex, candleObj] of candlesArray.entries()) {
-            const candles = candleObj?.candles;
-            if(!symbolWiseArray[candleObj?.symbol]){
-                symbolWiseArray[candleObj?.symbol] = [];
-            }
-            // const newCandleArr = [];
-            // let particularCandle = candles[timeIndex];
-            let particularCandle = candles.filter((elem) => {
-              if (thirdParty === 'false') {
-                  // Create a new Date object to avoid mutating the original timestamp
-                  const adjustedTimestamp = new Date(elem.timestamp);
-                  adjustedTimestamp.setSeconds(adjustedTimestamp.getSeconds() + 59);
-                  console.log(adjustedTimestamp, new Date(utcTime))
-                  return adjustedTimestamp.getTime() === new Date(utcTime).getTime();
-              } else {
-                  // Handle the case where thirdParty is not 'false'
-                  return new Date(elem.timestamp).getTime() === new Date(utcTime).getTime();
-              }
-          })?.[0];
-          
+      })?.[0];
 
-            if((!particularCandle) && timeIndex === 0){
-                // const historyData = await HistoryTickModel.findOne({symbol: candleObj?.symbol, 'candles.timestamp': {$lt: new Date(utcTime)}}).sort({'candles.timestamp': -1});
-                // const lastCandleHistoryData = historyData?.candles?.[historyData.candles?.length-1] || {};
-                const lastCandleHistoryData = {};
+      if (!particularCandle && timeIndex === 0) {
+        // const historyData = await HistoryTickModel.findOne({symbol: candleObj?.symbol, 'candles.timestamp': {$lt: new Date(utcTime)}}).sort({'candles.timestamp': -1});
+        // const lastCandleHistoryData = historyData?.candles?.[historyData.candles?.length-1] || {};
+        const lastCandleHistoryData = {};
 
-                lastCandleHistoryData.open = lastCandleHistoryData?.close || 0;
-                symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
-                priceObj[time].push({
-                    time: lastCandleHistoryData?.timestamp,
-                    symbol: candleObj?.symbol,
-                    open: lastCandleHistoryData?.open,
-                    close: lastCandleHistoryData?.close
-                })
-            }else if(!particularCandle){
-                const arr = symbolWiseArray[candleObj?.symbol];
-                const lastCandleHistoryData = JSON.parse(JSON.stringify(arr?.[arr?.length-1]));
-                lastCandleHistoryData.open = lastCandleHistoryData?.close || 0;
-                symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
-                priceObj[time].push({
-                    time: lastCandleHistoryData?.timestamp,
-                    symbol: candleObj?.symbol,
-                    open: lastCandleHistoryData?.open,
-                    close: lastCandleHistoryData?.close
-                })
-            } else{
-                symbolWiseArray[candleObj?.symbol].push(particularCandle);
-                priceObj[time].push({
-                    time: particularCandle?.timestamp,
-                    symbol: candleObj?.symbol,
-                    open: particularCandle?.open,
-                    close: particularCandle?.close
-                })
-            }
-        }
+        lastCandleHistoryData.open = lastCandleHistoryData?.close || 0;
+        symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
+        priceObj[time].push({
+          time: lastCandleHistoryData?.timestamp,
+          symbol: candleObj?.symbol,
+          open: lastCandleHistoryData?.open,
+          close: lastCandleHistoryData?.close,
+        });
+      } else if (!particularCandle) {
+        const arr = symbolWiseArray[candleObj?.symbol];
+        const lastCandleHistoryData = JSON.parse(
+          JSON.stringify(arr?.[arr?.length - 1])
+        );
+        lastCandleHistoryData.open = lastCandleHistoryData?.close || 0;
+        symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
+        priceObj[time].push({
+          time: lastCandleHistoryData?.timestamp,
+          symbol: candleObj?.symbol,
+          open: lastCandleHistoryData?.open,
+          close: lastCandleHistoryData?.close,
+        });
+      } else {
+        symbolWiseArray[candleObj?.symbol].push(particularCandle);
+        priceObj[time].push({
+          time: particularCandle?.timestamp,
+          symbol: candleObj?.symbol,
+          open: particularCandle?.open,
+          close: particularCandle?.close,
+        });
+      }
     }
-    return priceObj
-}
+  }
+  return priceObj;
+};
 
 exports.hourChart = async (req, res) => {
   try {
@@ -176,12 +186,13 @@ exports.hourChart = async (req, res) => {
     const date = req.query.date;
     const thirdParty = req.query.thirdParty ?? "false";
     const timePeriod = Number(req.query.timePeriod) || 1;
-    const frequency = req.query.frequency==='undefined' ? 'Hour' : req.query.frequency;
+    const frequency =
+      req.query.frequency === "undefined" ? "Hour" : req.query.frequency;
     const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
     const HistoryTickModel =
       thirdParty == "true" ? HistoryDataNew : HistoryData;
 
-      console.log(frequency, timePeriod)
+    console.log(frequency, timePeriod);
     const userId = req?.user?._id;
     const today = moment(date);
     const startToday = today
@@ -191,17 +202,18 @@ exports.hourChart = async (req, res) => {
       .subtract(30, "minutes");
     const endToday = today.clone().endOf("day");
     const pnlObjArr = [];
-
+    console.log("fetching trades starts at", performance.now() - now);
     const tradeData = await TradeModel.find({
       status: "COMPLETE",
       trader: new ObjectId(userId),
       trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) },
     });
 
-    console.log('case1', performance.now()-now)
+    console.log("time taken to fetch trades", performance.now() - now);
     const vixData = await IndiaVix.find({
       timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) },
     });
+    console.log("time taken to fetch vix", performance.now() - now);
     const symbolArr = tradeData.map((elem) => {
       return elem?.symbol;
     });
@@ -210,70 +222,73 @@ exports.hourChart = async (req, res) => {
 
     const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
     const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
-    console.log('case2', performance.now()-now)
+    console.log("generating unique symbols array", performance.now() - now);
 
-    const timeArrUtc = timeArr.map((elem)=>{
-        const utcTime = new Date(elem);
-        utcTime.setHours(utcTime.getHours() - 5);
-        utcTime.setMinutes(utcTime.getMinutes() - 30);
-        return utcTime
-    })
-
-    // console.log(uniqueSymbolArr, new Date(startToday), new Date(endToday), timeArrUtc)
-    const historyTicksInstrument = (thirdParty == "true") ?
-    await HistoryTickModel.aggregate([
-        {
-            $match:
-            {
-                symbol: {
-                    $in: uniqueSymbolArr,
-                },
-                "candles.timestamp": {
-                    $gt: new Date(startToday),
-                    $lt: new Date(endToday),
-                  },
-            },
-        },
-        {
-            $unwind: "$candles",
-        },
-        {
-            $match: {
-                "candles.timestamp": {
-                    $in: timeArrUtc,
-                },
-            },
-        },
-        {
-            $group: {
-                _id: {
-                    id: "$_id",
-                    symbol: "$symbol",
-                },
-                candles: {
-                    $push: "$candles",
-                },
-            },
-        },
-        {
-            $project: {
-                candles: 1,
-                symbol: '$_id.symbol',
-                _id: 0
-            }
-        }
-    ])
-    :
-    await HistoryTickModel.find({
-      "candles.timestamp": {
-        $gt: new Date(startToday),
-        $lt: new Date(endToday),
-      },
-      symbol: { $in: uniqueSymbolArr },
+    const timeArrUtc = timeArr.map((elem) => {
+      const utcTime = new Date(elem);
+      utcTime.setHours(utcTime.getHours() - 5);
+      utcTime.setMinutes(utcTime.getMinutes() - 30);
+      return utcTime;
     });
 
-    console.log('case3', performance.now()-now)
-    console.log(historyTicksInstrument.length, tradeData?.length, uniqueSymbolArr?.length)
+    // console.log(uniqueSymbolArr, new Date(startToday), new Date(endToday), timeArrUtc)
+    const historyTicksInstrument =
+      thirdParty == "true"
+        ? await HistoryTickModel.aggregate([
+            {
+              $match: {
+                symbol: {
+                  $in: uniqueSymbolArr,
+                },
+                "candles.timestamp": {
+                  $gt: new Date(startToday),
+                  $lt: new Date(endToday),
+                },
+              },
+            },
+            {
+              $unwind: "$candles",
+            },
+            {
+              $match: {
+                "candles.timestamp": {
+                  $in: timeArrUtc,
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  id: "$_id",
+                  symbol: "$symbol",
+                },
+                candles: {
+                  $push: "$candles",
+                },
+              },
+            },
+            {
+              $project: {
+                candles: 1,
+                symbol: "$_id.symbol",
+                _id: 0,
+              },
+            },
+          ])
+        : await HistoryTickModel.find({
+            "candles.timestamp": {
+              $gt: new Date(startToday),
+              $lt: new Date(endToday),
+            },
+            symbol: { $in: uniqueSymbolArr },
+          });
+
+    console.log("Fetching History Ticks", performance.now() - now);
+    console.log(
+      historyTicksInstrument.length,
+      tradeData?.length,
+      uniqueSymbolArr?.length
+    );
 
     const uniqueTicksArr = [
       ...new Map(
@@ -281,11 +296,15 @@ exports.hourChart = async (req, res) => {
       ).values(),
     ];
 
-    
-    const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, thirdParty);    
+    const newHistoryTicks = await newPriceArray(
+      timeArr,
+      uniqueTicksArr,
+      HistoryTickModel,
+      thirdParty
+    );
 
     for (let i = 0; i < timeArr.length; i++) {
-        const timePriceArr = newHistoryTicks[timeArr[i]];
+      const timePriceArr = newHistoryTicks[timeArr[i]];
       const filteredArr = tradeData.filter((elem) => {
         return (
           new Date(elem.trade_time) >= new Date(timeArr[0]) &&
@@ -302,7 +321,6 @@ exports.hourChart = async (req, res) => {
             .toISOString()
         );
 
-        
         const timeArrDate = new Date(timeArr[i]);
         return elemDate.getTime() === timeArrDate.getTime();
       })?.[0]?.open;
@@ -374,7 +392,7 @@ exports.hourChart = async (req, res) => {
       }
     }
 
-    console.log('check performance again', performance.now() - now);
+    console.log("Final response", performance.now() - now);
 
     pnl1PM.pnlDiffrence = 0;
     pnl3PM.pnlDiffrence = pnl3PM?.gpnl - pnl1PM?.gpnl;
@@ -399,7 +417,10 @@ exports.avgHourChart = async (req, res) => {
 
     const fromDate = req.query.from;
     const timePeriod = Number(req.query.timePeriod) || 1;
-    const frequency = ((req.query.frequency==='undefined') || !req.query.frequency) ? 'Hour' : req.query.frequency;
+    const frequency =
+      req.query.frequency === "undefined" || !req.query.frequency
+        ? "Hour"
+        : req.query.frequency;
     const toDate = req.query.to;
     const thirdParty = req.query.thirdParty ?? "false";
     const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
@@ -426,14 +447,13 @@ exports.avgHourChart = async (req, res) => {
 
       const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
       const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
-  
-      const timeArrUtc = timeArr.map((elem)=>{
+
+      const timeArrUtc = timeArr.map((elem) => {
         const utcTime = new Date(elem);
         utcTime.setHours(utcTime.getHours() - 5);
         utcTime.setMinutes(utcTime.getMinutes() - 30);
-        return utcTime
-    })
-  
+        return utcTime;
+      });
 
       const tradeData = await TradeModel.find({
         status: "COMPLETE",
@@ -441,64 +461,62 @@ exports.avgHourChart = async (req, res) => {
         trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) },
       });
 
-      if(tradeData.length === 0){
+      if (tradeData.length === 0) {
         continue;
       }
 
-      
       const symbolArr = tradeData.map((elem) => elem?.symbol);
       const uniqueSymbolArr = [...new Set(symbolArr)];
-      const historyTicksInstrument = (thirdParty == "true") ?
-      await HistoryTickModel.aggregate([
-          {
-              $match:
+      const historyTicksInstrument =
+        thirdParty == "true"
+          ? await HistoryTickModel.aggregate([
               {
+                $match: {
                   symbol: {
-                      $in: uniqueSymbolArr,
+                    $in: uniqueSymbolArr,
                   },
                   "candles.timestamp": {
-                      $gt: new Date(startToday),
-                      $lt: new Date(endToday),
-                    },
-              },
-          },
-          {
-              $unwind: "$candles",
-          },
-          {
-              $match: {
-                  "candles.timestamp": {
-                      $in: timeArrUtc,
+                    $gt: new Date(startToday),
+                    $lt: new Date(endToday),
                   },
+                },
               },
-          },
-          {
-              $group: {
+              {
+                $unwind: "$candles",
+              },
+              {
+                $match: {
+                  "candles.timestamp": {
+                    $in: timeArrUtc,
+                  },
+                },
+              },
+              {
+                $group: {
                   _id: {
-                      id: "$_id",
-                      symbol: "$symbol",
+                    id: "$_id",
+                    symbol: "$symbol",
                   },
                   candles: {
-                      $push: "$candles",
+                    $push: "$candles",
                   },
+                },
               },
-          },
-          {
-              $project: {
+              {
+                $project: {
                   candles: 1,
-                  symbol: '$_id.symbol',
-                  _id: 0
-              }
-          }
-      ])
-      :
-      await HistoryTickModel.find({
-        "candles.timestamp": {
-          $gt: new Date(startToday),
-          $lt: new Date(endToday),
-        },
-        symbol: { $in: uniqueSymbolArr },
-      });      
+                  symbol: "$_id.symbol",
+                  _id: 0,
+                },
+              },
+            ])
+          : await HistoryTickModel.find({
+              "candles.timestamp": {
+                $gt: new Date(startToday),
+                $lt: new Date(endToday),
+              },
+              symbol: { $in: uniqueSymbolArr },
+            });
 
       const uniqueTicksArr = [
         ...new Map(
@@ -506,7 +524,12 @@ exports.avgHourChart = async (req, res) => {
         ).values(),
       ];
 
-      const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, thirdParty);
+      const newHistoryTicks = await newPriceArray(
+        timeArr,
+        uniqueTicksArr,
+        HistoryTickModel,
+        thirdParty
+      );
       for (let i = 0; i < timeArr.length; i++) {
         const timePriceArr = newHistoryTicks[`${timeArr[i]}`];
         const timestamp = `${timeArr[i]}`;
@@ -548,7 +571,6 @@ exports.avgHourChart = async (req, res) => {
         gpnlByTime.reduce((acc, gpnl) => acc + gpnl, 0) / gpnlByTime.length;
       averageGpnlByTime[time] = Number(averageGpnl?.toFixed(2));
     });
-
 
     res.status(200).json({
       status: "success",
@@ -594,7 +616,8 @@ const distinctBuySell = async (tradeData) => {
   const sellArr = [];
 
   for (const elem of tradeData) {
-    const { Quantity, buyOrSell, trade_time, symbol, average_price, amount } = elem;
+    const { Quantity, buyOrSell, trade_time, symbol, average_price, amount } =
+      elem;
 
     totalLotsUsed += Math.abs(Quantity);
     const previousTrades = tradeData.filter((trades) => {
@@ -634,30 +657,40 @@ const distinctBuySell = async (tradeData) => {
       const newObjSell = { ...elem };
 
       if (transactionTypeForSymbol === "BUY") {
-        const newAmountBuy = Math.abs(amount)*Math.abs(runningLotForSymbol)/Math.abs(Quantity);
-        const newAmountsell = Math.abs(amount)*(Math.abs(Quantity) - Math.abs(runningLotForSymbol))/Math.abs(Quantity);
+        const newAmountBuy =
+          (Math.abs(amount) * Math.abs(runningLotForSymbol)) /
+          Math.abs(Quantity);
+        const newAmountsell =
+          (Math.abs(amount) *
+            (Math.abs(Quantity) - Math.abs(runningLotForSymbol))) /
+          Math.abs(Quantity);
         buyArr.push({
           ...newObjBuy,
           Quantity: 0 - Math.abs(runningLotForSymbol),
-        amount: 0-newAmountBuy
+          amount: 0 - newAmountBuy,
         });
         newObjSell.Quantity =
-            0 - (Math.abs(Quantity) - Math.abs(runningLotForSymbol));
+          0 - (Math.abs(Quantity) - Math.abs(runningLotForSymbol));
 
         newObjSell.amount = 0 - newAmountsell;
         sellArr.push(newObjSell);
       } else {
-        const newAmountSell = Math.abs(amount)*Math.abs(runningLotForSymbol)/Math.abs(Quantity);
-        const newAmountBuy = Math.abs(amount)*(Math.abs(Quantity) - Math.abs(runningLotForSymbol))/Math.abs(Quantity);
+        const newAmountSell =
+          (Math.abs(amount) * Math.abs(runningLotForSymbol)) /
+          Math.abs(Quantity);
+        const newAmountBuy =
+          (Math.abs(amount) *
+            (Math.abs(Quantity) - Math.abs(runningLotForSymbol))) /
+          Math.abs(Quantity);
 
         sellArr.push({
           ...newObjSell,
           Quantity: Math.abs(runningLotForSymbol),
-        amount: newAmountSell,
+          amount: newAmountSell,
         });
         newObjBuy.Quantity = Math.abs(Quantity) - Math.abs(runningLotForSymbol);
 
-        newObjBuy.amount =  newAmountBuy;
+        newObjBuy.amount = newAmountBuy;
         buyArr.push(newObjBuy);
       }
     } else if (
@@ -923,7 +956,7 @@ const convertToTradingData = async (data, userId) => {
         checkFuture = true;
       }
 
-      if(elem?.['Instrument Type'] === 'EQ'){
+      if (elem?.["Instrument Type"] === "EQ") {
         checkStock = true;
       }
 
@@ -933,8 +966,8 @@ const convertToTradingData = async (data, userId) => {
           .clone()
           .format("DDMMMYY");
         instrument = `${elem?.["Symbol"]}${newExpiry?.toUpperCase()}FUT`;
-      } 
-      if(checkOption){
+      }
+      if (checkOption) {
         const newExpiry = moment(elem?.["Expiry Date"], "DD MMMM YYYY")
           .clone()
           .format("DDMMMYY");
@@ -943,8 +976,8 @@ const convertToTradingData = async (data, userId) => {
         }${elem?.["Option Type"]}`;
       }
 
-      if(checkStock){
-        instrument = elem?.["Symbol"]
+      if (checkStock) {
+        instrument = elem?.["Symbol"];
       }
 
       let buyOrSell, quantity, amount;
@@ -1015,17 +1048,6 @@ const convertToTradingData = async (data, userId) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
 async function parseCsvStreamForTesting(stream) {
   return new Promise((resolve, reject) => {
     const results = [];
@@ -1040,23 +1062,23 @@ async function parseCsvStreamForTesting(stream) {
         if (elem?.["Option Type"] == "CE" || elem?.["Option Type"] == "PE") {
           checkOption = true;
         }
-  
+
         if (elem?.["Option Type"] == "FX") {
           checkFuture = true;
         }
-  
-        if(elem?.['Instrument Type'] === 'EQ'){
+
+        if (elem?.["Instrument Type"] === "EQ") {
           checkStock = true;
         }
-  
+
         let instrument;
         if (checkFuture) {
           const newExpiry = moment(elem?.["Expiry Date"], "DD MMMM YYYY")
             .clone()
             .format("DDMMMYY");
           instrument = `${elem?.["Symbol"]}${newExpiry?.toUpperCase()}FUT`;
-        } 
-        if(checkOption){
+        }
+        if (checkOption) {
           const newExpiry = moment(elem?.["Expiry Date"], "DD MMMM YYYY")
             .clone()
             .format("DDMMMYY");
@@ -1064,9 +1086,9 @@ async function parseCsvStreamForTesting(stream) {
             elem?.["Strike Price"]
           }${elem?.["Option Type"]}`;
         }
-  
-        if(checkStock){
-          instrument = elem?.["Symbol"]
+
+        if (checkStock) {
+          instrument = elem?.["Symbol"];
         }
         // results.push({
         //     symbol: instrument,
@@ -1170,7 +1192,7 @@ exports.getUploadedData = async (req, res) => {
 
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
-    trader: new ObjectId("63788f3991fc4bf629de6df0"),
+    trader: new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
   res.status(200).json({
