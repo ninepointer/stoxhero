@@ -1,13 +1,12 @@
 const TradeData = require("../models/mock-trade/paperTrade");
 const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
 const HistoryDataNew = require("../models/InstrumentHistoricalData/InstrumentHistoricalDataTemp");
-
 const moment = require("moment");
 const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
 const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
-
+const {convertToTradingDataToGroup} = require('./timeframePnlChartHelper');
 const IndiaVix = require("../models/Instruments/indiaVix");
-
+const ThirdPartyPnl = require("../models/mock-trade/thirdPartyTradesPnl");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
 const { ObjectId } = require("mongodb");
 const multer = require("multer");
@@ -428,12 +427,10 @@ exports.avgHourChart = async (req, res) => {
     const toDate = req.query.to;
     const thirdParty = req.query.thirdParty ?? "false";
     const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
-    const HistoryTickModel =
-      thirdParty == "true" ? HistoryDataNew : HistoryData;
+    // const HistoryTickModel =
+    //   thirdParty == "true" ? HistoryDataNew : HistoryData;
 
-    const userId = 
-    // req?.query?.user === 'undefined' ? req?.user?._id : 
-    req?.query?.user;
+    const userId = req?.query?.user === 'undefined' ? req?.user?._id : req?.query?.user;
     const startFromDate = moment(fromDate)
       .clone()
       .startOf("day")
@@ -464,15 +461,15 @@ exports.avgHourChart = async (req, res) => {
       const startToday = day.clone().startOf("day");
       const endToday = day.clone().endOf("day");
 
-      const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
-      const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
+      // const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
+      // const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
   
-      const timeArrUtc = timeArr.map((elem)=>{
-        const utcTime = new Date(elem);
-        utcTime.setHours(utcTime.getHours() - 5);
-        utcTime.setMinutes(utcTime.getMinutes() - 30);
-        return utcTime
-    })
+    //   const timeArrUtc = timeArr.map((elem)=>{
+    //     const utcTime = new Date(elem);
+    //     utcTime.setHours(utcTime.getHours() - 5);
+    //     utcTime.setMinutes(utcTime.getMinutes() - 30);
+    //     return utcTime
+    // })
   
 
     const tradeDataForSymbol = tradeData.filter((elem) => {
@@ -553,6 +550,213 @@ exports.avgHourChart = async (req, res) => {
       status: "success",
       data: averageGpnlByTime,
       // pnlObjArr
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: err.message,
+    });
+  }
+};
+
+exports.avgPnlChart = async (req, res) => {
+  try {
+    const first = performance.now();
+
+    const fromDate = req.query.from;
+    const timePeriod = Number(req.query.timePeriod) || 1;
+    const frequency = ((req.query.frequency==='undefined') || !req.query.frequency) ? 'Hour' : req.query.frequency;
+    const toDate = req.query.to;
+    const userId = req?.query?.user === 'undefined' ? req?.user?._id : req?.query?.user;
+    const startFromDate = moment(fromDate)
+      .clone()
+      .startOf("day")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
+    const endToDate = moment(toDate).clone().endOf("day");
+
+    const newtimeArr = await timeArrayForAvg('2024-05-05', timePeriod, frequency)
+
+    const pnlData = await ThirdPartyPnl.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: new Date(startFromDate),
+            $lte: new Date(endToDate),
+          },
+          trader: {
+            $in: [new ObjectId(userId)]
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$pnl",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            timestamp: "$pnl.timestamp",
+            vix: "$pnl.vix",
+          },
+          gpnl: {
+            $sum: "$pnl.gpnl",
+          },
+          pnlFinNifty: {
+            $sum: "$pnl.pnlFinNifty",
+          },
+          sellPnl: {
+            $sum: "$pnl.sellPnl",
+          },
+          buyPnl: {
+            $sum: "$pnl.buyPnl",
+          },
+          noOfTrades: {
+            $sum: "$pnl.noOfTrades",
+          },
+          entryLotsFrequency: {
+            $sum: "$pnl.entryLotsFrequency",
+          },
+          usedLots: {
+            $sum: "$pnl.usedLots",
+          },
+          entryLots: {
+            $sum: "$pnl.entryLots",
+          },
+          pnlBankNifty: {
+            $sum: "$pnl.pnlBankNifty",
+          },
+          pnlNifty: {
+            $sum: "$pnl.pnlNifty",
+          },
+          runningLots: {
+            $sum: "$pnl.runningLots",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          timestamp: "$_id.timestamp",
+          vix: "$_id.vix",
+          pnlNifty: 1,
+          pnlBankNifty: 1,
+          pnlFinNifty: 1,
+          averageEntryLots: {
+            $cond: {
+              if: {
+                $eq: ["$entryLotsFrequency", 0],
+              },
+              then: 0,
+              else: {
+                $divide: [
+                  "$entryLots",
+                  "$entryLotsFrequency",
+                ],
+              },
+            },
+          },
+          averageLotsUsed: {
+            $cond: {
+              if: {
+                $eq: ["$noOfTrades", 0],
+              },
+              then: 0,
+              else: {
+                $divide: ["$usedLots", "$noOfTrades"],
+              },
+            },
+          },
+          buyPnl: 1,
+          sellPnl: 1,
+          gpnl: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            time: {
+              $dateToString: {
+                format: "%H:%M:%S",
+                date: "$timestamp",
+              },
+            },
+          },
+          averageLotsUsed: {
+            $avg: "$averageLotsUsed",
+          },
+          averageEntryLots: {
+            $avg: "$averageEntryLots",
+          },
+          vix: {
+            $avg: "$vix",
+          },
+          pnlNifty: {
+            $avg: "$pnlNifty",
+          },
+          pnlBankNifty: {
+            $avg: "$pnlBankNifty",
+          },
+          buyPnl: {
+            $avg: "$buyPnl",
+          },
+          sellPnl: {
+            $avg: "$sellPnl",
+          },
+          pnlFinNifty: {
+            $avg: "$pnlFinNifty",
+          },
+          gpnl: {
+            $avg: "$gpnl",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          timestamp: "$_id.time",
+          vix: 1,
+          pnlNifty: 1,
+          pnlBankNifty: 1,
+          pnlFinNifty: 1,
+          averageEntryLots: 1,
+          averageLotsUsed: 1,
+          buyPnl: 1,
+          sellPnl: 1,
+          gpnl: 1,
+        },
+      },
+      {
+        $sort: {
+          timestamp: 1,
+        },
+      },
+      {
+        $match: {
+          timestamp: {
+            $in: [...newtimeArr, '12:59:59', '15:30:59']
+          }
+        }
+      }
+    ])
+
+    console.log([...newtimeArr, '12:59:59', '15:30:59']);
+    // const calculatePnlDifferance = pnlData?.slice(-2);
+
+    const pnlDiffrence = [];
+    for(const elem of pnlData){
+      if(elem.timestamp==='12:59:59' || elem.timestamp==='15:30:59'){
+        pnlDiffrence.push(elem);
+      }
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: pnlData,
+      pnlDiffrence
     });
   } catch (err) {
     console.log(err);
@@ -687,7 +891,8 @@ exports.hourChart = async (req, res) => {
         );
       });
 
-      const vix = vixData.filter((elem) => {
+      const isLastElement = (i === timeArr.length - 1);
+      const vixFilteredArr = vixData.filter((elem) => {
         const elemDate = new Date(
           moment(elem.timestamp)
             .add(5, "hours")
@@ -697,9 +902,11 @@ exports.hourChart = async (req, res) => {
         );
 
         
-        const timeArrDate = new Date(timeArr[i]);
+        const timeArrDate = new Date(timeArr[(isLastElement ? i-1 : i)]);
         return elemDate.getTime() === timeArrDate.getTime();
-      })?.[0]?.open;
+      })
+
+      const vix = (isLastElement ? vixFilteredArr?.[0]?.['close'] : vixFilteredArr?.[0]?.['open']) 
 
       filteredArr.sort((a, b) => {
         if (a.trade_time > b.trade_time) {
@@ -918,7 +1125,12 @@ const distinctBuySell = async (tradeData) => {
   const averageEntryLots =
     Math.ceil(totalEntryLots / totalEntryLotsFrequency) || 0;
   const averageLotsUsed = totalLotsUsed / tradeData.length || 0;
-  return { averageEntryLots, buyArr, sellArr, averageLotsUsed };
+  return { averageEntryLots, 
+    buyArr, sellArr, 
+    averageLotsUsed,
+    totalEntryLots, totalEntryLotsFrequency,
+    totalLotsUsed
+   };
 };
 
 const formatTradeData = async (tradeData) => {
@@ -1020,6 +1232,11 @@ exports.uploadCSV = async (req, res) => {
     console.log(data)
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/045115758852909416-shareIndia46099Aprtrunc.csv'
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
+    res.status(200).json({
+      status: "success",
+      data: 'ok',
+      originalUrl,
+    });
     const savedData = await saveDataToDB(url, userId);
     // const savedData = await saveDataToDBTesting(url, userId);
 
@@ -1030,11 +1247,7 @@ exports.uploadCSV = async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      status: "success",
-      data: savedData,
-      originalUrl,
-    });
+  
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8375248682662133-NSEFO_1hr_4months.csv';
     // 'https://stagingdmt.blob.core.windows.net/dmt-trade/07252194481784469-Untitled spreadsheet - Sheet1.csv'
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8901355588917994-Untitled%2520spreadsheet%2520-%2520Sheet1.csv'
@@ -1082,7 +1295,100 @@ const saveDataToDB = async (url, userId) => {
     console.log('downloaded')
     const csvData = await parseCsvStream(csvStream);
     console.log('parsed')
-    return await convertToTradingData(csvData, userId);
+    
+    // return await convertToTradingData(csvData, userId);
+    const tradeData = await convertToTradingDataToGroup(csvData, userId);
+    if(tradeData==="Data Exist"){
+      return "Data Exist";
+    }
+    const symbolArr = [];
+    let minDate = '3000-01-01';
+    let maxDate = '2000-01-01';
+
+    for (const key in tradeData) {
+      const [symbol, date] = key.split('_');
+
+      symbolArr.push(symbol);
+      
+      if (new Date(date).getTime() < new Date(minDate).getTime()) {
+        minDate = date;
+      }
+      if (new Date(date).getTime() > new Date(maxDate).getTime()) {
+        maxDate = date;
+      }
+    }
+
+    // const uniqueSymbolArr = [...new Set(symbolArr)];
+    const startToday = moment(minDate)
+      .clone()
+      .startOf("day")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
+    const endToday = moment(maxDate).clone().endOf("day");
+
+    // console.log(new Date(startToday), new Date(endToday), uniqueSymbolArr.length)
+    // const allHistoryTicksInstrument = await HistoryDataNew.find({
+    //   "candles.timestamp": {
+    //     $gt: new Date(startToday),
+    //     $lt: new Date(endToday),
+    //   },
+    //   symbol: { $in: uniqueSymbolArr },
+    // });
+    let pointer = 0;
+    // const arr = [];
+
+    for(const key in tradeData){
+      pointer++;
+      const symbolTradeArr = tradeData[key];
+      const datePart = key.split('_')?.[1];
+      const symbol = key.split('_')?.[0];
+      const startOfDate = moment(datePart)
+        .clone()
+        .startOf("day")
+        .subtract(5, "hours")
+        .subtract(30, "minutes");
+      const endOfDate = moment(datePart).clone().endOf("day");
+
+
+      // const historyTick = allHistoryTicksInstrument.filter((elem)=>{
+      //   return ((elem?.symbol===symbol) && elem?.candles[0]?.timestamp > new Date(startOfDate) && elem?.candles[0]?.timestamp < new Date(endOfDate))
+      // })
+
+      const historyTick = await HistoryDataNew.find({
+        "candles.timestamp": {
+          $gt: new Date(startOfDate),
+          $lt: new Date(endOfDate),
+        },
+        symbol: symbol,
+      });
+
+      console.log(new Date(startOfDate), new Date(endOfDate), symbolTradeArr?.length, historyTick?.length)
+
+      
+      const pnlData = await chartHelper(symbolTradeArr, datePart, historyTick);
+      // arr.push({
+      //   trader: userId,
+      //   symbol,
+      //   date: datePart,
+      //   pnl: pnlData?.data,
+      // });
+    
+      // if(pointer ===1){
+      //   const saveData = await ThirdPartyPnl.create(arr);
+
+      //   return saveData;
+      //       }
+      const saveData = await ThirdPartyPnl.create([{
+        trader: userId,
+        symbol,
+        date: datePart,
+        pnl: pnlData?.data,
+      }]);
+    }
+
+    
+
+    return 'ok';
   } catch (error) {
     console.error(error);
     throw new Error(error);
@@ -1238,122 +1544,174 @@ const convertToTradingData = async (data, userId) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-async function parseCsvStreamForTesting(stream) {
-  return new Promise((resolve, reject) => {
-    const results = [];
-    const symbolsArr = [];
-    let pointer = 0;
-    stream
-      .pipe(csv())
-      .on("data", async (data) => {
-        let checkOption = false;
-        let checkFuture = false;
-        let checkStock = false;
-        if (elem?.["Option Type"] == "CE" || elem?.["Option Type"] == "PE") {
-          checkOption = true;
-        }
-  
-        if (elem?.["Option Type"] == "FX") {
-          checkFuture = true;
-        }
-  
-        if(elem?.['Instrument Type'] === 'EQ'){
-          checkStock = true;
-        }
-  
-        let instrument;
-        if (checkFuture) {
-          const newExpiry = moment(elem?.["Expiry Date"], "DD MMMM YYYY")
-            .clone()
-            .format("DDMMMYY");
-          instrument = `${elem?.["Symbol"]}${newExpiry?.toUpperCase()}FUT`;
-        } 
-        if(checkOption){
-          const newExpiry = moment(elem?.["Expiry Date"], "DD MMMM YYYY")
-            .clone()
-            .format("DDMMMYY");
-          instrument = `${elem?.["Symbol"]}${newExpiry?.toUpperCase()}${
-            elem?.["Strike Price"]
-          }${elem?.["Option Type"]}`;
-        }
-  
-        if(checkStock){
-          instrument = elem?.["Symbol"]
-        }
-        // results.push({
-        //     symbol: instrument,
-        //     order_id: data?.['Trade Id'],
-
-        // })
-        results.push(data);
-        symbolsArr.push(instrument);
-      })
-      // .on('end', () => resolve(results))
-      .on("end", () => resolve([...new Set(symbolsArr)]))
-      .on("error", (error) => reject(error));
-  });
-}
-
-const saveDataToDBTesting = async (url, userId) => {
+const chartHelper = async (tradeData, date, historyTicksInstrument) => {
   try {
-    // const url = 'https://stagingdmt.blob.core.windows.net/dmt-trade/045115758852909416-shareIndia46099Aprtrunc.csv'
-    // const userId = '662f804700f04a05fe3c941f';
-    // const url = '06501232945102076-data_hour_calcluation.csv'
-    const csvStream = await downloadCsvBlob(url);
-    const csvData = await parseCsvStream(csvStream);
+    const now = performance.now();
+    // const date = req.query.date;
+    const thirdParty = 'true';
+    const timePeriod =  1;
+    const frequency = 'Min';
+    // const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
+    const HistoryTickModel =
+      thirdParty == "true" ? HistoryDataNew : HistoryData;
 
-    return await convertToTradingData(csvData, userId);
-    // (await convertToTradingData(csvData, userId));
-  } catch (error) {
-    console.error(error);
-    throw new Error(error);
+      console.log(frequency, timePeriod)
+    // const userId = req?.user?._id;
+    const today = moment(date);
+    const startToday = today
+      .clone()
+      .startOf("day")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
+    const endToday = today.clone().endOf("day");
+    const pnlObjArr = [];
+
+    console.log('case1', performance.now()-now)
+    const vixData = await IndiaVix.find({
+      timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) },
+    });
+    const symbolArr = tradeData.map((elem) => {
+      return elem?.symbol;
+    });
+
+    const uniqueSymbolArr = [...new Set(symbolArr)];
+
+    const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
+    const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
+
+    console.log('case3', performance.now()-now)
+    const uniqueTicksArr = [
+      ...new Map(
+        historyTicksInstrument.map((item) => [item.symbol, item])
+      ).values(),
+    ];
+
+    
+    const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, thirdParty);    
+
+    for (let i = 0; i < timeArr.length; i++) {
+        const timePriceArr = newHistoryTicks[timeArr[i]];
+      const filteredArr = tradeData.filter((elem) => {
+        return (
+          new Date(elem.trade_time) >= new Date(timeArr[0]) &&
+          new Date(elem.trade_time) <= new Date(timeArr[i])
+        );
+      });
+
+      const isLastElement = (i === timeArr.length - 1);
+      const vixFilteredArr = vixData.filter((elem) => {
+        const elemDate = new Date(
+          moment(elem.timestamp)
+            .add(5, "hours")
+            .add(30, "minutes")
+            .add(59, "seconds")
+            .toISOString()
+        );
+
+        
+        const timeArrDate = new Date(timeArr[(isLastElement ? i-1 : i)]);
+        return elemDate.getTime() === timeArrDate.getTime();
+      })
+
+      const vix = (isLastElement ? vixFilteredArr?.[0]?.['close'] : vixFilteredArr?.[0]?.['open']) 
+
+      filteredArr.sort((a, b) => {
+        if (a.trade_time > b.trade_time) {
+          return 1;
+        }
+        if (a.trade_time <= b.trade_time) {
+          return -1;
+        }
+      });
+
+      const marginUtilise = await getMarginUtilisation(filteredArr);
+      const newData = await distinctBuySell(
+        JSON.parse(JSON.stringify(filteredArr))
+      );
+      const arrData = await formatTradeData(filteredArr);
+      const averageEntryLots = newData?.averageEntryLots;
+      const formatedBuyArr = await formatTradeData(newData?.buyArr);
+      const formatedSellArr = await formatTradeData(newData?.sellArr);
+
+      if (tradeData.length && timePriceArr.length) {
+        const buyPnlObj = await calculatePnl(
+          formatedBuyArr,
+          timePriceArr,
+          timeArr[i],
+          thirdParty
+        );
+        const sellPnlObj = await calculatePnl(
+          formatedSellArr,
+          timePriceArr,
+          timeArr[i],
+          thirdParty
+        );
+        const pnlObj = await calculatePnl(
+          arrData,
+          timePriceArr,
+          timeArr[i],
+          thirdParty
+        );
+
+        pnlObj.averageEntryLots = averageEntryLots;
+        pnlObj.marginUtilise = marginUtilise;
+        pnlObj.buyPnl = buyPnlObj.gpnl;
+        pnlObj.sellPnl = sellPnlObj.gpnl;
+        pnlObj.vix = vix;
+        pnlObj.averageLotsUsed = newData?.averageLotsUsed;
+
+        pnlObj.entryLots = newData?.totalEntryLots;
+        pnlObj.usedLots = newData?.totalLotsUsed;
+        pnlObj.entryLotsFrequency = newData?.totalEntryLotsFrequency;
+        pnlObj.noOfTrades = filteredArr?.length;
+        pnlObjArr.push(pnlObj);
+      }
+    }
+
+    // let pnl1PM = {},
+    //   pnl3PM = {};
+    // for (const pnl of pnlObjArr) {
+    //   new Date(pnl.timestamp), new Date(`${todaysDatePart}T13:00:59.000+00:00`);
+    //   if (
+    //     new Date(pnl.timestamp).getTime() ===
+    //     new Date(`${todaysDatePart}T13:00:59.000+00:00`).getTime()
+    //   ) {
+    //     pnl1PM = pnl;
+    //   }
+
+    //   if (
+    //     new Date(pnl.timestamp).getTime() ===
+    //     new Date(`${todaysDatePart}T15:30:59.000+00:00`).getTime()
+    //   ) {
+    //     pnl3PM = pnl;
+    //   }
+    // }
+
+    // console.log('check performance again', performance.now() - now);
+
+    // pnl1PM.pnlDiffrence = 0;
+    // pnl3PM.pnlDiffrence = pnl3PM?.gpnl - pnl1PM?.gpnl;
+
+    return {
+      data: pnlObjArr,
+      // pnlDiffrence: [pnl1PM, pnl3PM],
+      // pipeline
+    }
+  } catch (err) {
+    console.log(err);
   }
 };
 
-const saveHistoryDataToDB = async (url) => {
-  const csvStream = await downloadCsvBlob(url);
 
-  const data = await new Promise((resolve, reject) => {
-    const results = [];
-    let pointer = 0;
-    csvStream
-      .pipe(csv())
-      .on("data", async (data) => {
-        pointer++;
-        results.push({
-          timestamp: new Date(`${data["Date"]}T${data["Time"]}`),
-          open: data["Open"],
-          high: data["High"],
-          close: data["Close"],
-          low: data["Low"],
-          volume: data["Volume"],
-          symbol: data["Ticker"]?.split(".")?.[0],
-        });
 
-        // if (pointer === 100) {
-        //     csvStream.unpipe(); // Stop the stream from reading more data
-        //     resolve(results); // Resolve the promise with the results
-        // }
-      })
-      .on("end", () => resolve(results))
-      .on("error", (error) => reject(error));
-  });
 
-  const save = await HistoryDataNew.create(data);
 
-  return "ok";
-};
+
+
+
+
+
+
 
 exports.getUploadedData = async (req, res) => {
   try {
