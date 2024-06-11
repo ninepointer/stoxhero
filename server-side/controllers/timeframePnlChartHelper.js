@@ -86,7 +86,9 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
         instrument = elem?.["Symbol"]
       }
 
-      let buyOrSell, quantity, amount;
+      let buyOrSell;
+      let quantity=0;
+      let amount = 0;
       if (elem?.["Buy/Sell"] === "2") {
         buyOrSell = "SELL";
         quantity = 0 - elem.Quantity;

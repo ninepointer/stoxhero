@@ -1752,9 +1752,21 @@ exports.getUploadedData = async (req, res) => {
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
     trader: 
-    new ObjectId("63788f3991fc4bf629de6df0"),
+    new ObjectId(
+      '66669a1293c01d363f7941a0'
+      // "63788f3991fc4bf629de6df0"
+    ),
     // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
+
+  // const data = await ThirdPartyPnl.deleteMany({
+  //   trader: 
+  //   new ObjectId(
+  //     '66669a1293c01d363f7941a0'
+  //     // "63788f3991fc4bf629de6df0"
+  //   ),
+  //   // new ObjectId("642c6434573edbfcb2ac45a5"),
+  // });
 
   res.status(200).json({
     status: "success",
