@@ -432,6 +432,11 @@ exports.avgPnlChart = async (req, res) => {
         },
       },
       {
+        $sort: {
+          timestamp: 1
+        }
+      },
+      {
         $match: {
           timestamp: {
             $in: [...newtimeArr, "12:59:59", "15:30:59"],
