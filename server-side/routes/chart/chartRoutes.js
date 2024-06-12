@@ -25,6 +25,7 @@ router.route("/uploadeddata").get(Authenticate, pnlChart.getUploadedData);
 router.route("/parsetemp").get(parseDataTemp);
 router.route("/addnewraw").get(addRawDataFromCSV);
 router.route("/del").delete(pnlChart.deleteThirdParty);
-router.route("/avghour").get(Authenticate, pnlChart.avgHourChart);
+router.route("/avghour").get(Authenticate, pnlChart.avgPnlChart);
+router.route("/reportedby").get(Authenticate, pnlChart.getReportedBy);
 
 module.exports = router;

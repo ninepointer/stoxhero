@@ -423,7 +423,7 @@ const userDetailSchema = new mongoose.Schema({
         type: Date,
       },
       referralCurrency: String,
-      activationDate: Date
+      activationDate: Date,
     },
   ],
   subscription: [
@@ -546,6 +546,18 @@ const userDetailSchema = new mongoose.Schema({
       shTelegramCommunityLink: String,
     },
     default: undefined, // This prevents the field from being created by default
+  },
+  reportedBy: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "user-personal-detail",
+      default: undefined,
+    },
+  ],
+  reportingTo: {
+    type: Schema.Types.ObjectId,
+    ref: "user-personal-detail",
+    default: undefined,
   },
 });
 
