@@ -225,7 +225,7 @@ exports.avgPnlChart = async (req, res) => {
       req.query.frequency === "undefined" || !req.query.frequency
         ? "Hour"
         : req.query.frequency;
-    const toDate = req.query.to;
+    const toDate = req.query.to === "undefined" ? req.query.from : req.query.to;
     const user = req?.query?.user ?? req?.user?._id;
     if (user === 'team') {
       const teamLead = await User.findOne({ _id: new ObjectId(req?.user?._id) }).select('reportedBy');
