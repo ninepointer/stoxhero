@@ -110,6 +110,7 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
         exchange: "NFO",
         symbol: instrument,
         amount: amount,
+        brokerage: Number(amount)*0.001,
         trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss"),
         // trade_time: moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss").add(5, 'hours').add(30, 'minutes').utc().format(),
         account_number: elem?.["Account Number"],

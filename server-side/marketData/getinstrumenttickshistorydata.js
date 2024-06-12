@@ -241,8 +241,8 @@ exports.main = async () => {
 
   console.log(' before first', new Date());
   const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
-  // const todaysDatePart = '2024-05-31';
-  await TradableInstrumentList.allTradableInstrument();
+  // const todaysDatePart = '2024-06-10';
+  // await TradableInstrumentList.allTradableInstrument();
 
   console.log('first', new Date());
   await getInstrumentTicksHistoryData(todaysDatePart);
