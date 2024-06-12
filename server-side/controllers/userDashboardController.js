@@ -1016,7 +1016,10 @@ exports.getExpectedPnl = async (req, res, next) => {
     new Date().getHours >= 10
       ? (endDate = new Date())
       : (endDate = new Date(new Date().setDate(new Date().getDate() - 1)));
-    const traderId = req.user._id;
+    let traderId = req.user._id;
+    if (req.query?.user && req.query.user != "undefined") {
+      traderId = req.query?.user;
+    }
     const pipeline = [
       {
         $match: {

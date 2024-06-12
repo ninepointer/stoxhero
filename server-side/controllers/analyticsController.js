@@ -186,9 +186,12 @@ exports.getPaperTradesOverview = async (req, res, next) => {
 };
 
 exports.getPaperTradesDateWiseStats = async (req, res) => {
-  const { id } = req.params;
+  let { id } = req.params;
   const { to, from } = req.query;
   const thirdParty = req.query.thirdParty ?? "false";
+  if (req.query?.user && req.query.user != "undefined") {
+    id = req.query?.user;
+  }
   let date = new Date();
   const fromDate = new Date(from);
   fromDate.setHours(0, 0, 0, 0);
@@ -237,9 +240,12 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
         gpnl: 1,
         brokerage: 1,
         npnl: {
-          $subtract: ["$gpnl", {
-            $ifNull: ["$brokerage", 0]
-          }],
+          $subtract: [
+            "$gpnl",
+            {
+              $ifNull: ["$brokerage", 0],
+            },
+          ],
         },
         lots: 1,
         noOfTrade: 1,
@@ -252,9 +258,12 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
 };
 
 exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
-  const { id } = req.params;
+  let { id } = req.params;
   const { to, from } = req.query;
   const thirdParty = req.query.thirdParty ?? "false";
+  if (req.query?.user && req.query.user != "undefined") {
+    id = req.query?.user;
+  }
   const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
   const fromDate = new Date(from);
   fromDate.setHours(0, 0, 0, 0);
@@ -294,9 +303,14 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         totalGpnl: { $sum: { $multiply: ["$amount", -1] } },
         totalBrokerage: { $sum: "$brokerage" },
         totalNpnl: {
-          $sum: { $subtract: [{ $multiply: ["$amount", -1] }, {
-            $ifNull: ["$brokerage", 0]
-          }] },
+          $sum: {
+            $subtract: [
+              { $multiply: ["$amount", -1] },
+              {
+                $ifNull: ["$brokerage", 0],
+              },
+            ],
+          },
         },
         totalTrades: { $sum: 1 },
         totalLots: { $sum: { $toInt: "$Quantity" } },
@@ -376,10 +390,13 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
 };
 
 exports.getPaperTradesOverallStats = async (req, res) => {
-  const { id } = req.params;
+  let { id } = req.params;
   const { to, from } = req.query;
   const thirdParty = req.query.thirdParty ?? "false";
   const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
+  if (req.query?.user && req.query.user != "undefined") {
+    id = req.query?.user;
+  }
   const fromDate = new Date(from);
   fromDate.setHours(0, 0, 0, 0);
   const toDate = new Date(to);
@@ -435,9 +452,14 @@ exports.getPaperTradesOverallStats = async (req, res) => {
         totalGpnl: { $sum: { $multiply: ["$amount", -1] } },
         totalBrokerage: { $sum: "$brokerage" },
         totalNpnl: {
-          $sum: { $subtract: [{ $multiply: ["$amount", -1] }, {
-            $ifNull: ["$brokerage", 0]
-          }] },
+          $sum: {
+            $subtract: [
+              { $multiply: ["$amount", -1] },
+              {
+                $ifNull: ["$brokerage", 0],
+              },
+            ],
+          },
         },
         totalTrades: { $sum: 1 },
         totalLots: { $sum: { $toInt: "$Quantity" } },
@@ -574,9 +596,12 @@ exports.getPaperTradesDailyPnlData = async (req, res, next) => {
 };
 
 exports.getPaperTradesMonthlyPnlData = async (req, res, next) => {
-  const { id } = req.params;
+  let { id } = req.params;
   const thirdParty = req.query.thirdParty ?? "false";
   const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
+  if (req.query?.user && req.query.user != "undefined") {
+    id = req.query?.user;
+  }
   const today = new Date();
   const pastYear = new Date();
   pastYear.setFullYear(today.getFullYear() - 1);

@@ -5,10 +5,11 @@ const User = require('../models/User/userDetailSchema');
 const moment = require("moment");
 const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
 const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
-const {convertToTradingDataToGroup} = require('./timeframePnlChartHelper');
+const { convertToTradingDataToGroup } = require("./timeframePnlChartHelper");
 const IndiaVix = require("../models/Instruments/indiaVix");
 const ThirdPartyPnl = require("../models/mock-trade/thirdPartyTradesPnl");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
+const UserDetail = require("../models/User/userDetailSchema");
 const { ObjectId } = require("mongodb");
 const multer = require("multer");
 const inMemoryStorage = multer.memoryStorage();
@@ -65,35 +66,39 @@ exports.isThirdPartyDataExist = async (req, res) => {
 };
 
 const timeArray = async (todaysDatePart, timePeriod, frequency) => {
-    const startTime = new Date(`${todaysDatePart}T09:15:59.000+00:00`);
-    const endTime = new Date(`${todaysDatePart}T15:30:59.000+00:00`);
-    const timeArr = [];
+  const startTime = new Date(`${todaysDatePart}T09:15:59.000+00:00`);
+  const endTime = new Date(`${todaysDatePart}T15:30:59.000+00:00`);
+  const timeArr = [];
 
-    // Function to increment the time based on frequency
-    const incrementTime = (time, period, freq) => {
-        const newTime = new Date(time);
-        switch (freq) {
-            case 'Min':
-                newTime.setMinutes(newTime.getMinutes() + period);
-                break;
-            case 'Hour':
-                newTime.setHours(newTime.getHours() + period);
-                break;
-            case 'Day':
-                newTime.setDate(newTime.getDate() + period);
-                break;
-            default:
-                throw new Error('Invalid frequency');
-        }
-        return newTime;
+  // Function to increment the time based on frequency
+  const incrementTime = (time, period, freq) => {
+    const newTime = new Date(time);
+    switch (freq) {
+      case "Min":
+        newTime.setMinutes(newTime.getMinutes() + period);
+        break;
+      case "Hour":
+        newTime.setHours(newTime.getHours() + period);
+        break;
+      case "Day":
+        newTime.setDate(newTime.getDate() + period);
+        break;
+      default:
+        throw new Error("Invalid frequency");
     }
+    return newTime;
+  };
 
-    for (let time = startTime; time < endTime; time = incrementTime(time, timePeriod, frequency)) {
-        timeArr.push(time.toISOString());
-    }
+  for (
+    let time = startTime;
+    time < endTime;
+    time = incrementTime(time, timePeriod, frequency)
+  ) {
+    timeArr.push(time.toISOString());
+  }
 
-    return [...timeArr, endTime.toISOString()];
-}
+  return [...timeArr, endTime.toISOString()];
+};
 
 const timeArrayForAvg = async (todaysDatePart, timePeriod, frequency) => {
   const startTime = new Date(`${todaysDatePart}T09:15:59.000+00:00`);
@@ -102,102 +107,114 @@ const timeArrayForAvg = async (todaysDatePart, timePeriod, frequency) => {
 
   // Function to increment the time based on frequency 2024-04-01T15:30:59.000+00:00
   const incrementTime = (time, period, freq) => {
-      const newTime = new Date(time);
-      switch (freq) {
-          case 'Min':
-              newTime.setMinutes(newTime.getMinutes() + period);
-              break;
-          case 'Hour':
-              newTime.setHours(newTime.getHours() + period);
-              break;
-          case 'Day':
-              newTime.setDate(newTime.getDate() + period);
-              break;
-          default:
-              throw new Error('Invalid frequency');
-      }
-      return newTime;
-  }
+    const newTime = new Date(time);
+    switch (freq) {
+      case "Min":
+        newTime.setMinutes(newTime.getMinutes() + period);
+        break;
+      case "Hour":
+        newTime.setHours(newTime.getHours() + period);
+        break;
+      case "Day":
+        newTime.setDate(newTime.getDate() + period);
+        break;
+      default:
+        throw new Error("Invalid frequency");
+    }
+    return newTime;
+  };
 
-  for (let time = startTime; time < endTime; time = incrementTime(time, timePeriod, frequency)) {
-      timeArr.push(time.toISOString().substring(11, 19));
+  for (
+    let time = startTime;
+    time < endTime;
+    time = incrementTime(time, timePeriod, frequency)
+  ) {
+    timeArr.push(time.toISOString().substring(11, 19));
   }
 
   return [...timeArr, endTime.toISOString().substring(11, 19)];
-}
+};
 
-const newPriceArray = async (timeArray, candlesArray, HistoryTickModel, thirdParty) => {
-    const priceObj = {};
-    const symbolWiseArray = {};
-    for(const [timeIndex, time] of timeArray.entries()){
-        if(!priceObj[time]){
-            priceObj[time] = [];
-        }
-        const utcTime = new Date(time);
-        utcTime.setHours(utcTime.getHours() - 5);
-        utcTime.setMinutes(utcTime.getMinutes() - 30);
-        // utcTime.setHours(utcTime.getHours() - 5);
-        // utcTime.setMinutes(utcTime.getMinutes() - 29);
-        // utcTime.setSeconds(utcTime.getSeconds() - 1);
-    
-        for (const [candleIndex, candleObj] of candlesArray.entries()) {
-            const candles = candleObj?.candles;
-            if(!symbolWiseArray[candleObj?.symbol]){
-                symbolWiseArray[candleObj?.symbol] = [];
-            }
-            // const newCandleArr = [];
-            // let particularCandle = candles[timeIndex];
-            let particularCandle = candles.filter((elem) => {
-              if (thirdParty === 'false') {
-                  // Create a new Date object to avoid mutating the original timestamp
-                  const adjustedTimestamp = new Date(elem.timestamp);
-                  adjustedTimestamp.setSeconds(adjustedTimestamp.getSeconds() + 59);
-                  console.log(adjustedTimestamp, new Date(utcTime))
-                  return adjustedTimestamp.getTime() === new Date(utcTime).getTime();
-              } else {
-                  // Handle the case where thirdParty is not 'false'
-                  return new Date(elem.timestamp).getTime() === new Date(utcTime).getTime();
-              }
-          })?.[0];
-          
-
-            if((!particularCandle) && timeIndex === 0){
-                // const historyData = await HistoryTickModel.findOne({symbol: candleObj?.symbol, 'candles.timestamp': {$lt: new Date(utcTime)}}).sort({'candles.timestamp': -1});
-                // const lastCandleHistoryData = historyData?.candles?.[historyData.candles?.length-1] || {};
-                const lastCandleHistoryData = {};
-
-                lastCandleHistoryData.open = lastCandleHistoryData?.close || 0;
-                symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
-                priceObj[time].push({
-                    time: lastCandleHistoryData?.timestamp,
-                    symbol: candleObj?.symbol,
-                    open: lastCandleHistoryData?.open,
-                    close: lastCandleHistoryData?.close
-                })
-            }else if(!particularCandle){
-                const arr = symbolWiseArray[candleObj?.symbol];
-                const lastCandleHistoryData = JSON.parse(JSON.stringify(arr?.[arr?.length-1]));
-                lastCandleHistoryData.open = lastCandleHistoryData?.close || 0;
-                symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
-                priceObj[time].push({
-                    time: lastCandleHistoryData?.timestamp,
-                    symbol: candleObj?.symbol,
-                    open: lastCandleHistoryData?.open,
-                    close: lastCandleHistoryData?.close
-                })
-            } else{
-                symbolWiseArray[candleObj?.symbol].push(particularCandle);
-                priceObj[time].push({
-                    time: particularCandle?.timestamp,
-                    symbol: candleObj?.symbol,
-                    open: particularCandle?.open,
-                    close: particularCandle?.close
-                })
-            }
-        }
+const newPriceArray = async (
+  timeArray,
+  candlesArray,
+  HistoryTickModel,
+  thirdParty
+) => {
+  const priceObj = {};
+  const symbolWiseArray = {};
+  for (const [timeIndex, time] of timeArray.entries()) {
+    if (!priceObj[time]) {
+      priceObj[time] = [];
     }
-    return priceObj
-}
+    const utcTime = new Date(time);
+    utcTime.setHours(utcTime.getHours() - 5);
+    utcTime.setMinutes(utcTime.getMinutes() - 30);
+    // utcTime.setHours(utcTime.getHours() - 5);
+    // utcTime.setMinutes(utcTime.getMinutes() - 29);
+    // utcTime.setSeconds(utcTime.getSeconds() - 1);
+
+    for (const [candleIndex, candleObj] of candlesArray.entries()) {
+      const candles = candleObj?.candles;
+      if (!symbolWiseArray[candleObj?.symbol]) {
+        symbolWiseArray[candleObj?.symbol] = [];
+      }
+      // const newCandleArr = [];
+      // let particularCandle = candles[timeIndex];
+      let particularCandle = candles.filter((elem) => {
+        if (thirdParty === "false") {
+          // Create a new Date object to avoid mutating the original timestamp
+          const adjustedTimestamp = new Date(elem.timestamp);
+          adjustedTimestamp.setSeconds(adjustedTimestamp.getSeconds() + 59);
+          console.log(adjustedTimestamp, new Date(utcTime));
+          return adjustedTimestamp.getTime() === new Date(utcTime).getTime();
+        } else {
+          // Handle the case where thirdParty is not 'false'
+          return (
+            new Date(elem.timestamp).getTime() === new Date(utcTime).getTime()
+          );
+        }
+      })?.[0];
+
+      if (!particularCandle && timeIndex === 0) {
+        // const historyData = await HistoryTickModel.findOne({symbol: candleObj?.symbol, 'candles.timestamp': {$lt: new Date(utcTime)}}).sort({'candles.timestamp': -1});
+        // const lastCandleHistoryData = historyData?.candles?.[historyData.candles?.length-1] || {};
+        const lastCandleHistoryData = {};
+
+        lastCandleHistoryData.open = lastCandleHistoryData?.close || 0;
+        symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
+        priceObj[time].push({
+          time: lastCandleHistoryData?.timestamp,
+          symbol: candleObj?.symbol,
+          open: lastCandleHistoryData?.open,
+          close: lastCandleHistoryData?.close,
+        });
+      } else if (!particularCandle) {
+        const arr = symbolWiseArray[candleObj?.symbol];
+        const lastCandleHistoryData = JSON.parse(
+          JSON.stringify(arr?.[arr?.length - 1])
+        );
+        lastCandleHistoryData.open = lastCandleHistoryData?.close || 0;
+        symbolWiseArray[candleObj?.symbol].push(lastCandleHistoryData);
+        priceObj[time].push({
+          time: lastCandleHistoryData?.timestamp,
+          symbol: candleObj?.symbol,
+          open: lastCandleHistoryData?.open,
+          close: lastCandleHistoryData?.close,
+        });
+      } else {
+        symbolWiseArray[candleObj?.symbol].push(particularCandle);
+        priceObj[time].push({
+          time: particularCandle?.timestamp,
+          symbol: candleObj?.symbol,
+          open: particularCandle?.open,
+          close: particularCandle?.close,
+        });
+      }
+    }
+  }
+  return priceObj;
+};
 
 exports.avgPnlChart = async (req, res) => {
   try {
@@ -205,9 +222,12 @@ exports.avgPnlChart = async (req, res) => {
     let userIds = [];
     const fromDate = req.query.from;
     const timePeriod = Number(req.query.timePeriod) || 1;
-    const frequency = ((req.query.frequency==='undefined') || !req.query.frequency) ? 'Hour' : req.query.frequency;
+    const frequency =
+      req.query.frequency === "undefined" || !req.query.frequency
+        ? "Hour"
+        : req.query.frequency;
     const toDate = req.query.to;
-    const user = req?.query?.user === 'undefined' ? req?.user?._id : req?.query?.user;
+const user = req?.query?.user ?? req?.user?._id;
     if(user === 'team'){
       const teamLead = await User.findOne({_id: new ObjectId(req?.user?._id)}).select('reportedBy');
       userIds = [...teamLead.reportedBy];
@@ -222,7 +242,11 @@ exports.avgPnlChart = async (req, res) => {
       .subtract(30, "minutes");
     const endToDate = moment(toDate).clone().endOf("day");
 
-    const newtimeArr = await timeArrayForAvg('2024-05-05', timePeriod, frequency)
+    const newtimeArr = await timeArrayForAvg(
+      "2024-05-05",
+      timePeriod,
+      frequency
+    );
 
     const pnlData = await ThirdPartyPnl.aggregate([
       {
@@ -297,10 +321,7 @@ exports.avgPnlChart = async (req, res) => {
               },
               then: 0,
               else: {
-                $divide: [
-                  "$entryLots",
-                  "$entryLotsFrequency",
-                ],
+                $divide: ["$entryLots", "$entryLotsFrequency"],
               },
             },
           },
@@ -382,18 +403,18 @@ exports.avgPnlChart = async (req, res) => {
       {
         $match: {
           timestamp: {
-            $in: [...newtimeArr, '12:59:59', '15:30:59']
-          }
-        }
-      }
-    ])
+            $in: [...newtimeArr, "12:59:59", "15:30:59"],
+          },
+        },
+      },
+    ]);
 
-    console.log([...newtimeArr, '12:59:59', '15:30:59']);
+    console.log([...newtimeArr, "12:59:59", "15:30:59"]);
     // const calculatePnlDifferance = pnlData?.slice(-2);
 
     const pnlDiffrence = [];
-    for(const elem of pnlData){
-      if(elem.timestamp==='12:59:59' || elem.timestamp==='15:30:59'){
+    for (const elem of pnlData) {
+      if (elem.timestamp === "12:59:59" || elem.timestamp === "15:30:59") {
         pnlDiffrence.push(elem);
       }
     }
@@ -401,7 +422,7 @@ exports.avgPnlChart = async (req, res) => {
     res.status(200).json({
       status: "success",
       data: pnlData,
-      pnlDiffrence
+      pnlDiffrence,
     });
   } catch (err) {
     console.log(err);
@@ -419,12 +440,13 @@ exports.hourChart = async (req, res) => {
     const date = req.query.date;
     const thirdParty = req.query.thirdParty ?? "false";
     const timePeriod = Number(req.query.timePeriod) || 1;
-    const frequency = req.query.frequency==='undefined' ? 'Hour' : req.query.frequency;
+    const frequency =
+      req.query.frequency === "undefined" ? "Hour" : req.query.frequency;
     const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
     const HistoryTickModel =
       thirdParty == "true" ? HistoryDataNew : HistoryData;
 
-      console.log(frequency, timePeriod)
+    console.log(frequency, timePeriod);
     const userId = req?.user?._id;
     const today = moment(date);
     const startToday = today
@@ -441,7 +463,7 @@ exports.hourChart = async (req, res) => {
       trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) },
     });
 
-    console.log('case1', performance.now()-now)
+    console.log("case1", performance.now() - now);
     const vixData = await IndiaVix.find({
       timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) },
     });
@@ -453,70 +475,73 @@ exports.hourChart = async (req, res) => {
 
     const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
     const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
-    console.log('case2', performance.now()-now)
+    console.log("case2", performance.now() - now);
 
-    const timeArrUtc = timeArr.map((elem)=>{
-        const utcTime = new Date(elem);
-        utcTime.setHours(utcTime.getHours() - 5);
-        utcTime.setMinutes(utcTime.getMinutes() - 30);
-        return utcTime
-    })
-
-    // console.log(uniqueSymbolArr, new Date(startToday), new Date(endToday), timeArrUtc)
-    const historyTicksInstrument = (thirdParty == "true") ?
-    await HistoryTickModel.aggregate([
-        {
-            $match:
-            {
-                symbol: {
-                    $in: uniqueSymbolArr,
-                },
-                "candles.timestamp": {
-                    $gt: new Date(startToday),
-                    $lt: new Date(endToday),
-                  },
-            },
-        },
-        {
-            $unwind: "$candles",
-        },
-        {
-            $match: {
-                "candles.timestamp": {
-                    $in: timeArrUtc,
-                },
-            },
-        },
-        {
-            $group: {
-                _id: {
-                    id: "$_id",
-                    symbol: "$symbol",
-                },
-                candles: {
-                    $push: "$candles",
-                },
-            },
-        },
-        {
-            $project: {
-                candles: 1,
-                symbol: '$_id.symbol',
-                _id: 0
-            }
-        }
-    ])
-    :
-    await HistoryTickModel.find({
-      "candles.timestamp": {
-        $gt: new Date(startToday),
-        $lt: new Date(endToday),
-      },
-      symbol: { $in: uniqueSymbolArr },
+    const timeArrUtc = timeArr.map((elem) => {
+      const utcTime = new Date(elem);
+      utcTime.setHours(utcTime.getHours() - 5);
+      utcTime.setMinutes(utcTime.getMinutes() - 30);
+      return utcTime;
     });
 
-    console.log('case3', performance.now()-now)
-    console.log(historyTicksInstrument.length, tradeData?.length, uniqueSymbolArr?.length)
+    // console.log(uniqueSymbolArr, new Date(startToday), new Date(endToday), timeArrUtc)
+    const historyTicksInstrument =
+      thirdParty == "true"
+        ? await HistoryTickModel.aggregate([
+            {
+              $match: {
+                symbol: {
+                  $in: uniqueSymbolArr,
+                },
+                "candles.timestamp": {
+                  $gt: new Date(startToday),
+                  $lt: new Date(endToday),
+                },
+              },
+            },
+            {
+              $unwind: "$candles",
+            },
+            {
+              $match: {
+                "candles.timestamp": {
+                  $in: timeArrUtc,
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  id: "$_id",
+                  symbol: "$symbol",
+                },
+                candles: {
+                  $push: "$candles",
+                },
+              },
+            },
+            {
+              $project: {
+                candles: 1,
+                symbol: "$_id.symbol",
+                _id: 0,
+              },
+            },
+          ])
+        : await HistoryTickModel.find({
+            "candles.timestamp": {
+              $gt: new Date(startToday),
+              $lt: new Date(endToday),
+            },
+            symbol: { $in: uniqueSymbolArr },
+          });
+
+    console.log("case3", performance.now() - now);
+    console.log(
+      historyTicksInstrument.length,
+      tradeData?.length,
+      uniqueSymbolArr?.length
+    );
 
     const uniqueTicksArr = [
       ...new Map(
@@ -524,11 +549,15 @@ exports.hourChart = async (req, res) => {
       ).values(),
     ];
 
-    
-    const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, thirdParty);    
+    const newHistoryTicks = await newPriceArray(
+      timeArr,
+      uniqueTicksArr,
+      HistoryTickModel,
+      thirdParty
+    );
 
     for (let i = 0; i < timeArr.length; i++) {
-        const timePriceArr = newHistoryTicks[timeArr[i]];
+      const timePriceArr = newHistoryTicks[timeArr[i]];
       const filteredArr = tradeData.filter((elem) => {
         return (
           new Date(elem.trade_time) >= new Date(timeArr[0]) &&
@@ -536,7 +565,7 @@ exports.hourChart = async (req, res) => {
         );
       });
 
-      const isLastElement = (i === timeArr.length - 1);
+      const isLastElement = i === timeArr.length - 1;
       const vixFilteredArr = vixData.filter((elem) => {
         const elemDate = new Date(
           moment(elem.timestamp)
@@ -546,12 +575,13 @@ exports.hourChart = async (req, res) => {
             .toISOString()
         );
 
-        
-        const timeArrDate = new Date(timeArr[(isLastElement ? i-1 : i)]);
+        const timeArrDate = new Date(timeArr[isLastElement ? i - 1 : i]);
         return elemDate.getTime() === timeArrDate.getTime();
-      })
+      });
 
-      const vix = (isLastElement ? vixFilteredArr?.[0]?.['close'] : vixFilteredArr?.[0]?.['open']) 
+      const vix = isLastElement
+        ? vixFilteredArr?.[0]?.["close"]
+        : vixFilteredArr?.[0]?.["open"];
 
       filteredArr.sort((a, b) => {
         if (a.trade_time > b.trade_time) {
@@ -620,7 +650,7 @@ exports.hourChart = async (req, res) => {
       }
     }
 
-    console.log('check performance again', performance.now() - now);
+    console.log("check performance again", performance.now() - now);
 
     pnl1PM.pnlDiffrence = 0;
     pnl3PM.pnlDiffrence = pnl3PM?.gpnl - pnl1PM?.gpnl;
@@ -669,7 +699,8 @@ const distinctBuySell = async (tradeData) => {
   const sellArr = [];
 
   for (const elem of tradeData) {
-    const { Quantity, buyOrSell, trade_time, symbol, average_price, amount } = elem;
+    const { Quantity, buyOrSell, trade_time, symbol, average_price, amount } =
+      elem;
 
     totalLotsUsed += Math.abs(Quantity);
     const previousTrades = tradeData.filter((trades) => {
@@ -709,30 +740,40 @@ const distinctBuySell = async (tradeData) => {
       const newObjSell = { ...elem };
 
       if (transactionTypeForSymbol === "BUY") {
-        const newAmountBuy = Math.abs(amount)*Math.abs(runningLotForSymbol)/Math.abs(Quantity);
-        const newAmountsell = Math.abs(amount)*(Math.abs(Quantity) - Math.abs(runningLotForSymbol))/Math.abs(Quantity);
+        const newAmountBuy =
+          (Math.abs(amount) * Math.abs(runningLotForSymbol)) /
+          Math.abs(Quantity);
+        const newAmountsell =
+          (Math.abs(amount) *
+            (Math.abs(Quantity) - Math.abs(runningLotForSymbol))) /
+          Math.abs(Quantity);
         buyArr.push({
           ...newObjBuy,
           Quantity: 0 - Math.abs(runningLotForSymbol),
-        amount: 0-newAmountBuy
+          amount: 0 - newAmountBuy,
         });
         newObjSell.Quantity =
-            0 - (Math.abs(Quantity) - Math.abs(runningLotForSymbol));
+          0 - (Math.abs(Quantity) - Math.abs(runningLotForSymbol));
 
         newObjSell.amount = 0 - newAmountsell;
         sellArr.push(newObjSell);
       } else {
-        const newAmountSell = Math.abs(amount)*Math.abs(runningLotForSymbol)/Math.abs(Quantity);
-        const newAmountBuy = Math.abs(amount)*(Math.abs(Quantity) - Math.abs(runningLotForSymbol))/Math.abs(Quantity);
+        const newAmountSell =
+          (Math.abs(amount) * Math.abs(runningLotForSymbol)) /
+          Math.abs(Quantity);
+        const newAmountBuy =
+          (Math.abs(amount) *
+            (Math.abs(Quantity) - Math.abs(runningLotForSymbol))) /
+          Math.abs(Quantity);
 
         sellArr.push({
           ...newObjSell,
           Quantity: Math.abs(runningLotForSymbol),
-        amount: newAmountSell,
+          amount: newAmountSell,
         });
         newObjBuy.Quantity = Math.abs(Quantity) - Math.abs(runningLotForSymbol);
 
-        newObjBuy.amount =  newAmountBuy;
+        newObjBuy.amount = newAmountBuy;
         buyArr.push(newObjBuy);
       }
     } else if (
@@ -770,12 +811,15 @@ const distinctBuySell = async (tradeData) => {
   const averageEntryLots =
     Math.ceil(totalEntryLots / totalEntryLotsFrequency) || 0;
   const averageLotsUsed = totalLotsUsed / tradeData.length || 0;
-  return { averageEntryLots, 
-    buyArr, sellArr, 
+  return {
+    averageEntryLots,
+    buyArr,
+    sellArr,
     averageLotsUsed,
-    totalEntryLots, totalEntryLotsFrequency,
-    totalLotsUsed
-   };
+    totalEntryLots,
+    totalEntryLotsFrequency,
+    totalLotsUsed,
+  };
 };
 
 const formatTradeData = async (tradeData) => {
@@ -874,12 +918,12 @@ exports.uploadCSV = async (req, res) => {
     const userId = req?.user?._id || "662f804700f04a05fe3c941f";
     const data = await uploadFileToAzure(req.file);
     const originalUrl = data?.fileUrl;
-    console.log(data)
+    console.log(data);
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/045115758852909416-shareIndia46099Aprtrunc.csv'
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
     res.status(200).json({
       status: "success",
-      data: 'ok',
+      data: "ok",
       originalUrl,
     });
     const savedData = await saveDataToDB(url, userId);
@@ -892,7 +936,6 @@ exports.uploadCSV = async (req, res) => {
       });
     }
 
-  
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8375248682662133-NSEFO_1hr_4months.csv';
     // 'https://stagingdmt.blob.core.windows.net/dmt-trade/07252194481784469-Untitled spreadsheet - Sheet1.csv'
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8901355588917994-Untitled%2520spreadsheet%2520-%2520Sheet1.csv'
@@ -937,24 +980,24 @@ const saveDataToDB = async (url, userId) => {
     // const userId = '662f804700f04a05fe3c941f';
     // const url = '06501232945102076-data_hour_calcluation.csv'
     const csvStream = await downloadCsvBlob(url);
-    console.log('downloaded')
+    console.log("downloaded");
     const csvData = await parseCsvStream(csvStream);
-    console.log('parsed')
-    
+    console.log("parsed");
+
     // return await convertToTradingData(csvData, userId);
     const tradeData = await convertToTradingDataToGroup(csvData, userId);
-    if(tradeData==="Data Exist"){
+    if (tradeData === "Data Exist") {
       return "Data Exist";
     }
     const symbolArr = [];
-    let minDate = '3000-01-01';
-    let maxDate = '2000-01-01';
+    let minDate = "3000-01-01";
+    let maxDate = "2000-01-01";
 
     for (const key in tradeData) {
-      const [symbol, date] = key.split('_');
+      const [symbol, date] = key.split("_");
 
       symbolArr.push(symbol);
-      
+
       if (new Date(date).getTime() < new Date(minDate).getTime()) {
         minDate = date;
       }
@@ -965,11 +1008,11 @@ const saveDataToDB = async (url, userId) => {
 
     let pointer = 0;
 
-    for(const key in tradeData){
+    for (const key in tradeData) {
       pointer++;
       const symbolTradeArr = tradeData[key];
-      const datePart = key.split('_')?.[1];
-      const symbol = key.split('_')?.[0];
+      const datePart = key.split("_")?.[1];
+      const symbol = key.split("_")?.[0];
       const startOfDate = moment(datePart)
         .clone()
         .startOf("day")
@@ -985,9 +1028,13 @@ const saveDataToDB = async (url, userId) => {
         symbol: symbol,
       });
 
-      console.log(new Date(startOfDate), new Date(endOfDate), symbolTradeArr?.length, historyTick?.length)
+      console.log(
+        new Date(startOfDate),
+        new Date(endOfDate),
+        symbolTradeArr?.length,
+        historyTick?.length
+      );
 
-      
       const pnlData = await chartHelper(symbolTradeArr, datePart, historyTick);
       const saveData = await ThirdPartyPnl.create([{
         trader: userId,
@@ -997,9 +1044,7 @@ const saveDataToDB = async (url, userId) => {
       }]);
     }
 
-    
-
-    return 'ok';
+    return "ok";
   } catch (error) {
     console.error(error);
     throw new Error(error);
@@ -1010,14 +1055,14 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
   try {
     const now = performance.now();
     // const date = req.query.date;
-    const thirdParty = 'true';
-    const timePeriod =  1;
-    const frequency = 'Min';
+    const thirdParty = "true";
+    const timePeriod = 1;
+    const frequency = "Min";
     // const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
     const HistoryTickModel =
       thirdParty == "true" ? HistoryDataNew : HistoryData;
 
-      console.log(frequency, timePeriod)
+    console.log(frequency, timePeriod);
     // const userId = req?.user?._id;
     const today = moment(date);
     const startToday = today
@@ -1028,7 +1073,7 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
     const endToday = today.clone().endOf("day");
     const pnlObjArr = [];
 
-    console.log('case1', performance.now()-now)
+    console.log("case1", performance.now() - now);
     const vixData = await IndiaVix.find({
       timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) },
     });
@@ -1041,18 +1086,22 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
     const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
     const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
 
-    console.log('case3', performance.now()-now)
+    console.log("case3", performance.now() - now);
     const uniqueTicksArr = [
       ...new Map(
         historyTicksInstrument.map((item) => [item.symbol, item])
       ).values(),
     ];
 
-    
-    const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, thirdParty);    
+    const newHistoryTicks = await newPriceArray(
+      timeArr,
+      uniqueTicksArr,
+      HistoryTickModel,
+      thirdParty
+    );
 
     for (let i = 0; i < timeArr.length; i++) {
-        const timePriceArr = newHistoryTicks[timeArr[i]];
+      const timePriceArr = newHistoryTicks[timeArr[i]];
       const filteredArr = tradeData.filter((elem) => {
         return (
           new Date(elem.trade_time) >= new Date(timeArr[0]) &&
@@ -1060,7 +1109,7 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
         );
       });
 
-      const isLastElement = (i === timeArr.length - 1);
+      const isLastElement = i === timeArr.length - 1;
       const vixFilteredArr = vixData.filter((elem) => {
         const elemDate = new Date(
           moment(elem.timestamp)
@@ -1070,12 +1119,13 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
             .toISOString()
         );
 
-        
-        const timeArrDate = new Date(timeArr[(isLastElement ? i-1 : i)]);
+        const timeArrDate = new Date(timeArr[isLastElement ? i - 1 : i]);
         return elemDate.getTime() === timeArrDate.getTime();
-      })
+      });
 
-      const vix = (isLastElement ? vixFilteredArr?.[0]?.['close'] : vixFilteredArr?.[0]?.['open']) 
+      const vix = isLastElement
+        ? vixFilteredArr?.[0]?.["close"]
+        : vixFilteredArr?.[0]?.["open"];
 
       filteredArr.sort((a, b) => {
         if (a.trade_time > b.trade_time) {
@@ -1158,22 +1208,11 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
       data: pnlObjArr,
       // pnlDiffrence: [pnl1PM, pnl3PM],
       // pipeline
-    }
+    };
   } catch (err) {
     console.log(err);
   }
 };
-
-
-
-
-
-
-
-
-
-
-
 
 exports.getUploadedData = async (req, res) => {
   try {
@@ -1181,7 +1220,7 @@ exports.getUploadedData = async (req, res) => {
     // const data = await uploadFileToAzure(req.file);
     //  const originalUrl = data?.fileUrl;
     const originalUrl =
-    'https://stagingdmt.blob.core.windows.net/dmt-trade/04333819805877015-OPTNewData-44090.csv';
+      "https://stagingdmt.blob.core.windows.net/dmt-trade/04333819805877015-OPTNewData-44090.csv";
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
     // const savedData = await saveDataToDB(url, userId);
     const savedData = await saveDataToDB(url, userId);
@@ -1213,16 +1252,15 @@ exports.getUploadedData = async (req, res) => {
 
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
-    trader: 
-    new ObjectId(
-      '66669a1293c01d363f7941a0'
+    trader: new ObjectId(
+      "66669a1293c01d363f7941a0"
       // "63788f3991fc4bf629de6df0"
     ),
     // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
   // const data = await ThirdPartyPnl.deleteMany({
-  //   trader: 
+  //   trader:
   //   new ObjectId(
   //     '66669a1293c01d363f7941a0'
   //     // "63788f3991fc4bf629de6df0"
@@ -1616,3 +1654,33 @@ exports.addBrokerage = async (req, res) => {
 //     console.log(err);
 //   }
 // };
+exports.getReportedBy = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const currentUser = await UserDetail.findById(userId)
+      .populate("reportedBy", "first_name _id") // Populate only the first_name and _id fields
+      .select("first_name _id reportedBy"); // Select only the relevant fields
+
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Prepare the response array
+    const response = [
+      {
+        first_name: currentUser.first_name,
+        _id: currentUser._id,
+      },
+      ...currentUser.reportedBy.map((user) => ({
+        first_name: user.first_name,
+        _id: user._id,
+      })),
+    ];
+
+    // Send the response
+    res.status(200).json({ status: "success", data: response });
+  } catch (error) {
+    console.error("Error fetching reportedBy users:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

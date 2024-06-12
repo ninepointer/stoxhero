@@ -28,5 +28,6 @@ router.route("/del").delete(pnlChart.deleteThirdParty);
 router.route("/avghour").get(Authenticate, pnlChart.avgPnlChart);
 router.route("/brokerage").get(pnlChart.addBrokerage);
 
+router.route("/reportedby").get(Authenticate, pnlChart.getReportedBy);
 
 module.exports = router;
