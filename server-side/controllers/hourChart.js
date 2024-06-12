@@ -1,7 +1,7 @@
 const TradeData = require("../models/mock-trade/paperTrade");
 const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
 const HistoryDataNew = require("../models/InstrumentHistoricalData/InstrumentHistoricalDataTemp");
-const User = require('../models/User/userDetailSchema');
+const User = require("../models/User/userDetailSchema");
 const moment = require("moment");
 const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
 const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
@@ -227,11 +227,13 @@ exports.avgPnlChart = async (req, res) => {
         : req.query.frequency;
     const toDate = req.query.to === "undefined" ? req.query.from : req.query.to;
     const user = req?.query?.user ?? req?.user?._id;
-    if (user === 'team') {
-      const teamLead = await User.findOne({ _id: new ObjectId(req?.user?._id) }).select('reportedBy');
+    if (user === "team") {
+      const teamLead = await User.findOne({
+        _id: new ObjectId(req?.user?._id),
+      }).select("reportedBy");
       userIds = [...teamLead.reportedBy];
     } else {
-      userIds.push(new ObjectId(user))
+      userIds.push(new ObjectId(user));
     }
 
     // console.log(userIds, user)
@@ -257,7 +259,7 @@ exports.avgPnlChart = async (req, res) => {
             $lte: new Date(endToDate),
           },
           trader: {
-            $in: userIds
+            $in: userIds,
           },
         },
       },
@@ -340,7 +342,7 @@ exports.avgPnlChart = async (req, res) => {
           buyPnl: 1,
           sellPnl: 1,
           gpnl: 1,
-          runningLots: 1
+          runningLots: 1,
         },
       },
       {
@@ -381,8 +383,8 @@ exports.avgPnlChart = async (req, res) => {
             $avg: "$gpnl",
           },
           runningLots: {
-            $avg: '$runningLots'
-          }
+            $avg: "$runningLots",
+          },
         },
       },
       {
@@ -398,7 +400,7 @@ exports.avgPnlChart = async (req, res) => {
           buyPnl: 1,
           sellPnl: 1,
           gpnl: 1,
-          runningLots: 1
+          runningLots: 1,
         },
       },
       {
@@ -414,7 +416,6 @@ exports.avgPnlChart = async (req, res) => {
         },
       },
     ]);
-
 
     const pnlDiffrence = [];
     for (const elem of pnlData) {
@@ -536,7 +537,6 @@ exports.hourChart = async (req, res) => {
             },
             symbol: { $in: uniqueSymbolArr },
           });
-
 
     const uniqueTicksArr = [
       ...new Map(
@@ -1022,15 +1022,21 @@ const saveDataToDB = async (url, userId) => {
         symbol: symbol,
       });
 
-      console.log(new Date(startOfDate), new Date(endOfDate), historyTick.length);
+      console.log(
+        new Date(startOfDate),
+        new Date(endOfDate),
+        historyTick.length
+      );
 
       const pnlData = await chartHelper(symbolTradeArr, datePart, historyTick);
-      const saveData = await ThirdPartyPnl.create([{
-        trader: userId,
-        symbol,
-        date: datePart,
-        pnl: pnlData?.data,
-      }]);
+      const saveData = await ThirdPartyPnl.create([
+        {
+          trader: userId,
+          symbol,
+          date: datePart,
+          pnl: pnlData?.data,
+        },
+      ]);
     }
 
     return "ok";
@@ -1246,9 +1252,8 @@ exports.deleteThirdParty = async (req, res) => {
   });
 
   const newdata = await ThirdPartyPnl.deleteMany({
-    trader:
-    new ObjectId(
-      '66669a1293c01d363f7941a0'
+    trader: new ObjectId(
+      "66669a1293c01d363f7941a0"
       // "63788f3991fc4bf629de6df0"
     ),
     // new ObjectId("642c6434573edbfcb2ac45a5"),
@@ -1256,10 +1261,9 @@ exports.deleteThirdParty = async (req, res) => {
 
   res.status(200).json({
     status: "success",
-    data: {data, newdata},
+    data: { data, newdata },
   });
 };
-
 
 exports.addBrokerage = async (req, res) => {
   try {
@@ -1272,12 +1276,9 @@ exports.addBrokerage = async (req, res) => {
     // );
 
     // Update documents where brokerage is not defined
-    await ThirdPartyTrades.updateMany(
-      { brokerage: { $exists: false } },
-      [
-        { $set: { brokerage: { $multiply: [{ $toDouble: "$amount" }, 0.001] } } }
-      ]
-    );
+    await ThirdPartyTrades.updateMany({ brokerage: { $exists: false } }, [
+      { $set: { brokerage: { $multiply: [{ $toDouble: "$amount" }, 0.001] } } },
+    ]);
 
     res.status(200).json({
       status: "success",
@@ -1289,8 +1290,6 @@ exports.addBrokerage = async (req, res) => {
     });
   }
 };
-
-
 
 // exports.avgHourChart = async (req, res) => {
 //   try {
@@ -1313,7 +1312,6 @@ exports.addBrokerage = async (req, res) => {
 //       .subtract(30, "minutes");
 //     const endToDate = moment(toDate).clone().endOf("day");
 //     let pnlObjArr = [];
-
 
 //     const tradeData = await TradeModel.find({
 //       status: "COMPLETE",
@@ -1338,14 +1336,13 @@ exports.addBrokerage = async (req, res) => {
 
 //       // const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
 //       // const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
-  
+
 //     //   const timeArrUtc = timeArr.map((elem)=>{
 //     //     const utcTime = new Date(elem);
 //     //     utcTime.setHours(utcTime.getHours() - 5);
 //     //     utcTime.setMinutes(utcTime.getMinutes() - 30);
 //     //     return utcTime
 //     // })
-  
 
 //     const tradeDataForSymbol = tradeData.filter((elem) => {
 //       const tradeTime = new Date(elem?.trade_time);
@@ -1361,7 +1358,6 @@ exports.addBrokerage = async (req, res) => {
 //         continue;
 //       }
 
-      
 //       const hourChartHelperData = await hourChartHelper(req, tradeDataForSymbol, startToday);
 //       pnlObjArr = [...pnlObjArr, ...hourChartHelperData?.data];
 
@@ -1384,7 +1380,7 @@ exports.addBrokerage = async (req, res) => {
 //         totalVix = 0,
 //         totalAverageLotsUsed = 0;
 //       let count = 0;
-    
+
 //       pnlObjArr.forEach((pnl) => {
 //         if (pnl.timestamp.includes(time)) {
 //           totalGpnl += pnl.gpnl;
@@ -1401,7 +1397,7 @@ exports.addBrokerage = async (req, res) => {
 //           count++;
 //         }
 //       });
-    
+
 //       if (count > 0) {
 //         averageGpnlByTime[time] = {
 //           gpnl: Number((totalGpnl / count).toFixed(2)),
@@ -1418,8 +1414,6 @@ exports.addBrokerage = async (req, res) => {
 //         };
 //       }
 //     });
-    
-
 
 //     res.status(200).json({
 //       status: "success",
@@ -1435,7 +1429,6 @@ exports.addBrokerage = async (req, res) => {
 //     });
 //   }
 // };
-
 
 // const hourChartHelper = async (req, tradeData, date) => {
 //   try {
@@ -1548,8 +1541,7 @@ exports.addBrokerage = async (req, res) => {
 //       ).values(),
 //     ];
 
-    
-//     const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, thirdParty);    
+//     const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, thirdParty);
 
 //     for (let i = 0; i < timeArr.length; i++) {
 //         const timePriceArr = newHistoryTicks[timeArr[i]];
@@ -1569,7 +1561,6 @@ exports.addBrokerage = async (req, res) => {
 //             .toISOString()
 //         );
 
-        
 //         const timeArrDate = new Date(timeArr[i]);
 //         return elemDate.getTime() === timeArrDate.getTime();
 //       })?.[0]?.open;

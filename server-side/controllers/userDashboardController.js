@@ -1027,6 +1027,7 @@ exports.getExpectedPnl = async (req, res, next) => {
         "6666997a93c01d363f79419f",
         "6666c69193c01d363f7941a2",
         "6666c6cb93c01d363f7941a3",
+        "66669a1293c01d363f7941a0",
       ];
     }
     const pipeline = [
