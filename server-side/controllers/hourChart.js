@@ -340,6 +340,7 @@ exports.avgPnlChart = async (req, res) => {
           buyPnl: 1,
           sellPnl: 1,
           gpnl: 1,
+          runningLots: 1
         },
       },
       {
@@ -379,6 +380,9 @@ exports.avgPnlChart = async (req, res) => {
           gpnl: {
             $avg: "$gpnl",
           },
+          runningLots: {
+            $avg: '$runningLots'
+          }
         },
       },
       {
@@ -394,6 +398,7 @@ exports.avgPnlChart = async (req, res) => {
           buyPnl: 1,
           sellPnl: 1,
           gpnl: 1,
+          runningLots: 1
         },
       },
       {
@@ -1253,22 +1258,36 @@ exports.deleteThirdParty = async (req, res) => {
   });
 };
 
-exports.addBrokerage = async (req, res) => {
-  const data = await ThirdPartyTrades.find();
-  for(const elem of data){
-    if(elem.brokerage){
-      console.log('in if')
-    } else{
-      console.log('in else')
-      elem.brokerage = Number(elem.amount)*0.001;
-      await elem.save();
-    }
-  }
 
-  res.status(200).json({
-    status: "success",
-  });
+exports.addBrokerage = async (req, res) => {
+  try {
+    // Update documents where brokerage is less than 0
+    await ThirdPartyTrades.updateMany(
+      { brokerage: { $lt: 0 } },
+      [
+        { $set: { brokerage: { $abs: "$brokerage" } } }
+      ]
+    );
+
+    // Update documents where brokerage is not defined
+    // await ThirdPartyTrades.updateMany(
+    //   { brokerage: { $exists: false } },
+    //   [
+    //     { $set: { brokerage: { $multiply: [{ $toDouble: "$amount" }, 0.001] } } }
+    //   ]
+    // );
+
+    res.status(200).json({
+      status: "success",
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: err.message,
+    });
+  }
 };
+
 
 
 // exports.avgHourChart = async (req, res) => {
