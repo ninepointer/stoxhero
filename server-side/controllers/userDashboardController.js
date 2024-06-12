@@ -1020,10 +1020,19 @@ exports.getExpectedPnl = async (req, res, next) => {
     if (req.query?.user && req.query.user != "undefined") {
       traderId = req.query?.user;
     }
+    let usersArray = [traderId];
+    if (traderId == "team") {
+      usersArray = [
+        "6666994093c01d363f79419e",
+        "6666997a93c01d363f79419f",
+        "6666c69193c01d363f7941a2",
+        "6666c6cb93c01d363f7941a3",
+      ];
+    }
     const pipeline = [
       {
         $match: {
-          trader: new ObjectId(traderId),
+          trader: { $in: usersArray.map((id) => new ObjectId(id)) },
           status: "COMPLETE",
           trade_time: { $lt: new Date(endDate.toISOString().substring(0, 10)) },
         },

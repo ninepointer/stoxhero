@@ -192,6 +192,18 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
   if (req.query?.user && req.query.user != "undefined") {
     id = req.query?.user;
   }
+  let usersArray = [id];
+  if (id == "team") {
+    usersArray = [
+      "6666994093c01d363f79419e",
+      "6666997a93c01d363f79419f",
+      "6666c69193c01d363f7941a2",
+      "6666c6cb93c01d363f7941a3",
+    ];
+  }
+
+  let len = usersArray.length;
+
   let date = new Date();
   const fromDate = new Date(from);
   fromDate.setHours(0, 0, 0, 0);
@@ -203,7 +215,7 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
     {
       $match: {
         trade_time: { $gte: fromDate, $lte: toDate },
-        trader: new ObjectId(id),
+        trader: { $in: usersArray.map((id) => new ObjectId(id)) },
         status: "COMPLETE",
       },
     },
@@ -251,6 +263,15 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
         noOfTrade: 1,
       },
     },
+    {
+      $addFields: {
+        gpnl: { $divide: ["$gpnl", len] },
+        brokerage: { $divide: ["$brokerage", len] },
+        npnl: { $divide: ["$npnl", len] },
+        lots: { $divide: ["$lots", len] },
+        noOfTrade: { $divide: ["$noOfTrade", len] },
+      },
+    },
     { $sort: { date: 1 } },
   ]);
 
@@ -264,6 +285,16 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
   if (req.query?.user && req.query.user != "undefined") {
     id = req.query?.user;
   }
+  let usersArray = [id];
+  if (id == "team") {
+    usersArray = [
+      "6666994093c01d363f79419e",
+      "6666997a93c01d363f79419f",
+      "6666c69193c01d363f7941a2",
+      "6666c6cb93c01d363f7941a3",
+    ];
+  }
+  const len = usersArray.length;
   const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
   const fromDate = new Date(from);
   fromDate.setHours(0, 0, 0, 0);
@@ -290,7 +321,7 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
     {
       $match: {
         trade_time: { $gte: fromDate, $lte: toDate },
-        trader: new ObjectId(id),
+        trader: { $in: usersArray.map((id) => new ObjectId(id)) },
         status: "COMPLETE",
       },
     },
@@ -382,6 +413,20 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
       },
     },
     {
+      $addFields: {
+        totalGpnl: { $divide: ["$totalGpnl", len] },
+        totalBrokerage: { $divide: ["$totalBrokerage", len] },
+        totalNpnl: { $divide: ["$totalNpnl", len] },
+        totalTrades: { $divide: ["$totalTrades", len] },
+        avgGpnl: { $divide: ["$avgGpnl", len] },
+        avgBrokerage: { $divide: ["$avgBrokerage", len] },
+        avgNpnl: { $divide: ["$avgNpnl", len] },
+        avgLots: { $divide: ["$avgLots", len] },
+        averageProfit: { $divide: ["$averageProfit", len] },
+        averageLoss: { $divide: ["$averageLoss", len] },
+      },
+    },
+    {
       $sort: { weekDayNo: 1 },
     },
   ]);
@@ -397,6 +442,16 @@ exports.getPaperTradesOverallStats = async (req, res) => {
   if (req.query?.user && req.query.user != "undefined") {
     id = req.query?.user;
   }
+  let usersArray = [id];
+  if (id == "team") {
+    usersArray = [
+      "6666994093c01d363f79419e",
+      "6666997a93c01d363f79419f",
+      "6666c69193c01d363f7941a2",
+      "6666c6cb93c01d363f7941a3",
+    ];
+  }
+  const len = usersArray.length;
   const fromDate = new Date(from);
   fromDate.setHours(0, 0, 0, 0);
   const toDate = new Date(to);
@@ -440,7 +495,7 @@ exports.getPaperTradesOverallStats = async (req, res) => {
     {
       $match: {
         trade_time: { $gte: fromDate, $lte: toDate },
-        trader: new ObjectId(id),
+        trader: { $in: usersArray.map((id) => new ObjectId(id)) },
         status: "COMPLETE",
       },
     },
@@ -527,6 +582,20 @@ exports.getPaperTradesOverallStats = async (req, res) => {
         noOfLossDays: "$lossDaysCount",
       },
     },
+    {
+      $addFields: {
+        totalGpnl: { $divide: ["$totalGpnl", len] },
+        totalBrokerage: { $divide: ["$totalBrokerage", len] },
+        totalNpnl: { $divide: ["$totalNpnl", len] },
+        totalTrades: { $divide: ["$totalTrades", len] },
+        totalLots: { $divide: ["$totalLots", len] },
+        avgGpnl: { $divide: ["$avgGpnl", len] },
+        avgBrokerage: { $divide: ["$avgBrokerage", len] },
+        avgNpnl: { $divide: ["$avgNpnl", len] },
+        averageProfit: { $divide: ["$averageProfit", len] },
+        averageLoss: { $divide: ["$averageLoss", len] },
+      },
+    },
   ]);
 
   res.status(200).json({
@@ -602,6 +671,16 @@ exports.getPaperTradesMonthlyPnlData = async (req, res, next) => {
   if (req.query?.user && req.query.user != "undefined") {
     id = req.query?.user;
   }
+  let usersArray = [id];
+  if (id == "team") {
+    usersArray = [
+      "6666994093c01d363f79419e",
+      "6666997a93c01d363f79419f",
+      "6666c69193c01d363f7941a2",
+      "6666c6cb93c01d363f7941a3",
+    ];
+  }
+  const len = usersArray.length;
   const today = new Date();
   const pastYear = new Date();
   pastYear.setFullYear(today.getFullYear() - 1);
@@ -610,7 +689,7 @@ exports.getPaperTradesMonthlyPnlData = async (req, res, next) => {
     {
       $match: {
         trade_time: { $gte: pastYear, $lte: today },
-        trader: new ObjectId(id),
+        trader: { $in: usersArray.map((id) => new ObjectId(id)) },
         status: "COMPLETE",
       },
     },
@@ -651,6 +730,15 @@ exports.getPaperTradesMonthlyPnlData = async (req, res, next) => {
         },
         lots: 1,
         noOfTrade: 1,
+      },
+    },
+    {
+      $addFields: {
+        gpnl: { $divide: ["$gpnl", len] },
+        brokerage: { $divide: ["$brokerage", len] },
+        npnl: { $divide: ["$npnl", len] },
+        lots: { $divide: ["$lots", len] },
+        noOfTrade: { $divide: ["$noOfTrade", len] },
       },
     },
     { $sort: { date: 1 } },
