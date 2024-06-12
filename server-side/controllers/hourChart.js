@@ -269,6 +269,25 @@ exports.avgPnlChart = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          stockPnl: {
+            $cond: {
+              if: {
+                $not: {
+                  $regexMatch: {
+                    input: "$symbol",
+                    regex: /\d/,
+                  },
+                },
+                //   },
+              },
+              then: "$pnl.gpnl",
+              else: 0,
+            },
+          },
+        },
+      },
+      {
         $group: {
           _id: {
             timestamp: "$pnl.timestamp",
@@ -307,6 +326,9 @@ exports.avgPnlChart = async (req, res) => {
           runningLots: {
             $sum: "$pnl.runningLots",
           },
+          stockPnl: {
+            $sum: "$stockPnl",
+          },
         },
       },
       {
@@ -317,6 +339,7 @@ exports.avgPnlChart = async (req, res) => {
           pnlNifty: 1,
           pnlBankNifty: 1,
           pnlFinNifty: 1,
+          stockPnl: 1,
           averageEntryLots: {
             $cond: {
               if: {
@@ -385,6 +408,9 @@ exports.avgPnlChart = async (req, res) => {
           runningLots: {
             $avg: "$runningLots",
           },
+          stockPnl: {
+            $avg: "$stockPnl",
+          },
         },
       },
       {
@@ -401,11 +427,7 @@ exports.avgPnlChart = async (req, res) => {
           sellPnl: 1,
           gpnl: 1,
           runningLots: 1,
-        },
-      },
-      {
-        $sort: {
-          timestamp: 1,
+          stockPnl: 1,
         },
       },
       {
