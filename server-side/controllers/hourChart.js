@@ -166,7 +166,6 @@ const newPriceArray = async (
           // Create a new Date object to avoid mutating the original timestamp
           const adjustedTimestamp = new Date(elem.timestamp);
           adjustedTimestamp.setSeconds(adjustedTimestamp.getSeconds() + 59);
-          console.log(adjustedTimestamp, new Date(utcTime));
           return adjustedTimestamp.getTime() === new Date(utcTime).getTime();
         } else {
           // Handle the case where thirdParty is not 'false'
@@ -227,14 +226,16 @@ exports.avgPnlChart = async (req, res) => {
         ? "Hour"
         : req.query.frequency;
     const toDate = req.query.to;
-const user = req?.query?.user ?? req?.user?._id;
-    if(user === 'team'){
-      const teamLead = await User.findOne({_id: new ObjectId(req?.user?._id)}).select('reportedBy');
+    const user = req?.query?.user ?? req?.user?._id;
+    if (user === 'team') {
+      const teamLead = await User.findOne({ _id: new ObjectId(req?.user?._id) }).select('reportedBy');
       userIds = [...teamLead.reportedBy];
-    } else{
+    } else {
       userIds.push(new ObjectId(user))
     }
-    
+
+    // console.log(userIds, user)
+
     const startFromDate = moment(fromDate)
       .clone()
       .startOf("day")
@@ -409,8 +410,6 @@ const user = req?.query?.user ?? req?.user?._id;
       },
     ]);
 
-    console.log([...newtimeArr, "12:59:59", "15:30:59"]);
-    // const calculatePnlDifferance = pnlData?.slice(-2);
 
     const pnlDiffrence = [];
     for (const elem of pnlData) {
@@ -446,7 +445,6 @@ exports.hourChart = async (req, res) => {
     const HistoryTickModel =
       thirdParty == "true" ? HistoryDataNew : HistoryData;
 
-    console.log(frequency, timePeriod);
     const userId = req?.user?._id;
     const today = moment(date);
     const startToday = today
@@ -463,7 +461,6 @@ exports.hourChart = async (req, res) => {
       trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) },
     });
 
-    console.log("case1", performance.now() - now);
     const vixData = await IndiaVix.find({
       timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) },
     });
@@ -475,7 +472,6 @@ exports.hourChart = async (req, res) => {
 
     const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
     const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
-    console.log("case2", performance.now() - now);
 
     const timeArrUtc = timeArr.map((elem) => {
       const utcTime = new Date(elem);
@@ -536,12 +532,6 @@ exports.hourChart = async (req, res) => {
             symbol: { $in: uniqueSymbolArr },
           });
 
-    console.log("case3", performance.now() - now);
-    console.log(
-      historyTicksInstrument.length,
-      tradeData?.length,
-      uniqueSymbolArr?.length
-    );
 
     const uniqueTicksArr = [
       ...new Map(
@@ -918,7 +908,6 @@ exports.uploadCSV = async (req, res) => {
     const userId = req?.user?._id || "662f804700f04a05fe3c941f";
     const data = await uploadFileToAzure(req.file);
     const originalUrl = data?.fileUrl;
-    console.log(data);
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/045115758852909416-shareIndia46099Aprtrunc.csv'
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
     res.status(200).json({
@@ -1028,13 +1017,6 @@ const saveDataToDB = async (url, userId) => {
         symbol: symbol,
       });
 
-      console.log(
-        new Date(startOfDate),
-        new Date(endOfDate),
-        symbolTradeArr?.length,
-        historyTick?.length
-      );
-
       const pnlData = await chartHelper(symbolTradeArr, datePart, historyTick);
       const saveData = await ThirdPartyPnl.create([{
         trader: userId,
@@ -1062,7 +1044,6 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
     const HistoryTickModel =
       thirdParty == "true" ? HistoryDataNew : HistoryData;
 
-    console.log(frequency, timePeriod);
     // const userId = req?.user?._id;
     const today = moment(date);
     const startToday = today
@@ -1073,7 +1054,6 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
     const endToday = today.clone().endOf("day");
     const pnlObjArr = [];
 
-    console.log("case1", performance.now() - now);
     const vixData = await IndiaVix.find({
       timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) },
     });
@@ -1086,7 +1066,6 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
     const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
     const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
 
-    console.log("case3", performance.now() - now);
     const uniqueTicksArr = [
       ...new Map(
         historyTicksInstrument.map((item) => [item.symbol, item])
