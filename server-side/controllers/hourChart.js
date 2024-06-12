@@ -1022,6 +1022,8 @@ const saveDataToDB = async (url, userId) => {
         symbol: symbol,
       });
 
+      console.log(new Date(startOfDate), new Date(endOfDate), historyTick.length);
+
       const pnlData = await chartHelper(symbolTradeArr, datePart, historyTick);
       const saveData = await ThirdPartyPnl.create([{
         trader: userId,
@@ -1243,18 +1245,18 @@ exports.deleteThirdParty = async (req, res) => {
     // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
-  // const data = await ThirdPartyPnl.deleteMany({
-  //   trader:
-  //   new ObjectId(
-  //     '66669a1293c01d363f7941a0'
-  //     // "63788f3991fc4bf629de6df0"
-  //   ),
-  //   // new ObjectId("642c6434573edbfcb2ac45a5"),
-  // });
+  const newdata = await ThirdPartyPnl.deleteMany({
+    trader:
+    new ObjectId(
+      '66669a1293c01d363f7941a0'
+      // "63788f3991fc4bf629de6df0"
+    ),
+    // new ObjectId("642c6434573edbfcb2ac45a5"),
+  });
 
   res.status(200).json({
     status: "success",
-    data: data,
+    data: {data, newdata},
   });
 };
 
@@ -1262,20 +1264,20 @@ exports.deleteThirdParty = async (req, res) => {
 exports.addBrokerage = async (req, res) => {
   try {
     // Update documents where brokerage is less than 0
-    await ThirdPartyTrades.updateMany(
-      { brokerage: { $lt: 0 } },
-      [
-        { $set: { brokerage: { $abs: "$brokerage" } } }
-      ]
-    );
-
-    // Update documents where brokerage is not defined
     // await ThirdPartyTrades.updateMany(
-    //   { brokerage: { $exists: false } },
+    //   { brokerage: { $lt: 0 } },
     //   [
-    //     { $set: { brokerage: { $multiply: [{ $toDouble: "$amount" }, 0.001] } } }
+    //     { $set: { brokerage: { $abs: "$brokerage" } } }
     //   ]
     // );
+
+    // Update documents where brokerage is not defined
+    await ThirdPartyTrades.updateMany(
+      { brokerage: { $exists: false } },
+      [
+        { $set: { brokerage: { $multiply: [{ $toDouble: "$amount" }, 0.001] } } }
+      ]
+    );
 
     res.status(200).json({
       status: "success",

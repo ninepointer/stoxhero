@@ -27,7 +27,7 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
         elem?.["Trade Date/Time"],
         elem?.["Contract Name"],
       ].join("|");
-
+      
       if (!groupedData[groupKey]) {
         groupedData[groupKey] = {
           ...elem,
@@ -38,10 +38,10 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
         };
       }
 
-      groupedData[groupKey].Quantity += Number(elem?.["Quantity"]);
-      groupedData[groupKey].totalPrice += Number(elem?.["Price"]);
+      groupedData[groupKey].Quantity += Number(elem?.["Quantity"].replace(/,/g, ''));
+      groupedData[groupKey].totalPrice += Number(elem?.["Price"].replace(/,/g, ''));
       groupedData[groupKey].amount +=
-        Number(elem?.["Price"]) * Number(elem?.["Quantity"]);
+        Number(elem?.["Price"]) * Number(elem?.["Quantity"].replace(/,/g, ''));
       groupedData[groupKey].count += 1;
     });
 
@@ -101,6 +101,7 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
         amount = elem?.amount;
       }
 
+      // console.log(quantity, amount, moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss").add(5, 'hours').add(30, 'minutes').utc().format())
       tradeData.push({
         order_id: elem["Trade Id"],
         status: "COMPLETE",
@@ -117,11 +118,11 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
         cp_id: elem?.["CP ID"],
         ctcl_id: elem?.["CTCL ID"],
         user_id: elem?.["User Id"],
-        modify_date: moment(
-          elem?.["Modified Date/Time"],
-          "DD MMMM YYYY HH:mm:ss"
-        ),
-        // modify_date: moment(elem?.["Modified Date/Time"], "DD MMMM YYYY HH:mm:ss").add(30, 'minutes').utc().format(),
+        // modify_date: moment(
+        //   elem?.["Modified Date/Time"],
+        //   "DD MMMM YYYY HH:mm:ss"
+        // ),
+        modify_date: moment(elem?.["Modified Date/Time"], "DD MMMM YYYY HH:mm:ss").add(30, 'minutes').utc().format(),
         trader: userId,
         createdOn: new Date(),
         createdBy: userId,
