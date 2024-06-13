@@ -4,7 +4,7 @@ const { ObjectId } = require("mongodb");
 const multer = require("multer");
 
 
-exports.convertToTradingDataToGroup = async (data, userId) => {
+exports.convertToTradingDataToGroup = async (data, userId, res) => {
   console.log('case1')
   try {
     data.sort((a, b) => {
@@ -148,7 +148,11 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
     });
 
     if (checkExist) {
-      return "Data Exist";
+      res.status(400).json({
+        status: "error",
+        message: "Uploaded data already exist!",
+      });
+      return 'Data Exist';
     }
 
     await ThirdPartyTrades.create(tradeData);
@@ -173,6 +177,10 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
     }, {});
 
     console.log('case6')
+    res.status(200).json({
+      status: "success",
+      data: "ok",
+    });
     return (finalgroupedData);
 
   } catch (err) {

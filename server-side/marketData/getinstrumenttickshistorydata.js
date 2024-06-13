@@ -55,7 +55,7 @@ const fetchAndFormatData = async (kiteData, instrumentToken, todayDate) => {
   const api_key = kiteData.getApiKey;
   const access_token = kiteData.getAccessToken;
   const auth = "token" + api_key + ":" + access_token;
-  const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/60minute?from=${todayDate}+09:15:00&to=${todayDate}+15:30:00`;
+  const url = `https://api.kite.trade/instruments/historical/${instrumentToken}/minute?from=${todayDate}+09:15:00&to=${todayDate}+15:30:00`;
 
   const authOptions = {
     headers: {
@@ -242,9 +242,20 @@ exports.main = async () => {
   console.log(' before first', new Date());
   const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
   // const todaysDatePart = '2024-06-10';
+  await TradableInstrumentList.allTradableNSEInstrument();
   // await TradableInstrumentList.allTradableInstrument();
 
-  console.log('first', new Date());
+  const inactive = await TradableInstrument.updateMany({
+    $and: [
+      { expiry: { $ne: '' } },
+      { expiry: { $lt: todaysDatePart } }
+    ]
+  }
+  , [
+    { $set: { status: 'Inactive' } },
+  ]);
+
+  console.log('first', new Date(), inactive);
   await getInstrumentTicksHistoryData(todaysDatePart);
   await saveIndiaVix(todaysDatePart);
   console.log('end', new Date());

@@ -26,7 +26,7 @@ const alltradableInstrumentSchema = new mongoose.Schema({
     },
     expiry:{
         type: String,
-        required : true
+        // required : true
     },
     strike:{
         type: Number,
@@ -38,7 +38,7 @@ const alltradableInstrumentSchema = new mongoose.Schema({
     },
     lot_size:{
         type: Number,
-        required : true
+        // required : true
     },
     instrument_type:{
         type: String,
@@ -55,7 +55,8 @@ const alltradableInstrumentSchema = new mongoose.Schema({
     accountType:{
         type: String,
         // required : true,
-        enum : [zerodhaAccountType, xtsAccountType]
+        enum : [zerodhaAccountType, xtsAccountType],
+        default: zerodhaAccountType
     },
     lastModifiedBy:{
         type:Schema.Types.ObjectId,
