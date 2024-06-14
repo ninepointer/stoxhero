@@ -73,7 +73,6 @@ async function singleProcess() {
     io.on("connection", async (socket) => {
       console.log("socket connected");
       socket.on("userId", async (data) => {
-        console.log("data from userId", data);
         socket.join(`${data}`);
         if (data) {
           await client.set(socket.id, data);

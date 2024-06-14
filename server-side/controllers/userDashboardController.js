@@ -1157,3 +1157,141 @@ exports.getExpectedPnl = async (req, res, next) => {
     res.status(200).json({ status: "error", message: "Something went wrong" });
   }
 };
+
+exports.getWeekdayExpectedPnl = async (req, res, next) => {
+  try {
+    const weekDayArray = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    console.log(req.query);
+    const { tradeType } = req.query;
+    const thirdParty = req.query.thirdParty ?? "false";
+    const TradeModel = thirdParty == "true" ? ThirdPartyTrades : VirtualTrade;
+    let Model;
+    switch (tradeType) {
+      case "virtual":
+        Model = TradeModel;
+        break;
+      case "tenX":
+        Model = TenXTrade;
+        break;
+      case "contest":
+        Model = ContestTrade;
+        break;
+      default:
+        return res.status(400).send({ error: "Invalid trade type" });
+    }
+    const endDate =
+      new Date().getHours() >= 10
+        ? new Date()
+        : new Date(new Date().setDate(new Date().getDate() - 1));
+    let traderId = req.user._id;
+    if (req.query?.user && req.query.user != "undefined") {
+      traderId = req.query?.user;
+    }
+    let usersArray = [traderId];
+    if (traderId == "team") {
+      usersArray = [
+        "6666994093c01d363f79419e",
+        "6666997a93c01d363f79419f",
+        "6666c69193c01d363f7941a2",
+        "6666c6cb93c01d363f7941a3",
+        "66669a1293c01d363f7941a0",
+      ];
+    }
+    //   {
+    //     $match: {
+    //       trader: { $in: usersArray.map((id) => new ObjectId(id)) },
+    //       status: "COMPLETE",
+    //       trade_time: { $lt: new Date(endDate.toISOString().substring(0, 10)) },
+    //     },
+    //   },
+    //   {
+    //     $addFields: {
+    //       dayOfWeek: { $dayOfWeek: "$trade_time" }, // 1 (Sunday) to 7 (Saturday)
+    //       gpnl: { $multiply: ["$amount", -1] },
+    //       brokerage_double: { $toDouble: "$brokerage" },
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: "$dayOfWeek",
+    //       total_gpnl: { $sum: "$gpnl" },
+    //       total_brokerage: { $sum: "$brokerage_double" },
+    //       number_of_trades: { $sum: 1 },
+    //     },
+    //   },
+    //   {
+    //     $addFields: {
+    //       npnl: { $subtract: ["$total_gpnl", "$total_brokerage"] },
+    //     },
+    //   },
+    //   { $sort: { _id: 1 } },
+    // ];
+    const pipeline = [
+      {
+        $match: {
+          trader: { $in: usersArray.map((id) => new ObjectId(id)) },
+          status: "COMPLETE",
+          trade_time: { $lt: new Date(endDate.toISOString().substring(0, 10)) },
+        },
+      },
+      {
+        $addFields: {
+          dayOfWeek: { $dayOfWeek: "$trade_time" }, // 1 (Sunday) to 7 (Saturday)
+          gpnl: { $multiply: ["$amount", -1] },
+          brokerage_double: { $toDouble: "$brokerage" },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            dayOfWeek: "$dayOfWeek",
+            day: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } },
+          },
+          total_gpnl: { $sum: "$gpnl" },
+          total_brokerage: { $sum: "$brokerage_double" },
+          number_of_trades: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.dayOfWeek",
+          total_gpnl: { $sum: "$total_gpnl" },
+          total_brokerage: { $sum: "$total_brokerage" },
+          number_of_trades: { $sum: "$number_of_trades" },
+          dayCount: { $sum: 1 },
+        },
+      },
+      {
+        $addFields: {
+          npnl: { $subtract: ["$total_gpnl", "$total_brokerage"] },
+          expected_pnl: {
+            $divide: [
+              { $subtract: ["$total_gpnl", "$total_brokerage"] },
+              "$dayCount",
+            ],
+          },
+          weekDay: {
+            $arrayElemAt: [weekDayArray, { $subtract: ["$_id", 1] }],
+          },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    let tradeData = await Model.aggregate(pipeline);
+    console.log(tradeData);
+
+    res.status(200).json({ status: "success", data: tradeData });
+  } catch (e) {
+    console.log(e);
+    res.status(200).json({ status: "error", message: "Something went wrong" });
+  }
+};
