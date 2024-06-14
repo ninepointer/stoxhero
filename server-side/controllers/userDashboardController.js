@@ -1169,7 +1169,6 @@ exports.getWeekdayExpectedPnl = async (req, res, next) => {
       "Friday",
       "Saturday",
     ];
-    console.log(req.query);
     const { tradeType } = req.query;
     const thirdParty = req.query.thirdParty ?? "false";
     const TradeModel = thirdParty == "true" ? ThirdPartyTrades : VirtualTrade;
@@ -1287,7 +1286,6 @@ exports.getWeekdayExpectedPnl = async (req, res, next) => {
     ];
 
     let tradeData = await Model.aggregate(pipeline);
-    console.log(tradeData);
 
     res.status(200).json({ status: "success", data: tradeData });
   } catch (e) {
