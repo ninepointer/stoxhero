@@ -6,7 +6,7 @@ const sendMail = require("../utils/emailService");
 const moment = require("moment");
 const TradableInstrument = require("../models/Instruments/allTradableInstrumentsSchema");
 const TradableInstrumentList = require("../controllers/TradableInstrument/tradableInstrument");
-const IndiaVix = require('../models/Instruments/indiaVix');
+const IndiaVix = require("../models/Instruments/indiaVix");
 
 const getInstrumentTicksHistoryData = async (todaysDatePart) => {
   return new Promise(async (resolve, reject) => {
@@ -18,16 +18,22 @@ const getInstrumentTicksHistoryData = async (todaysDatePart) => {
         .subtract(5, "hours")
         .subtract(30, "minutes");
 
-      const datePart = (new Date(endOfMonth)).toISOString()?.split('T')[0];
-      console.log('datePart', datePart);
+      const datePart = new Date(endOfMonth).toISOString()?.split("T")[0];
+      console.log("datePart", datePart);
 
-      const instrumentList = await TradableInstrument.find({status: 'Active', expiry: {$lt: datePart}})
-      .select('instrument_token exchange_token expiry tradingsymbol');
+      const instrumentList = await TradableInstrument.find({
+        status: "Active",
+        expiry: { $lt: datePart },
+      }).select("instrument_token exchange_token expiry tradingsymbol");
 
-
-      for(const elem of instrumentList){
-        const {instrument_token, exchange_token, expiry, tradingsymbol} = elem;
-        const candles = await fetchAndFormatData(kiteData, instrument_token, todaysDatePart);
+      for (const elem of instrumentList) {
+        const { instrument_token, exchange_token, expiry, tradingsymbol } =
+          elem;
+        const candles = await fetchAndFormatData(
+          kiteData,
+          instrument_token,
+          todaysDatePart
+        );
 
         console.log(candles.length);
         if (candles.length) {
@@ -88,62 +94,77 @@ const fetchAndFormatData = async (kiteData, instrumentToken, todayDate) => {
   }
 };
 
-const saveIndiaVix = async (todaysDatePart)=>{
+const saveIndiaVix = async (todaysDatePart) => {
   const kiteData = await getKiteCred.getAccess();
   const api_key = kiteData.getApiKey;
   const access_token = kiteData.getAccessToken;
-  const auth = 'token' + api_key + ':' + access_token;
+  const auth = "token" + api_key + ":" + access_token;
   const authOptions = {
     headers: {
-      'X-Kite-Version': '3',
+      "X-Kite-Version": "3",
       Authorization: auth,
     },
   };
 
-  const url = `https://api.kite.trade/instruments/historical/${'264969'}/minute?from=${todaysDatePart}+09:15:00&to=${todaysDatePart}+15:30:00`;
+  const url = `https://api.kite.trade/instruments/historical/${"264969"}/minute?from=${todaysDatePart}+09:15:00&to=${todaysDatePart}+15:30:00`;
   // const urlForEnd = `https://api.kite.trade/instruments/historical/264969/day?from=${todaysDatePart}+09:15:00&to=${todaysDatePart}+15:30:00`;
-
-
 
   try {
     // if(urlForEnd){
     //   await vixHelper(urlForEnd, authOptions)
     // }
-    await vixHelper(url, authOptions)
+    await vixHelper(url, authOptions);
   } catch (err) {
     // console.log(err)
-    return false
+    return false;
   }
-}
+};
 
-async function vixHelper(url, authOptions){
+async function vixHelper(url, authOptions) {
   const response = await axios.get(url, authOptions);
-  const instrumentticks = (response.data).data;
+  const instrumentticks = response.data.data;
   const len = instrumentticks.candles.length;
   const instrumentticksdata = [];
   for (const candle of instrumentticks.candles) {
     const [timestamp, open, high, low, close, volume] = candle;
     let newTime;
     const newTimestamp = new Date(timestamp);
-    if(instrumentticks.candles?.length === 1){
-      newTime = new Date(moment(timestamp).add(15, 'hours').add(30, 'minutes'));
+    if (instrumentticks.candles?.length === 1) {
+      newTime = new Date(moment(timestamp).add(15, "hours").add(30, "minutes"));
       instrumentticksdata.push({
-        timestamp: newTime, open, high, low, close, volume, instrument_token: 264969,
-        exchange_token: 264969, tradingsymbol: 'INDIA VIX'
-      })
-    } else{
+        timestamp: newTime,
+        open,
+        high,
+        low,
+        close,
+        volume,
+        instrument_token: 264969,
+        exchange_token: 264969,
+        tradingsymbol: "INDIA VIX",
+      });
+    } else {
       instrumentticksdata.push({
-        timestamp: newTimestamp, open, high, low, close, volume, instrument_token: 264969,
-        exchange_token: 264969, tradingsymbol: 'INDIA VIX'
-      })
+        timestamp: newTimestamp,
+        open,
+        high,
+        low,
+        close,
+        volume,
+        instrument_token: 264969,
+        exchange_token: 264969,
+        tradingsymbol: "INDIA VIX",
+      });
     }
   }
 
   const data = await IndiaVix.create(instrumentticksdata);
 }
 
-async function mailSender(length){
-  await sendMail("vvv201214@gmail.com", 'History Data - StoxHero', `
+async function mailSender(length) {
+  await sendMail(
+    "vvv201214@gmail.com",
+    "History Data - StoxHero",
+    `
   <!DOCTYPE html>
   <html>
   <head>
@@ -239,10 +260,9 @@ exports.main = async () => {
     .subtract(5, "hours")
     .subtract(30, "minutes");
 
-  console.log(' before first', new Date());
-  const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
+  console.log(" before first", new Date());
+  const todaysDatePart = new Date()?.toISOString()?.split("T")?.[0];
   // const todaysDatePart = '2024-06-10';
- 
 
   // const inactiveeq = await TradableInstrument.updateMany(
   //   {instrument_type: 'EQ'}
@@ -263,13 +283,13 @@ exports.main = async () => {
   // console.log('first', new Date(), inactive, inactiveeq);
 
   await TradableInstrumentList.allTradableInstrument();
-  await TradableInstrumentList.allTradableNSEInstrument();
 
   await getInstrumentTicksHistoryData(todaysDatePart);
   await saveIndiaVix(todaysDatePart);
-  console.log('end', new Date());
-  const historyDataforLen = await InstrumentTicksDataSchema.find({createdOn: {$gt: new Date(start), $lt: new Date(end)}});   
+  console.log("end", new Date());
+  const historyDataforLen = await InstrumentTicksDataSchema.find({
+    createdOn: { $gt: new Date(start), $lt: new Date(end) },
+  });
   const length = historyDataforLen.length;
   await mailSender(length);
-}
-
+};
