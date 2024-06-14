@@ -559,6 +559,7 @@ const userDetailSchema = new mongoose.Schema({
     ref: "user-personal-detail",
     default: undefined,
   },
+  thirdPartyDataProcessing: Boolean
 });
 
 //Adding the ninepointer id before saving

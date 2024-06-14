@@ -3,9 +3,9 @@ const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistor
 const HistoryDataNew = require("../models/InstrumentHistoricalData/InstrumentHistoricalDataTemp");
 const User = require("../models/User/userDetailSchema");
 const moment = require("moment");
-const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
-const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
-const { convertToTradingDataToGroup } = require("./timeframePnlChartHelper");
+// const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
+// const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
+const { convertToTradingDataToGroup, mailSender, teamIndividualPerformance } = require("./timeframePnlChartHelper");
 const IndiaVix = require("../models/Instruments/indiaVix");
 const ThirdPartyPnl = require("../models/mock-trade/thirdPartyTradesPnl");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
@@ -47,13 +47,17 @@ exports.uploadMulter = uploadStrategy;
 
 exports.isThirdPartyDataExist = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req?.query?.user ?? req?.user?._id;
     const data = await ThirdPartyTrades.findOne({
       trader: new ObjectId(userId),
     });
+    
+
+    const checkDataProcessing = await User.findOne({_id: new ObjectId(userId)}).select('thirdPartyDataProcessing');
     res.status(200).json({
       status: "success",
       isExist: data ? true : false,
+      isProcessing: userId==="team" ? false : checkDataProcessing?.thirdPartyDataProcessing
     });
   } catch (err) {
     console.log(err);
@@ -227,6 +231,7 @@ exports.avgPnlChart = async (req, res) => {
         : req.query.frequency;
     const toDate = req.query.to === "undefined" ? req.query.from : req.query.to;
     const user = req?.query?.user ?? req?.user?._id;
+    let teamPerformance = [];
     if (user === "team") {
       const teamLead = await User.findOne({
         _id: new ObjectId(req?.user?._id),
@@ -236,14 +241,17 @@ exports.avgPnlChart = async (req, res) => {
       userIds.push(new ObjectId(user));
     }
 
-    // console.log(userIds, user)
-
     const startFromDate = moment(fromDate)
       .clone()
       .startOf("day")
       .subtract(5, "hours")
       .subtract(30, "minutes");
     const endToDate = moment(toDate).clone().endOf("day");
+
+    if (user === "team") {
+      const performance = await teamIndividualPerformance(startFromDate, endToDate, userIds);
+      teamPerformance = [...performance];
+    }
 
     const newtimeArr = await timeArrayForAvg(
       "2024-05-05",
@@ -431,6 +439,11 @@ exports.avgPnlChart = async (req, res) => {
         },
       },
       {
+        $sort: {
+          timestamp: 1
+        }
+      },
+      {
         $match: {
           timestamp: {
             $in: [...newtimeArr, "12:59:59", "15:30:59"],
@@ -446,10 +459,16 @@ exports.avgPnlChart = async (req, res) => {
       }
     }
 
+    const performanceObj = {
+      topPerformer: teamPerformance[teamPerformance?.length-1],
+      bottomPerformer: teamPerformance[0]
+    }
+
     res.status(200).json({
       status: "success",
       data: pnlData,
       pnlDiffrence,
+      teamPerformance: performanceObj
     });
   } catch (err) {
     console.log(err);
@@ -887,24 +906,6 @@ const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
 
     if (!getCandleArray) continue;
 
-    // if (utcTimeStamp.getUTCHours() === 10) {
-    //   isDayEnd = true;
-    //   utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 15);
-    // }
-    // let ltpCandle = getCandleArray?.find((subelem) => {
-    //   return (
-    //     new Date(subelem?.timestamp)?.toISOString() ===
-    //     utcTimeStamp?.toISOString()
-    //   );
-    // });
-
-    // // if(!ltpCandle){
-    // //     console.log('inside no candles')
-    // //     const historyData = await HistoryTickModel.findOne({symbol: elem?.symbol, 'candles.timestamp': {$lt: new Date(newUtcTimeStamp)}}).sort({'candles.timestamp': -1});
-    // //     ltpCandle = historyData?.candles?.[historyData.candles?.length-1];
-    // //     isDayEnd = true;
-    // // }
-
     const ltp = getCandleArray?.open;
     // isDayEnd ? ltpCandle?.close || 0 : ltpCandle?.open || 0;
     if (ltp === undefined) continue;
@@ -937,29 +938,17 @@ exports.uploadCSV = async (req, res) => {
     const originalUrl = data?.fileUrl;
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/045115758852909416-shareIndia46099Aprtrunc.csv'
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
-    res.status(200).json({
-      status: "success",
-      data: "ok",
-      originalUrl,
-    });
-    const savedData = await saveDataToDB(url, userId);
+
+    const savedData = await saveDataToDB(url, userId, res);
+    await mailSender(userId);
     // const savedData = await saveDataToDBTesting(url, userId);
 
-    if (savedData === "Data Exist") {
-      return res.status(400).json({
-        status: "error",
-        message: "Uploaded data already exist!",
-      });
-    }
-
-    // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8375248682662133-NSEFO_1hr_4months.csv';
-    // 'https://stagingdmt.blob.core.windows.net/dmt-trade/07252194481784469-Untitled spreadsheet - Sheet1.csv'
-    // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8901355588917994-Untitled%2520spreadsheet%2520-%2520Sheet1.csv'
   } catch (err) {
-    res.status(400).json({
-      status: "error",
-      message: err?.message,
-    });
+    console.log(err);
+    // res.status(400).json({
+    //   status: "error",
+    //   message: err?.message,
+    // });
   }
 };
 
@@ -990,21 +979,23 @@ async function parseCsvStream(stream) {
   });
 }
 
-const saveDataToDB = async (url, userId) => {
+const saveDataToDB = async (url, userId, res) => {
   try {
-    // const url = 'https://stagingdmt.blob.core.windows.net/dmt-trade/06501232945102076-data_hour_calcluation.csv'
-    // const userId = '662f804700f04a05fe3c941f';
-    // const url = '06501232945102076-data_hour_calcluation.csv'
     const csvStream = await downloadCsvBlob(url);
     console.log("downloaded");
     const csvData = await parseCsvStream(csvStream);
     console.log("parsed");
 
-    // return await convertToTradingData(csvData, userId);
-    const tradeData = await convertToTradingDataToGroup(csvData, userId);
+    const tradeData = await convertToTradingDataToGroup(csvData, userId, res);
     if (tradeData === "Data Exist") {
       return "Data Exist";
     }
+
+    await User.findOneAndUpdate({_id: new ObjectId(userId)}, {
+      $set: {
+        thirdPartyDataProcessing: true
+      }
+    })
     const symbolArr = [];
     let minDate = "3000-01-01";
     let maxDate = "2000-01-01";
@@ -1061,6 +1052,11 @@ const saveDataToDB = async (url, userId) => {
       ]);
     }
 
+    await User.findOneAndUpdate({_id: new ObjectId(userId)}, {
+      $set: {
+        thirdPartyDataProcessing: false
+      }
+    })
     return "ok";
   } catch (error) {
     console.error(error);
@@ -1194,30 +1190,7 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
       }
     }
 
-    // let pnl1PM = {},
-    //   pnl3PM = {};
-    // for (const pnl of pnlObjArr) {
-    //   new Date(pnl.timestamp), new Date(`${todaysDatePart}T13:00:59.000+00:00`);
-    //   if (
-    //     new Date(pnl.timestamp).getTime() ===
-    //     new Date(`${todaysDatePart}T13:00:59.000+00:00`).getTime()
-    //   ) {
-    //     pnl1PM = pnl;
-    //   }
-
-    //   if (
-    //     new Date(pnl.timestamp).getTime() ===
-    //     new Date(`${todaysDatePart}T15:30:59.000+00:00`).getTime()
-    //   ) {
-    //     pnl3PM = pnl;
-    //   }
-    // }
-
-    // console.log('check performance again', performance.now() - now);
-
-    // pnl1PM.pnlDiffrence = 0;
-    // pnl3PM.pnlDiffrence = pnl3PM?.gpnl - pnl1PM?.gpnl;
-
+    
     return {
       data: pnlObjArr,
       // pnlDiffrence: [pnl1PM, pnl3PM],
@@ -1228,55 +1201,18 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
   }
 };
 
-exports.getUploadedData = async (req, res) => {
-  try {
-    const userId = req?.user?._id || "662f804700f04a05fe3c941f";
-    // const data = await uploadFileToAzure(req.file);
-    //  const originalUrl = data?.fileUrl;
-    const originalUrl =
-      "https://stagingdmt.blob.core.windows.net/dmt-trade/04333819805877015-OPTNewData-44090.csv";
-    const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
-    // const savedData = await saveDataToDB(url, userId);
-    const savedData = await saveDataToDB(url, userId);
-
-    if (savedData === "Data Exist") {
-      return res.status(400).json({
-        status: "error",
-        message: "Uploaded data already exist!",
-      });
-    }
-
-    res.status(200).json({
-      status: "success",
-      data: savedData,
-      originalUrl,
-    });
-    // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8375248682662133-NSEFO_1hr_4months.csv';
-    // 'https://stagingdmt.blob.core.windows.net/dmt-trade/07252194481784469-Untitled spreadsheet - Sheet1.csv'
-    // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/8901355588917994-Untitled%2520spreadsheet%2520-%2520Sheet1.csv'
-  } catch (err) {
-    res.status(400).json({
-      status: "error",
-      message: err?.message,
-    });
-  }
-
-  // await hourChartTesting(req, res);
-};
 
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
     trader: new ObjectId(
-      "66669a1293c01d363f7941a0"
-      // "63788f3991fc4bf629de6df0"
+      "63788f3991fc4bf629de6df0"
     ),
     // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
   const newdata = await ThirdPartyPnl.deleteMany({
     trader: new ObjectId(
-      "66669a1293c01d363f7941a0"
-      // "63788f3991fc4bf629de6df0"
+      "63788f3991fc4bf629de6df0"
     ),
     // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
@@ -1313,360 +1249,6 @@ exports.addBrokerage = async (req, res) => {
   }
 };
 
-// exports.avgHourChart = async (req, res) => {
-//   try {
-//     const first = performance.now();
-
-//     const fromDate = req.query.from;
-//     const timePeriod = Number(req.query.timePeriod) || 1;
-//     const frequency = ((req.query.frequency==='undefined') || !req.query.frequency) ? 'Hour' : req.query.frequency;
-//     const toDate = req.query.to;
-//     const thirdParty = req.query.thirdParty ?? "false";
-//     const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
-//     // const HistoryTickModel =
-//     //   thirdParty == "true" ? HistoryDataNew : HistoryData;
-
-//     const userId = req?.query?.user === 'undefined' ? req?.user?._id : req?.query?.user;
-//     const startFromDate = moment(fromDate)
-//       .clone()
-//       .startOf("day")
-//       .subtract(5, "hours")
-//       .subtract(30, "minutes");
-//     const endToDate = moment(toDate).clone().endOf("day");
-//     let pnlObjArr = [];
-
-//     const tradeData = await TradeModel.find({
-//       status: "COMPLETE",
-//       trader: new ObjectId(userId),
-//       trade_time: { $gt: new Date(startFromDate), $lt: new Date(endToDate) },
-//     });
-
-//     if(tradeData.length === 0){
-//       return res.status(200).json({
-//         status: "success",
-//         data: [],
-//       });
-//     }
-
-//     for (
-//       let day = startFromDate.clone();
-//       day.isBefore(endToDate);
-//       day.add(1, "days")
-//     ) {
-//       const startToday = day.clone().startOf("day");
-//       const endToday = day.clone().endOf("day");
-
-//       // const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
-//       // const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
-
-//     //   const timeArrUtc = timeArr.map((elem)=>{
-//     //     const utcTime = new Date(elem);
-//     //     utcTime.setHours(utcTime.getHours() - 5);
-//     //     utcTime.setMinutes(utcTime.getMinutes() - 30);
-//     //     return utcTime
-//     // })
-
-//     const tradeDataForSymbol = tradeData.filter((elem) => {
-//       const tradeTime = new Date(elem?.trade_time);
-//       return tradeTime > new Date(startToday) && tradeTime < new Date(endToday);
-//     });
-//     //  const tradeDataForSymbol= await TradeModel.find({
-//     //     status: "COMPLETE",
-//     //     trader: new ObjectId(userId),
-//     //     trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) },
-//     //   });
-
-//       if(tradeDataForSymbol.length === 0){
-//         continue;
-//       }
-
-//       const hourChartHelperData = await hourChartHelper(req, tradeDataForSymbol, startToday);
-//       pnlObjArr = [...pnlObjArr, ...hourChartHelperData?.data];
-
-//     }
-
-//     const newtimeArr = await timeArrayForAvg('2024-05-05', timePeriod, frequency)
-
-//     console.log(newtimeArr)
-//     const averageGpnlByTime = {};
-//     newtimeArr.forEach((time) => {
-//       let totalGpnl = 0,
-//         totalRunningLots = 0,
-//         totalPnlNifty = 0,
-//         totalPnlBankNifty = 0,
-//         totalPnlFinNifty = 0,
-//         totalAverageEntryLots = 0,
-//         totalMarginUtilise = 0,
-//         totalBuyPnl = 0,
-//         totalSellPnl = 0,
-//         totalVix = 0,
-//         totalAverageLotsUsed = 0;
-//       let count = 0;
-
-//       pnlObjArr.forEach((pnl) => {
-//         if (pnl.timestamp.includes(time)) {
-//           totalGpnl += pnl.gpnl;
-//           totalRunningLots += pnl.runningLots;
-//           totalPnlNifty += pnl.pnlNifty;
-//           totalPnlBankNifty += pnl.pnlBankNifty;
-//           totalPnlFinNifty += pnl.pnlFinNifty;
-//           totalAverageEntryLots += pnl.averageEntryLots;
-//           totalMarginUtilise += pnl.marginUtilise;
-//           totalBuyPnl += pnl.buyPnl;
-//           totalSellPnl += pnl.sellPnl;
-//           totalVix += pnl.vix;
-//           totalAverageLotsUsed += pnl.averageLotsUsed;
-//           count++;
-//         }
-//       });
-
-//       if (count > 0) {
-//         averageGpnlByTime[time] = {
-//           gpnl: Number((totalGpnl / count).toFixed(2)),
-//           runningLots: Number((totalRunningLots / count).toFixed(2)),
-//           pnlNifty: Number((totalPnlNifty / count).toFixed(2)),
-//           pnlBankNifty: Number((totalPnlBankNifty / count).toFixed(2)),
-//           pnlFinNifty: Number((totalPnlFinNifty / count).toFixed(2)),
-//           averageEntryLots: Number((totalAverageEntryLots / count).toFixed(2)),
-//           marginUtilise: Number((totalMarginUtilise / count).toFixed(2)),
-//           buyPnl: Number((totalBuyPnl / count).toFixed(2)),
-//           sellPnl: Number((totalSellPnl / count).toFixed(2)),
-//           vix: Number((totalVix / count).toFixed(2)),
-//           averageLotsUsed: Number((totalAverageLotsUsed / count).toFixed(2)),
-//         };
-//       }
-//     });
-
-//     res.status(200).json({
-//       status: "success",
-//       data: averageGpnlByTime,
-//       // pnlObjArr
-//     });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).json({
-//       status: "error",
-//       message: "Something went wrong",
-//       error: err.message,
-//     });
-//   }
-// };
-
-// const hourChartHelper = async (req, tradeData, date) => {
-//   try {
-//     const now = performance.now();
-//     // const date = req.query.date;
-//     const thirdParty = req.query.thirdParty ?? "false";
-//     const timePeriod = Number(req.query.timePeriod) || 1;
-//     const frequency = req.query.frequency==='undefined' ? 'Hour' : req.query.frequency;
-//     // const TradeModel = thirdParty == "true" ? ThirdPartyTrades : TradeData;
-//     const HistoryTickModel =
-//       thirdParty == "true" ? HistoryDataNew : HistoryData;
-
-//       console.log(frequency, timePeriod)
-//     const userId = req?.user?._id;
-//     const today = moment(date);
-//     const startToday = today
-//       .clone()
-//       .startOf("day")
-//       .subtract(5, "hours")
-//       .subtract(30, "minutes");
-//     const endToday = today.clone().endOf("day");
-//     const pnlObjArr = [];
-
-//     // const tradeData = await TradeModel.find({
-//     //   status: "COMPLETE",
-//     //   trader: new ObjectId(userId),
-//     //   trade_time: { $gt: new Date(startToday), $lt: new Date(endToday) },
-//     // });
-
-//     console.log('case1', performance.now()-now)
-//     const vixData = await IndiaVix.find({
-//       timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) },
-//     });
-//     const symbolArr = tradeData.map((elem) => {
-//       return elem?.symbol;
-//     });
-
-//     const uniqueSymbolArr = [...new Set(symbolArr)];
-
-//     const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
-//     const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
-//     console.log('case2', performance.now()-now)
-
-//     const timeArrUtc = timeArr.map((elem)=>{
-//         const utcTime = new Date(elem);
-//         utcTime.setHours(utcTime.getHours() - 5);
-//         utcTime.setMinutes(utcTime.getMinutes() - 30);
-//         return utcTime
-//     })
-
-//     console.log(uniqueSymbolArr, new Date(startToday), new Date(endToday), timeArrUtc)
-//     const historyTicksInstrument = (thirdParty == "true") ?
-//     await HistoryTickModel.aggregate([
-//         {
-//             $match:
-//             {
-//                 symbol: {
-//                     $in: uniqueSymbolArr,
-//                 },
-//                 "candles.timestamp": {
-//                     $gt: new Date(startToday),
-//                     $lt: new Date(endToday),
-//                   },
-//             },
-//         },
-//         {
-//             $unwind: "$candles",
-//         },
-//         {
-//             $match: {
-//                 "candles.timestamp": {
-//                     $in: timeArrUtc,
-//                 },
-//             },
-//         },
-//         {
-//             $group: {
-//                 _id: {
-//                     id: "$_id",
-//                     symbol: "$symbol",
-//                 },
-//                 candles: {
-//                     $push: "$candles",
-//                 },
-//             },
-//         },
-//         {
-//             $project: {
-//                 candles: 1,
-//                 symbol: '$_id.symbol',
-//                 _id: 0
-//             }
-//         }
-//     ])
-//     :
-//     await HistoryTickModel.find({
-//       "candles.timestamp": {
-//         $gt: new Date(startToday),
-//         $lt: new Date(endToday),
-//       },
-//       symbol: { $in: uniqueSymbolArr },
-//     });
-
-//     console.log('case3', performance.now()-now)
-//     console.log(historyTicksInstrument.length, tradeData?.length, uniqueSymbolArr?.length)
-
-//     const uniqueTicksArr = [
-//       ...new Map(
-//         historyTicksInstrument.map((item) => [item.symbol, item])
-//       ).values(),
-//     ];
-
-//     const newHistoryTicks = await newPriceArray(timeArr, uniqueTicksArr, HistoryTickModel, thirdParty);
-
-//     for (let i = 0; i < timeArr.length; i++) {
-//         const timePriceArr = newHistoryTicks[timeArr[i]];
-//       const filteredArr = tradeData.filter((elem) => {
-//         return (
-//           new Date(elem.trade_time) >= new Date(timeArr[0]) &&
-//           new Date(elem.trade_time) <= new Date(timeArr[i])
-//         );
-//       });
-
-//       const vix = vixData.filter((elem) => {
-//         const elemDate = new Date(
-//           moment(elem.timestamp)
-//             .add(5, "hours")
-//             .add(30, "minutes")
-//             .add(59, "seconds")
-//             .toISOString()
-//         );
-
-//         const timeArrDate = new Date(timeArr[i]);
-//         return elemDate.getTime() === timeArrDate.getTime();
-//       })?.[0]?.open;
-
-//       filteredArr.sort((a, b) => {
-//         if (a.trade_time > b.trade_time) {
-//           return 1;
-//         }
-//         if (a.trade_time <= b.trade_time) {
-//           return -1;
-//         }
-//       });
-
-//       const marginUtilise = await getMarginUtilisation(filteredArr);
-//       const newData = await distinctBuySell(
-//         JSON.parse(JSON.stringify(filteredArr))
-//       );
-//       const arrData = await formatTradeData(filteredArr);
-//       const averageEntryLots = newData?.averageEntryLots;
-//       const formatedBuyArr = await formatTradeData(newData?.buyArr);
-//       const formatedSellArr = await formatTradeData(newData?.sellArr);
-
-//       if (tradeData.length && timePriceArr.length) {
-//         const buyPnlObj = await calculatePnl(
-//           formatedBuyArr,
-//           timePriceArr,
-//           timeArr[i],
-//           thirdParty
-//         );
-//         const sellPnlObj = await calculatePnl(
-//           formatedSellArr,
-//           timePriceArr,
-//           timeArr[i],
-//           thirdParty
-//         );
-//         const pnlObj = await calculatePnl(
-//           arrData,
-//           timePriceArr,
-//           timeArr[i],
-//           thirdParty
-//         );
-
-//         pnlObj.averageEntryLots = averageEntryLots;
-//         pnlObj.marginUtilise = marginUtilise;
-//         pnlObj.buyPnl = buyPnlObj.gpnl;
-//         pnlObj.sellPnl = sellPnlObj.gpnl;
-//         pnlObj.vix = vix;
-//         pnlObj.averageLotsUsed = newData?.averageLotsUsed;
-//         pnlObjArr.push(pnlObj);
-//       }
-//     }
-
-//     let pnl1PM = {},
-//       pnl3PM = {};
-//     for (const pnl of pnlObjArr) {
-//       new Date(pnl.timestamp), new Date(`${todaysDatePart}T13:00:59.000+00:00`);
-//       if (
-//         new Date(pnl.timestamp).getTime() ===
-//         new Date(`${todaysDatePart}T13:00:59.000+00:00`).getTime()
-//       ) {
-//         pnl1PM = pnl;
-//       }
-
-//       if (
-//         new Date(pnl.timestamp).getTime() ===
-//         new Date(`${todaysDatePart}T15:30:59.000+00:00`).getTime()
-//       ) {
-//         pnl3PM = pnl;
-//       }
-//     }
-
-//     console.log('check performance again', performance.now() - now);
-
-//     pnl1PM.pnlDiffrence = 0;
-//     pnl3PM.pnlDiffrence = pnl3PM?.gpnl - pnl1PM?.gpnl;
-
-//     return {
-//       data: pnlObjArr,
-//       pnlDiffrence: [pnl1PM, pnl3PM],
-//     }
-//   } catch (err) {
-//     console.log(err);
-//   }
-// };
 exports.getReportedBy = async (req, res) => {
   try {
     const userId = req.user._id;

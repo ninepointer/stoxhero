@@ -1,10 +1,13 @@
 const moment = require("moment");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
+const User = require('../models/User/userDetailSchema');
 const { ObjectId } = require("mongodb");
 const multer = require("multer");
+const sendMail = require("../utils/emailService");
 
 
-exports.convertToTradingDataToGroup = async (data, userId) => {
+
+exports.convertToTradingDataToGroup = async (data, userId, res) => {
   console.log('case1')
   try {
     data.sort((a, b) => {
@@ -148,7 +151,11 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
     });
 
     if (checkExist) {
-      return "Data Exist";
+      res.status(400).json({
+        status: "error",
+        message: "Uploaded data already exist!",
+      });
+      return 'Data Exist';
     }
 
     await ThirdPartyTrades.create(tradeData);
@@ -173,6 +180,10 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
     }, {});
 
     console.log('case6')
+    res.status(200).json({
+      status: "success",
+      data: "ok",
+    });
     return (finalgroupedData);
 
   } catch (err) {
@@ -180,3 +191,198 @@ exports.convertToTradingDataToGroup = async (data, userId) => {
     throw new Error(err);
   }
 };
+
+exports.mailSender = async(userId) => {
+  const user = await User.findById(new ObjectId(userId))
+  .select('email first_name');
+  await sendMail(user.email, 'Chart Data Processing is Complete', `
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <meta charset="UTF-8">
+      <title>Your Chart Data Processing is Complete</title>
+      <style>
+      body {
+          font-family: cambria, sans-serif;
+          font-size: 16px;
+          line-height: 1.5;
+          margin: 0;
+          padding: 0;
+      }
+
+      .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+          border: 1px solid #ccc;
+      }
+
+      h1 {
+          font-size: 24px;
+          margin-bottom: 20px;
+      }
+
+      p {
+          margin: 0 0 20px;
+      }
+
+      .userid {
+          display: inline-block;
+          background-color: #f5f5f5;
+          padding: 10px;
+          font-size: 15px;
+          font-weight: bold;
+          border-radius: 5px;
+          margin-right: 10px;
+      }
+
+      .password {
+          display: inline-block;
+          background-color: #f5f5f5;
+          padding: 10px;
+          font-size: 15px;
+          font-weight: bold;
+          border-radius: 5px;
+          margin-right: 10px;
+      }
+
+      .login-button {
+          display: inline-block;
+          background-color: #007bff;
+          color: #fff;
+          padding: 10px 20px;
+          font-size: 18px;
+          font-weight: bold;
+          text-decoration: none;
+          border-radius: 5px;
+      }
+
+      .login-button:hover {
+          background-color: #0069d9;
+      }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+      <p>Dear ${user?.first_name},</p>
+      <p>
+We are pleased to inform you that the processing of your data has been successfully completed.</p>
+      <p>If you have any questions or require further information, please do not hesitate to reach out to our support team.</p>
+      <br/><br/>
+      <p>Thank you for your patience and cooperation.</p>
+      <p>StoxHero Team</p>
+
+      </div>
+  </body>
+  </html>
+  `
+  );
+}
+
+exports.teamIndividualPerformance = async(startDate, endDate, userIds)=>{
+  const performance = await ThirdPartyTrades.aggregate([
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: {
+          $in: userIds,
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          trader: "$trader",
+        },
+        amount: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        trades: {
+          $count: {},
+        },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade_time",
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "_id.trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        grossPnl: "$amount",
+        brokerage: "$brokerage",
+        _id: 0,
+        npnl: {
+          $subtract: ["$amount", "$brokerage"],
+        },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
+        trades: 1,
+        first_name: {
+          $arrayElemAt: ["$user.first_name", 0],
+        },
+        last_name: {
+          $arrayElemAt: ["$user.last_name", 0],
+        },
+        avgPnl: {
+          $divide: [
+            {
+              $subtract: ["$amount", "$brokerage"],
+            },
+            {
+              $size: "$tradingDays",
+            },
+          ],
+        },
+        avgBrokerage: {
+          $divide: [
+            "$brokerage",
+            {
+              $size: "$tradingDays",
+            },
+          ],
+        },
+        avgTrade: {
+          $divide: [
+            "$trades",
+            {
+              $size: "$tradingDays",
+            },
+          ],
+        },
+      },
+    },
+    {
+      $sort:
+        {
+          avgPnl: 1,
+        },
+    },
+  ])
+
+  return performance;
+}

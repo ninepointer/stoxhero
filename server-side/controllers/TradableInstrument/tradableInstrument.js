@@ -100,7 +100,7 @@ exports.allTradableInstrument = async (req, res, next) => {
     return new Promise(async (resolve, reject) => {
         let userId = "63ecbc570302e7cf0153370c";
         getKiteCred.getAccess().then((data) => {
-            const url = 'https://api.kite.trade/instruments';
+            const url = 'https://api.kite.trade/instruments/NFO';
 
             const api_key = data.getApiKey;
             const access_token = data.getAccessToken;
@@ -154,6 +154,65 @@ exports.allTradableInstrument = async (req, res, next) => {
             reject(err);
         })
     });
+}
+
+exports.allTradableNSEInstrument = async () => {
+
+    let userId = "63ecbc570302e7cf0153370c";
+    getKiteCred.getAccess().then((data)=>{
+        const url = 'https://api.kite.trade/instruments/NSE';
+        const api_key = data.getApiKey;
+        const access_token = data.getAccessToken;
+        let auth = 'token ' + api_key + ':' + access_token;
+    
+        const options = {
+            headers: {
+                'X-Kite-Version':'3',
+                'Authorization': auth,
+                'Accept-Encoding': 'gzip',
+            },
+            responseType: 'stream',
+        };
+    
+        axios.get(url, options)
+        .then((response) => {
+            // If the response is gzipped, decompress it
+            const unzip = response.headers['content-encoding'] === 'gzip'
+            ? response.data.pipe(zlib.createGunzip())
+            : response.data;
+
+            // Parse the CSV data from the response
+            unzip
+            .pipe(csv())
+            .on('data', async (row) => {
+
+                // const existingInstrument = await TradableInstrument.findOne({ tradingsymbol: row.tradingsymbol, status: "Active" });
+                // console.log("existingInstrument", row)
+                  if(row.name){
+                        try {
+                            row.lastModifiedBy = userId;
+                            row.createdBy = userId;
+                            const x = await AllTradableInstrument.create([row]);
+                            console.log(x);
+                        } catch (err) {
+                            // console.log(err);
+                        }
+                  }
+            })
+            .on('end', () => {
+                console.log('CSV file successfully processed');
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    
+
+    });
+
+    // URL to the API
+
+
 }
 
 exports.tradableNSEInstrument = async (req,res,next) => {
