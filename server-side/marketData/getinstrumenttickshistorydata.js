@@ -242,20 +242,29 @@ exports.main = async () => {
   console.log(' before first', new Date());
   const todaysDatePart = (new Date())?.toISOString()?.split('T')?.[0];
   // const todaysDatePart = '2024-06-10';
+ 
+
+  // const inactiveeq = await TradableInstrument.updateMany(
+  //   {instrument_type: 'EQ'}
+  // , [
+  //   { $set: { status: 'Inactive' } },
+  // ]);
+
+  // const inactive = await TradableInstrument.updateMany({
+  //   $and: [
+  //     { expiry: { $ne: '' } },
+  //     { expiry: { $lt: todaysDatePart } }
+  //   ]
+  // }
+  // , [
+  //   { $set: { status: 'Inactive' } },
+  // ]);
+
+  // console.log('first', new Date(), inactive, inactiveeq);
+
+  await TradableInstrumentList.allTradableInstrument();
   await TradableInstrumentList.allTradableNSEInstrument();
-  // await TradableInstrumentList.allTradableInstrument();
 
-  const inactive = await TradableInstrument.updateMany({
-    $and: [
-      { expiry: { $ne: '' } },
-      { expiry: { $lt: todaysDatePart } }
-    ]
-  }
-  , [
-    { $set: { status: 'Inactive' } },
-  ]);
-
-  console.log('first', new Date(), inactive);
   await getInstrumentTicksHistoryData(todaysDatePart);
   await saveIndiaVix(todaysDatePart);
   console.log('end', new Date());

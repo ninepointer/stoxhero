@@ -3,9 +3,9 @@ const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistor
 const HistoryDataNew = require("../models/InstrumentHistoricalData/InstrumentHistoricalDataTemp");
 const User = require("../models/User/userDetailSchema");
 const moment = require("moment");
-const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
-const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
-const { convertToTradingDataToGroup } = require("./timeframePnlChartHelper");
+// const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
+// const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
+const { convertToTradingDataToGroup, mailSender } = require("./timeframePnlChartHelper");
 const IndiaVix = require("../models/Instruments/indiaVix");
 const ThirdPartyPnl = require("../models/mock-trade/thirdPartyTradesPnl");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
@@ -930,6 +930,7 @@ exports.uploadCSV = async (req, res) => {
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
 
     const savedData = await saveDataToDB(url, userId, res);
+    await mailSender(userId);
     // const savedData = await saveDataToDBTesting(url, userId);
 
   } catch (err) {
@@ -1179,30 +1180,7 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
       }
     }
 
-    // let pnl1PM = {},
-    //   pnl3PM = {};
-    // for (const pnl of pnlObjArr) {
-    //   new Date(pnl.timestamp), new Date(`${todaysDatePart}T13:00:59.000+00:00`);
-    //   if (
-    //     new Date(pnl.timestamp).getTime() ===
-    //     new Date(`${todaysDatePart}T13:00:59.000+00:00`).getTime()
-    //   ) {
-    //     pnl1PM = pnl;
-    //   }
-
-    //   if (
-    //     new Date(pnl.timestamp).getTime() ===
-    //     new Date(`${todaysDatePart}T15:30:59.000+00:00`).getTime()
-    //   ) {
-    //     pnl3PM = pnl;
-    //   }
-    // }
-
-    // console.log('check performance again', performance.now() - now);
-
-    // pnl1PM.pnlDiffrence = 0;
-    // pnl3PM.pnlDiffrence = pnl3PM?.gpnl - pnl1PM?.gpnl;
-
+    
     return {
       data: pnlObjArr,
       // pnlDiffrence: [pnl1PM, pnl3PM],

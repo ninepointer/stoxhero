@@ -1,5 +1,6 @@
 const moment = require("moment");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
+const User = require('../models/User/userDetailSchema');
 const { ObjectId } = require("mongodb");
 const multer = require("multer");
 
@@ -188,3 +189,89 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
     throw new Error(err);
   }
 };
+
+exports.mailSender = async(userId) => {
+  const user = await User.findById(new ObjectId(userId)).select('email');
+  await sendMail(user.email, 'Chart Data Processing is Complete', `
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <meta charset="UTF-8">
+      <title>Your Chart Data Processing is Complete</title>
+      <style>
+      body {
+          font-family: cambria, sans-serif;
+          font-size: 16px;
+          line-height: 1.5;
+          margin: 0;
+          padding: 0;
+      }
+
+      .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+          border: 1px solid #ccc;
+      }
+
+      h1 {
+          font-size: 24px;
+          margin-bottom: 20px;
+      }
+
+      p {
+          margin: 0 0 20px;
+      }
+
+      .userid {
+          display: inline-block;
+          background-color: #f5f5f5;
+          padding: 10px;
+          font-size: 15px;
+          font-weight: bold;
+          border-radius: 5px;
+          margin-right: 10px;
+      }
+
+      .password {
+          display: inline-block;
+          background-color: #f5f5f5;
+          padding: 10px;
+          font-size: 15px;
+          font-weight: bold;
+          border-radius: 5px;
+          margin-right: 10px;
+      }
+
+      .login-button {
+          display: inline-block;
+          background-color: #007bff;
+          color: #fff;
+          padding: 10px 20px;
+          font-size: 18px;
+          font-weight: bold;
+          text-decoration: none;
+          border-radius: 5px;
+      }
+
+      .login-button:hover {
+          background-color: #0069d9;
+      }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+      <p>Dear ${user?.first_name},</p>
+      <p>
+We are pleased to inform you that the processing of your data has been successfully completed.</p>
+      <p>If you have any questions or require further information, please do not hesitate to reach out to our support team.</p>
+      <br/><br/>
+      <p>Thank you for your patience and cooperation.</p>
+      <p>StoxHero Team</p>
+
+      </div>
+  </body>
+  </html>
+  `
+  );
+}
