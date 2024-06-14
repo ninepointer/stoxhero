@@ -3,6 +3,8 @@ const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
 const User = require('../models/User/userDetailSchema');
 const { ObjectId } = require("mongodb");
 const multer = require("multer");
+const sendMail = require("../utils/emailService");
+
 
 
 exports.convertToTradingDataToGroup = async (data, userId, res) => {
@@ -191,7 +193,8 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
 };
 
 exports.mailSender = async(userId) => {
-  const user = await User.findById(new ObjectId(userId)).select('email');
+  const user = await User.findById(new ObjectId(userId))
+  .select('email first_name');
   await sendMail(user.email, 'Chart Data Processing is Complete', `
   <!DOCTYPE html>
   <html>
@@ -274,4 +277,112 @@ We are pleased to inform you that the processing of your data has been successfu
   </html>
   `
   );
+}
+
+exports.teamIndividualPerformance = async(startDate, endDate, userIds)=>{
+  const performance = await ThirdPartyTrades.aggregate([
+    {
+      $match: {
+        trade_time: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+        status: "COMPLETE",
+        trader: {
+          $in: userIds,
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          trader: "$trader",
+        },
+        amount: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        brokerage: {
+          $sum: {
+            $toDouble: "$brokerage",
+          },
+        },
+        trades: {
+          $count: {},
+        },
+        tradingDays: {
+          $addToSet: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade_time",
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "user-personal-details",
+        localField: "_id.trader",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        grossPnl: "$amount",
+        brokerage: "$brokerage",
+        _id: 0,
+        npnl: {
+          $subtract: ["$amount", "$brokerage"],
+        },
+        tradingDays: {
+          $size: "$tradingDays",
+        },
+        trades: 1,
+        first_name: {
+          $arrayElemAt: ["$user.first_name", 0],
+        },
+        last_name: {
+          $arrayElemAt: ["$user.last_name", 0],
+        },
+        avgPnl: {
+          $divide: [
+            {
+              $subtract: ["$amount", "$brokerage"],
+            },
+            {
+              $size: "$tradingDays",
+            },
+          ],
+        },
+        avgBrokerage: {
+          $divide: [
+            "$brokerage",
+            {
+              $size: "$tradingDays",
+            },
+          ],
+        },
+        avgTrade: {
+          $divide: [
+            "$trades",
+            {
+              $size: "$tradingDays",
+            },
+          ],
+        },
+      },
+    },
+    {
+      $sort:
+        {
+          avgPnl: 1,
+        },
+    },
+  ])
+
+  return performance;
 }

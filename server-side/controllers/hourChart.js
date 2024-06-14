@@ -5,7 +5,7 @@ const User = require("../models/User/userDetailSchema");
 const moment = require("moment");
 // const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
 // const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
-const { convertToTradingDataToGroup, mailSender } = require("./timeframePnlChartHelper");
+const { convertToTradingDataToGroup, mailSender, teamIndividualPerformance } = require("./timeframePnlChartHelper");
 const IndiaVix = require("../models/Instruments/indiaVix");
 const ThirdPartyPnl = require("../models/mock-trade/thirdPartyTradesPnl");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
@@ -231,6 +231,7 @@ exports.avgPnlChart = async (req, res) => {
         : req.query.frequency;
     const toDate = req.query.to === "undefined" ? req.query.from : req.query.to;
     const user = req?.query?.user ?? req?.user?._id;
+    let teamPerformance = [];
     if (user === "team") {
       const teamLead = await User.findOne({
         _id: new ObjectId(req?.user?._id),
@@ -240,14 +241,17 @@ exports.avgPnlChart = async (req, res) => {
       userIds.push(new ObjectId(user));
     }
 
-    // console.log(userIds, user)
-
     const startFromDate = moment(fromDate)
       .clone()
       .startOf("day")
       .subtract(5, "hours")
       .subtract(30, "minutes");
     const endToDate = moment(toDate).clone().endOf("day");
+
+    if (user === "team") {
+      const performance = await teamIndividualPerformance(startFromDate, endToDate, userIds);
+      teamPerformance = [...performance];
+    }
 
     const newtimeArr = await timeArrayForAvg(
       "2024-05-05",
@@ -455,10 +459,16 @@ exports.avgPnlChart = async (req, res) => {
       }
     }
 
+    const performanceObj = {
+      topPerformer: teamPerformance[teamPerformance?.length-1],
+      bottomPerformer: teamPerformance[0]
+    }
+
     res.status(200).json({
       status: "success",
       data: pnlData,
       pnlDiffrence,
+      teamPerformance: performanceObj
     });
   } catch (err) {
     console.log(err);
