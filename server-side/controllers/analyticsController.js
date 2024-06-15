@@ -186,6 +186,185 @@ exports.getPaperTradesOverview = async (req, res, next) => {
   res.status(200).json({ status: "success", data: paperTradesOverview });
 };
 
+function countWeekdays(startDate, endDate, day) {
+  let start = new Date(startDate);
+  let end = new Date(endDate);
+  let count = 0;
+
+  while (start <= end) {
+      if (start.getDay() === day) {
+          count++;
+      }
+      start.setDate(start.getDate() + 1);
+  }
+  return count;
+}
+
+exports.getPaperTradesWeekDayWiseStats = async (req, res) => {
+  let { id } = req.params;
+  const { to, from, weekday } = req.query;
+  const thirdParty = req.query.thirdParty ?? "false";
+  if (req.query?.user && req.query.user != "undefined") {
+    id = req.query?.user;
+  }
+  let usersArray = [new ObjectId(id)];
+  if (id == "team") {
+    const teamLead = await User.findOne({
+      _id: new ObjectId(req?.user?._id),
+    }).select("reportedBy");
+    usersArray = [...teamLead.reportedBy];
+  }
+
+  const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const dayOfWeek = weekdays.findIndex(week=> week===weekday);
+
+  const fromDate = new Date(from);
+  fromDate.setHours(0, 0, 0, 0);
+  const toDate = new Date(to);
+  toDate.setHours(23, 59, 59, 999);
+  const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
+
+  let pnlDetails = await TradeModel.aggregate([
+    {
+      $match: {
+        status: "COMPLETE",
+        trade_time: {
+          $gt: new Date(fromDate),
+          $lt: new Date(toDate),
+        },
+        trader: {
+          $in: usersArray,
+        },
+      },
+    },
+    {
+      $addFields: {
+        dayOfWeek: {
+          $dayOfWeek: "$trade_time",
+        },
+      },
+    },
+    {
+      $match: {
+        dayOfWeek: (dayOfWeek+1),
+      },
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade_time",
+            },
+          },
+        },
+        totalGpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        totalBrokerage: {
+          $sum: "$brokerage",
+        },
+        totalNpnl: {
+          $sum: {
+            $subtract: [
+              {
+                $multiply: ["$amount", -1],
+              },
+              {
+                $ifNull: ["$brokerage", 0],
+              },
+            ],
+          },
+        },
+        totalTrades: {
+          $sum: 1,
+        },
+        totalLots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        days: "$_id.date",
+        totalBrokerage: 1,
+        totalNpnl: 1,
+        totalGpnl: 1,
+        totalTrades: 1,
+        totalLots: 1,
+      },
+    },
+  ]);
+
+  const pnlObj = {
+    avgPnl : 0,
+    highestPnl : -(Number.MAX_VALUE),
+    lowestPnl : Number.MAX_VALUE,
+    avgTrades : 0,
+    avgBrokerage : 0,
+    totalCalendarDays : 0,
+    totalTradeDay : pnlDetails?.length,
+    noTradeDay : 0,
+    profitDay : 0,
+    lossDay : 0,
+    avgProfit : 0,
+    avgLoss : 0
+  }
+
+  const totalDays = countWeekdays(fromDate, toDate, dayOfWeek)
+  let holidayCount = 0;
+  const holidays = await TradingHoliday.find({
+    $and: [
+      { holidayDate: { $gt: fromDate } },
+      { holidayDate: { $lt: toDate } },
+    ],
+  }).select("holidayDate");
+  for (let holiday of holidays) {
+    if (
+      new Date(holiday?.holidayDate).getDay() === dayOfWeek
+    ) {
+      holidayCount += 1;
+    }
+  }
+
+  const totalCalendarDays = totalDays - holidayCount;
+
+ let totalNetPnl = 0;
+ let totalProfit = 0
+ let totalLoss = 0;
+ let totalBrokerage = 0
+ let totalTrades = 0;
+
+  for (const elem of pnlDetails) {
+    totalNetPnl += elem.totalNpnl;
+    totalBrokerage += elem?.totalBrokerage;
+    pnlObj.profitDay += elem.totalNpnl > 0 ? 1 : 0;
+    pnlObj.lossDay += elem.totalNpnl > 0 ? 0 : 1;
+    totalProfit += elem.totalNpnl > 0 ? elem.totalNpnl : 0;
+    totalLoss += elem.totalNpnl > 0 ? 0 : elem.totalNpnl;
+    pnlObj.highestPnl = Math.max(pnlObj.highestPnl, elem.totalNpnl);
+    pnlObj.lowestPnl = Math.min(pnlObj.lowestPnl, elem.totalNpnl);
+    totalTrades += elem.totalTrades;
+  }
+
+  pnlObj.avgPnl = totalNetPnl/pnlObj.totalTradeDay;
+  pnlObj.avgTrades =totalTrades/pnlObj.totalTradeDay;
+  pnlObj.avgBrokerage =totalBrokerage/pnlObj.totalTradeDay;
+  pnlObj.noTradeDay = totalCalendarDays - pnlObj.totalTradeDay;
+  pnlObj.avgProfit =totalProfit/pnlObj.totalTradeDay;
+  pnlObj.avgLoss = totalLoss/pnlObj.totalTradeDay;
+  pnlObj.totalCalendarDays = totalCalendarDays;
+  pnlObj.totalNetPnl = totalNetPnl;
+
+  res.status(200).json({ status: "success", data: pnlDetails.length ? pnlObj : {} });
+};
+
 exports.getPaperTradesDateWiseStats = async (req, res) => {
   let { id } = req.params;
   const { to, from } = req.query;
