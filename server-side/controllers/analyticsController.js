@@ -201,19 +201,24 @@ function countWeekdays(startDate, endDate, day) {
 }
 
 exports.getPaperTradesWeekDayWiseStats = async (req, res) => {
-  let { id } = req.params;
+  try{
+  let id = '';
   const { to, from, weekday } = req.query;
   const thirdParty = req.query.thirdParty ?? "false";
   if (req.query?.user && req.query.user != "undefined") {
     id = req.query?.user;
   }
-  let usersArray = [new ObjectId(id)];
+  
+  let usersArray = [];
   if (id == "team") {
     const teamLead = await User.findOne({
       _id: new ObjectId(req?.user?._id),
     }).select("reportedBy");
     usersArray = [...teamLead.reportedBy];
+  }else {
+    usersArray.push(new ObjectId(id ? id : req?.user?._id));
   }
+
 
   const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const dayOfWeek = weekdays.findIndex(week=> week===weekday);
@@ -359,10 +364,14 @@ exports.getPaperTradesWeekDayWiseStats = async (req, res) => {
   pnlObj.noTradeDay = totalCalendarDays - pnlObj.totalTradeDay;
   pnlObj.avgProfit =totalProfit/pnlObj.totalTradeDay;
   pnlObj.avgLoss = totalLoss/pnlObj.totalTradeDay;
-  pnlObj.totalCalendarDays = totalCalendarDays;
+  pnlObj.totalCalendarDays = totalDays;
   pnlObj.totalNetPnl = totalNetPnl;
+  // pnlObj.totalDays = totalDays;
 
   res.status(200).json({ status: "success", data: pnlDetails.length ? pnlObj : {} });
+} catch(err){
+  console.log(err);
+}
 };
 
 exports.getPaperTradesDateWiseStats = async (req, res) => {
@@ -466,20 +475,14 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
   if (req.query?.user && req.query.user != "undefined") {
     id = req.query?.user;
   }
-  let usersArray = [new ObjectId(id)];
+  let usersArray = [];
   if (id == "team") {
-    // usersArray = [
-    //   "6666994093c01d363f79419e",
-    //   "6666997a93c01d363f79419f",
-    //   "6666c69193c01d363f7941a2",
-    //   "6666c6cb93c01d363f7941a3",
-    //   "66669a1293c01d363f7941a0",
-    // ];
-
     const teamLead = await User.findOne({
       _id: new ObjectId(req?.user?._id),
     }).select("reportedBy");
     usersArray = [...teamLead.reportedBy];
+  } else{
+    usersArray.push(new ObjectId(id));
   }
   const len = usersArray.length;
   const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
