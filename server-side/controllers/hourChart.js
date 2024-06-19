@@ -230,7 +230,7 @@ exports.avgPnlChart = async (req, res) => {
     const first = performance.now();
     let userIds = [];
     const fromDate = req.query.from;
-    const weekday = req.query.weekday;
+    const weekday = req.query.weekday??'allDays';
     const timePeriod = Number(req.query.timePeriod) || 1;
     const frequency =
       req.query.frequency === "undefined" || !req.query.frequency
