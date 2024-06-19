@@ -66,6 +66,10 @@ const ThirdPartyTrade = new mongoose.Schema({
         type: Date,
         required: true        
     },
+    // expiry: {
+    //     type: Date,
+    //     required: true
+    // },
     modify_date: Date,
     account_number: String,
     cp_id: String,

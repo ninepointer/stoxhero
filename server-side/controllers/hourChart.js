@@ -5,7 +5,7 @@ const User = require("../models/User/userDetailSchema");
 const moment = require("moment");
 // const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
 // const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
-const { convertToTradingDataToGroup, mailSender, teamIndividualPerformance } = require("./timeframePnlChartHelper");
+const { convertToTradingDataToGroup, mailSender, teamIndividualPerformance, getPreviousLots, createTradeDoc } = require("./timeframePnlChartHelper");
 const IndiaVix = require("../models/Instruments/indiaVix");
 const ThirdPartyPnl = require("../models/mock-trade/thirdPartyTradesPnl");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
@@ -70,7 +70,9 @@ exports.isThirdPartyDataExist = async (req, res) => {
 };
 
 const timeArray = async (todaysDatePart, timePeriod, frequency) => {
+  const starting = new Date(`${todaysDatePart}T09:15:00.000+00:00`);
   const startTime = new Date(`${todaysDatePart}T09:15:59.000+00:00`);
+  const test = new Date(`${todaysDatePart}T09:16:59.000+00:00`);
   const endTime = new Date(`${todaysDatePart}T15:30:59.000+00:00`);
   const timeArr = [];
 
@@ -101,13 +103,16 @@ const timeArray = async (todaysDatePart, timePeriod, frequency) => {
     timeArr.push(time.toISOString());
   }
 
-  return [...timeArr, endTime.toISOString()];
+  return [starting.toISOString(), ...timeArr, endTime.toISOString()];
+  // return [startTime.toISOString(), test.toISOString()];
 };
 
 const timeArrayForAvg = async (todaysDatePart, timePeriod, frequency) => {
+  const starting = new Date(`${todaysDatePart}T09:15:00.000+00:00`);
   const startTime = new Date(`${todaysDatePart}T09:15:59.000+00:00`);
   const endTime = new Date(`${todaysDatePart}T15:30:59.000+00:00`);
   const timeArr = [];
+  const test = new Date(`${todaysDatePart}T09:16:59.000+00:00`);
 
   // Function to increment the time based on frequency 2024-04-01T15:30:59.000+00:00
   const incrementTime = (time, period, freq) => {
@@ -136,7 +141,8 @@ const timeArrayForAvg = async (todaysDatePart, timePeriod, frequency) => {
     timeArr.push(time.toISOString().substring(11, 19));
   }
 
-  return [...timeArr, endTime.toISOString().substring(11, 19)];
+  return [starting.toISOString().substring(11, 19), ...timeArr, endTime.toISOString().substring(11, 19)];
+  // return [test.toISOString().substring(11, 19)];
 };
 
 const newPriceArray = async (
@@ -224,6 +230,7 @@ exports.avgPnlChart = async (req, res) => {
     const first = performance.now();
     let userIds = [];
     const fromDate = req.query.from;
+    const weekday = req.query.weekday;
     const timePeriod = Number(req.query.timePeriod) || 1;
     const frequency =
       req.query.frequency === "undefined" || !req.query.frequency
@@ -259,6 +266,15 @@ exports.avgPnlChart = async (req, res) => {
       frequency
     );
 
+    let dayOfWeek;
+    if(weekday === 'allDays'){
+      dayOfWeek = [1,2,3,4,5,6,7];
+    } else{
+      const weekdays = [0, "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      dayOfWeek = [weekdays.findIndex(week=> week===weekday)];  
+    }
+  
+
     const pnlData = await ThirdPartyPnl.aggregate([
       {
         $match: {
@@ -269,6 +285,18 @@ exports.avgPnlChart = async (req, res) => {
           trader: {
             $in: userIds,
           },
+        },
+      },
+      {
+        $addFields: {
+          dayOfWeek: {
+            $dayOfWeek: "$date",
+          },
+        },
+      },
+      {
+        $match: {
+          dayOfWeek: {$in: dayOfWeek}
         },
       },
       {
@@ -861,6 +889,8 @@ const distinctBuySell = async (tradeData) => {
 const formatTradeData = async (tradeData) => {
   const map = new Map();
 
+  console.log('quantity3',tradeData.length, tradeData.reduce((total, acc)=>total+acc.Quantity, 0));
+
   tradeData.forEach((trade) => {
     const { symbol, amount, brokerage, Quantity, buyOrSell } = trade;
     if (map.has(symbol)) {
@@ -884,21 +914,22 @@ const formatTradeData = async (tradeData) => {
 };
 
 const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
-  const timeInCalculate1 = performance.now();
+  // const timeInCalculate1 = performance.now();
   let totalGpnl = 0;
   let totalRunningLots = 0;
   let pnlNifty = 0;
   let pnlBankNifty = 0;
   let pnlFinNifty = 0;
 
-  const HistoryTickModel = thirdParty == "true" ? HistoryDataNew : HistoryData;
+  // const HistoryTickModel = thirdParty == "true" ? HistoryDataNew : HistoryData;
+  console.log('quantity4',tradeData.length, tradeData.reduce((total, acc)=>total+acc.Quantity, 0));
 
   for (const elem of tradeData) {
     const utcTimeStamp = new Date(timestamp);
     utcTimeStamp.setHours(utcTimeStamp.getHours() - 5);
     utcTimeStamp.setMinutes(utcTimeStamp.getMinutes() - 30);
-    const newUtcTimeStamp = new Date(utcTimeStamp);
-    let isDayEnd = false;
+    // const newUtcTimeStamp = new Date(utcTimeStamp);
+    // let isDayEnd = false;
 
     const getCandleArray = ltpData?.find(
       (subelem) => subelem?.symbol === elem?.symbol
@@ -920,7 +951,7 @@ const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
     pnlFinNifty += elem?.symbol?.startsWith("FINNIFTY") ? gpnl : 0;
   }
 
-  const timeInCalculate2 = performance.now();
+  // const timeInCalculate2 = performance.now();
   return {
     gpnl: totalGpnl,
     timestamp,
@@ -1014,12 +1045,26 @@ const saveDataToDB = async (url, userId, res) => {
     }
 
     let pointer = 0;
+    const previousLotsObj = {};
 
     for (const key in tradeData) {
       pointer++;
       const symbolTradeArr = tradeData[key];
       const datePart = key.split("_")?.[1];
       const symbol = key.split("_")?.[0];
+      let previousLots = 0;
+      
+
+      if(datePart === minDate){
+        previousLots = await getPreviousLots(symbol, datePart);
+      } else{
+        if(new Date(datePart).getTime() === new Date(symbolTradeArr?.[0]?.expiry).getTime()){
+          previousLots = 0;
+        } else{
+          previousLots = previousLotsObj[symbol] || 0;
+        }
+      }
+
       const startOfDate = moment(datePart)
         .clone()
         .startOf("day")
@@ -1041,7 +1086,18 @@ const saveDataToDB = async (url, userId, res) => {
         historyTick.length
       );
 
-      const pnlData = await chartHelper(symbolTradeArr, datePart, historyTick);
+      const previousLotTradeDoc = await createTradeDoc(symbol, datePart, historyTick?.[0]?.candles?.[0]?.open, previousLots, symbolTradeArr?.[0]?.expiry)
+      const newSymbolArr = previousLots ? [previousLotTradeDoc, ...symbolTradeArr] : [...symbolTradeArr];
+
+      const calculateLots = newSymbolArr.reduce((total, acc)=>{
+        return total + acc.Quantity;
+      }, 0);
+
+      if(calculateLots !== 0){
+        previousLotsObj[symbol] = calculateLots;
+      }
+
+      const pnlData = await chartHelper(newSymbolArr, datePart, historyTick);
       const saveData = await ThirdPartyPnl.create([
         {
           trader: userId,
@@ -1066,7 +1122,7 @@ const saveDataToDB = async (url, userId, res) => {
 
 const chartHelper = async (tradeData, date, historyTicksInstrument) => {
   try {
-    const now = performance.now();
+    // const now = performance.now();
     // const date = req.query.date;
     const thirdParty = "true";
     const timePeriod = 1;
@@ -1088,11 +1144,11 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
     const vixData = await IndiaVix.find({
       timestamp: { $gt: new Date(startToday), $lt: new Date(endToday) },
     });
-    const symbolArr = tradeData.map((elem) => {
-      return elem?.symbol;
-    });
+    // const symbolArr = tradeData.map((elem) => {
+    //   return elem?.symbol;
+    // });
 
-    const uniqueSymbolArr = [...new Set(symbolArr)];
+    // const uniqueSymbolArr = [...new Set(symbolArr)];
 
     const todaysDatePart = new Date(endToday).toISOString()?.split("T")?.[0];
     const timeArr = await timeArray(todaysDatePart, timePeriod, frequency);
@@ -1118,6 +1174,9 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
           new Date(elem.trade_time) <= new Date(timeArr[i])
         );
       });
+
+      console.log('quantity2',filteredArr.length, filteredArr.reduce((total, acc)=>total+acc.Quantity, 0));
+
 
       const isLastElement = i === timeArr.length - 1;
       const vixFilteredArr = vixData.filter((elem) => {

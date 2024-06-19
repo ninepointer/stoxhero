@@ -110,22 +110,20 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
         status: "COMPLETE",
         average_price: avgPrice,
         Quantity: quantity,
+        // expiry: elem?.["Expiry Date"],
         buyOrSell,
         exchange: "NFO",
         symbol: instrument,
         amount: amount,
         brokerage: Math.abs(Number(amount)*0.001),
+        //todo-vijay
         // trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss"),
         trade_time: moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss").add(5, 'hours').add(30, 'minutes').utc().format(),
         account_number: elem?.["Account Number"],
         cp_id: elem?.["CP ID"],
         ctcl_id: elem?.["CTCL ID"],
         user_id: elem?.["User Id"],
-        // modify_date: moment(
-        //   elem?.["Modified Date/Time"],
-        //   "DD MMMM YYYY HH:mm:ss"
-        // ),
-        modify_date: moment(elem?.["Modified Date/Time"], "DD MMMM YYYY HH:mm:ss").add(30, 'minutes').utc().format(),
+        modify_date: moment(elem?.["Modified Date/Time"], "DD MMMM YYYY HH:mm:ss"),
         trader: userId,
         createdOn: new Date(),
         createdBy: userId,
@@ -386,3 +384,46 @@ exports.teamIndividualPerformance = async(startDate, endDate, userIds)=>{
 
   return performance;
 }
+
+exports.getPreviousLots = async(symbol, date)=>{
+  const data = await ThirdPartyTrades.find({symbol: symbol, trade_time: {$lt: new Date(date)}});
+  const runningLots = data.reduce((total, acc)=>{
+    return total + acc.Quantity;
+  }, 0);
+
+  return runningLots || 0;
+}
+
+exports.createTradeDoc = async(symbol, date, price, lots, expiry)=>{
+  return {
+    status: "COMPLETE",
+    average_price: price,
+    Quantity: lots,
+    expiry: expiry,
+    buyOrSell: lots>0 ? 'BUY' : 'SELL',
+    exchange: "NFO",
+    symbol: symbol,
+    amount: (lots*price),
+    brokerage: Math.abs(Number(lots*price)*0.001),
+    trade_time: `${date}T09:15:00.000+00:00`,
+  }
+}
+
+/*
+0. add expiry in trade documents
+
+1. check previous open lots for that symbol in database, 
+if found then create an trade in trade array
+
+2. for creating trade i need last price of that symbol on current date
+
+3. also calculate trade array's remaining open lots and update that
+object , if trade document's trade_time and expiry's date is same then 
+lots for that symbol is 0
+
+do the above steps in saveDataToDB function
+
+1. exipry wala added nhi h
+2. trades wala tbhi extend ho if previous lots > 0
+3. 3 no. is pending
+*/
