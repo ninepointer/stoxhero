@@ -351,7 +351,7 @@ exports.avgPnlChart = async (req, res) => {
             $sum: "$pnl.usedLots",
           },
           entryLots: {
-            $sum: "$pnl.entryLots",
+            $sum: {$abs: "$pnl.entryLots"},
           },
           pnlBankNifty: {
             $sum: "$pnl.pnlBankNifty",
