@@ -6,6 +6,7 @@ const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const { ObjectId } = require("mongodb");
 const TradingHoliday = require("../models/TradingHolidays/tradingHolidays");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
+const User = require('../models/User/userDetailSchema');
 
 exports.getPaperTradesOverview = async (req, res, next) => {
   let userId = req.params.id;
@@ -185,6 +186,194 @@ exports.getPaperTradesOverview = async (req, res, next) => {
   res.status(200).json({ status: "success", data: paperTradesOverview });
 };
 
+function countWeekdays(startDate, endDate, day) {
+  let start = new Date(startDate);
+  let end = new Date(endDate);
+  let count = 0;
+
+  while (start <= end) {
+      if (start.getDay() === day) {
+          count++;
+      }
+      start.setDate(start.getDate() + 1);
+  }
+  return count;
+}
+
+exports.getPaperTradesWeekDayWiseStats = async (req, res) => {
+  try{
+  let id = '';
+  const { to, from, weekday } = req.query;
+  const thirdParty = req.query.thirdParty ?? "false";
+  if (req.query?.user && req.query.user != "undefined") {
+    id = req.query?.user;
+  }
+  
+  let usersArray = [];
+  if (id == "team") {
+    const teamLead = await User.findOne({
+      _id: new ObjectId(req?.user?._id),
+    }).select("reportedBy");
+    usersArray = [...teamLead.reportedBy];
+  }else {
+    usersArray.push(new ObjectId(id ? id : req?.user?._id));
+  }
+
+
+  const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const dayOfWeek = weekdays.findIndex(week=> week===weekday);
+
+  const fromDate = new Date(from);
+  fromDate.setHours(0, 0, 0, 0);
+  const toDate = new Date(to);
+  toDate.setHours(23, 59, 59, 999);
+  const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
+
+  let pnlDetails = await TradeModel.aggregate([
+    {
+      $match: {
+        status: "COMPLETE",
+        trade_time: {
+          $gt: new Date(fromDate),
+          $lt: new Date(toDate),
+        },
+        trader: {
+          $in: usersArray,
+        },
+      },
+    },
+    {
+      $addFields: {
+        dayOfWeek: {
+          $dayOfWeek: "$trade_time",
+        },
+      },
+    },
+    {
+      $match: {
+        dayOfWeek: (dayOfWeek+1),
+      },
+    },
+    {
+      $group: {
+        _id: {
+          date: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$trade_time",
+            },
+          },
+        },
+        totalGpnl: {
+          $sum: {
+            $multiply: ["$amount", -1],
+          },
+        },
+        totalBrokerage: {
+          $sum: "$brokerage",
+        },
+        totalNpnl: {
+          $sum: {
+            $subtract: [
+              {
+                $multiply: ["$amount", -1],
+              },
+              {
+                $ifNull: ["$brokerage", 0],
+              },
+            ],
+          },
+        },
+        totalTrades: {
+          $sum: 1,
+        },
+        totalLots: {
+          $sum: {
+            $toInt: "$Quantity",
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        days: "$_id.date",
+        totalBrokerage: 1,
+        totalNpnl: 1,
+        totalGpnl: 1,
+        totalTrades: 1,
+        totalLots: 1,
+      },
+    },
+  ]);
+
+  const pnlObj = {
+    avgPnl : 0,
+    highestPnl : -(Number.MAX_VALUE),
+    lowestPnl : Number.MAX_VALUE,
+    avgTrades : 0,
+    avgBrokerage : 0,
+    totalCalendarDays : 0,
+    totalTradeDay : pnlDetails?.length,
+    noTradeDay : 0,
+    profitDay : 0,
+    lossDay : 0,
+    avgProfit : 0,
+    avgLoss : 0
+  }
+
+  const totalDays = countWeekdays(fromDate, toDate, dayOfWeek)
+  let holidayCount = 0;
+  const holidays = await TradingHoliday.find({
+    $and: [
+      { holidayDate: { $gt: fromDate } },
+      { holidayDate: { $lt: toDate } },
+    ],
+  }).select("holidayDate");
+  for (let holiday of holidays) {
+    if (
+      new Date(holiday?.holidayDate).getDay() === dayOfWeek
+    ) {
+      holidayCount += 1;
+    }
+  }
+
+  const totalCalendarDays = totalDays - holidayCount;
+
+ let totalNetPnl = 0;
+ let totalProfit = 0
+ let totalLoss = 0;
+ let totalBrokerage = 0
+ let totalTrades = 0;
+
+  for (const elem of pnlDetails) {
+    totalNetPnl += elem.totalNpnl;
+    totalBrokerage += elem?.totalBrokerage;
+    pnlObj.profitDay += elem.totalNpnl > 0 ? 1 : 0;
+    pnlObj.lossDay += elem.totalNpnl > 0 ? 0 : 1;
+    totalProfit += elem.totalNpnl > 0 ? elem.totalNpnl : 0;
+    totalLoss += elem.totalNpnl > 0 ? 0 : elem.totalNpnl;
+    pnlObj.highestPnl = Math.max(pnlObj.highestPnl, elem.totalNpnl);
+    pnlObj.lowestPnl = Math.min(pnlObj.lowestPnl, elem.totalNpnl);
+    totalTrades += elem.totalTrades;
+  }
+
+  pnlObj.avgPnl = totalNetPnl/pnlObj.totalTradeDay;
+  pnlObj.avgTrades =totalTrades/pnlObj.totalTradeDay;
+  pnlObj.avgBrokerage =totalBrokerage/pnlObj.totalTradeDay;
+  pnlObj.noTradeDay = totalCalendarDays - pnlObj.totalTradeDay;
+  pnlObj.avgProfit =totalProfit/pnlObj.totalTradeDay;
+  pnlObj.avgLoss = totalLoss/pnlObj.totalTradeDay;
+  pnlObj.totalCalendarDays = totalDays;
+  pnlObj.totalNetPnl = totalNetPnl;
+  // pnlObj.totalDays = totalDays;
+
+  res.status(200).json({ status: "success", data: pnlDetails.length ? pnlObj : {} });
+} catch(err){
+  console.log(err);
+}
+};
+
 exports.getPaperTradesDateWiseStats = async (req, res) => {
   let { id } = req.params;
   const { to, from } = req.query;
@@ -282,19 +471,19 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
 exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
   let { id } = req.params;
   const { to, from } = req.query;
+  const weekday = req.query.weekday??'allDays';
   const thirdParty = req.query.thirdParty ?? "false";
   if (req.query?.user && req.query.user != "undefined") {
     id = req.query?.user;
   }
-  let usersArray = [id];
+  let usersArray = [];
   if (id == "team") {
-    usersArray = [
-      "6666994093c01d363f79419e",
-      "6666997a93c01d363f79419f",
-      "6666c69193c01d363f7941a2",
-      "6666c6cb93c01d363f7941a3",
-      "66669a1293c01d363f7941a0",
-    ];
+    const teamLead = await User.findOne({
+      _id: new ObjectId(req?.user?._id),
+    }).select("reportedBy");
+    usersArray = [...teamLead.reportedBy];
+  } else{
+    usersArray.push(new ObjectId(id));
   }
   const len = usersArray.length;
   const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
@@ -313,11 +502,98 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
     "Saturday",
   ];
 
-  // let dayCounts = {};
-  // for (let d = fromDate; d <= toDate; d.setDate(d.getDate() + 1)) {
-  //   const day = d.getDay(); // 0 for Sunday, 1 for Monday, ..., 6 for Saturday
-  //   dayCounts[day] = (dayCounts[day] || 0) + 1;
-  // }
+  let dayOfWeek;
+  if(weekday === 'allDays'){
+    dayOfWeek = [1,2,3,4,5,6,7];
+  } else{
+    const weekdays = [0, "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    dayOfWeek = [weekdays.findIndex(week=> week===weekday)];  
+  }
+
+  let symbolWise = await TradeModel.aggregate([
+    {
+      $match: {
+        trade_time: { $gte: fromDate, $lte: toDate },
+        trader: { $in: usersArray },
+        status: "COMPLETE",
+      },
+    },
+    {
+      $addFields: {
+        dayOfWeek: {
+          $dayOfWeek: "$trade_time",
+        },
+      },
+    },
+    {
+      $match: {
+        dayOfWeek: {$in: dayOfWeek}
+      },
+    },
+    {
+      $group: {
+        _id: {
+          dayOfWeek: { $dayOfWeek: "$trade_time" },
+          date: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } },
+          symbol: '$symbol'
+        },
+        totalGpnl: { $sum: { $multiply: ["$amount", -1] } },
+        totalBrokerage: { $sum: "$brokerage" },
+        totalNpnl: {
+          $sum: {
+            $subtract: [
+              { $multiply: ["$amount", -1] },
+              {
+                $ifNull: ["$brokerage", 0],
+              },
+            ],
+          },
+        },
+        totalTrades: { $sum: 1 },
+        totalLots: { $sum: { $toInt: "$Quantity" } },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          weekDay: "$_id.dayOfWeek",
+          symbol: '$_id.symbol'
+        },
+        totalGpnl: { $sum: "$totalGpnl" },
+        totalBrokerage: { $sum: "$totalBrokerage" },
+        totalNpnl: { $sum: "$totalNpnl" },
+        totalTrades: { $sum: "$totalTrades" },
+        totalLots: { $sum: "$totalLots" },
+        distinctDays: { $addToSet: "$_id.date" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        dayOfWeek: { $arrayElemAt: [daysOfWeek, { $subtract: ["$_id.weekDay", 1] }] },
+        symbol: '$_id.symbol',
+        totalGpnl: 1,
+        totalBrokerage: 1,
+        totalNpnl: 1,
+        totalTrades: 1,
+        weekDayNo: "$_id.weekDay",
+        distinctDays: {
+          $size: "$distinctDays"
+        },
+      },
+    },
+    {
+      $addFields: {
+        totalGpnl: { $divide: ["$totalGpnl", len] },
+        totalBrokerage: { $divide: ["$totalBrokerage", len] },
+        totalNpnl: { $divide: ["$totalNpnl", len] },
+        totalTrades: { $divide: ["$totalTrades", len] },
+      },
+    },
+    {
+      $sort: { weekDayNo: 1 },
+    },
+  ]);
 
   let pnlDetails = await TradeModel.aggregate([
     {
@@ -325,6 +601,18 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         trade_time: { $gte: fromDate, $lte: toDate },
         trader: { $in: usersArray.map((id) => new ObjectId(id)) },
         status: "COMPLETE",
+      },
+    },
+    {
+      $addFields: {
+        dayOfWeek: {
+          $dayOfWeek: "$trade_time",
+        },
+      },
+    },
+    {
+      $match: {
+        dayOfWeek: {$in: dayOfWeek}
       },
     },
     {
@@ -391,6 +679,9 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         lossDaysCount: 1,
         totalTrades: 1,
         weekDayNo: "$_id",
+        distinctDays: {
+          $size: "$distinctDays" 
+        },
         // noOfWeekDays: { $arrayElemAt: [dayCounts, { $subtract: ["$_id", 1] }] },
         avgGpnl: { $divide: ["$totalGpnl", { $size: "$distinctDays" }] },
         avgBrokerage: {
@@ -432,6 +723,62 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
       $sort: { weekDayNo: 1 },
     },
   ]);
+
+  const dayWise = {};
+
+  for (const elem of symbolWise) {
+    const day = elem?.dayOfWeek;
+  
+    // Initialize dayWise object for this day if not already present
+    if (!dayWise[day]) {
+      dayWise[day] = {
+        pnlNifty: 0,
+        pnlFinnifty: 0,
+        pnlBanknifty: 0,
+        pnlStock: 0,
+        // pnlStockFno: 0
+      };
+    }
+  
+    // Check the symbol and add the pnl to the respective key
+    if (elem.symbol.includes('NIFTY') && !elem.symbol.includes('FINNIFTY') && !elem.symbol.includes('BANKNIFTY')) {
+      dayWise[day].pnlNifty += elem.totalNpnl;
+    }
+  
+    if (elem.symbol.includes('FINNIFTY')) {
+      dayWise[day].pnlFinnifty += elem.totalNpnl;
+    }
+
+    if (elem.symbol.includes('BANKNIFTY')) {
+      dayWise[day].pnlBanknifty += elem.totalNpnl;
+    }
+
+    if (!/\d/.test(elem.symbol)) {
+      dayWise[day].pnlStock += elem.totalNpnl;
+    }
+  }
+
+  for(const key in dayWise){
+    for(const elem of pnlDetails){
+      if(elem?.dayOfWeek === key){
+        const pnlNiftyNumber = Number(dayWise[key]?.pnlNifty?.toFixed(2));
+        const pnlFinniftyNumber = Number(dayWise[key]?.pnlFinnifty?.toFixed(2));
+        const pnlBankniftyNumber = Number(dayWise[key]?.pnlBanknifty?.toFixed(2));
+        const pnlStockNumber = Number(dayWise[key]?.pnlStock?.toFixed(2));
+        elem.pnlNifty = dayWise[key]?.pnlNifty;  
+        elem.pnlFinnifty = dayWise[key]?.pnlFinnifty; 
+        elem.pnlBanknifty = dayWise[key]?.pnlBanknifty; 
+        elem.pnlStock = dayWise[key]?.pnlStock;
+        elem.pnlStockFno = (Number(elem?.totalNpnl?.toFixed(2)) - pnlNiftyNumber -pnlFinniftyNumber -pnlStockNumber -pnlBankniftyNumber)
+
+        elem.avgPnlNifty = dayWise[key]?.pnlNifty/elem?.distinctDays;  
+        elem.avgPnlFinnifty = dayWise[key]?.pnlFinnifty/elem?.distinctDays; 
+        elem.avgPnlBanknifty = dayWise[key]?.pnlBanknifty/elem?.distinctDays; 
+        elem.avgPnlStock = dayWise[key]?.pnlStock/elem?.distinctDays;
+        elem.avgPnlStockFno = (elem?.totalNpnl - dayWise[key]?.pnlNifty-dayWise[key]?.pnlFinnifty-dayWise[key]?.pnlBanknifty-dayWise[key]?.pnlStock)/elem?.distinctDays;
+      }
+    }
+  }
 
   res.status(200).json({ status: "success", data: pnlDetails });
 };
