@@ -471,6 +471,7 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
 exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
   let { id } = req.params;
   const { to, from } = req.query;
+  const weekday = req.query.weekday??'allDays';
   const thirdParty = req.query.thirdParty ?? "false";
   if (req.query?.user && req.query.user != "undefined") {
     id = req.query?.user;
@@ -501,12 +502,32 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
     "Saturday",
   ];
 
+  let dayOfWeek;
+  if(weekday === 'allDays'){
+    dayOfWeek = [1,2,3,4,5,6,7];
+  } else{
+    const weekdays = [0, "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    dayOfWeek = [weekdays.findIndex(week=> week===weekday)];  
+  }
+
   let symbolWise = await TradeModel.aggregate([
     {
       $match: {
         trade_time: { $gte: fromDate, $lte: toDate },
         trader: { $in: usersArray },
         status: "COMPLETE",
+      },
+    },
+    {
+      $addFields: {
+        dayOfWeek: {
+          $dayOfWeek: "$trade_time",
+        },
+      },
+    },
+    {
+      $match: {
+        dayOfWeek: {$in: dayOfWeek}
       },
     },
     {
@@ -544,26 +565,6 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         totalTrades: { $sum: "$totalTrades" },
         totalLots: { $sum: "$totalLots" },
         distinctDays: { $addToSet: "$_id.date" },
-        // profitDaysNpnl: {
-        //   $sum: {
-        //     $cond: [{ $gt: ["$totalNpnl", 0] }, "$totalNpnl", 0],
-        //   },
-        // },
-        // lossDaysNpnl: {
-        //   $sum: {
-        //     $cond: [{ $lt: ["$totalNpnl", 0] }, "$totalNpnl", 0],
-        //   },
-        // },
-        // profitDaysCount: {
-        //   $sum: {
-        //     $cond: [{ $gt: ["$totalNpnl", 0] }, 1, 0],
-        //   },
-        // },
-        // lossDaysCount: {
-        //   $sum: {
-        //     $cond: [{ $lt: ["$totalNpnl", 0] }, 1, 0],
-        //   },
-        // },
       },
     },
     {
@@ -574,34 +575,11 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         totalGpnl: 1,
         totalBrokerage: 1,
         totalNpnl: 1,
-        // profitDaysCount: 1,
-        // lossDaysCount: 1,
         totalTrades: 1,
         weekDayNo: "$_id.weekDay",
         distinctDays: {
           $size: "$distinctDays"
         },
-        // noOfWeekDays: { $arrayElemAt: [dayCounts, { $subtract: ["$_id", 1] }] },
-        // avgGpnl: { $divide: ["$totalGpnl", { $size: "$distinctDays" }] },
-        // avgBrokerage: {
-        //   $divide: ["$totalBrokerage", { $size: "$distinctDays" }],
-        // },
-        // avgNpnl: { $divide: ["$totalNpnl", { $size: "$distinctDays" }] },
-        // avgLots: { $divide: ["$totalLots", { $size: "$distinctDays" }] },
-        // averageProfit: {
-        //   $cond: [
-        //     { $gt: ["$profitDaysCount", 0] },
-        //     { $divide: ["$profitDaysNpnl", "$profitDaysCount"] },
-        //     0,
-        //   ],
-        // },
-        // averageLoss: {
-        //   $cond: [
-        //     { $gt: ["$lossDaysCount", 0] },
-        //     { $divide: ["$lossDaysNpnl", "$lossDaysCount"] },
-        //     0,
-        //   ],
-        // },
       },
     },
     {
@@ -610,12 +588,6 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         totalBrokerage: { $divide: ["$totalBrokerage", len] },
         totalNpnl: { $divide: ["$totalNpnl", len] },
         totalTrades: { $divide: ["$totalTrades", len] },
-        // avgGpnl: { $divide: ["$avgGpnl", len] },
-        // avgBrokerage: { $divide: ["$avgBrokerage", len] },
-        // avgNpnl: { $divide: ["$avgNpnl", len] },
-        // avgLots: { $divide: ["$avgLots", len] },
-        // averageProfit: { $divide: ["$averageProfit", len] },
-        // averageLoss: { $divide: ["$averageLoss", len] },
       },
     },
     {
@@ -629,6 +601,18 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
         trade_time: { $gte: fromDate, $lte: toDate },
         trader: { $in: usersArray.map((id) => new ObjectId(id)) },
         status: "COMPLETE",
+      },
+    },
+    {
+      $addFields: {
+        dayOfWeek: {
+          $dayOfWeek: "$trade_time",
+        },
+      },
+    },
+    {
+      $match: {
+        dayOfWeek: {$in: dayOfWeek}
       },
     },
     {
