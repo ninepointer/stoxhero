@@ -8,23 +8,26 @@ const InfinityTradeCompany = require("../models/mock-trade/infinityTradeCompany"
 const PendingOrder = require("../models/PendingOrder/pendingOrderSchema");
 const User = require("../models/User/userDetailSchema");
 const mongoose = require("mongoose");
-const moment = require('moment');
-const LeaderboardParams = require('../models/LeaderboardParams/leaderboardSchema');
-const { getIOValue } = require('../marketData/socketio');
-const getKiteCred = require('../marketData/getKiteCred');
-const axios = require('axios');
-const UserPortfolio = require('../models/userPortfolio/UserPortfolio');
-const { virtualPortfolioId } = require('../constant');
+const moment = require("moment");
+const LeaderboardParams = require("../models/LeaderboardParams/leaderboardSchema");
+const { getIOValue } = require("../marketData/socketio");
+const getKiteCred = require("../marketData/getKiteCred");
+const axios = require("axios");
+const UserPortfolio = require("../models/userPortfolio/UserPortfolio");
+const { virtualPortfolioId } = require("../constant");
 const {
-  dailyPayout, weekPayout, monthPayout, quarterPayout
-} = require('./paperTradePayoutController')
+  dailyPayout,
+  weekPayout,
+  monthPayout,
+  quarterPayout,
+} = require("./paperTradePayoutController");
 const PaperTradePayout = require("../models/mock-trade/paperTradePayout");
-const Setting = require('../models/settings/setting');
-const TradingHoliday = require('../models/TradingHolidays/tradingHolidays');
-const {pnlPositionDatabase, pnlHoldingDatabase} = require("../controllers/stockTradeController");
-
-
-
+const Setting = require("../models/settings/setting");
+const TradingHoliday = require("../models/TradingHolidays/tradingHolidays");
+const {
+  pnlPositionDatabase,
+  pnlHoldingDatabase,
+} = require("../controllers/stockTradeController");
 
 exports.overallPnl = async (req, res, next) => {
   let isRedisConnected = getValue();
@@ -236,7 +239,7 @@ exports.myTodaysTrade = async (req, res, next) => {
         average_price: 1,
         trade_time: 1,
         order_id: 1,
-        requiredMargin: 1
+        requiredMargin: 1,
       }
     )
       .sort({ _id: -1 })
@@ -281,7 +284,7 @@ exports.myHistoryTrade = async (req, res, next) => {
         average_price: 1,
         trade_time: 1,
         order_id: 1,
-        requiredMargin: 1
+        requiredMargin: 1,
       }
     )
       .sort({ _id: -1 })
@@ -331,8 +334,14 @@ exports.marginDetail = async (req, res, next) => {
 
       res.status(201).json({ message: "pnl received", data: marginDetail });
     } else {
-      const papertrade = await PaperTrade.find({trader: new ObjectId(req?.user?._id), portfolioId: new ObjectId('6433e2e5500dc2f2d20d686d')});
-      const stocktrade = await Stock.find({trader: new ObjectId(req?.user?._id), portfolioId: new ObjectId('6433e2e5500dc2f2d20d686d')})
+      const papertrade = await PaperTrade.find({
+        trader: new ObjectId(req?.user?._id),
+        portfolioId: new ObjectId("6433e2e5500dc2f2d20d686d"),
+      });
+      const stocktrade = await Stock.find({
+        trader: new ObjectId(req?.user?._id),
+        portfolioId: new ObjectId("6433e2e5500dc2f2d20d686d"),
+      });
 
       const portfoliosFund = await Portfolio.aggregate([
         {
@@ -360,9 +369,9 @@ exports.marginDetail = async (req, res, next) => {
         {
           $addFields: {
             trades: {
-              $concatArrays: [papertrade, stocktrade]
-            }
-          }
+              $concatArrays: [papertrade, stocktrade],
+            },
+          },
         },
         {
           $unwind: {
@@ -484,39 +493,40 @@ exports.findOpenLots = async (req, res, next) => {
   const pipeline = [
     {
       $match:
-      /**
-       * query: The query in MQL.
-       */
-      {
-        trade_time: {
-          $gt: new Date("2023-05-26"),
+        /**
+         * query: The query in MQL.
+         */
+        {
+          trade_time: {
+            $gt: new Date("2023-05-26"),
+          },
+          status: "COMPLETE",
         },
-        status: "COMPLETE",
-      },
     },
 
     {
       $group:
-      /**
-       * _id: The id of the group.
-       * fieldN: The first field name.
-       */
-      {
-        _id: { trader: "$trader", symbol: "$symbol" },
-        lots: {
-          $sum: "$Quantity",
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: { trader: "$trader", symbol: "$symbol" },
+          lots: {
+            $sum: "$Quantity",
+          },
         },
-      },
     },
   ];
   const lots = await InfinityTradeCompany.aggregate(pipeline);
   // console.log('open',lots, lots.length);
 };
 
-
 exports.treaderWiseMockTrader = async (req, res, next) => {
   let date = new Date();
-  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0"
+  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
   )}-${String(date.getDate()).padStart(2, "0")}`;
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
@@ -555,7 +565,7 @@ exports.treaderWiseMockTrader = async (req, res, next) => {
           },
         },
         margin: {
-          $max: '$margin'
+          $max: "$margin",
         },
         amount: {
           $sum: { $multiply: ["$amount", -1] },
@@ -1018,13 +1028,13 @@ exports.getDailyVirtualUsers = async (req, res) => {
 
 exports.saveLeaderboardData = async () => {
   try {
-
     const date = new Date();
-    let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0"
-    )}-${String(date.getDate()).padStart(2, "0")}`;
+    let todayDate = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     todayDate = todayDate + "T00:00:00.000Z";
     const today = new Date(todayDate);
-    
+
     const checkRunningLots = await PaperTrade.aggregate([
       {
         $match: {
@@ -1112,7 +1122,7 @@ exports.saveLeaderboardData = async () => {
           _id: {
             traderId: "$trader",
             portfolioValue: {
-              $arrayElemAt: ['$portfolio.portfolioValue', 0]
+              $arrayElemAt: ["$portfolio.portfolioValue", 0],
             },
           },
 
@@ -1170,10 +1180,7 @@ exports.saveLeaderboardData = async () => {
               {
                 $multiply: [
                   {
-                    $subtract: [
-                      "$amount",
-                      "$brokerage",
-                    ],
+                    $subtract: ["$amount", "$brokerage"],
                   },
                   100,
                 ],
@@ -1213,7 +1220,7 @@ exports.saveLeaderboardData = async () => {
           _id: {
             traderId: "$trader",
             portfolioValue: {
-              $arrayElemAt: ['$portfolio.portfolioValue', 0]
+              $arrayElemAt: ["$portfolio.portfolioValue", 0],
             },
           },
           margin: {
@@ -1270,10 +1277,7 @@ exports.saveLeaderboardData = async () => {
               {
                 $multiply: [
                   {
-                    $subtract: [
-                      "$amount",
-                      "$brokerage",
-                    ],
+                    $subtract: ["$amount", "$brokerage"],
                   },
                   100,
                 ],
@@ -1290,51 +1294,85 @@ exports.saveLeaderboardData = async () => {
       },
     ]);
 
-    const resultObj = {} ;
+    const resultObj = {};
 
     // Sum npnl and brokerage values from data
     data.forEach((dataItem) => {
-      const { trader, netPnl, grossPnl, lotUsed, trades, brokerage, margin, ...rest } = dataItem
+      const {
+        trader,
+        netPnl,
+        grossPnl,
+        lotUsed,
+        trades,
+        brokerage,
+        margin,
+        ...rest
+      } = dataItem;
       if (!resultObj[trader]) {
-        resultObj[trader] = { trader, netPnl, grossPnl, lotUsed, trades, brokerage, margin, ...rest };
+        resultObj[trader] = {
+          trader,
+          netPnl,
+          grossPnl,
+          lotUsed,
+          trades,
+          brokerage,
+          margin,
+          ...rest,
+        };
         resultObj[trader].npnlOption = netPnl;
         resultObj[trader].npnlStock = 0;
-
       } else {
-        resultObj[trader].npnlOption += netPnl
-        resultObj[trader].netPnl += netPnl
+        resultObj[trader].npnlOption += netPnl;
+        resultObj[trader].netPnl += netPnl;
         // ((netPnl || 0) + (resultObj[trader].npnlStock || 0))
-        resultObj[trader].brokerage += brokerage
-        resultObj[trader].grossPnl += grossPnl
-        resultObj[trader].lotUsed += lotUsed
-        resultObj[trader].trades += trades
-        resultObj[trader].margin = Math.max(margin, resultObj[trader].margin)
-
+        resultObj[trader].brokerage += brokerage;
+        resultObj[trader].grossPnl += grossPnl;
+        resultObj[trader].lotUsed += lotUsed;
+        resultObj[trader].trades += trades;
+        resultObj[trader].margin = Math.max(margin, resultObj[trader].margin);
       }
-    })
-  
+    });
+
     // Sum netPnl and brokerage values from leaderboard
     dataStock.forEach((leaderItem) => {
-      const { trader, netPnl, grossPnl, lotUsed, trades, brokerage, margin, ...rest } = leaderItem
+      const {
+        trader,
+        netPnl,
+        grossPnl,
+        lotUsed,
+        trades,
+        brokerage,
+        margin,
+        ...rest
+      } = leaderItem;
       if (!resultObj[trader]) {
-        resultObj[trader] = { trader, netPnl, grossPnl, lotUsed, trades, brokerage, margin, ...rest };
+        resultObj[trader] = {
+          trader,
+          netPnl,
+          grossPnl,
+          lotUsed,
+          trades,
+          brokerage,
+          margin,
+          ...rest,
+        };
         resultObj[trader].npnlStock = netPnl;
         resultObj[trader].npnlOption = 0;
       } else {
-        resultObj[trader].npnlStock += netPnl
-        resultObj[trader].netPnl += netPnl
+        resultObj[trader].npnlStock += netPnl;
+        resultObj[trader].netPnl += netPnl;
         // ((netPnl || 0) + (resultObj[trader].npnlOption || 0))
-        resultObj[trader].brokerage += brokerage
-        resultObj[trader].grossPnl += grossPnl
-        resultObj[trader].lotUsed += lotUsed
-        resultObj[trader].trades += trades
-        resultObj[trader].margin = Math.max(margin, resultObj[trader].margin)
+        resultObj[trader].brokerage += brokerage;
+        resultObj[trader].grossPnl += grossPnl;
+        resultObj[trader].lotUsed += lotUsed;
+        resultObj[trader].trades += trades;
+        resultObj[trader].margin = Math.max(margin, resultObj[trader].margin);
       }
-    })
+    });
 
     // Convert result object into an array
-    const result = Object.values(resultObj)
-  
+    const result = Object.values(resultObj);
+
     const create = await PaperTradeLeaderboard.create(result);
     return true;
   } catch (err) {
@@ -1345,12 +1383,27 @@ exports.saveLeaderboardData = async () => {
 
 exports.todayLeaderboardData = async (req, res) => {
   try {
-    const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Daily' })
+    const leaderboardParams = await LeaderboardParams.findOne({
+      status: "Active",
+      frequency: "Daily",
+    });
     const today = moment();
-    const startOfDay = today.clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
-    const endOfDay = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const startOfDay = today
+      .clone()
+      .startOf("day")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
+    const endOfDay = today
+      .endOf("day")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
     const workingDays = await calculateWorkingDay(startOfDay, endOfDay);
-    const data = await leaderboardDataHelper(startOfDay, endOfDay, leaderboardParams, workingDays);
+    const data = await leaderboardDataHelper(
+      startOfDay,
+      endOfDay,
+      leaderboardParams,
+      workingDays
+    );
 
     res.status(200).json({
       status: "success",
@@ -1359,8 +1412,8 @@ exports.todayLeaderboardData = async (req, res) => {
       leaderboardSetting: {
         usersPerTable: leaderboardParams?.usersPerTable,
         tradingDaysAttendance: leaderboardParams?.tradingDaysAttendance || 80,
-        workingDays: workingDays
-      }
+        workingDays: workingDays,
+      },
     });
   } catch (err) {
     console.log(err);
@@ -1375,25 +1428,40 @@ exports.todayLeaderboardData = async (req, res) => {
 exports.weeklyLeaderboardData = async (req, res) => {
   try {
     const today = moment();
-    const startOfWeek = today.clone().startOf('week').subtract(5, 'hours').subtract(30, 'minutes');
-    const endOfWeek = today.endOf('week').subtract(5, 'hours').subtract(30, 'minutes');
+    const startOfWeek = today
+      .clone()
+      .startOf("week")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
+    const endOfWeek = today
+      .endOf("week")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
 
     const workingDays = await calculateWorkingDay(startOfWeek, endOfWeek);
 
-    const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Weekly' })
-    const data = await leaderboardDataHelper(startOfWeek, endOfWeek, leaderboardParams, workingDays);
+    const leaderboardParams = await LeaderboardParams.findOne({
+      status: "Active",
+      frequency: "Weekly",
+    });
+    const data = await leaderboardDataHelper(
+      startOfWeek,
+      endOfWeek,
+      leaderboardParams,
+      workingDays
+    );
 
     res.status(200).json({
       status: "success",
       data: data,
       reward: leaderboardParams?.rewards,
       startDate: new Date(startOfWeek),
-      endDate : new Date(endOfWeek),
+      endDate: new Date(endOfWeek),
       leaderboardSetting: {
         usersPerTable: leaderboardParams?.usersPerTable,
         tradingDaysAttendance: leaderboardParams?.tradingDaysAttendance || 80,
-        workingDays: workingDays
-      }
+        workingDays: workingDays,
+      },
     });
   } catch (err) {
     console.log(err);
@@ -1408,26 +1476,44 @@ exports.weeklyLeaderboardData = async (req, res) => {
 exports.monthlyLeaderboardData = async (req, res) => {
   try {
     const today = moment();
-    const newStartOfMonth = moment('2024-05-14').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const newStartOfMonth = moment("2024-05-14")
+      .startOf("day")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
 
-    const startOfMonth = today.clone().startOf('month').subtract(5, 'hours').subtract(30, 'minutes');
-    const endOfMonth = today.endOf('month').subtract(5, 'hours').subtract(30, 'minutes');
+    const startOfMonth = today
+      .clone()
+      .startOf("month")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
+    const endOfMonth = today
+      .endOf("month")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
     const workingDays = await calculateWorkingDay(newStartOfMonth, endOfMonth);
 
-    const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Monthly' })
-    const data = await leaderboardDataHelper(newStartOfMonth, endOfMonth, leaderboardParams, workingDays);
+    const leaderboardParams = await LeaderboardParams.findOne({
+      status: "Active",
+      frequency: "Monthly",
+    });
+    const data = await leaderboardDataHelper(
+      newStartOfMonth,
+      endOfMonth,
+      leaderboardParams,
+      workingDays
+    );
 
     res.status(200).json({
       status: "success",
       data: data,
       reward: leaderboardParams?.rewards,
       startDate: startOfMonth,
-      endDate : endOfMonth,
+      endDate: endOfMonth,
       leaderboardSetting: {
         usersPerTable: leaderboardParams?.usersPerTable,
         tradingDaysAttendance: leaderboardParams?.tradingDaysAttendance || 80,
-        workingDays: workingDays
-      }
+        workingDays: workingDays,
+      },
     });
   } catch (err) {
     console.log(err);
@@ -1441,12 +1527,26 @@ exports.monthlyLeaderboardData = async (req, res) => {
 
 exports.quarterlyLeaderboardData = async (req, res) => {
   try {
-    const newStartOfQuarter = moment('2024-05-14').startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+    const newStartOfQuarter = moment("2024-05-14")
+      .startOf("day")
+      .subtract(5, "hours")
+      .subtract(30, "minutes");
 
-    const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' });
-    const workingDays = await calculateWorkingDay(newStartOfQuarter, leaderboardParams?.quarterEndDate);
+    const leaderboardParams = await LeaderboardParams.findOne({
+      status: "Active",
+      frequency: "Quarter",
+    });
+    const workingDays = await calculateWorkingDay(
+      newStartOfQuarter,
+      leaderboardParams?.quarterEndDate
+    );
 
-    const data = await leaderboardDataHelper(newStartOfQuarter, leaderboardParams?.quarterEndDate, leaderboardParams, workingDays);
+    const data = await leaderboardDataHelper(
+      newStartOfQuarter,
+      leaderboardParams?.quarterEndDate,
+      leaderboardParams,
+      workingDays
+    );
     // const data = await leaderboardDataHelper(leaderboardParams?.quarterStartDate, leaderboardParams?.quarterEndDate, leaderboardParams, workingDays);
 
     res.status(200).json({
@@ -1454,12 +1554,12 @@ exports.quarterlyLeaderboardData = async (req, res) => {
       data: data,
       reward: leaderboardParams?.rewards,
       startDate: leaderboardParams?.quarterStartDate,
-      endDate : leaderboardParams?.quarterEndDate,
+      endDate: leaderboardParams?.quarterEndDate,
       leaderboardSetting: {
         usersPerTable: leaderboardParams?.usersPerTable,
         tradingDaysAttendance: leaderboardParams?.tradingDaysAttendance || 80,
-        workingDays: workingDays
-      }
+        workingDays: workingDays,
+      },
     });
   } catch (err) {
     console.log(err);
@@ -1471,30 +1571,43 @@ exports.quarterlyLeaderboardData = async (req, res) => {
   }
 };
 
-const calculateWorkingDay = async(startDate)=>{
-  const today  = moment();
-  const endDate = today.endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
+const calculateWorkingDay = async (startDate) => {
+  const today = moment();
+  const endDate = today
+    .endOf("day")
+    .subtract(5, "hours")
+    .subtract(30, "minutes");
 
   const holidays = await TradingHoliday.find({
     holidayDate: {
       $gte: new Date(startDate),
-      $lte: new Date(endDate)
+      $lte: new Date(endDate),
     },
     $expr: {
       $and: [
         { $ne: [{ $dayOfWeek: "$holidayDate" }, 1] }, // 1 represents Sunday
-        { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }  // 7 represents Saturday
-      ]
-    }
+        { $ne: [{ $dayOfWeek: "$holidayDate" }, 7] }, // 7 represents Saturday
+      ],
+    },
   });
   const setting = await Setting.findOne();
-  const workingDays = await getWorkingTradingDays(startDate, endDate, holidays, setting?.weekStart, setting?.weekEnd);
+  const workingDays = await getWorkingTradingDays(
+    startDate,
+    endDate,
+    holidays,
+    setting?.weekStart,
+    setting?.weekEnd
+  );
 
   return workingDays;
-}
+};
 
-const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, workingDays) => {
-
+const leaderboardDataHelper = async (
+  startDate,
+  endDate,
+  leaderboardParams,
+  workingDays
+) => {
   const pipeline = [
     {
       $match: {
@@ -1538,7 +1651,7 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
               date: "$createdOn",
             },
           },
-        }
+        },
       },
     },
     {
@@ -1554,18 +1667,12 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
         daysOfInterest: {
           $cond: {
             if: {
-              $gte: [
-                new Date(startDate),
-                "$_id.joining_date",
-              ],
+              $gte: [new Date(startDate), "$_id.joining_date"],
             },
             then: {
               $divide: [
                 {
-                  $subtract: [
-                    new Date(endDate),
-                    new Date(startDate),
-                  ], // Replace "endDate" and "startDate" with your date fields
+                  $subtract: [new Date(endDate), new Date(startDate)], // Replace "endDate" and "startDate" with your date fields
                 },
                 86400000, // milliseconds in a day
               ],
@@ -1573,10 +1680,7 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
             else: {
               $divide: [
                 {
-                  $subtract: [
-                    new Date(),
-                    "$_id.joining_date",
-                  ], // Replace "endDate" and "startDate" with your date fields
+                  $subtract: [new Date(), "$_id.joining_date"], // Replace "endDate" and "startDate" with your date fields
                 },
                 86400000, // milliseconds in a day
               ],
@@ -1590,38 +1694,29 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
         interestCost: {
           $multiply: [
             {
-              $divide: [
-                leaderboardParams?.marginMoneyInterest,
-                36600
-              ]
+              $divide: [leaderboardParams?.marginMoneyInterest, 36600],
             },
             "$_id.portfolioValue",
-            { $ceil: '$daysOfInterest' }
-          ]
-        }
-      }
+            { $ceil: "$daysOfInterest" },
+          ],
+        },
+      },
     },
     {
       $project: {
         name: {
           $concat: [
             {
-              $arrayElemAt: [
-                "$user.first_name",
-                0,
-              ],
+              $arrayElemAt: ["$user.first_name", 0],
             },
             " ",
             {
-              $arrayElemAt: [
-                "$user.last_name",
-                0,
-              ],
+              $arrayElemAt: ["$user.last_name", 0],
             },
           ],
         },
         photo: {
-          $arrayElemAt: ["$user.profilePhoto.url", 0]
+          $arrayElemAt: ["$user.profilePhoto.url", 0],
         },
         // portfolioValue: "$portfolioValue",
         joining_date: {
@@ -1636,16 +1731,16 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
         daysOfInterest: 1,
         weekDays: 1,
         monthDays: 1,
-        moneyCost: '$interestCost',
+        moneyCost: "$interestCost",
         pnlAfterCost: {
-          $subtract: ['$netPnl', "$interestCost"]
+          $subtract: ["$netPnl", "$interestCost"],
         },
         // name: "$_id.name",
         _id: 0,
         margin: 1,
         portfolioValue: "$_id.portfolioValue",
         grossPnl: 1,
-        npnl: '$netPnl',
+        npnl: "$netPnl",
         npnlOption: 1,
         npnlStock: 1,
         brokerage: 1,
@@ -1659,7 +1754,7 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
           ],
         },
         tradingDays: {
-          $size: '$tradingDays'
+          $size: "$tradingDays",
         },
         // attendancePer: {
         //   $multiply: [
@@ -1687,30 +1782,36 @@ const leaderboardDataHelper = async (startDate, endDate, leaderboardParams, work
       },
     },
     {
-      $limit: (Number(leaderboardParams?.usersPerTable) || 10)
-    }
+      $limit: Number(leaderboardParams?.usersPerTable) || 10,
+    },
   ];
 
-  const data = await PaperTradeLeaderboard.aggregate(pipeline)
+  const data = await PaperTradeLeaderboard.aggregate(pipeline);
   return data;
-}
+};
 
-exports.lastWeekChampion = async(req, res)=>{
-
+exports.lastWeekChampion = async (req, res) => {
   try {
     const today = moment();
-    const lastWeekStartDate = today.clone().startOf('week').subtract(1, 'week');
-    const lastWeekEndDate = today.clone().endOf('week').subtract(1, 'week');
-    console.log(new Date(lastWeekStartDate), new Date(lastWeekEndDate))
-    const getData = await PaperTradePayout.find({date: {$gt: new Date(lastWeekStartDate), $lt: new Date(lastWeekEndDate)}, frequency: 'Weekly'})
-    .populate('trader', 'first_name last_name')
-    .sort({rewardAmount: -1}).limit(3);
-  
+    const lastWeekStartDate = today.clone().startOf("week").subtract(1, "week");
+    const lastWeekEndDate = today.clone().endOf("week").subtract(1, "week");
+    console.log(new Date(lastWeekStartDate), new Date(lastWeekEndDate));
+    const getData = await PaperTradePayout.find({
+      date: {
+        $gt: new Date(lastWeekStartDate),
+        $lt: new Date(lastWeekEndDate),
+      },
+      frequency: "Weekly",
+    })
+      .populate("trader", "first_name last_name")
+      .sort({ rewardAmount: -1 })
+      .limit(3);
+
     res.status(200).json({
       status: "success",
       data: getData,
       startDate: lastWeekStartDate,
-      endDate: lastWeekEndDate
+      endDate: lastWeekEndDate,
     });
   } catch (err) {
     console.log(err);
@@ -1720,18 +1821,25 @@ exports.lastWeekChampion = async(req, res)=>{
       error: err.message,
     });
   }
-
-}
+};
 
 let isProcessingQueue = false;
 exports.sendVirtualLeaderboardData = async () => {
   try {
-    const leaderboardParams = await LeaderboardParams.findOne({ frequeny: 'Daily', status: 'Active' });
-    const virtualMargin = await UserPortfolio.findOne({ _id: virtualPortfolioId });
+    const leaderboardParams = await LeaderboardParams.findOne({
+      frequeny: "Daily",
+      status: "Active",
+    });
+    const virtualMargin = await UserPortfolio.findOne({
+      _id: virtualPortfolioId,
+    });
 
     if (!isProcessingQueue) {
       isProcessingQueue = true;
-      setInterval(() => processContestQueue(leaderboardParams, virtualMargin), 10000);
+      setInterval(
+        () => processContestQueue(leaderboardParams, virtualMargin),
+        80000
+      );
     }
   } catch (err) {
     console.log(err);
@@ -1748,15 +1856,18 @@ async function processContestQueue(leaderboardParams, virtualMargin) {
   endTime.setHours(9, 48, 0, 0);
 
   let leaderBoard = [];
-  if ((currentTime >= startTime) && (currentTime <= endTime)) {
+  if (currentTime >= startTime && currentTime <= endTime) {
     leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
   }
 
-  if (process.env.STAGING === 'true') {
+  if (process.env.STAGING === "true") {
     leaderBoard = await Leaderboard(leaderboardParams, virtualMargin);
   }
 
-  io.to(`${virtualMargin._id?.toString()}`).emit(`virtual-leaderboardData`, leaderBoard);
+  io.to(`${virtualMargin._id?.toString()}`).emit(
+    `virtual-leaderboardData`,
+    leaderBoard
+  );
 }
 
 exports.sendVirtualMyRankData = async () => {
@@ -1770,27 +1881,33 @@ exports.sendVirtualMyRankData = async () => {
       endTime.setHours(9, 48, 0, 0);
 
       if (currentTime >= startTime && currentTime <= endTime) {
-        const room = io.sockets.adapter.rooms.get(virtualPortfolioId?.toString());
+        const room = io.sockets.adapter.rooms.get(
+          virtualPortfolioId?.toString()
+        );
         const socketIds = Array.from(room ?? []);
         for (let j = 0; j < socketIds?.length; j++) {
           let userId = await client.get(socketIds[j]);
-          let data = await client.get(`paperTradeData:${userId}${virtualPortfolioId?.toString()}`);
+          let data = await client.get(
+            `paperTradeData:${userId}${virtualPortfolioId?.toString()}`
+          );
           data = JSON.parse(data);
           if (data) {
             let { employeeId } = data;
             const myRank = await getRedisMyRank(employeeId);
-            io.to(`${virtualPortfolioId?.toString()}`).emit(`virtual-myrank${userId}`, myRank);
+            io.to(`${virtualPortfolioId?.toString()}`).emit(
+              `virtual-myrank${userId}`,
+              myRank
+            );
           }
         }
       }
     };
     emitLeaderboardData();
-    interval = setInterval(emitLeaderboardData, 5000);
+    interval = setInterval(emitLeaderboardData, 80000);
   } catch (err) {
     console.log(err);
   }
-
-}
+};
 
 const uniqueUsers = async (today) => {
   const paperTrade = await PaperTrade.aggregate([
@@ -1834,7 +1951,7 @@ const uniqueUsers = async (today) => {
     },
     {
       $project: {
-        joining_date: '$_id.joining_date',
+        joining_date: "$_id.joining_date",
         trader: "$_id.traderId",
         first_name: "$_id.first_name",
         last_name: "$_id.last_name",
@@ -1842,7 +1959,7 @@ const uniqueUsers = async (today) => {
         profilePhoto: "$_id.profilePhoto",
       },
     },
-  ])
+  ]);
 
   const stockTrade = await Stock.aggregate([
     {
@@ -1886,7 +2003,7 @@ const uniqueUsers = async (today) => {
     },
     {
       $project: {
-        joining_date: '$_id.joining_date',
+        joining_date: "$_id.joining_date",
         trader: "$_id.traderId",
         first_name: "$_id.first_name",
         last_name: "$_id.last_name",
@@ -1894,67 +2011,76 @@ const uniqueUsers = async (today) => {
         profilePhoto: "$_id.profilePhoto",
       },
     },
-  ])
+  ]);
 
   const concatedArray = paperTrade.concat(stockTrade);
 
   const uniqueTradersMap = new Map();
-  concatedArray.forEach(item => uniqueTradersMap.set(item.trader?.toString(), item));
+  concatedArray.forEach((item) =>
+    uniqueTradersMap.set(item.trader?.toString(), item)
+  );
   const uniqueTraders = Array.from(uniqueTradersMap.values());
 
-  return (uniqueTraders);
-}
+  return uniqueTraders;
+};
 
 const pnlAddingToArray = async (allParticipants) => {
   let ranks = [];
 
   for (let i = 0; i < allParticipants.length; i++) {
     let pnl, stockIntraday;
-    pnl = await client.get(`${allParticipants[i].trader.toString()}: overallpnlPaperTrade`)
+    pnl = await client.get(
+      `${allParticipants[i].trader.toString()}: overallpnlPaperTrade`
+    );
     pnl = JSON.parse(pnl);
     pnl = pnl?.filter((elem) => {
-      return !elem?._id?.isLimit
-    })
+      return !elem?._id?.isLimit;
+    });
 
-    if (await client.exists(`${allParticipants[i].trader.toString()}: overallpnlIntraday`)) {
-      stockIntraday = await client.get(`${allParticipants[i].trader.toString()}: overallpnlIntraday`);
+    if (
+      await client.exists(
+        `${allParticipants[i].trader.toString()}: overallpnlIntraday`
+      )
+    ) {
+      stockIntraday = await client.get(
+        `${allParticipants[i].trader.toString()}: overallpnlIntraday`
+      );
       stockIntraday = JSON.parse(stockIntraday);
       // console.log('stockIntraday redis', stockIntraday)
     } else {
-      stockIntraday = await pnlPositionDatabase(allParticipants[i]?.trader)
+      stockIntraday = await pnlPositionDatabase(allParticipants[i]?.trader);
       // console.log('stockIntraday db', stockIntraday)
     }
 
     stockIntraday = stockIntraday?.filter((elem) => {
       elem.stock = true;
-      return !elem?._id?.isLimit
-    })
+      return !elem?._id?.isLimit;
+    });
 
     pnl = pnl?.concat(stockIntraday) || [];
-
-
 
     if (pnl) {
       for (let elem of pnl) {
         elem.trader = allParticipants[i]?.trader?.toString();
         elem.name = allParticipants[i]?.employeeid;
-        elem.userName = allParticipants[i]?.first_name + " " + allParticipants[i]?.last_name;
+        elem.userName =
+          allParticipants[i]?.first_name + " " + allParticipants[i]?.last_name;
         elem.photo = allParticipants[i]?.profilePhoto?.url;
         elem.joining_date = allParticipants[i]?.joining_date;
       }
     }
 
-
-    ranks = ranks.concat(pnl)
+    ranks = ranks.concat(pnl);
   }
 
   return ranks;
-}
+};
 
 const Leaderboard = async (leaderboardParams, virtualMargin) => {
-
   const date = new Date();
-  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0"
+  let todayDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
   )}-${String(date.getDate()).padStart(2, "0")}`;
   todayDate = todayDate + "T00:00:00.000Z";
   const today = new Date(todayDate);
@@ -1969,7 +2095,7 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
     const ranks = await pnlAddingToArray(allParticipants);
     const uniqueData = new Set();
 
-    ranks.forEach(item => {
+    ranks.forEach((item) => {
       if (item) {
         const { symbol, instrumentToken, exchange } = item._id;
         uniqueData.add({ symbol, instrumentToken, exchange, lots: item.lots });
@@ -1984,32 +2110,34 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
     uniqueDataArray.forEach((elem, index) => {
       if (elem.lots !== 0) {
         if (index === 0) {
-          addUrl = ('i=' + elem?.exchange + ':' + elem?.symbol);
+          addUrl = "i=" + elem?.exchange + ":" + elem?.symbol;
         } else {
-          addUrl += ('&i=' + elem?.exchange + ':' + elem?.symbol);
+          addUrl += "&i=" + elem?.exchange + ":" + elem?.symbol;
         }
       }
     });
     const ltpBaseUrl = `https://api.kite.trade/quote?${addUrl}`;
-    let auth = 'token' + data.getApiKey + ':' + data.getAccessToken;
+    let auth = "token" + data.getApiKey + ":" + data.getAccessToken;
 
     let authOptions = {
       headers: {
-        'X-Kite-Version': '3',
+        "X-Kite-Version": "3",
         Authorization: auth,
       },
     };
 
     const response = await axios.get(ltpBaseUrl, authOptions);
     for (let instrument in response.data.data) {
-      livePrices[response.data.data[instrument].instrument_token] = response.data.data[instrument].last_price;
+      livePrices[response.data.data[instrument].instrument_token] =
+        response.data.data[instrument].last_price;
     }
 
     for (doc of ranks) {
       if (doc) {
-        doc.rpnl = doc?.lots !== 0
-          ? doc?.amount + doc?.lots * livePrices[doc?._id?.instrumentToken]
-          : doc?.amount;
+        doc.rpnl =
+          doc?.lots !== 0
+            ? doc?.amount + doc?.lots * livePrices[doc?._id?.instrumentToken]
+            : doc?.amount;
         doc.npnl = doc?.rpnl - doc?.brokerage;
         doc.portfolioValue = portfolioValue;
         doc.interest = interest;
@@ -2017,62 +2145,81 @@ const Leaderboard = async (leaderboardParams, virtualMargin) => {
     }
 
     const result = await aggregateRanks(ranks);
-    
 
     for (let rank of result) {
       try {
         await client.set(`${rank.name} investedAmount`, JSON.stringify(rank));
         await client.ZADD(`leaderboard-paper`, {
           score: rank.npnl,
-          value: JSON.stringify({ name: rank.name })
+          value: JSON.stringify({ name: rank.name }),
         });
       } catch (err) {
         console.log(err);
       }
     }
 
-    const leaderBoard = await client.sendCommand(['ZREVRANGE', `leaderboard-paper`, "0", `${usersPerTable}`, 'WITHSCORES'])
-    const formattedLeaderboard = await formatData(leaderBoard, interest, portfolioValue)
+    const leaderBoard = await client.sendCommand([
+      "ZREVRANGE",
+      `leaderboard-paper`,
+      "0",
+      `${usersPerTable}`,
+      "WITHSCORES",
+    ]);
+    const formattedLeaderboard = await formatData(
+      leaderBoard,
+      interest,
+      portfolioValue
+    );
 
     // console.log("formattedLeaderboard", formattedLeaderboard)
     return formattedLeaderboard;
   } catch (e) {
     console.log("redis error", e);
   }
-}
+};
 
 const getRedisMyRank = async (employeeId) => {
-
   try {
     if (await client.exists(`leaderboard-paper`)) {
-
-      const leaderBoardRank = await client.ZREVRANK(`leaderboard-paper`, JSON.stringify({ name: employeeId }));
+      const leaderBoardRank = await client.ZREVRANK(
+        `leaderboard-paper`,
+        JSON.stringify({ name: employeeId })
+      );
       // await client.del(`leaderboard-paper`)
-      if (leaderBoardRank == null) return null
-      return leaderBoardRank + 1
+      if (leaderBoardRank == null) return null;
+      return leaderBoardRank + 1;
     } else {
-      console.log("loading rank")
+      console.log("loading rank");
     }
-
   } catch (err) {
     console.log(err);
   }
-
-}
+};
 
 async function aggregateRanks(ranks) {
-
   const result = {};
   for (const curr of ranks) {
     if (curr) {
       // console.log(';curr', curr)
-      const { npnl, trader, name, userName, photo, brokerage, portfolioValue, interest, joining_date, stock } = curr;
+      const {
+        npnl,
+        trader,
+        name,
+        userName,
+        photo,
+        brokerage,
+        portfolioValue,
+        interest,
+        joining_date,
+        stock,
+      } = curr;
       const traderId = trader;
 
       if (!result[traderId]) {
         result[traderId] = {
           traderId,
-          interest, portfolioValue,
+          interest,
+          portfolioValue,
           name,
           // : employeeidObj[traderId.toString()]?.employeeid,
           npnl: 0,
@@ -2082,15 +2229,15 @@ async function aggregateRanks(ranks) {
           userName,
           // : employeeidObj[traderId.toString()]?.name,
           photo,
-          joining_date
+          joining_date,
           // : employeeidObj[traderId.toString()]?.photo,
         };
       }
-      if(stock){
-        result[traderId].npnlStock += npnl
+      if (stock) {
+        result[traderId].npnlStock += npnl;
       }
-      if(!stock){
-        result[traderId].npnlOption += npnl
+      if (!stock) {
+        result[traderId].npnlOption += npnl;
       }
       result[traderId].npnl += npnl;
       result[traderId].brokerage += brokerage;
@@ -2107,11 +2254,11 @@ async function formatData(arr, interest, portfolioValue) {
     const obj = JSON.parse(arr[i]);
     const daysInYear = 366;
     // Add the npnl property to the object
-    let data = await client.get(`${obj.name} investedAmount`)
+    let data = await client.get(`${obj.name} investedAmount`);
     data = JSON.parse(data);
     obj.npnl = data?.npnl;
     obj.npnlOption = data?.npnlOption;
-    obj.npnlStock = data?.npnlStock
+    obj.npnlStock = data?.npnlStock;
     obj.interest = Number(interest);
     obj.portfolioValue = Number(portfolioValue);
     obj.userName = data.userName;
@@ -2120,7 +2267,8 @@ async function formatData(arr, interest, portfolioValue) {
     obj.brokerage = data.brokerage;
     obj.employeeid = obj.name;
     obj.tradingDays = 1;
-    obj.moneyCost = (Number(interest) / (daysInYear * 100)) * Number(portfolioValue);
+    obj.moneyCost =
+      (Number(interest) / (daysInYear * 100)) * Number(portfolioValue);
     // Add the object to the formattedLeaderboard array
     formattedLeaderboard.push(obj);
   }
@@ -2130,32 +2278,48 @@ async function formatData(arr, interest, portfolioValue) {
 
 exports.payouts = async () => {
   const today = new Date();
-  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const lastDayOfMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    0
+  ).getDate();
   const getMonthDate = today.getDate();
 
   await dailyPayout();
 
-  if (today.getDay() === 5)
-    await weekPayout();
+  if (today.getDay() === 5) await weekPayout();
 
-  if (lastDayOfMonth === getMonthDate)
-    await monthPayout();
+  if (lastDayOfMonth === getMonthDate) await monthPayout();
 
-  const leaderboardParams = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Quarter' });
-  const startOfDay = moment(leaderboardParams?.quarterEndDate).clone().startOf('day').subtract(5, 'hours').subtract(30, 'minutes');
-  const endOfDay = moment(leaderboardParams?.quarterEndDate).clone().endOf('day').subtract(5, 'hours').subtract(30, 'minutes');
-  const check = (new Date(startOfDay) <= new Date()) && (new Date(endOfDay) >= new Date());
-  if (check)
-    await quarterPayout();
+  const leaderboardParams = await LeaderboardParams.findOne({
+    status: "Active",
+    frequency: "Quarter",
+  });
+  const startOfDay = moment(leaderboardParams?.quarterEndDate)
+    .clone()
+    .startOf("day")
+    .subtract(5, "hours")
+    .subtract(30, "minutes");
+  const endOfDay = moment(leaderboardParams?.quarterEndDate)
+    .clone()
+    .endOf("day")
+    .subtract(5, "hours")
+    .subtract(30, "minutes");
+  const check =
+    new Date(startOfDay) <= new Date() && new Date(endOfDay) >= new Date();
+  if (check) await quarterPayout();
 };
 
 exports.todayLeaderboardReward = async (req, res) => {
   try {
-    const reward = await LeaderboardParams.findOne({ status: 'Active', frequency: 'Daily' }).select('rewards');
+    const reward = await LeaderboardParams.findOne({
+      status: "Active",
+      frequency: "Daily",
+    }).select("rewards");
 
     res.status(200).json({
       status: "success",
-      data: reward
+      data: reward,
     });
   } catch (err) {
     res.status(500).json({
@@ -2164,32 +2328,52 @@ exports.todayLeaderboardReward = async (req, res) => {
       error: err.message,
     });
   }
-}
+};
 
-const getWorkingTradingDays = async (startDate, endDate, holidays, weekStart, weekEnd) => {
+const getWorkingTradingDays = async (
+  startDate,
+  endDate,
+  holidays,
+  weekStart,
+  weekEnd
+) => {
   let newDate = moment(startDate);
   let dayCount = 0;
 
   while (newDate <= moment(endDate)) {
     // console.log(newDate, moment(endDate), !isHoliday(newDate, holidays) && !isWeekend(newDate, weekStart, weekEnd), !isHoliday(newDate, holidays) , !isWeekend(newDate, weekStart, weekEnd))
-    if (!isHoliday(newDate, holidays) && !isWeekend(newDate, weekStart, weekEnd)) {
+    if (
+      !isHoliday(newDate, holidays) &&
+      !isWeekend(newDate, weekStart, weekEnd)
+    ) {
       dayCount++;
     }
-    newDate.add(1, 'day'); // Increment the date
+    newDate.add(1, "day"); // Increment the date
   }
 
   return dayCount;
 };
 
 const isHoliday = (date, holidays) => {
-  return holidays.some(elem => {
-    return moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'day') &&
-      moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'month') &&
-      moment(elem.holidayDate).add(5, 'hours').add(30, 'minutes').isSame(date, 'year')
+  return holidays.some((elem) => {
+    return (
+      moment(elem.holidayDate)
+        .add(5, "hours")
+        .add(30, "minutes")
+        .isSame(date, "day") &&
+      moment(elem.holidayDate)
+        .add(5, "hours")
+        .add(30, "minutes")
+        .isSame(date, "month") &&
+      moment(elem.holidayDate)
+        .add(5, "hours")
+        .add(30, "minutes")
+        .isSame(date, "year")
+    );
   });
 };
 
 const isWeekend = (date, weekStart, weekEnd) => {
-  const newDate = date.clone().add(5, 'hours').add(30, 'minutes');
+  const newDate = date.clone().add(5, "hours").add(30, "minutes");
   return newDate.day() === weekStart || newDate.day() === weekEnd; // Sunday or Saturday
 };
