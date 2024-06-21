@@ -408,22 +408,3 @@ exports.createTradeDoc = async(symbol, date, price, lots, expiry)=>{
     trade_time: `${date}T09:15:00.000+00:00`,
   }
 }
-
-/*
-0. add expiry in trade documents
-
-1. check previous open lots for that symbol in database, 
-if found then create an trade in trade array
-
-2. for creating trade i need last price of that symbol on current date
-
-3. also calculate trade array's remaining open lots and update that
-object , if trade document's trade_time and expiry's date is same then 
-lots for that symbol is 0
-
-do the above steps in saveDataToDB function
-
-1. exipry wala added nhi h
-2. trades wala tbhi extend ho if previous lots > 0
-3. 3 no. is pending
-*/
