@@ -232,8 +232,8 @@ exports.avgPnlChart = async (req, res) => {
     const fromDate = req.query.from;
     console.log(req.query.from, req.query.to)
     const weekday = req.query.weekday??'allDays';
-    const demography = req.query.demography??'gender';
-    const demographicGroup = req.query.demographicGroup??'Male';
+    const demography = req.query.demography;
+    const demographicGroup = req.query.demographicGroup;
     const timePeriod = Number(req.query.timePeriod) || 1;
     const frequency =
       req.query.frequency === "undefined" || !req.query.frequency
@@ -250,9 +250,11 @@ exports.avgPnlChart = async (req, res) => {
       }).select("reportedBy");
       userIds = [...teamLead.reportedBy];
     } else {
+      console.log('in else')
       userIds.push(new ObjectId(user));
     }
 
+    console.log(demography , demographicGroup)
     if(demography && demographicGroup){
       userIds = await demographicWiseChartHelper(demography, demographicGroup, req?.user?._id)
     }
