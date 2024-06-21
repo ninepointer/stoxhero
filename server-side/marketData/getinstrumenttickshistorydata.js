@@ -261,8 +261,8 @@ exports.main = async () => {
     .subtract(30, "minutes");
 
   console.log(" before first", new Date());
-  // const todaysDatePart = new Date()?.toISOString()?.split("T")?.[0];
-  const todaysDatePart = '2024-06-19';
+  const todaysDatePart = new Date()?.toISOString()?.split("T")?.[0];
+  // const todaysDatePart = '2024-06-19';
 
   // const inactiveeq = await TradableInstrument.updateMany(
   //   {instrument_type: 'EQ'}
