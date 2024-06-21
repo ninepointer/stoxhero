@@ -54,7 +54,7 @@ const {
   creditAmount,
   changeStatus,
   changeBattleStatus,
-  autoCutMainManuallyMockBySelf
+  autoCutMainManuallyMockBySelf,
 } = require("../../controllers/AutoTradeCut/mainManually");
 const TenXTrade = require("../../models/mock-trade/tenXTraderSchema");
 const InternTrade = require("../../models/mock-trade/internshipTrade");
@@ -141,33 +141,122 @@ const School = require("../../models/School/School");
 const UnformattedSchool = require("../../models/School/unformatedSchool");
 const NewSchool = require("../../models/School/newSchool");
 const City = require("../../models/City/city");
-const {getInfluencerUsers} = require('../../controllers/influencer/influencerController')
-const { getIOValue } = require('../../marketData/socketio');
-const {autoCreate} = require('../../controllers/AutoCreate');
-const Calculator = require('../../models/calculator/calculatorSchema');
-const {cronjobs} = require('../../cronjobs');
-const { removeInstrumentFromWatchlist } = require("../../controllers/instrument");
-const {payouts, saveLeaderboardData} = require('../../controllers/paperTradeController');
+const {
+  getInfluencerUsers,
+} = require("../../controllers/influencer/influencerController");
+const { getIOValue } = require("../../marketData/socketio");
+const { autoCreate } = require("../../controllers/AutoCreate");
+const Calculator = require("../../models/calculator/calculatorSchema");
+const { cronjobs } = require("../../cronjobs");
+const {
+  removeInstrumentFromWatchlist,
+} = require("../../controllers/instrument");
+const {
+  payouts,
+  saveLeaderboardData,
+} = require("../../controllers/paperTradeController");
 const PaperTradeLeaderboard = require("../../models/mock-trade/paperTradeLeaderboard");
-const {main} = require('../../marketData/getinstrumenttickshistorydata');
-const { hourChart, fetData, uploadCSV } = require('../../controllers/hourChart');
+const { main } = require("../../marketData/getinstrumenttickshistorydata");
+const {
+  hourChart,
+  fetData,
+  uploadCSV,
+} = require("../../controllers/hourChart");
 // client8.connect()
 // .then(async (res) => {
-    
+
 //     console.log("redis connected of client3", res)
 // })
 // .catch((err) => {
 //     console.log("redis not connected", err)
-// }) 
+// })
+router.get("/deposit-participants-fee", async (req, res) => {
+  try {
+    const endDate = new Date("2024-06-18T23:59:59.999Z");
+    const startDate = new Date("2024-06-18T00:00:00.000Z");
 
-router.get("/changeId", async (req, res) => {
-  const update = await PaperTrade.updateMany({trader: new ObjectId('662f804700f04a05fe3c941f')}, {
-    $set: {
-      trader: new ObjectId('63788f3991fc4bf629de6df0'),
-      createdBy: new ObjectId('63788f3991fc4bf629de6df0')
+    // Fetch contests and marginX events that ended on June 18, 2024
+    const contests = await DailyContest.find({
+      entryFee: { $gt: 0 },
+      contestEndTime: { $gte: startDate, $lte: endDate },
+    });
+    const marginXEvents = await MarginX.find({
+      endTime: { $gte: startDate, $lte: endDate },
+    });
+
+    const usersToDeposit = [];
+
+    // Collect users from contests
+    contests.forEach((contest) => {
+      contest.participants.forEach((participant) => {
+        if (participant.fee && participant.userId) {
+          usersToDeposit.push({
+            userId: participant.userId,
+            fee: participant.fee,
+            forr: "contest",
+            name: contest.contestName,
+          });
+        }
+      });
+    });
+
+    // Collect users from marginX events
+    marginXEvents.forEach((event) => {
+      event.participants.forEach((participant) => {
+        if (participant.fee && participant.userId) {
+          usersToDeposit.push({
+            userId: participant.userId,
+            fee: participant.fee,
+            forr: "marginx",
+            name: event.marginXName,
+          });
+        }
+      });
+    });
+    console.log("contests", contests);
+    console.log("marginx", marginXEvents);
+    console.log("users", usersToDeposit);
+
+    // Deposit fees into user wallets
+    for (const { userId, fee, forr, name } of usersToDeposit) {
+      await userWallet.updateOne(
+        { userId },
+        {
+          $push: {
+            transactions: {
+              title: `${forr == "contest" ? "TestZone" : "MarginX"} Refund`,
+              description: `Refund for Cancelled ${
+                forr == "contest" ? "TestZone" : "MarginX"
+              } ${name}`,
+              transactionDate: new Date(),
+              amount: fee,
+              transactionType: "Cash",
+              transactionStatus: "Completed",
+              transactionId: uuid.v4(),
+            },
+          },
+        },
+        { upsert: true }
+      );
     }
-  })
-  res.send(update)
+
+    res.status(200).send("Fees deposited successfully.");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while depositing fees.");
+  }
+});
+router.get("/changeId", async (req, res) => {
+  const update = await PaperTrade.updateMany(
+    { trader: new ObjectId("662f804700f04a05fe3c941f") },
+    {
+      $set: {
+        trader: new ObjectId("63788f3991fc4bf629de6df0"),
+        createdBy: new ObjectId("63788f3991fc4bf629de6df0"),
+      },
+    }
+  );
+  res.send(update);
   // await hourChart(req, res);
 });
 
@@ -184,7 +273,7 @@ router.get("/uploadCSVData", async (req, res) => {
 router.get("/historyTickData", async (req, res) => {
   try {
     await main();
-    res.send('ok');
+    res.send("ok");
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -208,69 +297,75 @@ router.get("/updateDatainleaderboard", async (req, res) => {
   }
 });
 
-
 router.get("/portfolioUpdate", async (req, res) => {
-  const data = await PortFolio.findOneAndUpdate({ status: 'Active', portfolioName: 'Virtual Trading Portfolio' }, {
-    $set: {
-      portfolioUpdate: [{
-        date: new Date('2024-01-29'),
-        value: 2000000
+  const data = await PortFolio.findOneAndUpdate(
+    { status: "Active", portfolioName: "Virtual Trading Portfolio" },
+    {
+      $set: {
+        portfolioUpdate: [
+          {
+            date: new Date("2024-01-29"),
+            value: 2000000,
+          },
+          {
+            date: new Date("2024-05-14"),
+            value: 10000000,
+          },
+        ],
       },
-      {
-        date: new Date('2024-05-14'),
-        value: 10000000
-      }
-      ]
     }
-  })
+  );
   res.send(data);
 });
 
 router.get("/changePortfolioId", async (req, res) => {
-  const data = await StockTrade.updateMany({}, {
-    $set: {
-      portfolioId: '6433e2e5500dc2f2d20d686d'
+  const data = await StockTrade.updateMany(
+    {},
+    {
+      $set: {
+        portfolioId: "6433e2e5500dc2f2d20d686d",
+      },
     }
-  })
+  );
   res.send(data);
 });
 
 router.get("/removeduplicate", async (req, res) => {
   const tradable = await TradableInstrumentSchema.aggregate([
     {
-      $match: {status: 'Active'}
+      $match: { status: "Active" },
     },
-      {
-        $group: {
-          _id: '$tradingsymbol',
-          count: { $sum: 1 },
-          ids: { $push: "$_id" }
-        }
+    {
+      $group: {
+        _id: "$tradingsymbol",
+        count: { $sum: 1 },
+        ids: { $push: "$_id" },
       },
-      {
-        $match: {
-          count: { $gt: 1 }
-        }
-      }
-    ])
+    },
+    {
+      $match: {
+        count: { $gt: 1 },
+      },
+    },
+  ]);
 
-    const bulkOps = [];
-    tradable.forEach(group => {
-      // Keep the first document and delete the rest
-      const keepId = group.ids.shift();
-      bulkOps.push({
-        deleteOne: {
-          filter: { _id: { $in: group.ids } }
-        }
-      });
+  const bulkOps = [];
+  tradable.forEach((group) => {
+    // Keep the first document and delete the rest
+    const keepId = group.ids.shift();
+    bulkOps.push({
+      deleteOne: {
+        filter: { _id: { $in: group.ids } },
+      },
     });
+  });
 
-    const update = await TradableInstrumentSchema.bulkWrite(bulkOps);
-    // await TradableInstrumentSchema.updateMany({_id: {$in: bulkOps}}, {
-    //   $set: {
-    //     status: 'Inactive'
-    //   }
-    // })
+  const update = await TradableInstrumentSchema.bulkWrite(bulkOps);
+  // await TradableInstrumentSchema.updateMany({_id: {$in: bulkOps}}, {
+  //   $set: {
+  //     status: 'Inactive'
+  //   }
+  // })
   res.send(update);
 });
 
@@ -285,20 +380,24 @@ router.get("/leaderboardData", async (req, res) => {
 });
 
 router.get("/inactiveInst", async (req, res) => {
-
-
-  const tradable = await Instrument.updateMany({instrument: 'FINNIFTY', status: 'Active', contractDate: {$lte: new Date('2024-04-29')}}, {
-    $set: {
-      status: 'Inactive'
+  const tradable = await Instrument.updateMany(
+    {
+      instrument: "FINNIFTY",
+      status: "Active",
+      contractDate: { $lte: new Date("2024-04-29") },
+    },
+    {
+      $set: {
+        status: "Inactive",
+      },
     }
-  });
+  );
 
   res.status(200).json(tradable);
 });
 
 router.get("/inactiveTradable", async (req, res) => {
-
-  const exipryFrom = '2024-04-26';
+  const exipryFrom = "2024-04-26";
 
   // const tradable = await TradableInstrumentSchema.updateMany({expiry: {$lte: exipryFrom}, status: 'Active'}, {
   //   $set: {
@@ -306,88 +405,96 @@ router.get("/inactiveTradable", async (req, res) => {
   //   }
   // });
 
-  const tradable = await TradableInstrumentSchema.updateMany({ status: 'Inactive'}, {
-    $set: {
-      status: 'Active'
+  const tradable = await TradableInstrumentSchema.updateMany(
+    { status: "Inactive" },
+    {
+      $set: {
+        status: "Active",
+      },
     }
-  });
+  );
 
   res.status(200).json(tradable);
 });
 
 router.get("/changeLotSize", async (req, res) => {
   const lotsize = 25;
-  const name = 'NIFTY50';
-  const exipryFrom = '2024-05-02';
+  const name = "NIFTY50";
+  const exipryFrom = "2024-05-02";
 
-  const tradable = await TradableInstrumentSchema.updateMany({expiry: {$gte: exipryFrom}, name: name, status: 'Active'}, {
-    $set: {
-      lot_size: lotsize
+  const tradable = await TradableInstrumentSchema.updateMany(
+    { expiry: { $gte: exipryFrom }, name: name, status: "Active" },
+    {
+      $set: {
+        lot_size: lotsize,
+      },
     }
-  });
+  );
 
   res.status(200).json(tradable);
 });
 
 router.get("/addMaxLot", async (req, res) => {
-  const exipryFrom = '2024-04-26';
+  const exipryFrom = "2024-04-26";
 
   const arr = [
     {
-      name: 'BANKNIFTY',
-      maxlot: 900
+      name: "BANKNIFTY",
+      maxlot: 900,
     },
     {
-      name: 'FINNIFTY',
-      maxlot: 1800
+      name: "FINNIFTY",
+      maxlot: 1800,
     },
     {
-      name: 'NIFTY50',
-      maxlot: 1800
-    }
-  ]
+      name: "NIFTY50",
+      maxlot: 1800,
+    },
+  ];
 
-  for(const elem of arr){
-    const tradable = await TradableInstrumentSchema.updateMany({expiry: {$gte: exipryFrom}, name: elem.name, status: 'Active'}, {
-      $set: {
-        max_lot: elem.maxlot
+  for (const elem of arr) {
+    const tradable = await TradableInstrumentSchema.updateMany(
+      { expiry: { $gte: exipryFrom }, name: elem.name, status: "Active" },
+      {
+        $set: {
+          max_lot: elem.maxlot,
+        },
       }
-    });
+    );
 
-    console.log(tradable, elem)
+    console.log(tradable, elem);
   }
 
-  res.status(200).json('ok');
+  res.status(200).json("ok");
 });
 
 router.get("/clearWatchlist", async (req, res) => {
-  const data = await removeInstrumentFromWatchlist()
+  const data = await removeInstrumentFromWatchlist();
   res.status(200).json(data);
 });
 
 router.get("/date", async (req, res) => {
-  const data = await removeInstrumentFromWatchlist()
+  const data = await removeInstrumentFromWatchlist();
   // autoCreate()
-//   const data = await MarginXCompany.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
-//     , {
-//       $set: {
-//         status: 'REJECTED'
-//       }
-//     }
-//   )
+  //   const data = await MarginXCompany.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
+  //     , {
+  //       $set: {
+  //         status: 'REJECTED'
+  //       }
+  //     }
+  //   )
 
-//   const data1 = await DailyContestMockCompany.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
-//   , {
-//     $set: {
-//       status: 'REJECTED'
-//     }
-//   }
-// )
-res.status(200).json(data);
+  //   const data1 = await DailyContestMockCompany.updateMany({ createdOn: { $gt: new Date('2024-04-24') }, createdBy: new ObjectId('63ecbc570302e7cf0153370c') }
+  //   , {
+  //     $set: {
+  //       status: 'REJECTED'
+  //     }
+  //   }
+  // )
+  res.status(200).json(data);
 });
 
 router.get("/createAssets", async (req, res) => {
-
   const liabilities = [
     {
       assetName: "Others",
@@ -395,12 +502,12 @@ router.get("/createAssets", async (req, res) => {
       riskLevel: "Medium",
       type: "Liability",
       description: "Other types of loans not categorized above.",
-      status: "Active"
-    }
+      status: "Active",
+    },
   ];
   const save = await Calculator.create(liabilities);
 
-  res.send('ok');
+  res.send("ok");
 });
 
 router.get("/influencerUser", async (req, res) => {
@@ -412,13 +519,13 @@ router.get("/influencerUser", async (req, res) => {
   //   data: { obj: 1 }
   // }))
 
-  res.send('ok');
+  res.send("ok");
 });
 
-router.get('/revenuesplitmonth', async (req, res, next) => {
+router.get("/revenuesplitmonth", async (req, res, next) => {
   try {
-    const startDate = new Date('2023-03-31T18:30:00.000+00:00')
-    const endDate = new Date('2023-04-30T18:29:59.999+00:00')
+    const startDate = new Date("2023-03-31T18:30:00.000+00:00");
+    const endDate = new Date("2023-04-30T18:29:59.999+00:00");
 
     const bonus = await userWallet.aggregate([
       {
@@ -429,15 +536,12 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
 
       {
         $match: {
-
           $or: [
-
             {
               "transactions.title": "Sign up Bonus",
             },
             {
-              "transactions.title":
-                "TenX Joining Bonus",
+              "transactions.title": "TenX Joining Bonus",
             },
           ],
         },
@@ -453,16 +557,10 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
                 if: {
                   $or: [
                     {
-                      $eq: [
-                        "$transactions.title",
-                        "Sign up Bonus",
-                      ],
+                      $eq: ["$transactions.title", "Sign up Bonus"],
                     },
                     {
-                      $eq: [
-                        "$transactions.title",
-                        "Tenx Joining Bonus",
-                      ],
+                      $eq: ["$transactions.title", "Tenx Joining Bonus"],
                     },
                   ],
                 },
@@ -477,15 +575,14 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
         $project: {
           user: "$_id.user",
           bonus: "$bonusAmount",
-          _id: 0
-        }
+          _id: 0,
+        },
       },
       {
         $match: {
-          bonus: { $gt: 0 }
-        }
-      }
-
+          bonus: { $gt: 0 },
+        },
+      },
     ]);
 
     const prevRevenue = await userWallet.aggregate([
@@ -507,9 +604,8 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
               "transactions.title": "MarginX Fee",
             },
             {
-              "transactions.title":
-                "Bought TenX Trading Subscription",
-            }
+              "transactions.title": "Bought TenX Trading Subscription",
+            },
           ],
           "transactions.transactionDate": {
             $lt: new Date(startDate),
@@ -523,14 +619,9 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
           },
           amount: {
             $sum: {
-              $multiply: [
-                "$transactions.amount",
-                -1,
-              ]
-
+              $multiply: ["$transactions.amount", -1],
             },
           },
-
         },
       },
 
@@ -541,7 +632,7 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
           _id: 0,
         },
       },
-    ])
+    ]);
 
     const currentRevenue = await userWallet.aggregate([
       {
@@ -562,9 +653,8 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
               "transactions.title": "MarginX Fee",
             },
             {
-              "transactions.title":
-                "Bought TenX Trading Subscription",
-            }
+              "transactions.title": "Bought TenX Trading Subscription",
+            },
           ],
           "transactions.transactionDate": {
             $gte: new Date(startDate),
@@ -579,14 +669,9 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
           },
           amount: {
             $sum: {
-              $multiply: [
-                "$transactions.amount",
-                -1,
-              ]
-
+              $multiply: ["$transactions.amount", -1],
             },
           },
-
         },
       },
 
@@ -597,15 +682,19 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
           _id: 0,
         },
       },
-    ])
+    ]);
 
-    console.log('lengths', bonus.length, prevRevenue.length, currentRevenue.length)
+    console.log(
+      "lengths",
+      bonus.length,
+      prevRevenue.length,
+      currentRevenue.length
+    );
 
     // const obj = {
     //   revenue: 0,
     //   bonus: 0
     // }
-
 
     // for(let elem of currentRevenue){
     //   const bonusData = bonus.filter(subelem => subelem.user?.toString() === elem?.user?.toString());
@@ -624,32 +713,34 @@ router.get('/revenuesplitmonth', async (req, res, next) => {
 
     const obj = calculateRevenueAndBonus(prevRevenue, currentRevenue, bonus);
 
-
     console.log(obj);
 
     const response = {
       data: obj,
       status: "success",
       message: "Data fetched successfully",
-    }
+    };
     res.status(200).json(response);
   } catch (e) {
     console.log(e);
   }
-})
-
+});
 
 function calculateRevenueAndBonus(prevRevenue, currentRevenue, bonus) {
   const obj = {
     actualRevenue: 0,
-    bonusAmount: 0
+    bonusAmount: 0,
   };
 
-  const userBonusMap = new Map(bonus.map(entry => [entry.user.toString(), entry.bonus]));
+  const userBonusMap = new Map(
+    bonus.map((entry) => [entry.user.toString(), entry.bonus])
+  );
 
   for (const elem of currentRevenue) {
     const currRev = elem.revenue;
-    const prev = prevRevenue.find(entry => entry.user.toString() === elem.user.toString());
+    const prev = prevRevenue.find(
+      (entry) => entry.user.toString() === elem.user.toString()
+    );
     const prevRev = prev ? prev.revenue : 0;
     const mybonus = userBonusMap.get(elem.user.toString()) || 0;
     const bonusUsed = Math.min(prevRev, mybonus);
@@ -663,7 +754,6 @@ function calculateRevenueAndBonus(prevRevenue, currentRevenue, bonus) {
 
   return obj;
 }
-
 
 router.get("/schoolaff", async (req, res) => {
   try {
@@ -3031,32 +3121,38 @@ router.get("/updateproduct", async (req, res) => {
 });
 
 router.get("/addtenxsubscription", async (req, res) => {
-  const subsId = '';
-  const userId = '';
-  const subs = await TenxSubscription.findOneAndUpdate({_id: new ObjectId(subsId)}, {
-    $push: {
-      users: {
-        userId: userId,
-        subscribedOn: new Date(),
-        status:'Live',
-        fee: 450,
-        bonusRedemption:50,
-        actualPrice:500,
-      }
+  const subsId = "";
+  const userId = "";
+  const subs = await TenxSubscription.findOneAndUpdate(
+    { _id: new ObjectId(subsId) },
+    {
+      $push: {
+        users: {
+          userId: userId,
+          subscribedOn: new Date(),
+          status: "Live",
+          fee: 450,
+          bonusRedemption: 50,
+          actualPrice: 500,
+        },
+      },
     }
-  });
-  const user = await UserDetail.find({_id: new ObjectId(userId)}, {
-    $push: {
-      subscription: {
-        subscriptionId: subsId,
-        subscribedOn: new Date(),
-        status:'Live',
-        fee: 450,
-        bonusRedemption:50,
-        actualPrice:500,
-      }
+  );
+  const user = await UserDetail.find(
+    { _id: new ObjectId(userId) },
+    {
+      $push: {
+        subscription: {
+          subscriptionId: subsId,
+          subscribedOn: new Date(),
+          status: "Live",
+          fee: 450,
+          bonusRedemption: 50,
+          actualPrice: 500,
+        },
+      },
     }
-  });
+  );
 
   res.send("ok");
 });
@@ -3160,12 +3256,10 @@ const getPrizeDetails = async (battleId) => {
     // 1. Get the corresponding battleTemplate for a given battle
     const battle = await Battle.findById(battleId).populate("battleTemplate");
     if (!battle || !battle.battleTemplate) {
-      return res
-        .status(404)
-        .json({
-          status: "error",
-          message: "Battle or its template not found.",
-        });
+      return res.status(404).json({
+        status: "error",
+        message: "Battle or its template not found.",
+      });
     }
 
     const template = battle.battleTemplate;
@@ -3926,8 +4020,12 @@ router.get("/insrtOldPayout", async (req, res) => {
 });
 
 router.get("/del", async (req, res) => {
-  const compnay = await PaperTrade.find({createdOn: {$gte: new Date('2024-04-11')}});
-  const user = await TenXTrade.find({createdOn: {$gte: new Date('2024-04-11')}});
+  const compnay = await PaperTrade.find({
+    createdOn: { $gte: new Date("2024-04-11") },
+  });
+  const user = await TenXTrade.find({
+    createdOn: { $gte: new Date("2024-04-11") },
+  });
   res.send({ data: compnay.length, dat: user.length });
 });
 
@@ -4804,7 +4902,7 @@ router.get("/updateInstrumentStatusRebuild", async (req, res) => {
 
 router.get("/updateInstrumentStatus", async (req, res) => {
   let date = new Date();
-  let expiryDate = "2024-05-03T20:00:00.000+00:00"
+  let expiryDate = "2024-05-03T20:00:00.000+00:00";
   expiryDate = new Date(expiryDate);
 
   let instrument = await Instrument.updateMany(
@@ -5481,29 +5579,27 @@ router.get("/insertDocument", async (req, res) => {
 
 module.exports = router;
 
-
-
-  // "Product": "NRML",
-  // "Quantity": 50,
-  // "TriggerPrice": "",
-  // "battleId": "660ced490bcb586b5312744f",
-  // "buyOrSell": "BUY",
-  // "contestId": "660ced490bcb586b5312744f",
-  // "createdBy": "Vijay V",
-  // "exchange": "NFO",
-  // "exchangeInstrumentToken": 45798,
-  // "instrumentToken": 11724290,
-  // "marginxId": "660ced490bcb586b5312744f",
-  // "order_id": "240403309177542",
-  // "order_type": "MARKET",
-  // "paperTrade": false,
-  // "price": "",
-  // "stopLoss": "",
-  // "stopLossPrice": "",
-  // "subscriptionId": "660ced490bcb586b5312744f",
-  // "symbol": "NIFTY2440422500PE",
-  // "trader": "63788f3991fc4bf629de6df0",
-  // "uId": "lujfjtce",
-  // "userId": "user@ninepointer.in",
-  // "validity": "DAY",
-  // "variety": "regular"
+// "Product": "NRML",
+// "Quantity": 50,
+// "TriggerPrice": "",
+// "battleId": "660ced490bcb586b5312744f",
+// "buyOrSell": "BUY",
+// "contestId": "660ced490bcb586b5312744f",
+// "createdBy": "Vijay V",
+// "exchange": "NFO",
+// "exchangeInstrumentToken": 45798,
+// "instrumentToken": 11724290,
+// "marginxId": "660ced490bcb586b5312744f",
+// "order_id": "240403309177542",
+// "order_type": "MARKET",
+// "paperTrade": false,
+// "price": "",
+// "stopLoss": "",
+// "stopLossPrice": "",
+// "subscriptionId": "660ced490bcb586b5312744f",
+// "symbol": "NIFTY2440422500PE",
+// "trader": "63788f3991fc4bf629de6df0",
+// "uId": "lujfjtce",
+// "userId": "user@ninepointer.in",
+// "validity": "DAY",
+// "variety": "regular"
