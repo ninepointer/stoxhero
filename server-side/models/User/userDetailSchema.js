@@ -144,7 +144,7 @@ const userDetailSchema = new mongoose.Schema({
     // required: true
   },
   trading_exp: {
-    type: String,
+    type: Number,
     // required: true
   },
   location: {
@@ -168,7 +168,7 @@ const userDetailSchema = new mongoose.Schema({
     // required: true
   },
   family_yearly_income: {
-    type: String,
+    type: Number,
     // require: true,
   },
   joining_date: {
@@ -535,6 +535,10 @@ const userDetailSchema = new mongoose.Schema({
       city: {
         type: Schema.Types.ObjectId,
         ref: "city",
+      },
+      city_tier: {
+        type: String,
+        enum: ['Tier1', 'Tier2', 'Tier3'],
       },
       state: String,
       tags: [String],

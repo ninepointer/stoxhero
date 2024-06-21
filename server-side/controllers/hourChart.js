@@ -230,15 +230,20 @@ exports.avgPnlChart = async (req, res) => {
     const first = performance.now();
     let userIds = [];
     const fromDate = req.query.from;
+    console.log(req.query.from, req.query.to)
     const weekday = req.query.weekday??'allDays';
+    const demography = req.query.demography??'gender';
+    const demographicGroup = req.query.demographicGroup??'Male';
     const timePeriod = Number(req.query.timePeriod) || 1;
     const frequency =
       req.query.frequency === "undefined" || !req.query.frequency
         ? "Hour"
         : req.query.frequency;
-    const toDate = req.query.to === "undefined" ? req.query.from : req.query.to;
+    const toDate = (req.query.to === "undefined" || req.query.to === "Invalid date") ? req.query.from : req.query.to;
+    console.log('toDate', toDate, fromDate)
     const user = req?.query?.user ?? req?.user?._id;
     let teamPerformance = [];
+    console.log('user', user)
     if (user === "team") {
       const teamLead = await User.findOne({
         _id: new ObjectId(req?.user?._id),
@@ -246,6 +251,10 @@ exports.avgPnlChart = async (req, res) => {
       userIds = [...teamLead.reportedBy];
     } else {
       userIds.push(new ObjectId(user));
+    }
+
+    if(demography && demographicGroup){
+      userIds = await demographicWiseChartHelper(demography, demographicGroup, req?.user?._id)
     }
 
     const startFromDate = moment(fromDate)
@@ -259,6 +268,8 @@ exports.avgPnlChart = async (req, res) => {
       const performance = await teamIndividualPerformance(startFromDate, endToDate, userIds);
       teamPerformance = [...performance];
     }
+
+    console.log(userIds)
 
     const newtimeArr = await timeArrayForAvg(
       "2024-05-05",
@@ -1260,20 +1271,121 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
   }
 };
 
+const demographicWiseChartHelper = async(demography, demographicGroup, teamLeadId)=>{
+  let userIds= [];
+  const experienceLevel = 3;
+  const users = (await User.findOne({
+    _id: new ObjectId(teamLeadId),
+  })
+  .populate('reportedBy', 'first_name last_name city_tier gender trading_exp family_yearly_income employeed _id')
+  .select("reportedBy")).reportedBy;
+
+  // console.log(users, demography, demographicGroup)
+
+  if(demography === 'gender'){
+    userIds = users.map((user)=> {
+      if(user.gender===demographicGroup){
+        return user._id;
+      }
+    })
+  }
+
+  if(demography === 'city_tier'){
+    userIds = users.map((user)=>{
+      if(user.city_tier===demographicGroup){
+        return user._id;
+      }
+    })
+  }
+
+  if(demography === 'experience'){
+    // const regex = /\d+/;
+    // const result = demographicGroup.match(regex);
+    // const number = parseInt(result[0], 10);
+
+    // if(demographicGroup.includes('Less') || demographicGroup.includes('<')){
+    //   userIds = users.map((user)=>{
+    //     if(user.trading_exp <= number){
+    //       return user._id;
+    //     }
+    //   })
+    // }
+    // if(demographicGroup.includes('Greater') || demographicGroup.includes('>')){
+    //   userIds = users.map((user)=>{
+    //     if(user.trading_exp >= number){
+    //       return user._id;
+    //     }
+    //   })
+    // }
+    if(demographicGroup === 'experienced'){
+      userIds = users.map((user)=>{
+        if(user.trading_exp >= experienceLevel){
+          return user._id;
+        }
+      })
+    } else{
+      userIds = users.map((user)=>{
+        if(user.trading_exp < experienceLevel){
+          return user._id;
+        }
+      })
+    }
+  }
+
+  if(demography === 'family_income'){
+    const regex = /\d+/;
+    const result = demographicGroup.match(regex);
+    const number = parseInt(result[0], 10);
+
+    if(demographicGroup.includes('Less') || demographicGroup.includes('<')){
+      userIds = users.map((user)=>{
+        if(user.family_yearly_income <= number){
+          return user._id;
+        }
+      })
+    }
+    if(demographicGroup.includes('Greater') || demographicGroup.includes('>')){
+      userIds = users.map((user)=>{
+        if(user.family_yearly_income >= number){
+          return user._id;
+        }
+      })
+    }
+  }
+
+  if(demography === 'employment'){
+    const employeed = demographicGroup==='employed' ? true : demographicGroup==='unemployed' && false;
+    userIds = users.map((user)=>{
+      if(user.employeed===employeed){
+        return user._id;
+      }
+    });
+  }
+
+  return userIds;
+}
+
+// 'Male'
+// 'Female'
+// 'Tier1'
+// 'Tier2'
+// 'Tier3'
+
 
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
     trader: new ObjectId(
-      "63788f3991fc4bf629de6df0"
+      // "63788f3991fc4bf629de6df0"
+      '6666997a93c01d363f79419f'
     ),
     // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
   const newdata = await ThirdPartyPnl.deleteMany({
     trader: new ObjectId(
-      "63788f3991fc4bf629de6df0"
+      // "63788f3991fc4bf629de6df0"
+      '6666997a93c01d363f79419f'
     ),
-    // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
   res.status(200).json({

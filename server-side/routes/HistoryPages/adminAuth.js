@@ -160,6 +160,28 @@ const { hourChart, fetData, uploadCSV } = require('../../controllers/hourChart')
 //     console.log("redis not connected", err)
 // }) 
 
+
+router.get("/updateUser", async (req, res) => {
+  usersArray = [
+    "6666994093c01d363f79419e",
+    "6666997a93c01d363f79419f",
+    "6666c69193c01d363f7941a2",
+    "6666c6cb93c01d363f7941a3",
+    "66669a1293c01d363f7941a0",
+  ];
+  
+  const update = await UserDetail.updateMany({_id: {$in: usersArray}}, {
+    $set: {
+      gender: 'Male',
+      trading_exp: 3,
+      family_yearly_income: 500000,
+      employeed: true,
+      city_tier: 'Tier2'
+    }
+  })
+  res.send(update)
+});
+
 router.get("/changeId", async (req, res) => {
   const update = await PaperTrade.updateMany({trader: new ObjectId('662f804700f04a05fe3c941f')}, {
     $set: {
