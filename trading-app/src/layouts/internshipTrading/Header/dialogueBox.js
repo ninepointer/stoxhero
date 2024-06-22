@@ -41,7 +41,6 @@ export default function Dialogue({ amount, name, id, walletCash }) {
   const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`;
 
   useEffect(() => {
-
     axios
       .get(`${baseUrl}api/v1/loginDetail`, {
         withCredentials: true,
@@ -64,8 +63,7 @@ export default function Dialogue({ amount, name, id, walletCash }) {
           setIsSubscribed(true);
         }
       })
-      .catch((err) => {
-      });
+      .catch((err) => {});
   }, []);
 
   useEffect(() => {

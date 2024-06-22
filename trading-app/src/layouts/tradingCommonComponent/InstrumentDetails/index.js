@@ -97,7 +97,6 @@ function InstrumentDetails({
         return Array.from(instrumentMap.values());
       });
     });
-
   }, []);
 
   useEffect(() => {

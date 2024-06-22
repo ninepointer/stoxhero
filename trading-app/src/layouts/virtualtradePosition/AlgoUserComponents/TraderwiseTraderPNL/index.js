@@ -112,7 +112,10 @@ function TraderwiseTraderPNL({ socket }) {
   }
 
   finalTraderPnl.sort((a, b) => {
-    return ((b.totalPnl - b.brokerage) / b.margin) - ((a.totalPnl - a.brokerage) / a.margin);
+    return (
+      (b.totalPnl - b.brokerage) / b.margin -
+      (a.totalPnl - a.brokerage) / a.margin
+    );
   });
 
   let totalGrossPnl = 0;
@@ -135,8 +138,8 @@ function TraderwiseTraderPNL({ socket }) {
       subelem.runninglots > 0
         ? "info"
         : subelem.runninglots < 0
-          ? "error"
-          : "dark";
+        ? "error"
+        : "dark";
     let runninglotsbgcolor = subelem.runninglots > 0 ? "#ffff00" : "";
     let traderbackgroundcolor = subelem.runninglots != 0 ? "white" : "#e0e1e5";
 
@@ -171,15 +174,15 @@ function TraderwiseTraderPNL({ socket }) {
       >
         {subelem.totalPnl >= 0
           ? "+₹" +
-          new Intl.NumberFormat(undefined, {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(subelem.totalPnl)
+            new Intl.NumberFormat(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(subelem.totalPnl)
           : "-₹" +
-          new Intl.NumberFormat(undefined, {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(-subelem.totalPnl)}
+            new Intl.NumberFormat(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(-subelem.totalPnl)}
       </MDTypography>
     );
 
@@ -241,17 +244,17 @@ function TraderwiseTraderPNL({ socket }) {
         color={npnlcolor}
         fontWeight="medium"
       >
-        {(subelem.totalPnl - subelem.brokerage) >= 0
+        {subelem.totalPnl - subelem.brokerage >= 0
           ? "+₹" +
-          new Intl.NumberFormat(undefined, {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format((subelem.totalPnl - subelem.brokerage))
+            new Intl.NumberFormat(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(subelem.totalPnl - subelem.brokerage)
           : "-₹" +
-          new Intl.NumberFormat(undefined, {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(-(subelem.totalPnl - subelem.brokerage))}
+            new Intl.NumberFormat(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(-(subelem.totalPnl - subelem.brokerage))}
       </MDTypography>
     );
 
@@ -259,12 +262,12 @@ function TraderwiseTraderPNL({ socket }) {
       <MDTypography
         component="a"
         variant="caption"
-        color={roi >= 0 ? 'success' : 'error'}
+        color={roi >= 0 ? "success" : "error"}
         fontWeight="medium"
       >
         {roi >= 0.0
-          ? "+" + (roi*100).toFixed(2)
-          : "-" + (-(roi*100)).toFixed(2)}
+          ? "+" + (roi * 100).toFixed(2)
+          : "-" + (-(roi * 100)).toFixed(2)}
       </MDTypography>
     );
 
@@ -272,21 +275,20 @@ function TraderwiseTraderPNL({ socket }) {
       <MDTypography
         component="a"
         variant="caption"
-        color={'text'}
+        color={"text"}
         fontWeight="medium"
       >
         {subelem.margin >= 0
           ? "+₹" +
-          new Intl.NumberFormat(undefined, {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(subelem.margin)
+            new Intl.NumberFormat(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(subelem.margin)
           : "-₹" +
-          new Intl.NumberFormat(undefined, {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(-subelem.margin)}
-
+            new Intl.NumberFormat(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            }).format(-subelem.margin)}
       </MDTypography>
     );
 

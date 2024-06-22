@@ -5,7 +5,7 @@ import {
   useContext,
   useRef,
   Suspense,
-  lazy
+  lazy,
 } from "react";
 import axios from "axios";
 import ReactGA from "react-ga";
@@ -83,35 +83,70 @@ import MessagePopUp from "./MessagePopup";
 const SignUp = lazy(() => import("./layouts/authentication/sign-up"));
 const Careers = lazy(() => import("./layouts/HomePage/pages/Career"));
 const Workshops = lazy(() => import("./layouts/HomePage/pages/Workshop"));
-const JobDescription = lazy(() => import("./layouts/HomePage/pages/JobDescription"));
+const JobDescription = lazy(() =>
+  import("./layouts/HomePage/pages/JobDescription")
+);
 const JobApply = lazy(() => import("./layouts/HomePage/pages/EICCareerForm"));
-const ContestRegistration = lazy(() => import("./layouts/HomePage/pages/ContestRegistration"));
-const FeaturedContestRegistration = lazy(() => import("./layouts/HomePage/pages/FeaturedContestRegistration"));
+const ContestRegistration = lazy(() =>
+  import("./layouts/HomePage/pages/ContestRegistration")
+);
+const FeaturedContestRegistration = lazy(() =>
+  import("./layouts/HomePage/pages/FeaturedContestRegistration")
+);
 const About = lazy(() => import("./layouts/HomePage/pages/About"));
 const Courses = lazy(() => import("./layouts/HomePage/pages/courses/Courses"));
-const CoursesDetail = lazy(() => import("./layouts/HomePage/pages/courses/CoursesDetails"));
-const AboutFinowledge = lazy(() => import("./layouts/HomePage/pages/AboutFinowledge"));
-const FillSignupDetail = lazy(() => import("./layouts/HomePage/pages/courses/signupDetail"));
-const ResetPin = lazy(() => import("./layouts/authentication/reset-password/cover/resetPin"));
-const ResetPassword = lazy(() => import("./layouts/authentication/reset-password/cover"));
+const CoursesDetail = lazy(() =>
+  import("./layouts/HomePage/pages/courses/CoursesDetails")
+);
+const AboutFinowledge = lazy(() =>
+  import("./layouts/HomePage/pages/AboutFinowledge")
+);
+const FillSignupDetail = lazy(() =>
+  import("./layouts/HomePage/pages/courses/signupDetail")
+);
+const ResetPin = lazy(() =>
+  import("./layouts/authentication/reset-password/cover/resetPin")
+);
+const ResetPassword = lazy(() =>
+  import("./layouts/authentication/reset-password/cover")
+);
 const Contact = lazy(() => import("./layouts/HomePage/pages/Contact"));
 const Privacy = lazy(() => import("./layouts/HomePage/pages/Privacy"));
 const Terms = lazy(() => import("./layouts/HomePage/pages/Tnc"));
-const AdminLogin = lazy(() => import("./layouts/authentication/sign-in/adminLogin"));
-const SchoolLogin = lazy(() => import("./layouts/authentication/sign-in/schoolLogin"));
-const TradingGuru = lazy(() => import("./layouts/authentication/sign-up/tradingguru"));
-const Register = lazy(() => import("./layouts/authentication/sign-up/register"));
-const RegisterInfo = lazy(() => import("./layouts/authentication/sign-up/registerationinfo"));
+const AdminLogin = lazy(() =>
+  import("./layouts/authentication/sign-in/adminLogin")
+);
+const SchoolLogin = lazy(() =>
+  import("./layouts/authentication/sign-in/schoolLogin")
+);
+const TradingGuru = lazy(() =>
+  import("./layouts/authentication/sign-up/tradingguru")
+);
+const Register = lazy(() =>
+  import("./layouts/authentication/sign-up/register")
+);
+const RegisterInfo = lazy(() =>
+  import("./layouts/authentication/sign-up/registerationinfo")
+);
 const Lobby = lazy(() => import("./layouts/schoolLobby/lobby"));
 const BlogCard = lazy(() => import("./layouts/HomePage/pages/BlogCards"));
 const BlogData = lazy(() => import("./layouts/HomePage/pages/BlogData"));
-const Calculator = lazy(() => import("./layouts/HomePage/pages/calculator/Calculator"));
-const CollegeSignUp = lazy(() => import("./layouts/authentication/sign-up/collegeSignupLogin"));
-const ContactFinowledge = lazy(() => import("./layouts/HomePage/pages/ContactFinowledge"));
-const FinowledgeComingSoon = lazy(() => import("./layouts/HomePage/pages/finowledgeComingSoon"));
+const Calculator = lazy(() =>
+  import("./layouts/HomePage/pages/calculator/Calculator")
+);
+const CollegeSignUp = lazy(() =>
+  import("./layouts/authentication/sign-up/collegeSignupLogin")
+);
+const ContactFinowledge = lazy(() =>
+  import("./layouts/HomePage/pages/ContactFinowledge")
+);
+const FinowledgeComingSoon = lazy(() =>
+  import("./layouts/HomePage/pages/finowledgeComingSoon")
+);
 const MyQuiz = lazy(() => import("./layouts/schoolLobby/quizApp/docs/index"));
-const Workshop = lazy(() => import("./layouts/HomePage/pages/courses/Workshop"));
-
+const Workshop = lazy(() =>
+  import("./layouts/HomePage/pages/courses/Workshop")
+);
 
 const TRACKING_ID = "UA-264098426-2";
 ReactGA.initialize(TRACKING_ID);
@@ -251,16 +286,16 @@ export default function App() {
       if (route.route) {
         if (route.route !== "/") {
           return (
-              <Route
-                exact
-                path={route.route}
-                element={
-                  // <SchoolDetailsProtectedRoute>
-                  <ProtectedRoute>{route.component}</ProtectedRoute>
-                  // </SchoolDetailsProtectedRoute>
-                }
-                key={route.key}
-              />
+            <Route
+              exact
+              path={route.route}
+              element={
+                // <SchoolDetailsProtectedRoute>
+                <ProtectedRoute>{route.component}</ProtectedRoute>
+                // </SchoolDetailsProtectedRoute>
+              }
+              key={route.key}
+            />
           );
         } else {
           return (
@@ -411,153 +446,168 @@ export default function App() {
       )}
       {layout === "infinitydashboard" && <Configurator />}
       {/* {layout === "analytics" && <Configurator />} */}
-      <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', marginLeft: '50px' }}><CircularProgress color='info' /></div>}>
-      <Routes>
-        {detailUser.role?.roleName === adminRole ||
-        getDetails?.userDetails?.role?.roleName === adminRole
-          ? getRoutes(routes)
-          : detailUser.role?.roleName === Affiliate ||
-            getDetails?.userDetails?.role?.roleName === Affiliate
-          ? getRoutes(routesAffiliate)
-          : detailUser.role?.roleName === userRole ||
-            detailUser.role?.roleName === Influencer ||
-            getDetails?.userDetails?.role?.roleName === userRole ||
-            getDetails?.userDetails?.role?.roleName === Influencer
-          ? isCollegeRoute
-            ? getRoutes(routesCollege)
-            : getRoutes(userRoutes)
-          : detailUser.role?.roleName === "data" ||
-            getDetails?.userDetails?.role?.roleName === "data"
-          ? getRoutes(analyticsRoutes)
-          : detailUser.role?.roleName === schoolRole ||
-            getDetails?.userDetails?.role?.roleName === schoolRole
-          ? getRoutes(routesSchool)
-          : getRoutes(homeRoutes)}
+      <Suspense
+        fallback={
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+              marginLeft: "50px",
+            }}
+          >
+            <CircularProgress color="info" />
+          </div>
+        }
+      >
+        <Routes>
+          {detailUser.role?.roleName === adminRole ||
+          getDetails?.userDetails?.role?.roleName === adminRole
+            ? getRoutes(routes)
+            : detailUser.role?.roleName === Affiliate ||
+              getDetails?.userDetails?.role?.roleName === Affiliate
+            ? getRoutes(routesAffiliate)
+            : detailUser.role?.roleName === userRole ||
+              detailUser.role?.roleName === Influencer ||
+              getDetails?.userDetails?.role?.roleName === userRole ||
+              getDetails?.userDetails?.role?.roleName === Influencer
+            ? isCollegeRoute
+              ? getRoutes(routesCollege)
+              : getRoutes(userRoutes)
+            : detailUser.role?.roleName === "data" ||
+              getDetails?.userDetails?.role?.roleName === "data"
+            ? getRoutes(analyticsRoutes)
+            : detailUser.role?.roleName === schoolRole ||
+              getDetails?.userDetails?.role?.roleName === schoolRole
+            ? getRoutes(routesSchool)
+            : getRoutes(homeRoutes)}
 
-        {
-          !cookieValue ? (
-            // pathname == "/login" ?
-            // <Route path="/login" element={<SignIn />} />
-            // :
-            pathname == "/" ? (
+          {
+            !cookieValue ? (
+              // pathname == "/login" ?
+              // <Route path="/login" element={<SignIn />} />
+              // :
+              pathname == "/" ? (
+                <Route
+                  path="/"
+                  element={<SignUp location={myLocation.current} />}
+                />
+              ) : pathname == "/resetpassword" ? (
+                <Route path="/resetpassword" element={<ResetPassword />} />
+              ) : (
+                <Route path="/" element={<SignUp />} />
+              )
+            ) : pathname == "/" || !pathname ? (
               <Route
                 path="/"
-                element={<SignUp location={myLocation.current} />}
+                element={
+                  <Navigate
+                    to={
+                      getDetails?.userDetails.role?.roleName === adminRole
+                        ? "/tenxdashboard"
+                        : getDetails.userDetails?.designation == "Equity Trader"
+                        ? "/infinitytrading"
+                        : getDetails?.userDetails.role?.roleName === schoolRole
+                        ? "/schooldashboard"
+                        : "/home"
+                    }
+                  />
+                }
               />
-            ) : pathname == "/resetpassword" ? (
-              <Route path="/resetpassword" element={<ResetPassword />} />
+            ) : pathname == "/:collegename" ? (
+              <Route
+                path="/:collegename"
+                element={<CollegeSignUp location={myLocation.current} />}
+              />
             ) : (
-              <Route path="/" element={<SignUp />} />
+              <Route path="*" element={<NotFound />} />
             )
-          ) : pathname == "/" || !pathname ? (
-            <Route
-              path="/"
-              element={
-                <Navigate
-                  to={
-                    getDetails?.userDetails.role?.roleName === adminRole
+            // <Route path="/" element={<Navigate to={pathname} />} />
+            // <Route path="/" element={<Navigate to="/virtualtrading" />} />
+          }
+
+          <Route path="/resetpin" element={<ResetPin />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
+          <Route
+            path="/careers"
+            element={<Careers location={myLocation.current} />}
+          />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route
+            path="/careers/:name/jobdescription"
+            element={<JobDescription />}
+          />
+          <Route path="/careers/careerform/:name" element={<JobApply />} />
+          <Route path="/blogs" element={<BlogCard />} />
+          <Route path="/calculators" element={<Calculator />} />
+          <Route
+            path="/"
+            element={
+              <Navigate
+                to={
+                  getDetails?.userDetails?.role
+                    ? getDetails?.userDetails.role?.roleName === adminRole
                       ? "/tenxdashboard"
                       : getDetails.userDetails?.designation == "Equity Trader"
                       ? "/infinitytrading"
-                      : getDetails?.userDetails.role?.roleName === schoolRole
-                      ? "/schooldashboard"
                       : "/home"
-                  }
-                />
-              }
-            />
-          ) : pathname == "/:collegename" ? (
-            <Route
-              path="/:collegename"
-              element={<CollegeSignUp location={myLocation.current} />}
-            />
-          ) : (
-            <Route path="*" element={<NotFound />} />
-          )
-          // <Route path="/" element={<Navigate to={pathname} />} />
-          // <Route path="/" element={<Navigate to="/virtualtrading" />} />
-        }
+                    : "/"
+                }
+              />
+            }
+          />
+          <Route path="/adminlogin" element={<AdminLogin />} />
+          <Route path="/school" element={<SchoolLogin />} />
+          <Route path="/tradingguru" element={<TradingGuru />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/aboutus" element={<AboutFinowledge />} />
+          <Route path="/challenge" element={<FinowledgeComingSoon />} />
+          <Route path="/tryquiz" element={<FinowledgeComingSoon />} />
 
-        <Route path="/resetpin" element={<ResetPin />} />
-        <Route path="/resetpassword" element={<ResetPassword />} />
-        <Route
-          path="/careers"
-          element={<Careers location={myLocation.current} />}
-        />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route
-          path="/careers/:name/jobdescription"
-          element={<JobDescription />}
-        />
-        <Route path="/careers/careerform/:name" element={<JobApply />} />
-        <Route path="/blogs" element={<BlogCard />} />
-        <Route path="/calculators" element={<Calculator />} />
-        <Route
-          path="/"
-          element={
-            <Navigate
-              to={
-                getDetails?.userDetails?.role
-                  ? getDetails?.userDetails.role?.roleName === adminRole
-                    ? "/tenxdashboard"
-                    : getDetails.userDetails?.designation == "Equity Trader"
-                    ? "/infinitytrading"
-                    : "/home"
-                  : "/"
-              }
-            />
-          }
-        />
-        <Route path="/adminlogin" element={<AdminLogin />} />
-        <Route path="/school" element={<SchoolLogin />} />
-        <Route path="/tradingguru" element={<TradingGuru />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/aboutus" element={<AboutFinowledge />} />
-        <Route path="/challenge" element={<FinowledgeComingSoon />} />
-        <Route path="/tryquiz" element={<FinowledgeComingSoon />} />
+          <Route path="/enter-mobile" element={<Register />} />
+          <Route path="/registrationinfo" element={<RegisterInfo />} />
+          <Route path="/lobby" element={<Lobby />} />
+          <Route path="/myquiz" element={<MyQuiz />} />
 
-        <Route path="/enter-mobile" element={<Register />} />
-        <Route path="/registrationinfo" element={<RegisterInfo />} />
-        <Route path="/lobby" element={<Lobby />} />
-        <Route path="/myquiz" element={<MyQuiz />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/contactus" element={<ContactFinowledge />} />
+          {/* <Route path="/watchcourse" element={<WatchCourse />} /> */}
 
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/contactus" element={<ContactFinowledge />} />
-        {/* <Route path="/watchcourse" element={<WatchCourse />} /> */}
+          <Route
+            path="/workshops"
+            element={<Workshops location={myLocation.current} />}
+          />
+          <Route path="/blogs/:id" element={<BlogData />} />
+          <Route
+            path="/collegetestzone/:id/:date"
+            element={<ContestRegistration />}
+          />
+          <Route
+            path="/competitions/:id"
+            element={<FeaturedContestRegistration />}
+          />
+          <Route path="/workshop/:id" element={<Workshop />} />
 
-        <Route
-          path="/workshops"
-          element={<Workshops location={myLocation.current} />}
-        />
-        <Route path="/blogs/:id" element={<BlogData />} />
-        <Route
-          path="/collegetestzone/:id/:date"
-          element={<ContestRegistration />}
-        />
-        <Route
-          path="/competitions/:id"
-          element={<FeaturedContestRegistration />}
-        />
-        <Route path="/workshop/:id" element={<Workshop />} />
+          <Route path="/influencers/:slug" element={<Courses />} />
+          <Route
+            path="/influencers/:slug/details"
+            element={<CoursesDetail />}
+          />
+          <Route
+            path="/influencers/:slug/fill+details"
+            element={<FillSignupDetail />}
+          />
+          <Route
+            path="/:collegename"
+            element={<CollegeSignUp location={myLocation.current} />}
+          />
 
-        <Route path="/influencers/:slug" element={<Courses />} />
-        <Route path="/influencers/:slug/details" element={<CoursesDetail />} />
-        <Route
-          path="/influencers/:slug/fill+details"
-          element={<FillSignupDetail />}
-        />
-        <Route
-          path="/:collegename"
-          element={<CollegeSignUp location={myLocation.current} />}
-        />
-
-        <Route path="*" element={<NotFound />} />
-        
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </Suspense>
       <MessagePopUp socket={socket} userId={detailUser?._id} />
     </ThemeProvider>
   );
 }
-

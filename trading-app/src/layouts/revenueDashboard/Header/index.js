@@ -39,13 +39,12 @@ export default function Dashboard() {
   const [overallMonthlyRevenue, setOverallMonthlyRevenue] = useState([]);
   const [downloadingTestZoneData, setDownloadingTestZoneRevenueData] =
     useState(false);
-    const [downloadingTenxData, setDownloadingTenxRevenueData] =
-    useState(false);
+  const [downloadingTenxData, setDownloadingTenxRevenueData] = useState(false);
   const [downloadingMarginXData, setDownloadingMarginXRevenueData] =
     useState(false);
-    const [downloadingBattleData, setDownloadingBattleRevenueData] =
+  const [downloadingBattleData, setDownloadingBattleRevenueData] =
     useState(false);
-    const [downloadingOverallData, setDownloadingOverallRevenueData] =
+  const [downloadingOverallData, setDownloadingOverallRevenueData] =
     useState(false);
   const [creationProcess, setCreationProcess] = useState([]);
 
@@ -226,7 +225,6 @@ export default function Dashboard() {
   };
 
   const handleDownload = async (nameVariable) => {
-
     try {
       // Wait for downloadContestData() to complete and return data
       let data = [];
@@ -919,18 +917,20 @@ export default function Dashboard() {
 
                     {!downloadingTenxData ? (
                       <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      lg={4}
-                      display="flex"
-                      justifyContent="flex-end"
-                      onClick={()=>{ handleDownload(`Tenx revenue data`);}}
-                    >
-                      <MDButton variant="text" color="success">
-                        Download Data
-                      </MDButton>
-                    </Grid>
+                        item
+                        xs={12}
+                        md={12}
+                        lg={4}
+                        display="flex"
+                        justifyContent="flex-end"
+                        onClick={() => {
+                          handleDownload(`Tenx revenue data`);
+                        }}
+                      >
+                        <MDButton variant="text" color="success">
+                          Download Data
+                        </MDButton>
+                      </Grid>
                     ) : (
                       <Grid
                         item
@@ -952,7 +952,6 @@ export default function Dashboard() {
                         </MDTypography>
                       </Grid>
                     )}
-                   
                   </Grid>
                 </Card>
               </Grid>

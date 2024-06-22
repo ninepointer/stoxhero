@@ -5,7 +5,13 @@ const User = require("../models/User/userDetailSchema");
 const moment = require("moment");
 // const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
 // const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
-const { convertToTradingDataToGroup, mailSender, teamIndividualPerformance, getPreviousLots, createTradeDoc } = require("./timeframePnlChartHelper");
+const {
+  convertToTradingDataToGroup,
+  mailSender,
+  teamIndividualPerformance,
+  getPreviousLots,
+  createTradeDoc,
+} = require("./timeframePnlChartHelper");
 const IndiaVix = require("../models/Instruments/indiaVix");
 const ThirdPartyPnl = require("../models/mock-trade/thirdPartyTradesPnl");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
@@ -51,13 +57,17 @@ exports.isThirdPartyDataExist = async (req, res) => {
     const data = await ThirdPartyTrades.findOne({
       trader: new ObjectId(userId),
     });
-    
 
-    const checkDataProcessing = await User.findOne({_id: new ObjectId(userId)}).select('thirdPartyDataProcessing');
+    const checkDataProcessing = await User.findOne({
+      _id: new ObjectId(userId),
+    }).select("thirdPartyDataProcessing");
     res.status(200).json({
       status: "success",
       isExist: data ? true : false,
-      isProcessing: userId==="team" ? false : checkDataProcessing?.thirdPartyDataProcessing
+      isProcessing:
+        userId === "team"
+          ? false
+          : checkDataProcessing?.thirdPartyDataProcessing,
     });
   } catch (err) {
     console.log(err);
@@ -141,7 +151,11 @@ const timeArrayForAvg = async (todaysDatePart, timePeriod, frequency) => {
     timeArr.push(time.toISOString().substring(11, 19));
   }
 
-  return [starting.toISOString().substring(11, 19), ...timeArr, endTime.toISOString().substring(11, 19)];
+  return [
+    starting.toISOString().substring(11, 19),
+    ...timeArr,
+    endTime.toISOString().substring(11, 19),
+  ];
   // return [test.toISOString().substring(11, 19)];
 };
 
@@ -230,22 +244,40 @@ exports.avgPnlChart = async (req, res) => {
     const first = performance.now();
     let userIds = [];
     const fromDate = req.query.from;
-    const weekday = req.query.weekday??'allDays';
+    console.log(req.query.from, req.query.to);
+    const weekday = req.query.weekday ?? "allDays";
+    const demography = req.query.demography;
+    const demographicGroup = req.query.demographicGroup;
     const timePeriod = Number(req.query.timePeriod) || 1;
     const frequency =
       req.query.frequency === "undefined" || !req.query.frequency
         ? "Hour"
         : req.query.frequency;
-    const toDate = req.query.to === "undefined" ? req.query.from : req.query.to;
+    const toDate =
+      req.query.to === "undefined" || req.query.to === "Invalid date"
+        ? req.query.from
+        : req.query.to;
+    console.log("toDate", toDate, fromDate);
     const user = req?.query?.user ?? req?.user?._id;
     let teamPerformance = [];
+    console.log("user", user);
     if (user === "team") {
       const teamLead = await User.findOne({
         _id: new ObjectId(req?.user?._id),
       }).select("reportedBy");
       userIds = [...teamLead.reportedBy];
     } else {
+      console.log("in else");
       userIds.push(new ObjectId(user));
+    }
+
+    console.log(demography, demographicGroup);
+    if (demography && demographicGroup) {
+      userIds = await demographicWiseChartHelper(
+        demography,
+        demographicGroup,
+        req?.user?._id
+      );
     }
 
     const startFromDate = moment(fromDate)
@@ -256,9 +288,15 @@ exports.avgPnlChart = async (req, res) => {
     const endToDate = moment(toDate).clone().endOf("day");
 
     if (user === "team") {
-      const performance = await teamIndividualPerformance(startFromDate, endToDate, userIds);
+      const performance = await teamIndividualPerformance(
+        startFromDate,
+        endToDate,
+        userIds
+      );
       teamPerformance = [...performance];
     }
+
+    console.log(userIds);
 
     const newtimeArr = await timeArrayForAvg(
       "2024-05-05",
@@ -267,13 +305,21 @@ exports.avgPnlChart = async (req, res) => {
     );
 
     let dayOfWeek;
-    if(weekday === 'allDays'){
-      dayOfWeek = [1,2,3,4,5,6,7];
-    } else{
-      const weekdays = [0, "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-      dayOfWeek = [weekdays.findIndex(week=> week===weekday)];  
+    if (weekday === "allDays") {
+      dayOfWeek = [1, 2, 3, 4, 5, 6, 7];
+    } else {
+      const weekdays = [
+        0,
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      dayOfWeek = [weekdays.findIndex((week) => week === weekday)];
     }
-  
 
     const pnlData = await ThirdPartyPnl.aggregate([
       {
@@ -296,7 +342,7 @@ exports.avgPnlChart = async (req, res) => {
       },
       {
         $match: {
-          dayOfWeek: {$in: dayOfWeek}
+          dayOfWeek: { $in: dayOfWeek },
         },
       },
       {
@@ -351,7 +397,7 @@ exports.avgPnlChart = async (req, res) => {
             $sum: "$pnl.usedLots",
           },
           entryLots: {
-            $sum: {$abs: "$pnl.entryLots"},
+            $sum: { $abs: "$pnl.entryLots" },
           },
           pnlBankNifty: {
             $sum: "$pnl.pnlBankNifty",
@@ -468,8 +514,8 @@ exports.avgPnlChart = async (req, res) => {
       },
       {
         $sort: {
-          timestamp: 1
-        }
+          timestamp: 1,
+        },
       },
       {
         $match: {
@@ -488,15 +534,15 @@ exports.avgPnlChart = async (req, res) => {
     }
 
     const performanceObj = {
-      topPerformer: teamPerformance[teamPerformance?.length-1],
-      bottomPerformer: teamPerformance[0]
-    }
+      topPerformer: teamPerformance[teamPerformance?.length - 1],
+      bottomPerformer: teamPerformance[0],
+    };
 
     res.status(200).json({
       status: "success",
       data: pnlData,
       pnlDiffrence,
-      teamPerformance: performanceObj
+      teamPerformance: performanceObj,
     });
   } catch (err) {
     console.log(err);
@@ -889,7 +935,11 @@ const distinctBuySell = async (tradeData) => {
 const formatTradeData = async (tradeData) => {
   const map = new Map();
 
-  console.log('quantity3',tradeData.length, tradeData.reduce((total, acc)=>total+acc.Quantity, 0));
+  console.log(
+    "quantity3",
+    tradeData.length,
+    tradeData.reduce((total, acc) => total + acc.Quantity, 0)
+  );
 
   tradeData.forEach((trade) => {
     const { symbol, amount, brokerage, Quantity, buyOrSell } = trade;
@@ -922,7 +972,11 @@ const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
   let pnlFinNifty = 0;
 
   // const HistoryTickModel = thirdParty == "true" ? HistoryDataNew : HistoryData;
-  console.log('quantity4',tradeData.length, tradeData.reduce((total, acc)=>total+acc.Quantity, 0));
+  console.log(
+    "quantity4",
+    tradeData.length,
+    tradeData.reduce((total, acc) => total + acc.Quantity, 0)
+  );
 
   for (const elem of tradeData) {
     const utcTimeStamp = new Date(timestamp);
@@ -973,7 +1027,6 @@ exports.uploadCSV = async (req, res) => {
     const savedData = await saveDataToDB(url, userId, res);
     await mailSender(userId);
     // const savedData = await saveDataToDBTesting(url, userId);
-
   } catch (err) {
     console.log(err);
     // res.status(400).json({
@@ -1022,11 +1075,14 @@ const saveDataToDB = async (url, userId, res) => {
       return "Data Exist";
     }
 
-    await User.findOneAndUpdate({_id: new ObjectId(userId)}, {
-      $set: {
-        thirdPartyDataProcessing: true
+    await User.findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      {
+        $set: {
+          thirdPartyDataProcessing: true,
+        },
       }
-    })
+    );
     const symbolArr = [];
     let minDate = "3000-01-01";
     let maxDate = "2000-01-01";
@@ -1053,14 +1109,16 @@ const saveDataToDB = async (url, userId, res) => {
       const datePart = key.split("_")?.[1];
       const symbol = key.split("_")?.[0];
       let previousLots = 0;
-      
 
-      if(datePart === minDate){
+      if (datePart === minDate) {
         previousLots = await getPreviousLots(symbol, datePart);
-      } else{
-        if(new Date(datePart).getTime() === new Date(symbolTradeArr?.[0]?.expiry).getTime()){
+      } else {
+        if (
+          new Date(datePart).getTime() ===
+          new Date(symbolTradeArr?.[0]?.expiry).getTime()
+        ) {
           previousLots = 0;
-        } else{
+        } else {
           previousLots = previousLotsObj[symbol] || 0;
         }
       }
@@ -1086,14 +1144,22 @@ const saveDataToDB = async (url, userId, res) => {
         historyTick.length
       );
 
-      const previousLotTradeDoc = await createTradeDoc(symbol, datePart, historyTick?.[0]?.candles?.[0]?.open, previousLots, symbolTradeArr?.[0]?.expiry)
-      const newSymbolArr = previousLots ? [previousLotTradeDoc, ...symbolTradeArr] : [...symbolTradeArr];
+      const previousLotTradeDoc = await createTradeDoc(
+        symbol,
+        datePart,
+        historyTick?.[0]?.candles?.[0]?.open,
+        previousLots,
+        symbolTradeArr?.[0]?.expiry
+      );
+      const newSymbolArr = previousLots
+        ? [previousLotTradeDoc, ...symbolTradeArr]
+        : [...symbolTradeArr];
 
-      const calculateLots = newSymbolArr.reduce((total, acc)=>{
+      const calculateLots = newSymbolArr.reduce((total, acc) => {
         return total + acc.Quantity;
       }, 0);
 
-      if(calculateLots !== 0){
+      if (calculateLots !== 0) {
         previousLotsObj[symbol] = calculateLots;
       }
 
@@ -1108,11 +1174,14 @@ const saveDataToDB = async (url, userId, res) => {
       ]);
     }
 
-    await User.findOneAndUpdate({_id: new ObjectId(userId)}, {
-      $set: {
-        thirdPartyDataProcessing: false
+    await User.findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      {
+        $set: {
+          thirdPartyDataProcessing: false,
+        },
       }
-    })
+    );
     return "ok";
   } catch (error) {
     console.error(error);
@@ -1175,8 +1244,11 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
         );
       });
 
-      console.log('quantity2',filteredArr.length, filteredArr.reduce((total, acc)=>total+acc.Quantity, 0));
-
+      console.log(
+        "quantity2",
+        filteredArr.length,
+        filteredArr.reduce((total, acc) => total + acc.Quantity, 0)
+      );
 
       const isLastElement = i === timeArr.length - 1;
       const vixFilteredArr = vixData.filter((elem) => {
@@ -1249,7 +1321,6 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
       }
     }
 
-    
     return {
       data: pnlObjArr,
       // pnlDiffrence: [pnl1PM, pnl3PM],
@@ -1260,20 +1331,149 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
   }
 };
 
+const demographicWiseChartHelper = async (
+  demography,
+  demographicGroup,
+  teamLeadId
+) => {
+  let userIds = [];
+  const experienceLevel = 3;
+  const users = (
+    await User.findOne({
+      _id: new ObjectId(teamLeadId),
+    })
+      .populate(
+        "reportedBy",
+        "first_name last_name city_tier gender trading_exp family_yearly_income employeed _id"
+      )
+      .select("reportedBy")
+  ).reportedBy;
+
+  // console.log(users, demography, demographicGroup)
+
+  if (demography === "gender") {
+    userIds = users.map((user) => {
+      if (user.gender === demographicGroup) {
+        return user._id;
+      }
+    });
+  }
+
+  if (demography === "city_tier") {
+    userIds = users.map((user) => {
+      if (user.toObject().city_tier == demographicGroup) {
+        return user._id;
+      }
+    });
+  }
+
+  if (demography === "experience") {
+    // const regex = /\d+/;
+    // const result = demographicGroup.match(regex);
+    // const number = parseInt(result[0], 10);
+
+    // if(demographicGroup.includes('Less') || demographicGroup.includes('<')){
+    //   userIds = users.map((user)=>{
+    //     if(user.trading_exp <= number){
+    //       return user._id;
+    //     }
+    //   })
+    // }
+    // if(demographicGroup.includes('Greater') || demographicGroup.includes('>')){
+    //   userIds = users.map((user)=>{
+    //     if(user.trading_exp >= number){
+    //       return user._id;
+    //     }
+    //   })
+    // }
+    if (demographicGroup === "experienced") {
+      userIds = users.map((user) => {
+        if (user.trading_exp >= experienceLevel) {
+          return user._id;
+        }
+      });
+    } else {
+      userIds = users.map((user) => {
+        if (user.trading_exp < experienceLevel) {
+          return user._id;
+        }
+      });
+    }
+  }
+
+  if (demography === "family_income") {
+    const regex = /(\d+)/g;
+    const numbers = demographicGroup.match(regex).map(Number);
+
+    if (demographicGroup.includes("Less") || demographicGroup.includes("<")) {
+      userIds = users
+        .map((user) => {
+          if (user.family_yearly_income <= numbers[0]) {
+            return user._id;
+          }
+        })
+        .filter(Boolean);
+    } else if (
+      demographicGroup.includes("Greater") ||
+      demographicGroup.includes(">")
+    ) {
+      userIds = users
+        .map((user) => {
+          if (user.family_yearly_income >= numbers[0]) {
+            return user._id;
+          }
+        })
+        .filter(Boolean);
+    } else if (numbers.length === 2) {
+      // Handling range case
+      userIds = users
+        .map((user) => {
+          if (
+            user.family_yearly_income >= numbers[0] &&
+            user.family_yearly_income <= numbers[1]
+          ) {
+            return user._id;
+          }
+        })
+        .filter(Boolean);
+    }
+  }
+
+  if (demography === "employment") {
+    const employeed =
+      demographicGroup === "employed"
+        ? true
+        : demographicGroup === "unemployed" && false;
+    userIds = users.map((user) => {
+      if (user.employeed === employeed) {
+        return user._id;
+      }
+    });
+  }
+
+  return userIds;
+};
+
+// 'Male'
+// 'Female'
+// 'Tier1'
+// 'Tier2'
+// 'Tier3'
 
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
     trader: new ObjectId(
-      "63788f3991fc4bf629de6df0"
+      // "63788f3991fc4bf629de6df0"
+      "6666997a93c01d363f79419f"
     ),
     // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
   const newdata = await ThirdPartyPnl.deleteMany({
     trader: new ObjectId(
-      "63788f3991fc4bf629de6df0"
+      // "63788f3991fc4bf629de6df0"
+      "6666997a93c01d363f79419f"
     ),
-    // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
   res.status(200).json({

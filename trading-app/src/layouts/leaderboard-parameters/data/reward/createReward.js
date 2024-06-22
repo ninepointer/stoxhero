@@ -5,7 +5,13 @@ import Grid from "@mui/material/Grid";
 import MDTypography from "../../../../components/MDTypography";
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
-import { CircularProgress, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import MDSnackbar from "../../../../components/MDSnackbar";
 
 export default function CreateRewards({
@@ -14,7 +20,6 @@ export default function CreateRewards({
   leaderboard,
   reward,
 }) {
-
   const rewardId = reward?._id || reward;
   const rewardRankStart = reward?.rankStart;
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -63,7 +68,9 @@ export default function CreateRewards({
           body: JSON.stringify({
             rankStart: parseInt(rankStart),
             rankEnd: parseInt(rankEnd),
-            rewardType, reward, rewardValue
+            rewardType,
+            reward,
+            rewardValue,
           }),
         }
       );
@@ -100,7 +107,9 @@ export default function CreateRewards({
           body: JSON.stringify({
             rankStart: parseInt(rankStart),
             rankEnd: parseInt(rankEnd),
-            rewardType, reward, rewardValue
+            rewardType,
+            reward,
+            rewardValue,
           }),
         }
       );

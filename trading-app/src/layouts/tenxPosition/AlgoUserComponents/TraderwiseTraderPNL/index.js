@@ -5,13 +5,13 @@ import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import ViewOrders from '@mui/icons-material/ViewList';
+import ViewOrders from "@mui/icons-material/ViewList";
 
 // Material Dashboard 2 React components
 import MDBox from "../../../../components/MDBox";
 import MDButton from "../../../../components/MDButton";
 import MDTypography from "../../../../components/MDTypography";
-import Button from '@mui/material/Button';
+import Button from "@mui/material/Button";
 
 // Material Dashboard 2 React examples
 import DataTable from "../../../../examples/Tables/DataTable";
@@ -310,8 +310,6 @@ function TraderwiseTraderPNL({ socket }) {
   const totalGrossPnlcolor = totalGrossPnl >= 0 ? "success" : "error";
   const totalnetPnlcolor =
     totalGrossPnl - totalTransactionCost >= 0 ? "success" : "error";
-
-
 
   obj.traderName = (
     <MDTypography

@@ -1286,4 +1286,3 @@ const BuyModel = ({
 };
 
 export default memo(BuyModel);
-

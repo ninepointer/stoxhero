@@ -161,7 +161,7 @@ function OverallGrid({
           : subelem.amount;
       let netupdatedValue = updatedValue - Number(subelem.brokerage);
       totalGrossPnl += updatedValue;
-      
+
       totalTransactionCost += Number(subelem.brokerage);
 
       let lotSize = subelem._id.symbol?.includes("BANKNIFTY")

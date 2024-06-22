@@ -73,7 +73,7 @@ function Index() {
       dayjs(new Date()).set("hour", 0).set("minute", 0).set("second", 0),
     carouselImage: "" || id?.carouselImage,
     status: "" || id?.status,
-    clickable: '' || id?.clickable,
+    clickable: "" || id?.clickable,
     linkToCarousel: "" || id?.linkToCarousel,
     window: "" || id?.window,
     carouselPosition: "" || id?.carouselPosition,

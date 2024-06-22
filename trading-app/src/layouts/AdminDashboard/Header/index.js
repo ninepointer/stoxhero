@@ -129,7 +129,7 @@ export default function Dashboard() {
 
     return truncatedName;
   }
-  
+
   const downloadTestZoneRevenueData = () => {
     setDownloadingTestZoneRevenueData(true);
     return new Promise((resolve, reject) => {
@@ -153,8 +153,6 @@ export default function Dashboard() {
         });
     });
   };
-
-
 
   const downloadMarginXRevenueData = () => {
     setDownloadingMarginXRevenueData(true);

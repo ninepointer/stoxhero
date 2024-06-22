@@ -36,7 +36,7 @@ import { Divider, Typography, CircularProgress } from "@mui/material";
 import { apiUrl } from "../../../../constants/constants";
 
 function MyProfile({ profilePhoto, setProfilePhoto }) {
-  const setting = useContext(settingContext)
+  const setting = useContext(settingContext);
 
   const [editablePD, setEditablePD] = useState(false);
   const [editableBD, setEditableBD] = useState(false);
@@ -186,8 +186,7 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
         role: res?.data?.role,
         dob: res.data?.dob,
       });
-    } catch (e) {
-    }
+    } catch (e) {}
   };
 
   async function formSubmit(data, section, isKycUpdate) {
@@ -198,7 +197,7 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
         if (key != "KYCStatus") formData.append(key, data[key]);
       });
 
-      formData.append('isKycUpdate', isKycUpdate);
+      formData.append("isKycUpdate", isKycUpdate);
 
       if (section === "KYC Details") {
         // console.log("KYC FormData: ",data)
@@ -259,11 +258,8 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
         openSuccessSB(section, `Your ${section} updated successfully`);
       }
 
-      if(response.status === 'error'){
-        return openErrorSB(
-          "KYC Details",
-          response.message
-        );
+      if (response.status === "error") {
+        return openErrorSB("KYC Details", response.message);
       }
     } catch (e) {
       // console.log(e);
@@ -502,7 +498,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
       bgWhite
     />
   );
-
 
   const [file, setFile] = React.useState(null);
 
@@ -1326,7 +1321,9 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
             Select your method of KYC Verification
           </MDTypography>
           <MDTypography style={{ fontSize: 12 }}>
-            {`Note :- To proceed with KYC, your wallet balance needs to be greater than ₹${setting?.[0]?.minWalletBalance || 0}.`}
+            {`Note :- To proceed with KYC, your wallet balance needs to be greater than ₹${
+              setting?.[0]?.minWalletBalance || 0
+            }.`}
           </MDTypography>
           <FormControl component="fieldset">
             <RadioGroup
@@ -1428,7 +1425,6 @@ function MyProfile({ profilePhoto, setProfilePhoto }) {
 
               {/* KYC Details Header End */}
             </MDBox>
-
           </MDBox>
 
           {/* <Divider orientation="horizontal" sx={{ ml: 1, mr: 1, color:'rgba(0, 0, 0, 0.87)' }} /> */}

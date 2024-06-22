@@ -197,7 +197,10 @@ function BillingInformation({ render }) {
         totalCredit=""
         mobile={elem?.paymentBy?.mobile}
         paymentStatus={elem?.paymentStatus}
-        paymentMode={elem?.gatewayResponse?.data?.paymentInstrument?.type || elem?.paymentMode}
+        paymentMode={
+          elem?.gatewayResponse?.data?.paymentInstrument?.type ||
+          elem?.paymentMode
+        }
         utr={elem?.gatewayResponse?.data?.paymentInstrument?.utr || elem?.utr}
       />
     );

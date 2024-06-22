@@ -210,7 +210,7 @@ function Header({
                   return subelem?.id?.toString() === elem?._id?.toString();
                 });
 
-                let isParticipated = elem?.isPaid
+                let isParticipated = elem?.isPaid;
 
                 return (
                   <Grid item xs={12} md={12} lg={6} borderRadius={3}>
@@ -545,8 +545,7 @@ function Header({
                                   }}
                                 >
                                   SPOTS LEFT:{" "}
-                                  {elem?.maxParticipants -
-                                    elem?.participants}
+                                  {elem?.maxParticipants - elem?.participants}
                                 </MDBox>
                               </MDBox>
                             </MDBox>
@@ -568,8 +567,7 @@ function Header({
                                     fontWeight: 700,
                                   }}
                                 >
-                                  {elem?.maxParticipants -
-                                    elem?.participants}{" "}
+                                  {elem?.maxParticipants - elem?.participants}{" "}
                                   SEATS UP FOR GRAB
                                 </MDBox>
                               </MDBox>

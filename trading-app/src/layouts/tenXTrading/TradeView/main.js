@@ -14,8 +14,6 @@ import TenXTrading from "./tradePart";
 import { socketContext } from "../../../socketContext";
 
 function TradeViewTenX() {
-
-
   const getDetails = useContext(userContext);
   const location = useLocation();
   const subscriptionId = location?.state?.subscriptionId;
@@ -62,7 +60,6 @@ function TradeViewTenX() {
   // }
 
   useEffect(() => {
-  
     socket.emit("userId", getDetails.userDetails._id);
     socket.emit("user-ticks", getDetails.userDetails._id);
 

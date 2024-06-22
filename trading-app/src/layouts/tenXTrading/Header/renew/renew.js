@@ -52,8 +52,8 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   useEffect(() => {
-      setUpdatedUser(getDetails?.userDetails);
-      setSetting(settingData?.[0]);
+    setUpdatedUser(getDetails?.userDetails);
+    setSetting(settingData?.[0]);
   }, []);
 
   useEffect(() => {
@@ -236,7 +236,6 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
   const subs_actualAmount = (amount * setting.gstPercentage) / 100;
 
   const initiatePayment = async () => {
-
     try {
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
@@ -255,9 +254,7 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
 
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
-    } catch (e) {
-
-    }
+    } catch (e) {}
   };
   const calculateDiscount = (
     discountType,
@@ -319,7 +316,6 @@ export default function Renew({ amount, name, id, walletCash, bonusCash }) {
         setInvalidCode(res?.data?.message);
       }
     } catch (e) {
-
       if (e.name == "AxiosError") {
         setInvalidCode(e?.response?.data?.message);
       }

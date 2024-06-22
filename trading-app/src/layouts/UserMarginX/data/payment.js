@@ -132,8 +132,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
           setBonusBalance(totalBonusAmount.toFixed(2));
           // console.log("totalCashAmount", totalCashAmount)
         })
-        .catch((err) => {
-        });
+        .catch((err) => {});
 
       axios
         .get(`${baseUrl}api/v1/readsetting`, {
@@ -147,8 +146,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
         .then((res) => {
           setSetting(res?.data[0]);
         })
-        .catch((err) => {
-        });
+        .catch((err) => {});
     }
   }, [open]);
 
@@ -259,9 +257,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
       )
     : 0;
   const actualAmount =
-    ((elem?.entryFee - discountAmount) *
-      setting.gstPercentage) /
-    100;
+    ((elem?.entryFee - discountAmount) * setting.gstPercentage) / 100;
 
   const initiatePayment = async () => {
     try {
@@ -279,8 +275,7 @@ const Payment = ({ elem, setShowPay, showPay, whichTab }) => {
       );
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
-    } catch (e) {
-    }
+    } catch (e) {}
   };
   const calculateDiscount = (
     discountType,

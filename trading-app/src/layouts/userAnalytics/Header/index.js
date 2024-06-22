@@ -113,8 +113,7 @@ export default function LabTabs() {
         { withCredentials: true }
       );
       setExpected(res.data.data);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   useEffect(() => {

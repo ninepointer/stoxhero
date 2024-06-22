@@ -117,7 +117,6 @@ function ExitPosition({
     );
   }, [quantity]);
 
-
   exitPositionFormDetails.Product = product;
 
   const [market, setMarket] = React.useState("MARKET");

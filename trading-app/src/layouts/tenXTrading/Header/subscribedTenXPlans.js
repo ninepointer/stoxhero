@@ -27,7 +27,6 @@ export default function TenXSubscriptions({ setClicked }) {
     ...new Set(currentTenXSubs.map((item) => item.validity)),
   ];
 
-  
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
 
@@ -84,7 +83,6 @@ export default function TenXSubscriptions({ setClicked }) {
       })
       .catch((error) => {
         // Handle errors here
-
       });
   }, [checkPayment]);
 

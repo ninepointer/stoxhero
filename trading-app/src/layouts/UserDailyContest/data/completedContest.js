@@ -31,11 +31,15 @@ export default function LabTabs() {
     setIsLoading(false);
   }, []);
 
-  async function fetchData(){
-    const data = await axios.get(`${apiUrl}dailycontest/user/paidcompleted`, {withCredentials: true});
+  async function fetchData() {
+    const data = await axios.get(`${apiUrl}dailycontest/user/paidcompleted`, {
+      withCredentials: true,
+    });
     setPaidTestzone(data?.data?.data);
 
-    const data1 = await axios.get(`${apiUrl}dailycontest/user/freecompleted`, {withCredentials: true});
+    const data1 = await axios.get(`${apiUrl}dailycontest/user/freecompleted`, {
+      withCredentials: true,
+    });
     setFreeTestzone(data1?.data?.data);
   }
 
@@ -71,15 +75,25 @@ export default function LabTabs() {
               >
                 Paid TestZone(s)
               </MDTypography>
-              {
-                paidTestzone?.length > 0 ?
+              {paidTestzone?.length > 0 ? (
                 <PaidContest contest={paidTestzone} />
-                :
-                <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center">
-                    <MDBox ml={1} display="flex" justifyContent="center" alignItems="center"><CircularProgress color="light" /></MDBox>
+              ) : (
+                <MDBox
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <MDBox
+                    ml={1}
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <CircularProgress color="light" />
+                  </MDBox>
                 </MDBox>
-              }
-              
+              )}
             </Grid>
 
             <Divider style={{ backgroundColor: "light" }} />
@@ -94,14 +108,25 @@ export default function LabTabs() {
                 >
                   Free TestZone(s)
                 </MDTypography>
-                {
-                freeTestzone?.length > 0 ?
-                <FreeContest contest={freeTestzone} />
-                :
-                <MDBox display="flex" flexDirection='column' justifyContent="center" alignItems="center">
-                    <MDBox ml={1} display="flex" justifyContent="center" alignItems="center"><CircularProgress color="light" /></MDBox>
-                </MDBox>
-              }
+                {freeTestzone?.length > 0 ? (
+                  <FreeContest contest={freeTestzone} />
+                ) : (
+                  <MDBox
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <MDBox
+                      ml={1}
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <CircularProgress color="light" />
+                    </MDBox>
+                  </MDBox>
+                )}
               </MDBox>
             </Grid>
           </Grid>

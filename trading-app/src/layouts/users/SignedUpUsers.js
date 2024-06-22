@@ -31,10 +31,8 @@ const SignedUpUser = () => {
       });
   }, [reRender]);
 
-
   signedUpUserData.map((elem) => {
     let signedupusers = {};
-
 
     signedupusers.name = (
       <MDTypography

@@ -42,7 +42,8 @@ export default function Dialogue({
   bonusCash,
   setCheckPayment,
   checkPayment,
-  allowRenewal, isPaid
+  allowRenewal,
+  isPaid,
 }) {
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
@@ -73,7 +74,6 @@ export default function Dialogue({
     setValue(event.target.value);
   };
 
-
   useEffect(() => {
     if (open) {
       axios
@@ -98,9 +98,7 @@ export default function Dialogue({
             setIsSubscribed(true);
           }
         })
-        .catch((err) => {
-
-        });
+        .catch((err) => {});
     }
 
     setSetting(settingData?.[0]);
@@ -108,7 +106,6 @@ export default function Dialogue({
 
   useEffect(() => {
     let subscribed = updatedUser?.subscription?.filter((elem) => {
-     
       return (
         elem?.subscriptionId?._id?.toString() === id?.toString() &&
         elem?.status === "Live"
@@ -296,7 +293,6 @@ export default function Dialogue({
   const subs_actualAmount =
     ((amount - discountAmount) * setting?.gstPercentage) / 100;
   const initiatePayment = async () => {
-    
     try {
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
@@ -315,9 +311,7 @@ export default function Dialogue({
 
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
-    } catch (e) {
-
-    }
+    } catch (e) {}
   };
   const calculateDiscount = (
     discountType,
@@ -379,7 +373,6 @@ export default function Dialogue({
         setInvalidCode(res?.data?.message);
       }
     } catch (e) {
-
       if (e.name == "AxiosError") {
         setInvalidCode(e?.response?.data?.message);
       }
@@ -393,7 +386,7 @@ export default function Dialogue({
       alignItems="center"
       style={{ width: "90%" }}
     >
-      {(isSubscribed || isPaid) ? (
+      {isSubscribed || isPaid ? (
         <MDBox
           display="flex"
           justifyContent="center"

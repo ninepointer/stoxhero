@@ -104,7 +104,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-
         return new Error(err);
       });
   }, [getDetails, view, paperurl1, paperurl2]);
@@ -138,7 +137,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-
         return new Error(err);
       });
   }
@@ -173,7 +171,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-
         return new Error(err);
       });
   }
@@ -206,7 +203,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-
         return new Error(err);
       });
   }
@@ -239,7 +235,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-
         return new Error(err);
       });
   }
@@ -270,7 +265,6 @@ function Header() {
           setIsLoading(false);
         })
         .catch((err) => {
-
           return new Error(err);
         });
     } else if (getDetails.userDetails.role.roleName == InfinityTraderRole) {
@@ -294,7 +288,6 @@ function Header() {
           setIsLoading(false);
         })
         .catch((err) => {
-
           return new Error(err);
         });
     }
@@ -324,7 +317,6 @@ function Header() {
           setIsLoading(false);
         })
         .catch((err) => {
-
           return new Error(err);
         });
     }
@@ -358,7 +350,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-
         return new Error(err);
       });
   }
@@ -393,7 +384,6 @@ function Header() {
         setIsLoading(false);
       })
       .catch((err) => {
-
         return new Error(err);
       });
   }

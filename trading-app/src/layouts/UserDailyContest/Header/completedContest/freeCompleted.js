@@ -179,465 +179,453 @@ function Header({ contest }) {
         <>
           <Grid container xs={12} md={12} lg={12}>
             {contest.map((elem) => {
-             // if (elem?.entryFee === 0) {
-                let contestOn = [];
-                if (elem.isNifty) {
-                  contestOn.push("NIFTY");
-                }
-                if (elem.isBankNifty) {
-                  contestOn.push("BANKNIFTY");
-                }
-                if (elem.isFinNifty) {
-                  contestOn.push("FINNIFTY");
-                }
-                if (elem.isAllIndex) {
-                  contestOn = ["NIFTY", "BANKNIFTY", "FINNIFTY"];
-                }
+              // if (elem?.entryFee === 0) {
+              let contestOn = [];
+              if (elem.isNifty) {
+                contestOn.push("NIFTY");
+              }
+              if (elem.isBankNifty) {
+                contestOn.push("BANKNIFTY");
+              }
+              if (elem.isFinNifty) {
+                contestOn.push("FINNIFTY");
+              }
+              if (elem.isAllIndex) {
+                contestOn = ["NIFTY", "BANKNIFTY", "FINNIFTY"];
+              }
 
-                contestOn.push(elem.contestExpiry.toUpperCase());
+              contestOn.push(elem.contestExpiry.toUpperCase());
 
-                // const pnl = pnlData.filter((subelem) => {
-                //   return (
-                //     subelem?.contestId?.toString() === elem?._id?.toString()
-                //   );
-                // });
-                //if (pnl[0]?.contestId) {
-                  return (
+              // const pnl = pnlData.filter((subelem) => {
+              //   return (
+              //     subelem?.contestId?.toString() === elem?._id?.toString()
+              //   );
+              // });
+              //if (pnl[0]?.contestId) {
+              return (
+                <Grid
+                  py={1}
+                  px={1}
+                  item
+                  xs={12}
+                  md={12}
+                  lg={6}
+                  borderRadius={3}
+                >
+                  <MDButton variant="contained" color="light" size="small">
                     <Grid
-                      py={1}
-                      px={1}
-                      item
-                      xs={12}
-                      md={12}
-                      lg={6}
-                      borderRadius={3}
+                      container
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
                     >
-                      <MDButton variant="contained" color="light" size="small">
-                        <Grid
-                          container
+                      <Grid
+                        item
+                        xs={3}
+                        md={3}
+                        lg={3}
+                        display="flex"
+                        justifyContent="flex-start"
+                        alignItems="center"
+                      >
+                        <img src={ContestCarousel} width="40px" height="40px" />
+                      </Grid>
+                      <Grid
+                        item
+                        xs={9}
+                        md={9}
+                        lg={9}
+                        display="flex"
+                        justifyContent="flex-end"
+                        alignItems="center"
+                      >
+                        <MDBox
                           display="flex"
-                          justifyContent="space-between"
-                          alignItems="center"
+                          justifyContent="flex-start"
+                          flexDirection="column"
                         >
-                          <Grid
-                            item
-                            xs={3}
-                            md={3}
-                            lg={3}
+                          <MDBox
                             display="flex"
                             justifyContent="flex-start"
+                            flexDirection="column"
+                          >
+                            <MDBox display="flex" justifyContent="flex-start">
+                              <MDTypography
+                                fontSize={15}
+                                fontWeight="bold"
+                                color="dark"
+                              >
+                                {elem.contestName}
+                              </MDTypography>
+                            </MDBox>
+                          </MDBox>
+                          <MDBox
+                            display="flex"
+                            justifyContent="flex-start"
+                            flexDirection="row"
                             alignItems="center"
                           >
-                            <img
-                              src={ContestCarousel}
-                              width="40px"
-                              height="40px"
-                            />
-                          </Grid>
-                          <Grid
-                            item
-                            xs={9}
-                            md={9}
-                            lg={9}
+                            <MDBox
+                              mr={1}
+                              display="flex"
+                              justifyContent="flex-start"
+                            >
+                              <MDTypography fontSize={10} color="dark">
+                                {changeDateFormat(elem.contestStartTime)}
+                              </MDTypography>
+                            </MDBox>
+                            <MDBox
+                              mr={1}
+                              display="flex"
+                              justifyContent="flex-start"
+                            >
+                              <MDTypography fontSize={10} color="dark">
+                                {changeDateFormat(elem.contestEndTime)}
+                              </MDTypography>
+                            </MDBox>
+                            {contestOn.map((elem, index) => {
+                              return (
+                                <MDBox key={elem}>
+                                  <MDBox
+                                    mr={1}
+                                    display="flex"
+                                    justifyContent="flex-start"
+                                    alignItems="center"
+                                  >
+                                    <MDTypography
+                                      fontSize={10}
+                                      style={{
+                                        backgroundColor:
+                                          contestOn?.length - 1 === index
+                                            ? "#4169E1"
+                                            : "#fb8c00",
+                                        padding: "1px 1px 0px 1px",
+                                        border:
+                                          contestOn?.length - 1 === index
+                                            ? "1px solid #4169E1"
+                                            : "1px solid #fb8c00",
+                                        borderRadius: "2px",
+                                        alignItems: "center",
+                                      }}
+                                      fontWeight="bold"
+                                      color="light"
+                                    >
+                                      {elem}
+                                    </MDTypography>
+                                  </MDBox>
+                                </MDBox>
+                              );
+                            })}
+                          </MDBox>
+                        </MDBox>
+                      </Grid>
+
+                      <Grid
+                        item
+                        mt={1}
+                        xs={12}
+                        md={12}
+                        lg={12}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <MDBox
+                          display="flex"
+                          justifyContent="flex-start"
+                          flexDirection="column"
+                        >
+                          <MDBox
+                            display="flex"
+                            justifyContent="flex-start"
+                            flexDirection="column"
+                          >
+                            <MDBox display="flex" justifyContent="center">
+                              <MDTypography
+                                fontSize={15}
+                                fontWeight="bold"
+                                color="success"
+                              >
+                                Reward
+                              </MDTypography>
+                            </MDBox>
+                            <MDBox display="flex" justifyContent="center">
+                              <MDTypography
+                                fontSize={15}
+                                fontWeight="bold"
+                                color="dark"
+                              >
+                                {/* {elem?.payoutType !== "Reward" ? `${elem.payoutPercentage}% of the net P&L` : <RewardTable reward={elem?.rewards} paid={false}/> } */}{" "}
+                                <RewardTable data={elem} paid={false} />
+                              </MDTypography>
+                            </MDBox>
+                          </MDBox>
+                        </MDBox>
+                      </Grid>
+
+                      <Grid
+                        item
+                        mt={1}
+                        xs={12}
+                        md={12}
+                        lg={12}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <MDBox
+                          display="flex"
+                          justifyContent="flex-start"
+                          flexDirection="column"
+                        >
+                          <MDBox
+                            display="flex"
+                            justifyContent="flex-start"
+                            flexDirection="column"
+                          >
+                            TestZone Completed
+                          </MDBox>
+                        </MDBox>
+                      </Grid>
+
+                      <Grid
+                        item
+                        mt={1}
+                        xs={12}
+                        md={12}
+                        lg={12}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <MDBox
+                          display="flex"
+                          justifyContent="flex-start"
+                          flexDirection="column"
+                        >
+                          <MDBox
+                            display="flex"
+                            justifyContent="flex-start"
+                            flexDirection="column"
+                          >
+                            Rank: {elem?.rank}
+                          </MDBox>
+                        </MDBox>
+                      </Grid>
+
+                      <Grid
+                        item
+                        mt={1}
+                        xs={12}
+                        md={12}
+                        lg={12}
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        alignContent="center"
+                      >
+                        <MDBox
+                          color="light"
+                          fontSize={10}
+                          display="flex"
+                          justifyContent="center"
+                          alignItems="center"
+                        >
+                          <MDBox color="dark">
+                            <MDTypography
+                              fontSize={10}
+                              style={{
+                                backgroundColor: "grey",
+                                padding: "2px 2px 1px 2px",
+                                border: "1px solid grey",
+                                borderRadius: "2px",
+                                alignItems: "center",
+                              }}
+                              fontWeight="bold"
+                              color="light"
+                            >
+                              ENTRY FEE :{" "}
+                              {elem.entryFee ? "+₹" + elem.entryFee : "FREE"}
+                            </MDTypography>
+                          </MDBox>
+                        </MDBox>
+
+                        <MDBox
+                          color="light"
+                          fontSize={10}
+                          display="flex"
+                          justifyContent="center"
+                          alignItems="center"
+                        >
+                          <MDBox color="dark">
+                            <MDTypography
+                              fontSize={10}
+                              style={{
+                                backgroundColor: "grey",
+                                padding: "2px 2px 1px 2px",
+                                border: "1px solid grey",
+                                borderRadius: "2px",
+                                alignItems: "center",
+                              }}
+                              fontWeight="bold"
+                              color="light"
+                            >
+                              NET P&L:{" "}
+                              {elem?.npnl >= 0
+                                ? "+₹" +
+                                  new Intl.NumberFormat(undefined, {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  }).format(elem?.npnl)
+                                : "-₹" +
+                                  new Intl.NumberFormat(undefined, {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  }).format(-elem?.npnl)}
+                            </MDTypography>
+                          </MDBox>
+                        </MDBox>
+
+                        <MDBox
+                          color="light"
+                          fontSize={10}
+                          display="flex"
+                          justifyContent="center"
+                          alignItems="center"
+                        >
+                          <MDBox color="dark">
+                            <MDTypography
+                              fontSize={10}
+                              style={{
+                                backgroundColor: "grey",
+                                padding: "2px 2px 1px 2px",
+                                border: "1px solid grey",
+                                borderRadius: "2px",
+                                alignItems: "center",
+                              }}
+                              fontWeight="bold"
+                              color="light"
+                            >
+                              PAYOUT:{" "}
+                              {elem?.payout > 0
+                                ? "₹" +
+                                  new Intl.NumberFormat(undefined, {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 2,
+                                  }).format(elem?.payout)
+                                : "₹0"}
+                            </MDTypography>
+                          </MDBox>
+                        </MDBox>
+
+                        <MDBox
+                          color="light"
+                          fontSize={10}
+                          display="flex"
+                          justifyContent="center"
+                          alignItems="center"
+                        >
+                          <MDBox color="dark">
+                            <MDTypography
+                              fontSize={10}
+                              style={{
+                                backgroundColor: "grey",
+                                padding: "2px 2px 1px 2px",
+                                border: "1px solid grey",
+                                borderRadius: "2px",
+                                alignItems: "center",
+                              }}
+                              fontWeight="bold"
+                              color="light"
+                            >
+                              PORTFOLIO:{" "}
+                              {"₹" +
+                                new Intl.NumberFormat(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                }).format(elem?.portfolioValue)}
+                            </MDTypography>
+                          </MDBox>
+                        </MDBox>
+                      </Grid>
+
+                      <Grid
+                        item
+                        mb={1}
+                        xs={12}
+                        md={12}
+                        lg={12}
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <MDBox
+                          display="flex"
+                          justifyContent="space-between"
+                          flexDirection="row"
+                          width="100%"
+                        >
+                          <MDBox
+                            mt={1}
+                            display="flex"
+                            justifyContent="flex-start"
+                            width="50%"
+                          >
+                            <MDButton
+                              variant="outlined"
+                              color="warning"
+                              size="small"
+                              style={{ width: "90%", fontSize: "10px" }}
+                              component={Link}
+                              onClick={() => {
+                                handleLeaderboardNavigate(
+                                  elem?._id,
+                                  elem?.contestName
+                                );
+                              }}
+                            >
+                              <MDTypography
+                                color="warning"
+                                fontWeight="bold"
+                                fontSize={10}
+                              >
+                                LEADERBOARD
+                              </MDTypography>
+                            </MDButton>
+                          </MDBox>
+                          <MDBox
+                            mt={1}
                             display="flex"
                             justifyContent="flex-end"
-                            alignItems="center"
+                            width="50%"
                           >
-                            <MDBox
-                              display="flex"
-                              justifyContent="flex-start"
-                              flexDirection="column"
+                            <MDButton
+                              variant="outlined"
+                              color="warning"
+                              size="small"
+                              style={{ width: "90%", fontSize: "10px" }}
+                              component={Link}
+                              onClick={() => {
+                                handleNavigate(elem?._id, elem?.contestName);
+                              }}
                             >
-                              <MDBox
-                                display="flex"
-                                justifyContent="flex-start"
-                                flexDirection="column"
+                              <MDTypography
+                                color="warning"
+                                fontWeight="bold"
+                                fontSize={10}
                               >
-                                <MDBox
-                                  display="flex"
-                                  justifyContent="flex-start"
-                                >
-                                  <MDTypography
-                                    fontSize={15}
-                                    fontWeight="bold"
-                                    color="dark"
-                                  >
-                                    {elem.contestName}
-                                  </MDTypography>
-                                </MDBox>
-                              </MDBox>
-                              <MDBox
-                                display="flex"
-                                justifyContent="flex-start"
-                                flexDirection="row"
-                                alignItems="center"
-                              >
-                                <MDBox
-                                  mr={1}
-                                  display="flex"
-                                  justifyContent="flex-start"
-                                >
-                                  <MDTypography fontSize={10} color="dark">
-                                    {changeDateFormat(elem.contestStartTime)}
-                                  </MDTypography>
-                                </MDBox>
-                                <MDBox
-                                  mr={1}
-                                  display="flex"
-                                  justifyContent="flex-start"
-                                >
-                                  <MDTypography fontSize={10} color="dark">
-                                    {changeDateFormat(elem.contestEndTime)}
-                                  </MDTypography>
-                                </MDBox>
-                                {contestOn.map((elem, index) => {
-                                  return (
-                                    <MDBox key={elem}>
-                                      <MDBox
-                                        mr={1}
-                                        display="flex"
-                                        justifyContent="flex-start"
-                                        alignItems="center"
-                                      >
-                                        <MDTypography
-                                          fontSize={10}
-                                          style={{
-                                            backgroundColor:
-                                              contestOn?.length - 1 === index
-                                                ? "#4169E1"
-                                                : "#fb8c00",
-                                            padding: "1px 1px 0px 1px",
-                                            border:
-                                              contestOn?.length - 1 === index
-                                                ? "1px solid #4169E1"
-                                                : "1px solid #fb8c00",
-                                            borderRadius: "2px",
-                                            alignItems: "center",
-                                          }}
-                                          fontWeight="bold"
-                                          color="light"
-                                        >
-                                          {elem}
-                                        </MDTypography>
-                                      </MDBox>
-                                    </MDBox>
-                                  );
-                                })}
-                              </MDBox>
-                            </MDBox>
-                          </Grid>
-
-                          <Grid
-                            item
-                            mt={1}
-                            xs={12}
-                            md={12}
-                            lg={12}
-                            display="flex"
-                            justifyContent="center"
-                            alignItems="center"
-                          >
-                            <MDBox
-                              display="flex"
-                              justifyContent="flex-start"
-                              flexDirection="column"
-                            >
-                              <MDBox
-                                display="flex"
-                                justifyContent="flex-start"
-                                flexDirection="column"
-                              >
-                                <MDBox display="flex" justifyContent="center">
-                                  <MDTypography
-                                    fontSize={15}
-                                    fontWeight="bold"
-                                    color="success"
-                                  >
-                                    Reward
-                                  </MDTypography>
-                                </MDBox>
-                                <MDBox display="flex" justifyContent="center">
-                                  <MDTypography
-                                    fontSize={15}
-                                    fontWeight="bold"
-                                    color="dark"
-                                  >
-                                    {/* {elem?.payoutType !== "Reward" ? `${elem.payoutPercentage}% of the net P&L` : <RewardTable reward={elem?.rewards} paid={false}/> } */}{" "}
-                                    <RewardTable data={elem} paid={false} />
-                                  </MDTypography>
-                                </MDBox>
-                              </MDBox>
-                            </MDBox>
-                          </Grid>
-
-                          <Grid
-                            item
-                            mt={1}
-                            xs={12}
-                            md={12}
-                            lg={12}
-                            display="flex"
-                            justifyContent="center"
-                            alignItems="center"
-                          >
-                            <MDBox
-                              display="flex"
-                              justifyContent="flex-start"
-                              flexDirection="column"
-                            >
-                              <MDBox
-                                display="flex"
-                                justifyContent="flex-start"
-                                flexDirection="column"
-                              >
-                                TestZone Completed
-                              </MDBox>
-                            </MDBox>
-                          </Grid>
-
-                          <Grid
-                            item
-                            mt={1}
-                            xs={12}
-                            md={12}
-                            lg={12}
-                            display="flex"
-                            justifyContent="center"
-                            alignItems="center"
-                          >
-                            <MDBox
-                              display="flex"
-                              justifyContent="flex-start"
-                              flexDirection="column"
-                            >
-                              <MDBox
-                                display="flex"
-                                justifyContent="flex-start"
-                                flexDirection="column"
-                              >
-                                Rank: {elem?.rank}
-                              </MDBox>
-                            </MDBox>
-                          </Grid>
-
-                          <Grid
-                            item
-                            mt={1}
-                            xs={12}
-                            md={12}
-                            lg={12}
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems="center"
-                            alignContent="center"
-                          >
-                            <MDBox
-                              color="light"
-                              fontSize={10}
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                            >
-                              <MDBox color="dark">
-                                <MDTypography
-                                  fontSize={10}
-                                  style={{
-                                    backgroundColor: "grey",
-                                    padding: "2px 2px 1px 2px",
-                                    border: "1px solid grey",
-                                    borderRadius: "2px",
-                                    alignItems: "center",
-                                  }}
-                                  fontWeight="bold"
-                                  color="light"
-                                >
-                                  ENTRY FEE :{" "}
-                                  {elem.entryFee
-                                    ? "+₹" + elem.entryFee
-                                    : "FREE"}
-                                </MDTypography>
-                              </MDBox>
-                            </MDBox>
-
-                            <MDBox
-                              color="light"
-                              fontSize={10}
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                            >
-                              <MDBox color="dark">
-                                <MDTypography
-                                  fontSize={10}
-                                  style={{
-                                    backgroundColor: "grey",
-                                    padding: "2px 2px 1px 2px",
-                                    border: "1px solid grey",
-                                    borderRadius: "2px",
-                                    alignItems: "center",
-                                  }}
-                                  fontWeight="bold"
-                                  color="light"
-                                >
-                                  NET P&L:{" "}
-                                  {elem?.npnl >= 0
-                                    ? "+₹" +
-                                      new Intl.NumberFormat(undefined, {
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 0,
-                                      }).format(elem?.npnl)
-                                    : "-₹" +
-                                      new Intl.NumberFormat(undefined, {
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 0,
-                                      }).format(-elem?.npnl)}
-                                </MDTypography>
-                              </MDBox>
-                            </MDBox>
-
-                            <MDBox
-                              color="light"
-                              fontSize={10}
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                            >
-                              <MDBox color="dark">
-                                <MDTypography
-                                  fontSize={10}
-                                  style={{
-                                    backgroundColor: "grey",
-                                    padding: "2px 2px 1px 2px",
-                                    border: "1px solid grey",
-                                    borderRadius: "2px",
-                                    alignItems: "center",
-                                  }}
-                                  fontWeight="bold"
-                                  color="light"
-                                >
-                                  PAYOUT:{" "}
-                                  {elem?.payout > 0
-                                    ? "₹" +
-                                      new Intl.NumberFormat(undefined, {
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 2,
-                                      }).format(elem?.payout)
-                                    : "₹0"}
-                                </MDTypography>
-                              </MDBox>
-                            </MDBox>
-
-                            <MDBox
-                              color="light"
-                              fontSize={10}
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                            >
-                              <MDBox color="dark">
-                                <MDTypography
-                                  fontSize={10}
-                                  style={{
-                                    backgroundColor: "grey",
-                                    padding: "2px 2px 1px 2px",
-                                    border: "1px solid grey",
-                                    borderRadius: "2px",
-                                    alignItems: "center",
-                                  }}
-                                  fontWeight="bold"
-                                  color="light"
-                                >
-                                  PORTFOLIO:{" "}
-                                  {"₹" +
-                                    new Intl.NumberFormat(undefined, {
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0,
-                                    }).format(elem?.portfolioValue)}
-                                </MDTypography>
-                              </MDBox>
-                            </MDBox>
-                          </Grid>
-
-                          <Grid
-                            item
-                            mb={1}
-                            xs={12}
-                            md={12}
-                            lg={12}
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems="center"
-                          >
-                            <MDBox
-                              display="flex"
-                              justifyContent="space-between"
-                              flexDirection="row"
-                              width="100%"
-                            >
-                              <MDBox
-                                mt={1}
-                                display="flex"
-                                justifyContent="flex-start"
-                                width="50%"
-                              >
-                                <MDButton
-                                  variant="outlined"
-                                  color="warning"
-                                  size="small"
-                                  style={{ width: "90%", fontSize: "10px" }}
-                                  component={Link}
-                                  onClick={() => {
-                                    handleLeaderboardNavigate(
-                                      elem?._id,
-                                      elem?.contestName
-                                    );
-                                  }}
-                                >
-                                  <MDTypography
-                                    color="warning"
-                                    fontWeight="bold"
-                                    fontSize={10}
-                                  >
-                                    LEADERBOARD
-                                  </MDTypography>
-                                </MDButton>
-                              </MDBox>
-                              <MDBox
-                                mt={1}
-                                display="flex"
-                                justifyContent="flex-end"
-                                width="50%"
-                              >
-                                <MDButton
-                                  variant="outlined"
-                                  color="warning"
-                                  size="small"
-                                  style={{ width: "90%", fontSize: "10px" }}
-                                  component={Link}
-                                  onClick={() => {
-                                    handleNavigate(
-                                      elem?._id,
-                                      elem?.contestName
-                                    );
-                                  }}
-                                >
-                                  <MDTypography
-                                    color="warning"
-                                    fontWeight="bold"
-                                    fontSize={10}
-                                  >
-                                    VIEW ORDERS
-                                  </MDTypography>
-                                </MDButton>
-                              </MDBox>
-                            </MDBox>
-                          </Grid>
-                        </Grid>
-                      </MDButton>
+                                VIEW ORDERS
+                              </MDTypography>
+                            </MDButton>
+                          </MDBox>
+                        </MDBox>
+                      </Grid>
                     </Grid>
-                  );
-                //}
-             // }
+                  </MDButton>
+                </Grid>
+              );
+              //}
+              // }
             })}
           </Grid>
         </>

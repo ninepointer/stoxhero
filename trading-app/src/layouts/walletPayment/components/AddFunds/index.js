@@ -59,7 +59,7 @@ function AddFunds({ setRender, render }) {
       currency,
       paymentMode,
       paymentStatus,
-      utr
+      utr,
     } = formState;
 
     if (
@@ -92,7 +92,8 @@ function AddFunds({ setRender, render }) {
         paymentBy: paymentBy._id,
         currency,
         paymentMode,
-        paymentStatus,utr
+        paymentStatus,
+        utr,
       }),
     });
 
@@ -167,7 +168,7 @@ function AddFunds({ setRender, render }) {
       </MDBox>
       <MDBox p={2}>
         <Grid container spacing={1}>
-          <Grid item xs={12} md={12} lg={12} sx={{paddingLeft: 0}}>
+          <Grid item xs={12} md={12} lg={12} sx={{ paddingLeft: 0 }}>
             <User paymentBy={paymentBy} setPaymentBy={setPaymentBy} />
           </Grid>
 
@@ -179,7 +180,7 @@ function AddFunds({ setRender, render }) {
             lg={12}
             display="flex"
             justifyContent={"flex-start"}
-            style={{marginLeft: 0}}
+            style={{ marginLeft: 0 }}
           >
             <Grid item xs={12} xl={4} lg={4}>
               <TextField

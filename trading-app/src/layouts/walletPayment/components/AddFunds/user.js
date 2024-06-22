@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import {  useState, useRef, useReducer } from "react";
+import { useState, useRef, useReducer } from "react";
 // @mui material components
 // import { Chart } from "chart.js/auto";
 // Chart.register(...registerables);
@@ -103,7 +103,7 @@ function Users({ paymentBy, setPaymentBy }) {
       //   name: "",
       //   mobile: "",
       // });
-      setPaymentBy({})
+      setPaymentBy({});
     }
   }
 
@@ -135,7 +135,7 @@ function Users({ paymentBy, setPaymentBy }) {
     handleClear();
   }
 
-  console.log('state.userData', state.userData, paymentBy)
+  console.log("state.userData", state.userData, paymentBy);
 
   return (
     <MDBox
@@ -155,7 +155,9 @@ function Users({ paymentBy, setPaymentBy }) {
           placeholder="Search user"
           value={
             paymentBy?._id
-              ? `${paymentBy.first_name} ${paymentBy.last_name}` + "-" + paymentBy?.mobile
+              ? `${paymentBy.first_name} ${paymentBy.last_name}` +
+                "-" +
+                paymentBy?.mobile
               : state.text
           }
           inputRef={textRef}
@@ -168,9 +170,7 @@ function Users({ paymentBy, setPaymentBy }) {
                 sx={{ cursor: "pointer" }}
                 onClick={handleClear}
               >
-                {(state.text || paymentBy?._id) && (
-                  <RxCross2 color="#000000" />
-                )}
+                {(state.text || paymentBy?._id) && <RxCross2 color="#000000" />}
               </MDBox>
             ),
             startAdornment: <>{<AiOutlineSearch />}</>,

@@ -262,9 +262,9 @@ export default function Dashboard() {
         "Code",
         "Email",
         "Mobile",
-        'Signup User',
-        'Total Revenue',
-        'Affiliate Earning'
+        "Signup User",
+        "Total Revenue",
+        "Affiliate Earning",
       ],
     ];
     if (data) {

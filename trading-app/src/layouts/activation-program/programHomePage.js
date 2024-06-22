@@ -25,7 +25,6 @@ function ActivationHomePage() {
       });
   }, []);
 
-
   function ConvertDate(dateToConvert) {
     if (dateToConvert) {
       const date = new Date(dateToConvert);

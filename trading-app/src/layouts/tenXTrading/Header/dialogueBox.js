@@ -40,7 +40,6 @@ export default function Dialogue({
   checkPayment,
   allowRenewal,
 }) {
-
   const [open, setOpen] = React.useState(false);
   const getDetails = React.useContext(userContext);
   const settingData = React.useContext(settingContext);
@@ -60,20 +59,19 @@ export default function Dialogue({
   // const copyText = `https://www.stoxhero.com/signup?referral=${getDetails.userDetails.myReferralCode}`
 
   useEffect(() => {
-      setUpdatedUser(getDetails?.userDetails);
-      let subscribed = getDetails?.userDetails?.subscription?.filter((elem) => {
-        return (
-          elem?.subscriptionId?._id?.toString() === id?.toString() &&
-          elem?.status === "Live"
-        );
-      });
+    setUpdatedUser(getDetails?.userDetails);
+    let subscribed = getDetails?.userDetails?.subscription?.filter((elem) => {
+      return (
+        elem?.subscriptionId?._id?.toString() === id?.toString() &&
+        elem?.status === "Live"
+      );
+    });
 
-      if (subscribed?.length > 0) {
-        setIsSubscribed(true);
-      }
+    if (subscribed?.length > 0) {
+      setIsSubscribed(true);
+    }
 
-      
-      setSetting(settingData?.[0]);
+    setSetting(settingData?.[0]);
   }, []);
 
   useEffect(() => {
@@ -220,7 +218,6 @@ export default function Dialogue({
   const subs_actualAmount = (amount * setting.gstPercentage) / 100;
 
   const initiatePayment = async () => {
-
     try {
       const res = await axios.post(
         `${apiUrl}payment/initiate`,
@@ -235,9 +232,7 @@ export default function Dialogue({
 
       window.location.href =
         res?.data?.data?.instrumentResponse?.redirectInfo?.url;
-    } catch (e) {
-
-    }
+    } catch (e) {}
   };
 
   return (

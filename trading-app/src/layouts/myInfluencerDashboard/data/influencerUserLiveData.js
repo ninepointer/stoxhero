@@ -81,7 +81,6 @@ function TraderwiseTraderPNL({ socket }) {
       });
 
     socket.on("tick", (data) => {
-
       setMarketData((prevInstruments) => {
         const instrumentMap = new Map(
           prevInstruments.map((instrument) => [

@@ -127,11 +127,9 @@ export default function FilteredUsers({ setFilteredUsers }) {
         },
       };
     });
-
   };
 
   const handleLifetime = (value) => {
-
     setSelectedTab((prevState) => ({
       ...prevState,
       isLifetime: value,

@@ -19,7 +19,7 @@ export default function LabTabs() {
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
   const userPortfolio = getDetails?.userDetails?.portfolio;
-  
+
   const virtualPortfolio = userPortfolio?.filter((e) => {
     return (
       e?.portfolioId?.portfolioType === "Virtual Trading" &&

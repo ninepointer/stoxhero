@@ -196,8 +196,7 @@ export default function Dashboard() {
     try {
       const res = await axios.get(url, { withCredentials: true });
       setStats(res.data.data);
-    } catch (e) {
-    }
+    } catch (e) {}
   };
   const getTraderSummary = async () => {
     try {
@@ -205,8 +204,7 @@ export default function Dashboard() {
         withCredentials: true,
       });
       setSummary(res.data.data);
-    } catch (e) {
-    }
+    } catch (e) {}
   };
   useEffect(() => {
     getTraderSummary();

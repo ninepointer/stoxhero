@@ -121,8 +121,7 @@ export default function TenXSubscriptions({
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
   useEffect(() => {
     const startDate = currentBatch
@@ -174,8 +173,7 @@ export default function TenXSubscriptions({
       .then((res) => {
         setServerTime(res.data.data);
       })
-      .catch((e) => {
-      });
+      .catch((e) => {});
   }, []);
 
   useEffect(() => {
@@ -576,7 +574,6 @@ export default function TenXSubscriptions({
         // console.error(error);
       });
   }, []);
-
 
   return (
     <MDBox

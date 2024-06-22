@@ -219,8 +219,7 @@ function Header({
                   // contestOn.push("FINNIFTY")
                 }
 
-
-                  let particularMarginXTime = timeDifference.filter((subelem) => {
+                let particularMarginXTime = timeDifference.filter((subelem) => {
                   return subelem?.id?.toString() === elem?._id?.toString();
                 });
 
@@ -987,8 +986,7 @@ function Header({
                                     name: elem?.contestName,
                                     endTime: elem?.endTime,
                                     entryFee: elem?.entryFee,
-                                    portfolioValue:
-                                      elem?.portfolioValue,
+                                    portfolioValue: elem?.portfolioValue,
                                   },
                                 });
                               }}

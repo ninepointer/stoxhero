@@ -14,7 +14,6 @@ function YouTubeVideo({ updatedDocument, setUpdatedDocument }) {
 
   async function onDelete(e, id) {
     e.preventDefault();
- 
   }
 
   const [title, setTitle] = useState("");

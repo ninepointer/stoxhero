@@ -95,12 +95,12 @@ function Index() {
   }, []);
 
   const getPreviousNotifications = async (id) => {
-    if(id){
+    if (id) {
       const res = await axios.get(
         `${baseUrl}api/v1/notificationgroup/${id}/previousnotifications`,
         { withCredentials: true }
       );
-      setPreviousNotifications(res.data.data);  
+      setPreviousNotifications(res.data.data);
     }
   };
 
@@ -175,7 +175,7 @@ function Index() {
     }
     setIsSending(true);
     const res = await fetch(
-      `${baseUrl}api/v1/push/group/${notificationGroup?.id || 'csv'}`,
+      `${baseUrl}api/v1/push/group/${notificationGroup?.id || "csv"}`,
       {
         method: "POST",
         credentials: "include",
@@ -442,49 +442,52 @@ function Index() {
                   // label='Selected Carousel Image'
                   fullWidth
                   // defaultValue={portfolioData?.portfolioName}
-                  value={
-                       csvUpload?.[0]?.name
-                      || "No CSV Uploaded"
-                  }
+                  value={csvUpload?.[0]?.name || "No CSV Uploaded"}
                 />
               </Grid>
 
-              {!csvUpload ? <Grid item xs={12} md={6} xl={4}>
-                <FormControl sx={{ width: "100%" }}>
-                  <InputLabel id="demo-multiple-name-label">
-                    Notification Group
-                  </InputLabel>
-                  <Select
-                    labelId="demo-multiple-name-label"
-                    id="demo-multiple-name"
-                    name="notificationGroup"
-                    disabled={
-                      (isSubmitted || sendNotification) && (!editing || saving)
-                    }
-                    value={
-                      formState?.notificationGroup?.name ||
-                      sendNotificationData?.notificationGroup
-                        ?.notificationGroupName ||
-                      sendNotification?.notificationGroup?.notificationGroupName
-                    }
-                    onChange={(event) => {
-                      handleGroupChange(event);
-                    }}
-                    input={<OutlinedInput label="Portfolio" />}
-                    sx={{ minHeight: 45 }}
-                    MenuProps={MenuProps}
-                  >
-                    {notification?.map((elem) => (
-                      <MenuItem
-                        key={elem?.notificationGroupName}
-                        value={elem?.notificationGroupName}
-                      >
-                        {elem.notificationGroupName}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid> : <></>}
+              {!csvUpload ? (
+                <Grid item xs={12} md={6} xl={4}>
+                  <FormControl sx={{ width: "100%" }}>
+                    <InputLabel id="demo-multiple-name-label">
+                      Notification Group
+                    </InputLabel>
+                    <Select
+                      labelId="demo-multiple-name-label"
+                      id="demo-multiple-name"
+                      name="notificationGroup"
+                      disabled={
+                        (isSubmitted || sendNotification) &&
+                        (!editing || saving)
+                      }
+                      value={
+                        formState?.notificationGroup?.name ||
+                        sendNotificationData?.notificationGroup
+                          ?.notificationGroupName ||
+                        sendNotification?.notificationGroup
+                          ?.notificationGroupName
+                      }
+                      onChange={(event) => {
+                        handleGroupChange(event);
+                      }}
+                      input={<OutlinedInput label="Portfolio" />}
+                      sx={{ minHeight: 45 }}
+                      MenuProps={MenuProps}
+                    >
+                      {notification?.map((elem) => (
+                        <MenuItem
+                          key={elem?.notificationGroupName}
+                          value={elem?.notificationGroupName}
+                        >
+                          {elem.notificationGroupName}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              ) : (
+                <></>
+              )}
 
               <Grid item xs={12} md={6} xl={4}>
                 <FormGroup>

@@ -542,8 +542,7 @@ function Header({
                                     fontWeight: 700,
                                   }}
                                 >
-                                  {elem?.maxParticipants -
-                                    elem?.participants}{" "}
+                                  {elem?.maxParticipants - elem?.participants}{" "}
                                   SEATS UP FOR GRAB
                                 </MDBox>
                               </MDBox>

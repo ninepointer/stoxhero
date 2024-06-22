@@ -978,8 +978,7 @@ function Header({
                                     name: elem?.marginXName,
                                     endTime: elem?.endTime,
                                     entryFee: elem?.entryFee,
-                                    portfolioValue:
-                                      elem?.portfolioValue,
+                                    portfolioValue: elem?.portfolioValue,
                                   },
                                 });
                               }}

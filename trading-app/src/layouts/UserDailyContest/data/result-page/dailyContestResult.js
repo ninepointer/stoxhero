@@ -107,9 +107,7 @@ function ContestResultPage() {
       .catch((err) => {
         return new Error(err);
       });
-
   }, [contestId]);
-
 
   let myReward;
   if (contestData?.payoutType === "Percentage") {

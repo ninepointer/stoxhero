@@ -77,7 +77,6 @@ export default function TenXSubscriptions({ setClicked }) {
       })
       .catch((error) => {
         // Handle errors here
-
       });
   }, [checkPayment]);
 

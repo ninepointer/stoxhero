@@ -49,8 +49,7 @@ function MyRank({ socket, id, data, setRank }) {
         (data?.allData?.entryFee * data?.allData?.payoutCapPercentage) / 100;
     } else {
       payoutCap =
-        (data?.allData?.portfolioValue *
-          data?.allData?.payoutCapPercentage) /
+        (data?.allData?.portfolioValue * data?.allData?.payoutCapPercentage) /
         100;
     }
     myReward = Math.min(

@@ -21,7 +21,7 @@ const Active = ({ type }) => {
     fetchData(skip, limitSetting);
   }, []);
 
-  async function fetchData(skip, limitSetting){
+  async function fetchData(skip, limitSetting) {
     let call1 = axios.get(
       `${baseUrl}api/v1/leaderboard/active?skip=${skip}&limit=${limitSetting}`,
       {
@@ -53,7 +53,7 @@ const Active = ({ type }) => {
     setSkip((prev) => prev - limitSetting);
     setData([]);
     setIsLoading(true);
-    fetchData((skip - limitSetting), limitSetting);
+    fetchData(skip - limitSetting, limitSetting);
   }
 
   function nextHandler() {
@@ -63,7 +63,7 @@ const Active = ({ type }) => {
     setSkip((prev) => prev + limitSetting);
     setData([]);
     setIsLoading(true);
-    fetchData((skip + limitSetting), limitSetting);
+    fetchData(skip + limitSetting, limitSetting);
   }
 
   return (
@@ -77,7 +77,7 @@ const Active = ({ type }) => {
                   <MDBox padding={0} style={{ borderRadius: 4 }}>
                     <MDButton
                       variant="contained"
-                      color={'light'}
+                      color={"light"}
                       size="small"
                       component={Link}
                       style={{ minWidth: "100%" }}
@@ -87,8 +87,6 @@ const Active = ({ type }) => {
                       state={{ data: e }}
                     >
                       <Grid container>
-                      
-
                         <Grid
                           item
                           xs={12}
@@ -157,8 +155,6 @@ const Active = ({ type }) => {
                               </span>
                             </MDTypography>
                           </Grid>
-
-                          
                         </Grid>
                       </Grid>
                     </MDButton>

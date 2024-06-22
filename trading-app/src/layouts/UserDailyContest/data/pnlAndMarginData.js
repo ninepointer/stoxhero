@@ -28,7 +28,6 @@ const PnlAndMarginData = ({ contestId }) => {
   let margin = 0;
   let subtractAmount = 0;
   pnlData.map((elem) => {
-
     if (elem?._id.isLimit) {
       margin += elem?.margin;
     } else {

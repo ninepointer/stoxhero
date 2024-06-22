@@ -65,7 +65,6 @@ const User = () => {
     return [d.getUTCFullYear(), weekNo];
   }
 
-
   activeData.map((elem) => {
     let activeusers = {};
 
@@ -145,7 +144,6 @@ const User = () => {
         {elem.role.roleName}
       </MDTypography>
     );
-
 
     rows.push(activeusers);
   });

@@ -64,7 +64,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     textColor = "inherit";
   }
 
-
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
   const navigate = useNavigate();

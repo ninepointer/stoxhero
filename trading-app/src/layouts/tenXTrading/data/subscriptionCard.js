@@ -32,7 +32,8 @@ function Header({
   walletCash,
   bonusCash,
   allowRenewal,
-  userCount, isPaid
+  userCount,
+  isPaid,
 }) {
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
@@ -68,7 +69,6 @@ function Header({
     window.open(videoUrl, "_blank");
   };
 
-  
   async function captureTutorialViews() {
     openYouTubeVideo();
     window.webengage.track("tenx_tutorial_clicked", {
