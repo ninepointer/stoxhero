@@ -1,14 +1,12 @@
 const moment = require("moment");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
-const User = require('../models/User/userDetailSchema');
+const User = require("../models/User/userDetailSchema");
 const { ObjectId } = require("mongodb");
 const multer = require("multer");
 const sendMail = require("../utils/emailService");
 
-
-
 exports.convertToTradingDataToGroup = async (data, userId, res) => {
-  console.log('case1')
+  console.log("case1");
   try {
     data.sort((a, b) => {
       if (a?.["Trade Date/Time"] > b?.["Trade Date/Time"]) {
@@ -20,7 +18,7 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
     });
     // Step 1: Grouping the data
     const groupedData = {};
-    console.log('case2')
+    console.log("case2");
     data.forEach((elem) => {
       const groupKey = [
         elem?.["Strike Price"],
@@ -30,7 +28,7 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
         elem?.["Trade Date/Time"],
         elem?.["Contract Name"],
       ].join("|");
-      
+
       if (!groupedData[groupKey]) {
         groupedData[groupKey] = {
           ...elem,
@@ -41,17 +39,21 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
         };
       }
 
-      groupedData[groupKey].Quantity += Number(elem?.["Quantity"].replace(/,/g, ''));
-      groupedData[groupKey].totalPrice += Number(elem?.["Price"].replace(/,/g, ''));
+      groupedData[groupKey].Quantity += Number(
+        elem?.["Quantity"].replace(/,/g, "")
+      );
+      groupedData[groupKey].totalPrice += Number(
+        elem?.["Price"].replace(/,/g, "")
+      );
       groupedData[groupKey].amount +=
-        Number(elem?.["Price"]) * Number(elem?.["Quantity"].replace(/,/g, ''));
+        Number(elem?.["Price"]) * Number(elem?.["Quantity"].replace(/,/g, ""));
       groupedData[groupKey].count += 1;
     });
 
     // Step 2: Converting the grouped data to the required format
     const tradeData = [];
     for (const key in groupedData) {
-      console.log('case3')
+      console.log("case3");
       const elem = groupedData[key];
       // const avgPrice = Number(elem.totalPrice / elem.count)
       const avgPrice = Math.round((elem.totalPrice / elem.count) * 100) / 100;
@@ -66,7 +68,7 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
         checkFuture = true;
       }
 
-      if (elem?.['Instrument Type'] === 'EQ') {
+      if (elem?.["Instrument Type"] === "EQ") {
         checkStock = true;
       }
 
@@ -81,16 +83,17 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
         const newExpiry = moment(elem?.["Expiry Date"], "DD MMMM YYYY")
           .clone()
           .format("DDMMMYY");
-        instrument = `${elem?.["Symbol"]}${newExpiry?.toUpperCase()}${elem?.["Strike Price"]
-          }${elem?.["Option Type"]}`;
+        instrument = `${elem?.["Symbol"]}${newExpiry?.toUpperCase()}${
+          elem?.["Strike Price"]
+        }${elem?.["Option Type"]}`;
       }
 
       if (checkStock) {
-        instrument = elem?.["Symbol"]
+        instrument = elem?.["Symbol"];
       }
 
       let buyOrSell;
-      let quantity=0;
+      let quantity = 0;
       let amount = 0;
       if (elem?.["Buy/Sell"] === "2") {
         buyOrSell = "SELL";
@@ -115,23 +118,29 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
         exchange: "NFO",
         symbol: instrument,
         amount: amount,
-        brokerage: Math.abs(Number(amount)*0.001),
+        brokerage: Math.abs(Number(amount) * 0.001),
         //todo-vijay
-        trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss"),
-        // trade_time: moment(elem?.['Trade Date/Time'], "DD MMMM YYYY HH:mm:ss").add(5, 'hours').add(30, 'minutes').utc().format(),
+        // trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss"),
+        trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss")
+          .add(5, "hours")
+          .add(30, "minutes")
+          .utc()
+          .format(),
         account_number: elem?.["Account Number"],
         cp_id: elem?.["CP ID"],
         ctcl_id: elem?.["CTCL ID"],
         user_id: elem?.["User Id"],
-        modify_date: moment(elem?.["Modified Date/Time"], "DD MMMM YYYY HH:mm:ss"),
+        modify_date: moment(
+          elem?.["Modified Date/Time"],
+          "DD MMMM YYYY HH:mm:ss"
+        ),
         trader: userId,
         createdOn: new Date(),
         createdBy: userId,
       });
     }
 
-
-    console.log('case4')
+    console.log("case4");
 
     const getStartDate = moment(tradeData?.[0]?.trade_time)
       .startOf("day")
@@ -153,7 +162,7 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
         status: "error",
         message: "Uploaded data already exist!",
       });
-      return 'Data Exist';
+      return "Data Exist";
     }
 
     await ThirdPartyTrades.create(tradeData);
@@ -161,8 +170,8 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
     // Grouping the data
     const finalgroupedData = tradeData.reduce((acc, trade) => {
       // Extract the date part from trade_time
-      const tradeDate = moment(trade.trade_time).format('YYYY-MM-DD');
-      console.log('case5')
+      const tradeDate = moment(trade.trade_time).format("YYYY-MM-DD");
+      console.log("case5");
       // Create a key using symbol and tradeDate
       const key = `${trade.symbol}_${tradeDate}`;
 
@@ -177,23 +186,26 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
       return acc;
     }, {});
 
-    console.log('case6')
+    console.log("case6");
     res.status(200).json({
       status: "success",
       data: "ok",
     });
-    return (finalgroupedData);
-
+    return finalgroupedData;
   } catch (err) {
     console.log(err);
     throw new Error(err);
   }
 };
 
-exports.mailSender = async(userId) => {
-  const user = await User.findById(new ObjectId(userId))
-  .select('email first_name');
-  await sendMail(user.email, 'Chart Data Processing is Complete', `
+exports.mailSender = async (userId) => {
+  const user = await User.findById(new ObjectId(userId)).select(
+    "email first_name"
+  );
+  await sendMail(
+    user.email,
+    "Chart Data Processing is Complete",
+    `
   <!DOCTYPE html>
   <html>
   <head>
@@ -275,9 +287,9 @@ We are pleased to inform you that the processing of your data has been successfu
   </html>
   `
   );
-}
+};
 
-exports.teamIndividualPerformance = async(startDate, endDate, userIds)=>{
+exports.teamIndividualPerformance = async (startDate, endDate, userIds) => {
   const performance = await ThirdPartyTrades.aggregate([
     {
       $match: {
@@ -375,36 +387,38 @@ exports.teamIndividualPerformance = async(startDate, endDate, userIds)=>{
       },
     },
     {
-      $sort:
-        {
-          avgPnl: 1,
-        },
+      $sort: {
+        avgPnl: 1,
+      },
     },
-  ])
+  ]);
 
   return performance;
-}
+};
 
-exports.getPreviousLots = async(symbol, date)=>{
-  const data = await ThirdPartyTrades.find({symbol: symbol, trade_time: {$lt: new Date(date)}});
-  const runningLots = data.reduce((total, acc)=>{
+exports.getPreviousLots = async (symbol, date) => {
+  const data = await ThirdPartyTrades.find({
+    symbol: symbol,
+    trade_time: { $lt: new Date(date) },
+  });
+  const runningLots = data.reduce((total, acc) => {
     return total + acc.Quantity;
   }, 0);
 
   return runningLots || 0;
-}
+};
 
-exports.createTradeDoc = async(symbol, date, price, lots, expiry)=>{
+exports.createTradeDoc = async (symbol, date, price, lots, expiry) => {
   return {
     status: "COMPLETE",
     average_price: price,
     Quantity: lots,
     expiry: expiry,
-    buyOrSell: lots>0 ? 'BUY' : 'SELL',
+    buyOrSell: lots > 0 ? "BUY" : "SELL",
     exchange: "NFO",
     symbol: symbol,
-    amount: (lots*price),
-    brokerage: Math.abs(Number(lots*price)*0.001),
+    amount: lots * price,
+    brokerage: Math.abs(Number(lots * price) * 0.001),
     trade_time: `${date}T09:15:00.000+00:00`,
-  }
-}
+  };
+};
