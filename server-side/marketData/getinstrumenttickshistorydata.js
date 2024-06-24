@@ -282,7 +282,7 @@ exports.main = async () => {
 
   // console.log('first', new Date(), inactive, inactiveeq);
 
-  // await TradableInstrumentList.allTradableInstrument();
+  await TradableInstrumentList.allTradableInstrument();
 
   await getInstrumentTicksHistoryData(todaysDatePart);
   await saveIndiaVix(todaysDatePart);
