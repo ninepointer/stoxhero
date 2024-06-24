@@ -75,8 +75,7 @@ exports.isThirdPartyDataExist = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      isExist: true,
-      // data ? true : false,
+      isExist: data ? true : false,
       isProcessing:
         user === "team"
           ? false
@@ -161,7 +160,7 @@ const timeArrayForAvg = async (todaysDatePart, timePeriod, frequency) => {
     time < endTime;
     time = incrementTime(time, timePeriod, frequency)
   ) {
-    timeArr.push(time.toISOString().substring(11, 19));
+    timeArr.push(time.toISOString().substring(11, 16));
   }
 
   return [
@@ -462,7 +461,7 @@ exports.avgPnlChart = async (req, res) => {
           _id: {
             time: {
               $dateToString: {
-                format: "%H:%M:%S",
+                format: "%H:%M",
                 date: "$timestamp",
               },
             },
@@ -527,7 +526,7 @@ exports.avgPnlChart = async (req, res) => {
       {
         $match: {
           timestamp: {
-            $in: [...newtimeArr, "12:59:59", "15:30:59"],
+            $in: [...newtimeArr, "12:59", "15:30"],
           },
         },
       },
@@ -535,7 +534,7 @@ exports.avgPnlChart = async (req, res) => {
 
     const pnlDiffrence = [];
     for (const elem of pnlData) {
-      if (elem.timestamp === "12:59:59" || elem.timestamp === "15:30:59") {
+      if (elem.timestamp === "12:59" || elem.timestamp === "15:30") {
         pnlDiffrence.push(elem);
       }
     }

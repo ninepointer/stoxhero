@@ -6,6 +6,8 @@ const TenXTrader = require("../models/mock-trade/tenXTraderSchema");
 const { ObjectId } = require("mongodb");
 const TradingHoliday = require("../models/TradingHolidays/tradingHolidays");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
+const ThirdPartyTradesPnl = require("../models/mock-trade/thirdPartyTradesPnl");
+
 const User = require('../models/User/userDetailSchema');
 
 exports.getPaperTradesOverview = async (req, res, next) => {
@@ -401,7 +403,79 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
   toDate.setHours(23, 59, 59, 999);
   const TradeModel = thirdParty == "true" ? ThirdPartyTrades : PaperTrade;
 
-  let pnlDetails = await TradeModel.aggregate([
+  const pnlDetails = false ? await TradeModel.aggregate([
+    {
+      $match: {
+        date: { $gte: fromDate, $lte: toDate },
+        trader: { $in: usersArray.map((id) => new ObjectId(id)) },
+      },
+    },
+    {
+      $unwind: {
+        path: "$pnl",
+      },
+    },
+    {
+      $group: {
+        _id: {
+          date: "$date",
+        },
+        gpnl: {
+          $sum: {
+            $multiply: ["$pnl.gpnl", -1],
+          },
+        },
+        amount: {
+          $sum: "$pnl.gpnl",
+        },
+        lots: {
+          $sum: {
+            $toInt: "$pnl.runningLots",
+          },
+        },
+        noOfTrade: {
+          $sum: "$pnl.noOfTrades",
+        },
+      },
+    },
+    {
+      $addFields: {
+        brokerage: {
+          $abs: {
+            $multiply: ["$amount", 0.001],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        date: "$_id.date",
+        gpnl: 1,
+        brokerage: 1,
+        npnl: {
+          $subtract: [
+            "$gpnl",
+            {
+              $ifNull: ["$brokerage", 0],
+            },
+          ],
+        },
+        lots: 1,
+        noOfTrade: 1,
+      },
+    },
+    {
+      $addFields: {
+        gpnl: { $divide: ["$gpnl", len] },
+        brokerage: { $divide: ["$brokerage", len] },
+        npnl: { $divide: ["$npnl", len] },
+        lots: { $divide: ["$lots", len] },
+        noOfTrade: { $divide: ["$noOfTrade", len] },
+      },
+    },
+    { $sort: { date: 1 } },
+  ]) : await TradeModel.aggregate([
     {
       $match: {
         trade_time: { $gte: fromDate, $lte: toDate },
@@ -464,7 +538,7 @@ exports.getPaperTradesDateWiseStats = async (req, res) => {
     },
     { $sort: { date: 1 } },
   ]);
-
+  
   res.status(200).json({ status: "success", data: pnlDetails });
 };
 
@@ -510,7 +584,118 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
     dayOfWeek = [weekdays.findIndex(week=> week===weekday)];  
   }
 
-  let symbolWise = await TradeModel.aggregate([
+  const symbolWise = false ? await TradeModel.aggregate([
+    {
+      $match: {
+        date: { $gte: fromDate, $lte: toDate },
+        trader: { $in: usersArray },
+      },
+    },
+    {
+      $addFields: {
+        dayOfWeek: {
+          $dayOfWeek: "$date",
+        },
+      },
+    },
+    {
+      $match: {
+        dayOfWeek: {$in: dayOfWeek}
+      },
+    },
+    {
+      $unwind: {
+        path: "$pnl",
+      },
+    },
+    {
+      $group: {
+        _id: {
+            dayOfWeek: { $dayOfWeek: "$date" },
+            date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+            symbol: '$symbol'
+          },
+        amount: {
+          $sum: '$pnl.gpnl'
+        },
+        totalGpnl: {
+          $sum: {
+            $multiply: ["$pnl.gpnl", -1],
+          },
+        },
+        totalLots: {
+          $sum: {
+            $toInt: "$pnl.runningLots",
+          },
+        },
+        totalTrades: {
+          $sum: "$pnl.noOfTrades",
+        },
+      },
+    },
+    {
+      $addFields: {
+        totalBrokerage: {
+          $abs: {
+            $multiply: ["$amount", 0.001],
+          }
+        }
+      },
+    },
+    {
+      $addFields: {
+        totalNpnl: {
+          $subtract: [
+            "$totalGpnl",
+            {
+              $ifNull: ["$totalBrokerage", 0],
+            },
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          weekDay: "$_id.dayOfWeek",
+          symbol: '$_id.symbol'
+        },
+        totalGpnl: { $sum: "$totalGpnl" },
+        totalBrokerage: { $sum: "$totalBrokerage" },
+        totalNpnl: { $sum: "$totalNpnl" },
+        totalTrades: { $sum: "$totalTrades" },
+        totalLots: { $sum: "$totalLots" },
+        distinctDays: { $addToSet: "$_id.date" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        dayOfWeek: { $arrayElemAt: [daysOfWeek, { $subtract: ["$_id.weekDay", 1] }] },
+        symbol: '$_id.symbol',
+        totalGpnl: 1,
+        totalBrokerage: 1,
+        totalNpnl: 1,
+        totalTrades: 1,
+        weekDayNo: "$_id.weekDay",
+        distinctDays: {
+          $size: "$distinctDays"
+        },
+      },
+    },
+    {
+      $addFields: {
+        totalGpnl: { $divide: ["$totalGpnl", len] },
+        totalBrokerage: { $divide: ["$totalBrokerage", len] },
+        totalNpnl: { $divide: ["$totalNpnl", len] },
+        totalTrades: { $divide: ["$totalTrades", len] },
+      },
+    },
+    {
+      $sort: { weekDayNo: 1 },
+    },
+  ]) :
+  await TradeModel.aggregate([
     {
       $match: {
         trade_time: { $gte: fromDate, $lte: toDate },
@@ -593,7 +778,7 @@ exports.getPaperTradesDateWiseWeekStats = async (req, res) => {
     {
       $sort: { weekDayNo: 1 },
     },
-  ]);
+  ])
 
   let pnlDetails = await TradeModel.aggregate([
     {
