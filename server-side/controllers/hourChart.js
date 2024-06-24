@@ -53,19 +53,32 @@ exports.uploadMulter = uploadStrategy;
 
 exports.isThirdPartyDataExist = async (req, res) => {
   try {
-    const userId = req?.query?.user ?? req?.user?._id;
+    const user = req?.query?.user ?? req?.user?._id;
+    let userIds = [];
+
+    if (user === "team") {
+      const teamLead = await User.findOne({
+        _id: new ObjectId(req?.user?._id),
+      }).select("reportedBy");
+      userIds = [...teamLead.reportedBy];
+    } else {
+      console.log("in else");
+      userIds.push(new ObjectId(user));
+    }
     const data = await ThirdPartyTrades.findOne({
-      trader: new ObjectId(userId),
+      trader: {$in : userIds},
     });
 
     const checkDataProcessing = await User.findOne({
-      _id: new ObjectId(userId),
+      _id: {$in : userIds},
     }).select("thirdPartyDataProcessing");
+
     res.status(200).json({
       status: "success",
-      isExist: data ? true : false,
+      isExist: true,
+      // data ? true : false,
       isProcessing:
-        userId === "team"
+        user === "team"
           ? false
           : checkDataProcessing?.thirdPartyDataProcessing,
     });
@@ -244,7 +257,6 @@ exports.avgPnlChart = async (req, res) => {
     const first = performance.now();
     let userIds = [];
     const fromDate = req.query.from;
-    console.log(req.query.from, req.query.to);
     const weekday = req.query.weekday ?? "allDays";
     const demography = req.query.demography;
     const demographicGroup = req.query.demographicGroup;
@@ -257,10 +269,8 @@ exports.avgPnlChart = async (req, res) => {
       req.query.to === "undefined" || req.query.to === "Invalid date"
         ? req.query.from
         : req.query.to;
-    console.log("toDate", toDate, fromDate);
     const user = req?.query?.user ?? req?.user?._id;
     let teamPerformance = [];
-    console.log("user", user);
     if (user === "team") {
       const teamLead = await User.findOne({
         _id: new ObjectId(req?.user?._id),
@@ -271,7 +281,6 @@ exports.avgPnlChart = async (req, res) => {
       userIds.push(new ObjectId(user));
     }
 
-    console.log(demography, demographicGroup);
     if (demography && demographicGroup) {
       userIds = await demographicWiseChartHelper(
         demography,
@@ -295,8 +304,6 @@ exports.avgPnlChart = async (req, res) => {
       );
       teamPerformance = [...performance];
     }
-
-    console.log(userIds);
 
     const newtimeArr = await timeArrayForAvg(
       "2024-05-05",
