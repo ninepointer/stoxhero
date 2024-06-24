@@ -11,6 +11,7 @@ const Portfolio = require("../models/userPortfolio/UserPortfolio");
 const InfinityTrader = require("../models/mock-trade/infinityTrader");
 const DailyContest = require("../models/DailyContest/dailyContest");
 const ThirdPartyTrades = require("../models/mock-trade/thirdPartyTrades");
+const ThirdPartyTradesPnl = require("../models/mock-trade/thirdPartyTradesPnl");
 
 exports.getDashboardStats = async (req, res, next) => {
   try {
@@ -998,7 +999,7 @@ exports.getExpectedPnl = async (req, res, next) => {
   try {
     const { start, end, tradeType } = req.query;
     const thirdParty = req.query.thirdParty ?? "false";
-    const TradeModel = thirdParty == "true" ? ThirdPartyTrades : VirtualTrade;
+    const TradeModel = thirdParty == "true" ? ThirdPartyTradesPnl : VirtualTrade;
     let startDate, endDate, Model;
     switch (tradeType) {
       case "virtual":
@@ -1030,7 +1031,49 @@ exports.getExpectedPnl = async (req, res, next) => {
         "66669a1293c01d363f7941a0",
       ];
     }
-    const pipeline = [
+    const pipeline = thirdParty == "true" ? [
+      {
+        $match: {
+          trader: { $in: usersArray.map((id) => new ObjectId(id)) },
+          date: { $lt: new Date(endDate.toISOString().substring(0, 10)) },
+        },
+      },
+      {
+        $unwind: {
+          path: "$pnl",
+        },
+      },
+      {
+        $addFields: {
+          gpnl: { $multiply: ["$pnl.gpnl", -1] },
+        },
+      },
+      {
+        $addFields: {
+          brokerage_double: {
+            $abs: {
+              $multiply: ["$pnl.gpnl", 0.001],
+            }
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+          total_gpnl: { $sum: "$gpnl" },
+          total_brokerage: { $sum: "$brokerage_double" },
+          number_of_trades: { $sum: '$pnl.noOfTrades' },
+        },
+      },
+      {
+        $addFields: {
+          npnl: { $subtract: ["$total_gpnl", "$total_brokerage"] },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]
+    :
+    [
       {
         $match: {
           trader: { $in: usersArray.map((id) => new ObjectId(id)) },
@@ -1058,42 +1101,10 @@ exports.getExpectedPnl = async (req, res, next) => {
         },
       },
       { $sort: { _id: 1 } },
-    ];
+    ]
 
     let tradeData = await Model.aggregate(pipeline);
 
-    // Second query: go over each day and calculate the cumulative average npnl until that day
-    // let cumulativeNpnl = 0;
-    //   let sumPositiveNpnl = 0;
-    //   let sumNegativeNpnl = 0;
-    //   let countPositiveNpnl = 0;
-    //   let countNegativeNpnl = 0;
-    //   let riskRewardRatio = 0;
-
-    //   for (let i = 0; i < tradeData.length; i++) {
-    //     if (i == 0) {
-    //         tradeData[i].expected_pnl = 0;
-    //     } else {
-    //         tradeData[i].expected_pnl = cumulativeNpnl / i;
-    //         tradeData[i].riskRewardRatio = riskRewardRatio; // assign previous day's riskRewardRatio
-    //     }
-
-    //     cumulativeNpnl += tradeData[i].npnl;
-
-    //     if (tradeData[i].npnl > 0) {
-    //         sumPositiveNpnl += tradeData[i].npnl;
-    //         countPositiveNpnl += 1;
-    //     } else if (tradeData[i].npnl < 0) {
-    //         sumNegativeNpnl += tradeData[i].npnl;
-    //         countNegativeNpnl += 1;
-    //     }
-
-    //     if (i > 0) {
-    //         const avgPositiveNpnl = countPositiveNpnl > 0 ? sumPositiveNpnl/ countPositiveNpnl : 0;
-    //         const avgNegativeNpnl = countNegativeNpnl > 0 ? sumNegativeNpnl/ countNegativeNpnl : 0;
-    //         riskRewardRatio = avgNegativeNpnl !== 0 ? avgPositiveNpnl / Math.abs(avgNegativeNpnl) : 0;
-    //     }
-    // }
     let cumulativeNpnl = 0;
     let sumPositiveNpnl = 0;
     let sumNegativeNpnl = 0;
@@ -1171,7 +1182,7 @@ exports.getWeekdayExpectedPnl = async (req, res, next) => {
     ];
     const { tradeType } = req.query;
     const thirdParty = req.query.thirdParty ?? "false";
-    const TradeModel = thirdParty == "true" ? ThirdPartyTrades : VirtualTrade;
+    const TradeModel = thirdParty == "true" ? ThirdPartyTradesPnl : VirtualTrade;
     let Model;
     switch (tradeType) {
       case "virtual":
@@ -1204,36 +1215,72 @@ exports.getWeekdayExpectedPnl = async (req, res, next) => {
         "66669a1293c01d363f7941a0",
       ];
     }
-    //   {
-    //     $match: {
-    //       trader: { $in: usersArray.map((id) => new ObjectId(id)) },
-    //       status: "COMPLETE",
-    //       trade_time: { $lt: new Date(endDate.toISOString().substring(0, 10)) },
-    //     },
-    //   },
-    //   {
-    //     $addFields: {
-    //       dayOfWeek: { $dayOfWeek: "$trade_time" }, // 1 (Sunday) to 7 (Saturday)
-    //       gpnl: { $multiply: ["$amount", -1] },
-    //       brokerage_double: { $toDouble: "$brokerage" },
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: "$dayOfWeek",
-    //       total_gpnl: { $sum: "$gpnl" },
-    //       total_brokerage: { $sum: "$brokerage_double" },
-    //       number_of_trades: { $sum: 1 },
-    //     },
-    //   },
-    //   {
-    //     $addFields: {
-    //       npnl: { $subtract: ["$total_gpnl", "$total_brokerage"] },
-    //     },
-    //   },
-    //   { $sort: { _id: 1 } },
-    // ];
-    const pipeline = [
+
+    const pipeline = thirdParty == "true" ? [
+      {
+        $match: {
+          trader: { $in: usersArray.map((id) => new ObjectId(id)) },
+          date: { $lt: new Date(endDate.toISOString().substring(0, 10)) },
+        },
+      },
+      {
+        $unwind: {
+          path: "$pnl",
+        },
+      },
+      {
+        $addFields: {
+          dayOfWeek: { $dayOfWeek: "$date" }, // 1 (Sunday) to 7 (Saturday)
+          gpnl: { $multiply: ["$pnl.gpnl", -1] },
+        },
+      },
+      {
+        $addFields: {
+          brokerage_double: {
+            $abs: {
+              $multiply: ["$pnl.gpnl", 0.001],
+            }
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            dayOfWeek: "$dayOfWeek",
+            day: { $dateToString: { format: "%Y-%m-%d", date: "$trade_time" } },
+          },
+          total_gpnl: { $sum: "$gpnl" },
+          total_brokerage: { $sum: "$brokerage_double" },
+          number_of_trades: { $sum: '$pnl.noOfTrades' },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.dayOfWeek",
+          total_gpnl: { $sum: "$total_gpnl" },
+          total_brokerage: { $sum: "$total_brokerage" },
+          number_of_trades: { $sum: "$number_of_trades" },
+          dayCount: { $sum: 1 },
+        },
+      },
+      {
+        $addFields: {
+          npnl: { $subtract: ["$total_gpnl", "$total_brokerage"] },
+          expected_pnl: {
+            $divide: [
+              { $subtract: ["$total_gpnl", "$total_brokerage"] },
+              "$dayCount",
+            ],
+          },
+          weekDay: {
+            $arrayElemAt: [weekDayArray, { $subtract: ["$_id", 1] }],
+          },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]
+    :
+    [
       {
         $match: {
           trader: { $in: usersArray.map((id) => new ObjectId(id)) },
