@@ -119,13 +119,12 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
         symbol: instrument,
         amount: amount,
         brokerage: Math.abs(Number(amount) * 0.001),
-        //todo-vijay
-        // trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss"),
-        trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss")
-          .add(5, "hours")
-          .add(30, "minutes")
-          .utc()
-          .format(),
+        trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss"),
+        // trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss")
+        //   .add(5, "hours")
+        //   .add(30, "minutes")
+        //   .utc()
+        //   .format(),
         account_number: elem?.["Account Number"],
         cp_id: elem?.["CP ID"],
         ctcl_id: elem?.["CTCL ID"],
@@ -197,6 +196,44 @@ exports.convertToTradingDataToGroup = async (data, userId, res) => {
     throw new Error(err);
   }
 };
+
+exports.dataFormation = async(data, broker)=>{
+  data.forEach((elem)=>{
+    const instrument = elem?.['symbol'];
+    const buyOrSell = elem?.['trade_type'];
+    if(buyOrSell?.toUpperCase()==='BUY'){
+      elem['Buy/Sell'] = 1;
+    } else if(buyOrSell?.toUpperCase()==='SELL'){
+      elem['Buy/Sell'] = 2;
+    }
+
+    const tradeTime = elem?.['order_execution_time'];
+    elem['Trade Date/Time'] = tradeTime;
+    elem["Modified Date/Time"] = tradeTime;
+
+    const price = elem?.['price'];
+    elem["Price"] = price;
+
+    const quantity = elem?.['quantity'];
+    elem['Quantity'] = quantity;
+
+    if(instrument?.includes('CE')){
+      elem["Option Type"] == "CE";
+    } else if(instrument?.includes('PE')){
+      elem["Option Type"] == "PE";
+    } else if(instrument?.includes('FUT')){
+      elem["Option Type"] == "FX";
+    }
+
+    const expiry = elem?.["expiry_date"];
+    elem["Expiry Date"] = expiry;
+
+    const order_id = elem["order_id"];
+    elem["Trade Id"] = order_id;
+
+    
+  })
+}
 
 exports.mailSender = async (userId) => {
   const user = await User.findById(new ObjectId(userId)).select(

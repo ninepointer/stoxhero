@@ -15,7 +15,7 @@ import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import EditSharpIcon from "@mui/icons-material/EditSharp";
-import { zerodhaAccountType, xtsAccountType } from "../../variables";
+import { zerodhaAccountType, xtsAccountType, paytmMoneyAccountType, growAccountType } from "../../variables";
 
 const BrokerageEdit = ({ data, id, Render }) => {
   const [open, setOpen] = React.useState(false);
@@ -52,14 +52,8 @@ const BrokerageEdit = ({ data, id, Render }) => {
   const [Ctt, setctt] = useState();
   const [DpCharge, setdpCharge] = useState();
   const [AccountType, setAccountType] = useState();
+  const [Product, setProduct] = useState();
 
-  //   useEffect(() => {
-  //       let updatedData = data.filter((elem) => {
-  //           return elem._id === id
-  //       })
-  //       setEditData(updatedData)
-  //   }, [])
-  console.log("edit", editData, data);
 
   useEffect(() => {
     setName(editData?.brokerName);
@@ -75,6 +69,7 @@ const BrokerageEdit = ({ data, id, Render }) => {
     setctt(editData?.ctt);
     setdpCharge(editData?.dpCharge);
     setAccountType(editData?.accountType);
+    setProduct(editData?.product)
   }, [editData]);
 
   const [formstate, setformstate] = React.useState({
@@ -91,6 +86,7 @@ const BrokerageEdit = ({ data, id, Render }) => {
     ctt: "",
     dpCharge: "",
     accountType: "",
+    product: ''
   });
 
   //console.log(formstate);
@@ -109,6 +105,7 @@ const BrokerageEdit = ({ data, id, Render }) => {
     formstate.ctt = Ctt;
     formstate.dpCharge = DpCharge;
     formstate.accountType = AccountType;
+    formstate.product = Product;
 
     setformstate(formstate);
 
@@ -126,6 +123,7 @@ const BrokerageEdit = ({ data, id, Render }) => {
       sst,
       ctt,
       dpCharge,
+      product
     } = formstate;
 
     const res = await fetch(`${baseUrl}api/v1/readBrokerage/${id}`, {
@@ -148,7 +146,7 @@ const BrokerageEdit = ({ data, id, Render }) => {
         stampDuty: stampDutyCharge,
         sst,
         ctt,
-        dpCharge,
+        dpCharge, product
       }),
     });
     const dataResp = await res.json();
@@ -247,7 +245,28 @@ const BrokerageEdit = ({ data, id, Render }) => {
                 }}
               >
                 <MenuItem value={zerodhaAccountType}>ZERODHA</MenuItem>
+                <MenuItem value={paytmMoneyAccountType}>PAYTM MONEY</MenuItem>
+                <MenuItem value={growAccountType}>GROW</MenuItem>
                 <MenuItem value={xtsAccountType}>XTS</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-standard-label">
+                Product
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                label="Product"
+                sx={{ margin: 1, padding: 1, width: "300px" }}
+                value={Product}
+                onChange={(e) => {
+                  setProduct(e.target.value);
+                }}
+              >
+                <MenuItem value={'Intraday'}>Intraday</MenuItem>
+                <MenuItem value={'Delivery'}>Delivery</MenuItem>
               </Select>
             </FormControl>
 

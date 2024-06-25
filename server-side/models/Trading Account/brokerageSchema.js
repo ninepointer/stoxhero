@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const {xtsAccountType, zerodhaAccountType} = require("../../constant");
+const {xtsAccountType, zerodhaAccountType, paytmMoneyAccountType, growAccountType} = require("../../constant");
 
 const brokerageSchema = new mongoose.Schema({
     brokerName:{
@@ -73,7 +73,10 @@ const brokerageSchema = new mongoose.Schema({
     accountType:{
         type: String,
         required : true,
-        enum : [zerodhaAccountType, xtsAccountType]
+        enum : [zerodhaAccountType, xtsAccountType, paytmMoneyAccountType, growAccountType]
+    },
+    product: {
+        type: String
     }
     
 })

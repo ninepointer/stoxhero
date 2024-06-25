@@ -13,7 +13,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
-import { zerodhaAccountType, xtsAccountType } from "../../variables";
+import { zerodhaAccountType, xtsAccountType, paytmMoneyAccountType, growAccountType } from "../../variables";
 
 const BrokerageModel = () => {
   const [open, setOpen] = React.useState(false);
@@ -33,6 +33,7 @@ const BrokerageModel = () => {
     ctt: "",
     dpCharge: "",
     accountType: "",
+    product: ''
   });
   let baseUrl =
     process.env.NODE_ENV === "production" ? "/" : "http://localhost:5000/";
@@ -64,6 +65,7 @@ const BrokerageModel = () => {
       sst,
       ctt,
       dpCharge,
+      product
     } = formstate;
 
     const res = await fetch(`${baseUrl}api/v1/brokerage`, {
@@ -86,6 +88,7 @@ const BrokerageModel = () => {
         sst,
         ctt,
         dpCharge,
+        product
       }),
     });
 
@@ -142,7 +145,7 @@ const BrokerageModel = () => {
                 <MenuItem value="SELL">SELL</MenuItem>
               </Select>
             </FormControl>
-
+            
             <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="demo-simple-select-standard-label">
                 Account Type
@@ -157,7 +160,27 @@ const BrokerageModel = () => {
                 }}
               >
                 <MenuItem value={zerodhaAccountType}>ZERODHA</MenuItem>
+                <MenuItem value={paytmMoneyAccountType}>PAYTM MONEY</MenuItem>
+                <MenuItem value={growAccountType}>GROW</MenuItem>
                 <MenuItem value={xtsAccountType}>XTS</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-standard-label">
+                Product
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                label="Product"
+                sx={{ margin: 1, padding: 1, width: "300px" }}
+                onChange={(e) => {
+                  formstate.product = e.target.value;
+                }}
+              >
+                <MenuItem value={'Intraday'}>Intraday</MenuItem>
+                <MenuItem value={'Delivery'}>Delivery</MenuItem>
               </Select>
             </FormControl>
 

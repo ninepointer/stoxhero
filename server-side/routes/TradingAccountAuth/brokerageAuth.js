@@ -6,14 +6,14 @@ const restrictTo = require('../../authentication/authorization');
 const Authenticate = require('../../authentication/authentication');
 
 router.post("/brokerage", Authenticate, restrictTo('Admin', 'SuperAdmin'), (req, res)=>{
-    const {accountType, brokerName, type, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty, sst, transaction, exchange, ctt, dpCharge} = req.body;
+    const {accountType, brokerName, type, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty, sst, transaction, exchange, ctt, dpCharge, product} = req.body;
     //console.log(req.body);
     if(!brokerName || !type || !brokerageCharge || !exchangeCharge || !gst || !sebiCharge || !stampDuty || !sst || !transaction || !exchange || !ctt || !dpCharge){
         //console.log("data nhi h pura");
         return res.status(422).json({error : "plz filled the field..."})
     }
 
-    const brokerage = new Brokerage({accountType, brokerName, type, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty, sst, transaction, exchange, ctt, dpCharge, lastModifiedBy:req.user._id, createdBy: req.user._id});
+    const brokerage = new Brokerage({product, accountType, brokerName, type, brokerageCharge, exchangeCharge, gst, sebiCharge, stampDuty, sst, transaction, exchange, ctt, dpCharge, lastModifiedBy:req.user._id, createdBy: req.user._id});
 
     brokerage.save().then(()=>{
         res.status(201).json({massage : "data enter succesfully"});
@@ -76,7 +76,8 @@ router.put("/readBrokerage/:id", Authenticate, restrictTo('Admin', 'SuperAdmin')
                 ctt: req.body.ctt,
                 dpCharge: req.body.dpCharge,
                 modifiedOn: new Date(),
-                accountType: req.body.accountType
+                accountType: req.body.accountType,
+                product: req.body.product
             }
         }, {new: true})
         //console.log("this is role", brokerage);

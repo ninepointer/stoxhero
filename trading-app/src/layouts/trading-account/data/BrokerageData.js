@@ -53,6 +53,16 @@ export default function AllActiveBrokerages() {
         {elem.brokerName}
       </MDTypography>
     );
+    activebrokerage.accountType = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {elem.accountType}
+      </MDTypography>
+    );
     activebrokerage.transaction = (
       <MDTypography
         component="a"
@@ -163,6 +173,16 @@ export default function AllActiveBrokerages() {
         {elem.dpCharge}
       </MDTypography>
     );
+    activebrokerage.product = (
+      <MDTypography
+        component="a"
+        variant="caption"
+        color="text"
+        fontWeight="medium"
+      >
+        {elem.product}
+      </MDTypography>
+    );
 
     console.log(typeof activebrokerage);
     console.log(activebrokerage);
@@ -173,6 +193,9 @@ export default function AllActiveBrokerages() {
     columns: [
       { Header: "Edit", accessor: "edit", align: "center" },
       { Header: "Broker", accessor: "broker", align: "center" },
+      { Header: "Account Type", accessor: "accountType", align: "center" },
+
+      { Header: "Product", accessor: "product", align: "center" },
       { Header: "Transaction", accessor: "transaction", align: "center" },
       { Header: "Type", accessor: "type", align: "center" },
       { Header: "Exchange", accessor: "exchange", align: "center" },

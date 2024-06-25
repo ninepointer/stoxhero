@@ -12,6 +12,8 @@ export const marginX = "MarginX";
 export const tenxTrader = "TenX Trader";
 export const zerodhaAccountType = "ZERODHA";
 export const xtsAccountType = "XTS";
+export const paytmMoneyAccountType = "PAYTM MONEY";
+export const growAccountType = "GROW";
 export const internshipTrader = "Internship Trader";
 export const battle = "Battle";
 
