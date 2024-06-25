@@ -1643,6 +1643,7 @@ exports.getTeamSummary = async (req, res) => {
 exports.getGenderPerformance = async (req, res) => {
   try {
     const teamLeadId = req?.user?._id;
+    const { fromDate, toDate } = req.query;
     const users = (
       await User.findOne({
         _id: new ObjectId(teamLeadId),
@@ -1660,7 +1661,12 @@ exports.getGenderPerformance = async (req, res) => {
 
     const calculatePnL = async (userIds) => {
       const trades = await ThirdPartyPnl.aggregate([
-        { $match: { trader: { $in: userIds } } },
+        {
+          $match: {
+            trader: { $in: userIds },
+            date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+          },
+        },
         { $unwind: "$pnl" },
         {
           $addFields: {
@@ -1732,6 +1738,7 @@ exports.getGenderPerformance = async (req, res) => {
 exports.getExperiencePerformance = async (req, res) => {
   try {
     const teamLeadId = req?.user?._id;
+    const { fromDate, toDate } = req.query;
     const experienceLevel = 3;
     const users = (
       await User.findOne({
@@ -1750,7 +1757,12 @@ exports.getExperiencePerformance = async (req, res) => {
 
     const calculatePnL = async (userIds) => {
       const trades = await ThirdPartyPnl.aggregate([
-        { $match: { trader: { $in: userIds } } },
+        {
+          $match: {
+            trader: { $in: userIds },
+            date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+          },
+        },
         { $unwind: "$pnl" },
         {
           $addFields: {
@@ -1822,6 +1834,7 @@ exports.getExperiencePerformance = async (req, res) => {
 exports.getCityTierPerformance = async (req, res) => {
   try {
     const teamLeadId = req?.user?._id;
+    const { fromDate, toDate } = req.query;
     const users = (
       await User.findOne({
         _id: new ObjectId(teamLeadId),
@@ -1842,7 +1855,12 @@ exports.getCityTierPerformance = async (req, res) => {
 
     const calculatePnL = async (userIds) => {
       const trades = await ThirdPartyPnl.aggregate([
-        { $match: { trader: { $in: userIds } } },
+        {
+          $match: {
+            trader: { $in: userIds },
+            date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+          },
+        },
         { $unwind: "$pnl" },
         {
           $addFields: {
@@ -1919,6 +1937,7 @@ exports.getCityTierPerformance = async (req, res) => {
 exports.getIncomePerformance = async (req, res) => {
   try {
     const teamLeadId = req?.user?._id;
+    const { fromDate, toDate } = req.query;
     const users = (
       await User.findOne({
         _id: new ObjectId(teamLeadId),
@@ -1959,7 +1978,12 @@ exports.getIncomePerformance = async (req, res) => {
 
     const calculatePnL = async (userIds) => {
       const trades = await ThirdPartyPnl.aggregate([
-        { $match: { trader: { $in: userIds } } },
+        {
+          $match: {
+            trader: { $in: userIds },
+            date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+          },
+        },
         { $unwind: "$pnl" },
         {
           $addFields: {
