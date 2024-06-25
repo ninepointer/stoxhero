@@ -62,24 +62,21 @@ exports.isThirdPartyDataExist = async (req, res) => {
       }).select("reportedBy");
       userIds = [...teamLead.reportedBy];
     } else {
-      console.log("in else");
       userIds.push(new ObjectId(user));
     }
     const data = await ThirdPartyTrades.findOne({
-      trader: {$in : userIds},
+      trader: { $in: userIds },
     });
 
     const checkDataProcessing = await User.findOne({
-      _id: {$in : userIds},
+      _id: { $in: userIds },
     }).select("thirdPartyDataProcessing");
 
     res.status(200).json({
       status: "success",
       isExist: data ? true : false,
       isProcessing:
-        user === "team"
-          ? false
-          : checkDataProcessing?.thirdPartyDataProcessing,
+        user === "team" ? false : checkDataProcessing?.thirdPartyDataProcessing,
     });
   } catch (err) {
     console.log(err);
@@ -276,7 +273,6 @@ exports.avgPnlChart = async (req, res) => {
       }).select("reportedBy");
       userIds = [...teamLead.reportedBy];
     } else {
-      console.log("in else");
       userIds.push(new ObjectId(user));
     }
 
@@ -766,8 +762,6 @@ exports.hourChart = async (req, res) => {
       }
     }
 
-    console.log("check performance again", performance.now() - now);
-
     pnl1PM.pnlDiffrence = 0;
     pnl3PM.pnlDiffrence = pnl3PM?.gpnl - pnl1PM?.gpnl;
     res.status(200).json({
@@ -941,11 +935,6 @@ const distinctBuySell = async (tradeData) => {
 const formatTradeData = async (tradeData) => {
   const map = new Map();
 
-  console.log(
-    "quantity3",
-    tradeData.length,
-    tradeData.reduce((total, acc) => total + acc.Quantity, 0)
-  );
 
   tradeData.forEach((trade) => {
     const { symbol, amount, brokerage, Quantity, buyOrSell } = trade;
@@ -976,13 +965,6 @@ const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
   let pnlNifty = 0;
   let pnlBankNifty = 0;
   let pnlFinNifty = 0;
-
-  // const HistoryTickModel = thirdParty == "true" ? HistoryDataNew : HistoryData;
-  console.log(
-    "quantity4",
-    tradeData.length,
-    tradeData.reduce((total, acc) => total + acc.Quantity, 0)
-  );
 
   for (const elem of tradeData) {
     const utcTimeStamp = new Date(timestamp);
@@ -1250,11 +1232,6 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
         );
       });
 
-      console.log(
-        "quantity2",
-        filteredArr.length,
-        filteredArr.reduce((total, acc) => total + acc.Quantity, 0)
-      );
 
       const isLastElement = i === timeArr.length - 1;
       const vixFilteredArr = vixData.filter((elem) => {
@@ -1373,38 +1350,80 @@ const demographicWiseChartHelper = async (
     });
   }
 
-  if (demography === "experience") {
-    // const regex = /\d+/;
-    // const result = demographicGroup.match(regex);
-    // const number = parseInt(result[0], 10);
+  // if (demography === "experience") {
+  //   const regex = /\d+/;
+  //   const result = demographicGroup.match(regex);
+  //   console.log('number', result)
+  //   const number = parseInt(result[0], 10);
 
-    // if(demographicGroup.includes('Less') || demographicGroup.includes('<')){
-    //   userIds = users.map((user)=>{
-    //     if(user.trading_exp <= number){
-    //       return user._id;
-    //     }
-    //   })
-    // }
-    // if(demographicGroup.includes('Greater') || demographicGroup.includes('>')){
-    //   userIds = users.map((user)=>{
-    //     if(user.trading_exp >= number){
-    //       return user._id;
-    //     }
-    //   })
-    // }
-    if (demographicGroup === "experienced") {
-      userIds = users.map((user) => {
-        if (user.trading_exp >= experienceLevel) {
-          return user._id;
-        }
-      });
-    } else {
-      userIds = users.map((user) => {
-        if (user.trading_exp < experienceLevel) {
-          return user._id;
-        }
-      });
+    
+
+  //   if(demographicGroup.includes('Less') || demographicGroup.includes('<')){
+  //     userIds = users.map((user)=>{
+  //       if(user.trading_exp <= number){
+  //         return user._id;
+  //       }
+  //     })
+  //   }
+  //   if(demographicGroup.includes('Greater') || demographicGroup.includes('>')){
+  //     userIds = users.map((user)=>{
+  //       if(user.trading_exp >= number){
+  //         return user._id;
+  //       }
+  //     })
+  //   }
+  //   // if (demographicGroup === "experienced") {
+  //   //   userIds = users.map((user) => {
+  //   //     if (user.trading_exp >= experienceLevel) {
+  //   //       return user._id;
+  //   //     }
+  //   //   });
+  //   // } else {
+  //   //   userIds = users.map((user) => {
+  //   //     if (user.trading_exp < experienceLevel) {
+  //   //       return user._id;
+  //   //     }
+  //   //   });
+  //   // }
+  // }
+
+  if (demography === "experience") {
+    const regex = /(\d+)/g;
+    const numbers = demographicGroup.match(regex).map(Number);
+
+    if (demographicGroup.includes("Less") || demographicGroup.includes("<")) {
+      userIds = users
+        .map((user) => {
+          if (user.trading_exp <= numbers[0]) {
+            return user._id;
+          }
+        })
+        .filter(Boolean);
+    } else if (
+      demographicGroup.includes("Greater") ||
+      demographicGroup.includes(">")
+    ) {
+      userIds = users
+        .map((user) => {
+          if (user.trading_exp >= numbers[0]) {
+            return user._id;
+          }
+        })
+        .filter(Boolean);
+    } else if (numbers.length === 2) {
+      // Handling range case
+      userIds = users
+        .map((user) => {
+          if (
+            user.trading_exp >= Number(numbers[0]) &&
+            user.trading_exp <= Number(numbers[1])
+          ) {
+            return user._id;
+          }
+        })
+        .filter(Boolean);
     }
+
   }
 
   if (demography === "family_income") {
@@ -1443,6 +1462,7 @@ const demographicWiseChartHelper = async (
         })
         .filter(Boolean);
     }
+
   }
 
   if (demography === "employment") {
@@ -1460,11 +1480,6 @@ const demographicWiseChartHelper = async (
   return userIds;
 };
 
-// 'Male'
-// 'Female'
-// 'Tier1'
-// 'Tier2'
-// 'Tier3'
 
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
@@ -1542,5 +1557,507 @@ exports.getReportedBy = async (req, res) => {
   } catch (error) {
     console.error("Error fetching reportedBy users:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getTeamSummary = async (req, res) => {
+  try {
+    const fromDate = req.query.from;
+    const timePeriod = Number(req.query.timePeriod) || 1;
+    const frequency =
+      req.query.frequency === "undefined" || !req.query.frequency
+        ? "Hour"
+        : req.query.frequency;
+    const toDate =
+      req.query.to === "undefined" || req.query.to === "Invalid date"
+        ? req.query.from
+        : req.query.to;
+    const user = req?.query?.user ?? req?.user?._id;
+    let teamPerformance = [];
+    let userIds = [];
+    if (user === "team") {
+      const teamLead = await User.findOne({
+        _id: new ObjectId(req?.user?._id),
+      }).select("reportedBy");
+      userIds = [...teamLead.reportedBy];
+    } else {
+      userIds.push(new ObjectId(user));
+    }
+    //give the numbers demography wise
+    const users = await UserDetail.find({
+      _id: { $in: userIds },
+    }).select("gender trading_exp city_tier family_yearly_income employeed");
+
+    const summary = {
+      males: 0,
+      females: 0,
+      experienced: 0,
+      freshers: 0,
+      tier1: 0,
+      tier2: 0,
+      tier3: 0,
+      incomeLessThan500000: 0,
+      income500000To750000: 0,
+      income750001To1200000: 0,
+      income1200001To1800000: 0,
+      incomeGreaterThan1800000: 0,
+      employed: 0,
+      unemployed: 0,
+    };
+
+    users.forEach((user) => {
+      // Gender
+      if (user.gender === "male") summary.males += 1;
+      if (user.gender === "female") summary.females += 1;
+
+      // Experience
+      if (user.trading_exp >= 3) summary.experienced += 1;
+      else summary.freshers += 1;
+
+      // City tier
+      if (user.city_tier == 1) summary.tier1 += 1;
+      if (user.city_tier == 2) summary.tier2 += 1;
+      if (user.city_tier == 3) summary.tier3 += 1;
+
+      // Family yearly income
+      if (user.family_yearly_income < 500000) summary.incomeLessThan500000 += 1;
+      else if (
+        user.family_yearly_income >= 500000 &&
+        user.family_yearly_income <= 750000
+      )
+        summary.income500000To750000 += 1;
+      else if (
+        user.family_yearly_income >= 750001 &&
+        user.family_yearly_income <= 1200000
+      )
+        summary.income750001To1200000 += 1;
+      else if (
+        user.family_yearly_income >= 1200001 &&
+        user.family_yearly_income <= 1800000
+      )
+        summary.income1200001To1800000 += 1;
+      else if (user.family_yearly_income > 1800000)
+        summary.incomeGreaterThan1800000 += 1;
+
+      // Employment
+      if (user.employeed) summary.employed += 1;
+      else summary.unemployed += 1;
+    });
+
+    res.status(200).json({
+      success: true,
+      data: summary,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getGenderPerformance = async (req, res) => {
+  try {
+    const teamLeadId = req?.user?._id;
+    const { fromDate, toDate } = req.query;
+    const users = (
+      await User.findOne({
+        _id: new ObjectId(teamLeadId),
+      })
+        .populate("reportedBy", "gender")
+        .select("reportedBy")
+    ).reportedBy;
+
+    const maleUsers = users
+      .filter((user) => user.gender === "Male")
+      .map((user) => user._id);
+    const femaleUsers = users
+      .filter((user) => user.gender === "Female")
+      .map((user) => user._id);
+
+    const calculatePnL = async (userIds) => {
+      const trades = await ThirdPartyPnl.aggregate([
+        {
+          $match: {
+            trader: { $in: userIds },
+            date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+          },
+        },
+        { $unwind: "$pnl" },
+        {
+          $addFields: {
+            timeString: {
+              $dateToString: { format: "%H:%M", date: "$pnl.timestamp" },
+            },
+          },
+        },
+        { $match: { timeString: "15:30" } },
+      ]);
+
+      let totalPnL = 0;
+      let profitDays = 0;
+      let lossDays = 0;
+      let totalProfit = 0;
+      let totalLoss = 0;
+      let daysCount = new Set(
+        trades.map((trade) => trade.date.toISOString().split("T")[0])
+      ).size;
+
+      trades.forEach((trade) => {
+        const dayPnL = trade.pnl.gpnl;
+        totalPnL += dayPnL;
+        if (dayPnL > 0) {
+          totalProfit += dayPnL;
+          profitDays += 1;
+        } else if (dayPnL < 0) {
+          totalLoss += dayPnL;
+          lossDays += 1;
+        }
+      });
+
+      const averagePnL = totalPnL / daysCount;
+      const averageProfit = profitDays > 0 ? totalProfit / profitDays : 0;
+      const averageLoss = lossDays > 0 ? totalLoss / lossDays : 0;
+
+      return {
+        totalPnL,
+        averagePnL,
+        averageProfit,
+        averageLoss,
+      };
+    };
+
+    const malePnL = await calculatePnL(maleUsers);
+    const femalePnL = await calculatePnL(femaleUsers);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        male: {
+          count: maleUsers.length,
+          ...malePnL,
+        },
+        female: {
+          count: femaleUsers.length,
+          ...femalePnL,
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getExperiencePerformance = async (req, res) => {
+  try {
+    const teamLeadId = req?.user?._id;
+    const { fromDate, toDate } = req.query;
+    const experienceLevel = 3;
+    const users = (
+      await User.findOne({
+        _id: new ObjectId(teamLeadId),
+      })
+        .populate("reportedBy", "trading_exp")
+        .select("reportedBy")
+    ).reportedBy;
+
+    const experiencedUsers = users
+      .filter((user) => user.trading_exp >= experienceLevel)
+      .map((user) => user._id);
+    const freshers = users
+      .filter((user) => user.trading_exp < experienceLevel)
+      .map((user) => user._id);
+
+    const calculatePnL = async (userIds) => {
+      const trades = await ThirdPartyPnl.aggregate([
+        {
+          $match: {
+            trader: { $in: userIds },
+            date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+          },
+        },
+        { $unwind: "$pnl" },
+        {
+          $addFields: {
+            timeString: {
+              $dateToString: { format: "%H:%M", date: "$pnl.timestamp" },
+            },
+          },
+        },
+        { $match: { timeString: "15:30" } },
+      ]);
+
+      let totalPnL = 0;
+      let profitDays = 0;
+      let lossDays = 0;
+      let totalProfit = 0;
+      let totalLoss = 0;
+      let daysCount = new Set(
+        trades.map((trade) => trade.date.toISOString().split("T")[0])
+      ).size;
+
+      trades.forEach((trade) => {
+        const dayPnL = trade.pnl.gpnl;
+        totalPnL += dayPnL;
+        if (dayPnL > 0) {
+          totalProfit += dayPnL;
+          profitDays += 1;
+        } else if (dayPnL < 0) {
+          totalLoss += dayPnL;
+          lossDays += 1;
+        }
+      });
+
+      const averagePnL = totalPnL / daysCount;
+      const averageProfit = profitDays > 0 ? totalProfit / profitDays : 0;
+      const averageLoss = lossDays > 0 ? totalLoss / lossDays : 0;
+
+      return {
+        totalPnL,
+        averagePnL,
+        averageProfit,
+        averageLoss,
+      };
+    };
+
+    const experiencedPnL = await calculatePnL(experiencedUsers);
+    const freshersPnL = await calculatePnL(freshers);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        experienced: {
+          count: experiencedUsers.length,
+          ...experiencedPnL,
+        },
+        freshers: {
+          count: freshers.length,
+          ...freshersPnL,
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getCityTierPerformance = async (req, res) => {
+  try {
+    const teamLeadId = req?.user?._id;
+    const { fromDate, toDate } = req.query;
+    const users = (
+      await User.findOne({
+        _id: new ObjectId(teamLeadId),
+      })
+        .populate("reportedBy", "city_tier")
+        .select("reportedBy")
+    ).reportedBy;
+
+    const tier1Users = users
+      .filter((user) => user.city_tier == 1)
+      .map((user) => user._id);
+    const tier2Users = users
+      .filter((user) => user.city_tier == 2)
+      .map((user) => user._id);
+    const tier3Users = users
+      .filter((user) => user.city_tier == 3)
+      .map((user) => user._id);
+
+    const calculatePnL = async (userIds) => {
+      const trades = await ThirdPartyPnl.aggregate([
+        {
+          $match: {
+            trader: { $in: userIds },
+            date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+          },
+        },
+        { $unwind: "$pnl" },
+        {
+          $addFields: {
+            timeString: {
+              $dateToString: { format: "%H:%M", date: "$pnl.timestamp" },
+            },
+          },
+        },
+        { $match: { timeString: "15:30" } },
+      ]);
+
+      let totalPnL = 0;
+      let profitDays = 0;
+      let lossDays = 0;
+      let totalProfit = 0;
+      let totalLoss = 0;
+      let daysCount = new Set(
+        trades.map((trade) => trade.date.toISOString().split("T")[0])
+      ).size;
+
+      trades.forEach((trade) => {
+        const dayPnL = trade.pnl.gpnl;
+        totalPnL += dayPnL;
+        if (dayPnL > 0) {
+          totalProfit += dayPnL;
+          profitDays += 1;
+        } else if (dayPnL < 0) {
+          totalLoss += dayPnL;
+          lossDays += 1;
+        }
+      });
+
+      const averagePnL = totalPnL / daysCount;
+      const averageProfit = profitDays > 0 ? totalProfit / profitDays : 0;
+      const averageLoss = lossDays > 0 ? totalLoss / lossDays : 0;
+
+      return {
+        totalPnL,
+        averagePnL,
+        averageProfit,
+        averageLoss,
+      };
+    };
+
+    const tier1PnL = await calculatePnL(tier1Users);
+    const tier2PnL = await calculatePnL(tier2Users);
+    const tier3PnL = await calculatePnL(tier3Users);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        tier1: {
+          count: tier1Users.length,
+          ...tier1PnL,
+        },
+        tier2: {
+          count: tier2Users.length,
+          ...tier2PnL,
+        },
+        tier3: {
+          count: tier3Users.length,
+          ...tier3PnL,
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getIncomePerformance = async (req, res) => {
+  try {
+    const teamLeadId = req?.user?._id;
+    const { fromDate, toDate } = req.query;
+    const users = (
+      await User.findOne({
+        _id: new ObjectId(teamLeadId),
+      })
+        .populate("reportedBy", "family_yearly_income")
+        .select("reportedBy")
+    ).reportedBy;
+
+    const incomeGroups = {
+      lessThan500000: users
+        .filter((user) => user.family_yearly_income < 500000)
+        .map((user) => user._id),
+      between500000And750000: users
+        .filter(
+          (user) =>
+            user.family_yearly_income >= 500000 &&
+            user.family_yearly_income <= 750000
+        )
+        .map((user) => user._id),
+      between750001And1200000: users
+        .filter(
+          (user) =>
+            user.family_yearly_income >= 750001 &&
+            user.family_yearly_income <= 1200000
+        )
+        .map((user) => user._id),
+      between1200001And1800000: users
+        .filter(
+          (user) =>
+            user.family_yearly_income >= 1200001 &&
+            user.family_yearly_income <= 1800000
+        )
+        .map((user) => user._id),
+      greaterThan1800000: users
+        .filter((user) => user.family_yearly_income > 1800000)
+        .map((user) => user._id),
+    };
+
+    const calculatePnL = async (userIds) => {
+      const trades = await ThirdPartyPnl.aggregate([
+        {
+          $match: {
+            trader: { $in: userIds },
+            date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+          },
+        },
+        { $unwind: "$pnl" },
+        {
+          $addFields: {
+            timeString: {
+              $dateToString: { format: "%H:%M", date: "$pnl.timestamp" },
+            },
+          },
+        },
+        { $match: { timeString: "15:30" } },
+      ]);
+
+      let totalPnL = 0;
+      let profitDays = 0;
+      let lossDays = 0;
+      let totalProfit = 0;
+      let totalLoss = 0;
+      let daysCount = new Set(
+        trades.map((trade) => trade.date.toISOString().split("T")[0])
+      ).size;
+
+      trades.forEach((trade) => {
+        const dayPnL = trade.pnl.gpnl;
+        totalPnL += dayPnL;
+        if (dayPnL > 0) {
+          totalProfit += dayPnL;
+          profitDays += 1;
+        } else if (dayPnL < 0) {
+          totalLoss += dayPnL;
+          lossDays += 1;
+        }
+      });
+
+      const averagePnL = totalPnL / daysCount;
+      const averageProfit = profitDays > 0 ? totalProfit / profitDays : 0;
+      const averageLoss = lossDays > 0 ? totalLoss / lossDays : 0;
+
+      return {
+        totalPnL,
+        averagePnL,
+        averageProfit,
+        averageLoss,
+      };
+    };
+
+    const incomePnL = {};
+    for (const [group, userIds] of Object.entries(incomeGroups)) {
+      incomePnL[group] = await calculatePnL(userIds);
+      incomePnL[group].count = userIds.length;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: incomePnL,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };

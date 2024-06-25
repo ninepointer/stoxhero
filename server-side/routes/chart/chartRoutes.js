@@ -29,5 +29,14 @@ router.route("/avghour").get(Authenticate, pnlChart.avgPnlChart);
 router.route("/brokerage").get(pnlChart.addBrokerage);
 
 router.route("/reportedby").get(Authenticate, pnlChart.getReportedBy);
+router.route("/teamsummary").get(Authenticate, pnlChart.getTeamSummary);
+router.route("/gendersummary").get(Authenticate, pnlChart.getGenderPerformance);
+router.route("/incomesummary").get(Authenticate, pnlChart.getIncomePerformance);
+router
+  .route("/experiencesummary")
+  .get(Authenticate, pnlChart.getExperiencePerformance);
+router
+  .route("/citytiersummary")
+  .get(Authenticate, pnlChart.getCityTierPerformance);
 
 module.exports = router;
