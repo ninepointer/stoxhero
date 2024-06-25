@@ -62,7 +62,6 @@ exports.isThirdPartyDataExist = async (req, res) => {
       }).select("reportedBy");
       userIds = [...teamLead.reportedBy];
     } else {
-      console.log("in else");
       userIds.push(new ObjectId(user));
     }
     const data = await ThirdPartyTrades.findOne({
@@ -274,7 +273,6 @@ exports.avgPnlChart = async (req, res) => {
       }).select("reportedBy");
       userIds = [...teamLead.reportedBy];
     } else {
-      console.log("in else");
       userIds.push(new ObjectId(user));
     }
 
@@ -764,8 +762,6 @@ exports.hourChart = async (req, res) => {
       }
     }
 
-    console.log("check performance again", performance.now() - now);
-
     pnl1PM.pnlDiffrence = 0;
     pnl3PM.pnlDiffrence = pnl3PM?.gpnl - pnl1PM?.gpnl;
     res.status(200).json({
@@ -939,11 +935,6 @@ const distinctBuySell = async (tradeData) => {
 const formatTradeData = async (tradeData) => {
   const map = new Map();
 
-  console.log(
-    "quantity3",
-    tradeData.length,
-    tradeData.reduce((total, acc) => total + acc.Quantity, 0)
-  );
 
   tradeData.forEach((trade) => {
     const { symbol, amount, brokerage, Quantity, buyOrSell } = trade;
@@ -974,13 +965,6 @@ const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
   let pnlNifty = 0;
   let pnlBankNifty = 0;
   let pnlFinNifty = 0;
-
-  // const HistoryTickModel = thirdParty == "true" ? HistoryDataNew : HistoryData;
-  console.log(
-    "quantity4",
-    tradeData.length,
-    tradeData.reduce((total, acc) => total + acc.Quantity, 0)
-  );
 
   for (const elem of tradeData) {
     const utcTimeStamp = new Date(timestamp);
@@ -1248,11 +1232,6 @@ const chartHelper = async (tradeData, date, historyTicksInstrument) => {
         );
       });
 
-      console.log(
-        "quantity2",
-        filteredArr.length,
-        filteredArr.reduce((total, acc) => total + acc.Quantity, 0)
-      );
 
       const isLastElement = i === timeArr.length - 1;
       const vixFilteredArr = vixData.filter((elem) => {
@@ -1371,38 +1350,80 @@ const demographicWiseChartHelper = async (
     });
   }
 
-  if (demography === "experience") {
-    // const regex = /\d+/;
-    // const result = demographicGroup.match(regex);
-    // const number = parseInt(result[0], 10);
+  // if (demography === "experience") {
+  //   const regex = /\d+/;
+  //   const result = demographicGroup.match(regex);
+  //   console.log('number', result)
+  //   const number = parseInt(result[0], 10);
 
-    // if(demographicGroup.includes('Less') || demographicGroup.includes('<')){
-    //   userIds = users.map((user)=>{
-    //     if(user.trading_exp <= number){
-    //       return user._id;
-    //     }
-    //   })
-    // }
-    // if(demographicGroup.includes('Greater') || demographicGroup.includes('>')){
-    //   userIds = users.map((user)=>{
-    //     if(user.trading_exp >= number){
-    //       return user._id;
-    //     }
-    //   })
-    // }
-    if (demographicGroup === "experienced") {
-      userIds = users.map((user) => {
-        if (user.trading_exp >= experienceLevel) {
-          return user._id;
-        }
-      });
-    } else {
-      userIds = users.map((user) => {
-        if (user.trading_exp < experienceLevel) {
-          return user._id;
-        }
-      });
+    
+
+  //   if(demographicGroup.includes('Less') || demographicGroup.includes('<')){
+  //     userIds = users.map((user)=>{
+  //       if(user.trading_exp <= number){
+  //         return user._id;
+  //       }
+  //     })
+  //   }
+  //   if(demographicGroup.includes('Greater') || demographicGroup.includes('>')){
+  //     userIds = users.map((user)=>{
+  //       if(user.trading_exp >= number){
+  //         return user._id;
+  //       }
+  //     })
+  //   }
+  //   // if (demographicGroup === "experienced") {
+  //   //   userIds = users.map((user) => {
+  //   //     if (user.trading_exp >= experienceLevel) {
+  //   //       return user._id;
+  //   //     }
+  //   //   });
+  //   // } else {
+  //   //   userIds = users.map((user) => {
+  //   //     if (user.trading_exp < experienceLevel) {
+  //   //       return user._id;
+  //   //     }
+  //   //   });
+  //   // }
+  // }
+
+  if (demography === "experience") {
+    const regex = /(\d+)/g;
+    const numbers = demographicGroup.match(regex).map(Number);
+
+    if (demographicGroup.includes("Less") || demographicGroup.includes("<")) {
+      userIds = users
+        .map((user) => {
+          if (user.trading_exp <= numbers[0]) {
+            return user._id;
+          }
+        })
+        .filter(Boolean);
+    } else if (
+      demographicGroup.includes("Greater") ||
+      demographicGroup.includes(">")
+    ) {
+      userIds = users
+        .map((user) => {
+          if (user.trading_exp >= numbers[0]) {
+            return user._id;
+          }
+        })
+        .filter(Boolean);
+    } else if (numbers.length === 2) {
+      // Handling range case
+      userIds = users
+        .map((user) => {
+          if (
+            user.trading_exp >= Number(numbers[0]) &&
+            user.trading_exp <= Number(numbers[1])
+          ) {
+            return user._id;
+          }
+        })
+        .filter(Boolean);
     }
+
   }
 
   if (demography === "family_income") {
@@ -1441,6 +1462,7 @@ const demographicWiseChartHelper = async (
         })
         .filter(Boolean);
     }
+
   }
 
   if (demography === "employment") {
@@ -1458,11 +1480,6 @@ const demographicWiseChartHelper = async (
   return userIds;
 };
 
-// 'Male'
-// 'Female'
-// 'Tier1'
-// 'Tier2'
-// 'Tier3'
 
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
@@ -1564,7 +1581,6 @@ exports.getTeamSummary = async (req, res) => {
       }).select("reportedBy");
       userIds = [...teamLead.reportedBy];
     } else {
-      console.log("in else");
       userIds.push(new ObjectId(user));
     }
     //give the numbers demography wise
