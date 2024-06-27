@@ -2,6 +2,8 @@ exports.xtsAccountType = "XTS";
 exports.zerodhaAccountType = "ZERODHA";
 exports.paytmMoneyAccountType = "PAYTM MONEY";
 exports.growAccountType = "GROW";
+exports.upstoxAccountType = "UPSTOX";
+
 exports.infinityTrader = "Infinity Trader";
 exports.tenx = "TenX";
 exports.marginx = "MarginX";

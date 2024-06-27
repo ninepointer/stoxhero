@@ -952,13 +952,3 @@ exports.addFcmToken = async (req, res) => {
     });
   }
 };
-
-
-
-/*
-1. uploading time all grouped data array
-2. now grouped data me symbol and datePart ke basis pe fir se group krna h
-3. ab hamre pass symbol and date wise array h
-4. ab is array pe hourChartHelper apply krdo
-5. Is helper function me kuchh data remove krna h
-*/

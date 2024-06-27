@@ -1007,12 +1007,13 @@ const calculatePnl = async (tradeData, ltpData, timestamp, thirdParty) => {
 exports.uploadCSV = async (req, res) => {
   try {
     const userId = req?.user?._id || "662f804700f04a05fe3c941f";
+    const broker = req.query.broker;
     const data = await uploadFileToAzure(req.file);
     const originalUrl = data?.fileUrl;
     // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/045115758852909416-shareIndia46099Aprtrunc.csv'
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
 
-    const savedData = await saveDataToDB(url, userId, res);
+    const savedData = await saveDataToDB(url, userId, res, broker);
     await mailSender(userId);
     // const savedData = await saveDataToDBTesting(url, userId);
   } catch (err) {
@@ -1051,14 +1052,14 @@ async function parseCsvStream(stream) {
   });
 }
 
-const saveDataToDB = async (url, userId, res) => {
+const saveDataToDB = async (url, userId, res, broker) => {
   try {
     const csvStream = await downloadCsvBlob(url);
     console.log("downloaded");
     const csvData = await parseCsvStream(csvStream);
     console.log("parsed");
 
-    const tradeData = await convertToTradingDataToGroup(csvData, userId, res);
+    const tradeData = await convertToTradingDataToGroup(csvData, userId, res, broker);
     if (tradeData === "Data Exist") {
       return "Data Exist";
     }

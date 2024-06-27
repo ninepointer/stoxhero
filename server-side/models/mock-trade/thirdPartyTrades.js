@@ -48,7 +48,8 @@ const ThirdPartyTrade = new mongoose.Schema({
         required: true
     },
     brokerage:{
-        type: Number,  
+        type: Number, 
+        required: true 
     },
     instrumentToken:{
         type: Number, 
@@ -75,7 +76,7 @@ const ThirdPartyTrade = new mongoose.Schema({
     cp_id: String,
     ctcl_id: String,
     user_id: String,
-
+    broker: String,
     createdOn:{
         type: Date,
         default: ()=>new Date(),
