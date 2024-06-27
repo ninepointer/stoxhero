@@ -19,6 +19,9 @@ const { mail } = require("./controllers/dailyReportMail")
 const { dailyContestTradeCut, dailyContestTimeStore } = require("./dailyContestTradeCut")
 const { removeInstrumentFromWatchlist } = require("./controllers/instrument");
 const {payouts} = require('./controllers/paperTradeController');
+const {main, populateAllInstruments} = require('./marketData/getinstrumenttickshistorydata');
+
+
 
 exports.cronjobs = async () => {
     if (process.env.PROD === "true") {
@@ -86,14 +89,15 @@ async function otherJobs(isHoliday){
     }
 
     const autoExpire = nodeCron.schedule(`0 30 10 * * *`, autoExpireTenXSubscription);
-    const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
-    const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
+    // const internshipPayout = nodeCron.schedule(`0 30 17 * * *`, updateUserWallet);
+    // const reportMail = nodeCron.schedule(`0 0 18 * * *`, mail);
     const dailyContest = nodeCron.schedule(`1 30 6 * * *`, dailyContestTradeCut);
     const dailyContest2oclock = nodeCron.schedule(`1 30 8 * * *`, dailyContestTradeCut);
     const dailyContesttimeStore = nodeCron.schedule(`49 3 * * *`, dailyContestTimeStore);
     const tradableInstrumentPopulate = nodeCron.schedule(`0 30 16 * * *`, tradableInstrument);
     const removeInstrumentFromWatch = nodeCron.schedule(`0 0 1 * * *`, removeInstrumentFromWatchlist);
-    // const payoutVirtual = nodeCron.schedule(`0 30 10 * * *`, payouts);
+    const historyTicks = nodeCron.schedule(`0 30 11 * * *`, main);
+    const populateAllInstrument = nodeCron.schedule(`0 30 17 * * *`, populateAllInstruments);
 }
 
 

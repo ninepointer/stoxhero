@@ -264,25 +264,7 @@ exports.main = async () => {
   const todaysDatePart = new Date()?.toISOString()?.split("T")?.[0];
   // const todaysDatePart = '2024-06-24';
 
-  // const inactiveeq = await TradableInstrument.updateMany(
-  //   {instrument_type: 'EQ'}
-  // , [
-  //   { $set: { status: 'Inactive' } },
-  // ]);
 
-  // const inactive = await TradableInstrument.updateMany({
-  //   $and: [
-  //     { expiry: { $ne: '' } },
-  //     { expiry: { $lt: todaysDatePart } }
-  //   ]
-  // }
-  // , [
-  //   { $set: { status: 'Inactive' } },
-  // ]);
-
-  // console.log('first', new Date(), inactive, inactiveeq);
-
-  // await TradableInstrumentList.allTradableInstrument();
 
   await getInstrumentTicksHistoryData(todaysDatePart);
   await saveIndiaVix(todaysDatePart);
@@ -293,3 +275,19 @@ exports.main = async () => {
   const length = historyDataforLen.length;
   await mailSender(length);
 };
+
+exports.populateAllInstruments = async () => {
+  const todaysDatePart = new Date()?.toISOString()?.split("T")?.[0];
+
+  const inactive = await TradableInstrument.updateMany({
+    status: 'Active',
+    $and: [
+      { expiry: { $ne: '' } },
+      { expiry: { $lt: todaysDatePart } }
+    ]
+  }, [
+    { $set: { status: 'Inactive' } },
+  ]);
+  
+  await TradableInstrumentList.allTradableInstrument();
+}

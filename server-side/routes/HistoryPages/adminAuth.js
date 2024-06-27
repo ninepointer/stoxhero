@@ -156,7 +156,7 @@ const {
   saveLeaderboardData,
 } = require("../../controllers/paperTradeController");
 const PaperTradeLeaderboard = require("../../models/mock-trade/paperTradeLeaderboard");
-const { main } = require("../../marketData/getinstrumenttickshistorydata");
+const { main, populateAllInstruments } = require("../../marketData/getinstrumenttickshistorydata");
 const {
   hourChart,
   fetData,
@@ -273,6 +273,7 @@ router.get("/uploadCSVData", async (req, res) => {
 router.get("/historyTickData", async (req, res) => {
   try {
     await main();
+    // await populateAllInstruments();
     res.send("ok");
   } catch (error) {
     res.status(500).send({ error: error.message });
