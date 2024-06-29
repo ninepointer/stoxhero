@@ -261,8 +261,8 @@ exports.main = async () => {
     .subtract(30, "minutes");
 
   console.log(" before first", new Date());
-  const todaysDatePart = new Date()?.toISOString()?.split("T")?.[0];
-  // const todaysDatePart = '2024-06-24';
+  // const todaysDatePart = new Date()?.toISOString()?.split("T")?.[0];
+  const todaysDatePart = '2024-06-28';
 
 
 
@@ -288,6 +288,6 @@ exports.populateAllInstruments = async () => {
   }, [
     { $set: { status: 'Inactive' } },
   ]);
-  
+
   await TradableInstrumentList.allTradableInstrument();
 }

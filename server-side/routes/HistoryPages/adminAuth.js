@@ -278,6 +278,15 @@ router.get("/historyTickData", async (req, res) => {
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
+})
+
+router.get("/populateAllInstruemnt", async (req, res) => {
+  try {
+    await populateAllInstruments();
+    res.send("ok");
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 });
 
 router.get("/updateDatainleaderboard", async (req, res) => {
