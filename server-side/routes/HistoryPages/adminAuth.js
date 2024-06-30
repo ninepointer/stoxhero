@@ -4029,15 +4029,15 @@ router.get("/insrtOldPayout", async (req, res) => {
   }
 });
 
-router.get("/del", async (req, res) => {
-  const compnay = await PaperTrade.find({
-    createdOn: { $gte: new Date("2024-04-11") },
-  });
-  const user = await TenXTrade.find({
-    createdOn: { $gte: new Date("2024-04-11") },
-  });
-  res.send({ data: compnay.length, dat: user.length });
-});
+// router.get("/del", async (req, res) => {
+//   const compnay = await PaperTrade.find({
+//     createdOn: { $gte: new Date("2024-04-11") },
+//   });
+//   const user = await TenXTrade.find({
+//     createdOn: { $gte: new Date("2024-04-11") },
+//   });
+//   res.send({ data: compnay.length, dat: user.length });
+// });
 
 router.get("/uniqueusers", async (req, res) => {
   let pipeline = [
@@ -4368,21 +4368,21 @@ router.get("/updateFeild", async (req, res) => {
   console.log(update1, update2, update3, update4);
 });
 
-router.get("/deleteTrades", async (req, res) => {
-  // const del = await InfinityTraderCompany.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
-  // const del2 = await InfinityTrader.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+// router.get("/deleteTrades", async (req, res) => {
+//   // const del = await InfinityTraderCompany.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+//   // const del2 = await InfinityTrader.deleteMany({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
 
-  const del3 = await Instrument.deleteMany({
-    contractDate: new Date("2023-07-27"),
-  });
-  const del4 = await InfinityInstrument.deleteMany({
-    contractDate: new Date("2023-07-27"),
-  });
+//   const del3 = await Instrument.deleteMany({
+//     contractDate: new Date("2023-07-27"),
+//   });
+//   const del4 = await InfinityInstrument.deleteMany({
+//     contractDate: new Date("2023-07-27"),
+//   });
 
-  // const del3 = await InfinityLiveCompany.find({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
-  // const del4 = await InfinityLiveUser.find({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
-  console.log(del3.length, del4.length); //
-});
+//   // const del3 = await InfinityLiveCompany.find({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+//   // const del4 = await InfinityLiveUser.find({trade_time: {$gte: new Date("2023-07-06")}, createdBy: new ObjectId("63ecbc570302e7cf0153370c")})
+//   console.log(del3.length, del4.length); //
+// });
 
 router.get("/instrument", async (req, res) => {
   let instrumentDetail = await InfinityTraderCompany.aggregate([
@@ -4424,26 +4424,26 @@ router.get("/updateFeild", async (req, res) => {
   console.log(update1, update2, update3, update4);
 });
 
-router.get("/deleteTrades", async (req, res) => {
-  const del = await InfinityTraderCompany.deleteMany({
-    createdBy: new ObjectId("63ecbc570302e7cf0153370c"),
-    trade_time: { $gte: new Date("2023-06-20") },
-  });
-  const del2 = await InfinityTrader.deleteMany({
-    createdBy: new ObjectId("63ecbc570302e7cf0153370c"),
-    trade_time: { $gte: new Date("2023-06-20") },
-  });
-  const del3 = await InfinityLiveCompany.deleteMany({
-    createdBy: new ObjectId("63ecbc570302e7cf0153370c"),
-    trade_time: { $gte: new Date("2023-06-20") },
-  });
-  const del4 = await InfinityLiveUser.deleteMany({
-    createdBy: new ObjectId("63ecbc570302e7cf0153370c"),
-    trade_time: { $gte: new Date("2023-06-20") },
-  });
+// router.get("/deleteTrades", async (req, res) => {
+//   const del = await InfinityTraderCompany.deleteMany({
+//     createdBy: new ObjectId("63ecbc570302e7cf0153370c"),
+//     trade_time: { $gte: new Date("2023-06-20") },
+//   });
+//   const del2 = await InfinityTrader.deleteMany({
+//     createdBy: new ObjectId("63ecbc570302e7cf0153370c"),
+//     trade_time: { $gte: new Date("2023-06-20") },
+//   });
+//   const del3 = await InfinityLiveCompany.deleteMany({
+//     createdBy: new ObjectId("63ecbc570302e7cf0153370c"),
+//     trade_time: { $gte: new Date("2023-06-20") },
+//   });
+//   const del4 = await InfinityLiveUser.deleteMany({
+//     createdBy: new ObjectId("63ecbc570302e7cf0153370c"),
+//     trade_time: { $gte: new Date("2023-06-20") },
+//   });
 
-  console.log(del.length, del2.length);
-});
+//   console.log(del.length, del2.length);
+// });
 
 router.get("/removeduplicate", async (req, res) => {
   const result = await Permission.aggregate([
@@ -4569,9 +4569,9 @@ router.get("/setOpenPrice", async (req, res) => {
   await openPrice();
 });
 
-router.get("/deleteWatchlist", async (req, res) => {
-  await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
-});
+// router.get("/deleteWatchlist", async (req, res) => {
+//   await UserDetail.updateMany({}, { $unset: { watchlistInstruments: "" } });
+// });
 
 router.get("/updateLot", async (req, res) => {
   let x = await InfinityInstrument.updateMany(
@@ -4697,78 +4697,78 @@ router.get("/orderData", async (req, res) => {
   res.send(data);
 });
 
-router.get("/deleteMatching", async (req, res) => {
-  // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
-  const del = await InfinityTraderCompany.aggregate([
-    {
-      $match: {
-        trade_time: {
-          $gte: new Date("2023-05-26"),
-        },
-        status: "COMPLETE",
-      },
-    },
-    {
-      $group: {
-        _id: {
-          id: "$_id",
-          orderId: "$order_id",
-          userId: "$trader",
-          // subscriptionId: "$subscriptionId",
-          exchange: "$exchange",
-          symbol: "$symbol",
-          instrumentToken: "$instrumentToken",
-          exchangeInstrumentToken: "$exchangeInstrumentToken",
-          variety: "$variety",
-          validity: "$validity",
-          order_type: "$order_type",
-          Product: "$Product",
-          algoBoxId: "$algoBox",
-        },
-        runningLots: {
-          $sum: "$Quantity",
-        },
-        takeTradeQuantity: {
-          $sum: {
-            $multiply: ["$Quantity", -1],
-          },
-        },
-      },
-    },
-    {
-      $project: {
-        _id: "$_id.id",
-        userId: "$_id.userId",
-        subscriptionId: "$_id.orderId",
-        exchange: "$_id.exchange",
-        symbol: "$_id.symbol",
-        instrumentToken: "$_id.instrumentToken",
-        exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
-        variety: "$_id.variety",
-        validity: "$_id.validity",
-        order_type: "$_id.order_type",
-        Product: "$_id.Product",
-        runningLots: "$runningLots",
-        takeTradeQuantity: "$takeTradeQuantity",
-        algoBoxId: "$_id.algoBoxId",
-      },
-    },
-    {
-      $match: {
-        runningLots: {
-          $ne: 0,
-        },
-      },
-    },
-  ]);
+// router.get("/deleteMatching", async (req, res) => {
+//   // await client.del(`kiteCredToday:${process.env.PROD}`);InfinityTrader
+//   const del = await InfinityTraderCompany.aggregate([
+//     {
+//       $match: {
+//         trade_time: {
+//           $gte: new Date("2023-05-26"),
+//         },
+//         status: "COMPLETE",
+//       },
+//     },
+//     {
+//       $group: {
+//         _id: {
+//           id: "$_id",
+//           orderId: "$order_id",
+//           userId: "$trader",
+//           // subscriptionId: "$subscriptionId",
+//           exchange: "$exchange",
+//           symbol: "$symbol",
+//           instrumentToken: "$instrumentToken",
+//           exchangeInstrumentToken: "$exchangeInstrumentToken",
+//           variety: "$variety",
+//           validity: "$validity",
+//           order_type: "$order_type",
+//           Product: "$Product",
+//           algoBoxId: "$algoBox",
+//         },
+//         runningLots: {
+//           $sum: "$Quantity",
+//         },
+//         takeTradeQuantity: {
+//           $sum: {
+//             $multiply: ["$Quantity", -1],
+//           },
+//         },
+//       },
+//     },
+//     {
+//       $project: {
+//         _id: "$_id.id",
+//         userId: "$_id.userId",
+//         subscriptionId: "$_id.orderId",
+//         exchange: "$_id.exchange",
+//         symbol: "$_id.symbol",
+//         instrumentToken: "$_id.instrumentToken",
+//         exchangeInstrumentToken: "$_id.exchangeInstrumentToken",
+//         variety: "$_id.variety",
+//         validity: "$_id.validity",
+//         order_type: "$_id.order_type",
+//         Product: "$_id.Product",
+//         runningLots: "$runningLots",
+//         takeTradeQuantity: "$takeTradeQuantity",
+//         algoBoxId: "$_id.algoBoxId",
+//       },
+//     },
+//     {
+//       $match: {
+//         runningLots: {
+//           $ne: 0,
+//         },
+//       },
+//     },
+//   ]);
 
-  // const result = await del.aggregate(pipeline).toArray();
+//   // const result = await del.aggregate(pipeline).toArray();
 
-  const deleteResult = await InfinityTraderCompany.deleteMany({
-    _id: { $in: del.map((doc) => doc._id) },
-  });
-  console.log(deleteResult);
-});
+//   const deleteResult = await InfinityTraderCompany.deleteMany({
+//     _id: { $in: del.map((doc) => doc._id) },
+//   });
+//   console.log(deleteResult);
+// });
 
 router.get("/autotrade", async (req, res) => {
   // let arr = await tenx();

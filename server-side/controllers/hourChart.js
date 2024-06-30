@@ -28,12 +28,14 @@ let getStream;
 const csv = require("csv-parser");
 const containerName = "dmt-trade";
 const getBlobName = (originalName) => {
+  originalName = originalName.split(' ').join('_');
   const identifier = Math.random().toString().replace(/0\./, ""); // remove "0." from start of string
   return `${identifier}-${originalName}`;
 };
 
 const uploadFileToAzure = async (file) => {
   const blobName = getBlobName(file.originalname);
+  console.log(blobName);
   const blobService = new BlockBlobClient(
     process.env.AZURE_STORAGE_CONNECTION_STRING,
     containerName,
@@ -1010,18 +1012,12 @@ exports.uploadCSV = async (req, res) => {
     const broker = req.query.broker;
     const data = await uploadFileToAzure(req.file);
     const originalUrl = data?.fileUrl;
-    // const originalUrl = 'https://stagingdmt.blob.core.windows.net/dmt-trade/045115758852909416-shareIndia46099Aprtrunc.csv'
     const url = originalUrl?.split("/")[originalUrl?.split("/").length - 1];
 
     const savedData = await saveDataToDB(url, userId, res, broker);
-    await mailSender(userId);
-    // const savedData = await saveDataToDBTesting(url, userId);
+    if('Data Exist' !== savedData) await mailSender(userId);
   } catch (err) {
     console.log(err);
-    // res.status(400).json({
-    //   status: "error",
-    //   message: err?.message,
-    // });
   }
 };
 
@@ -1485,16 +1481,16 @@ const demographicWiseChartHelper = async (
 exports.deleteThirdParty = async (req, res) => {
   const data = await ThirdPartyTrades.deleteMany({
     trader: new ObjectId(
-      // "63788f3991fc4bf629de6df0"
-      "6666997a93c01d363f79419f"
+      "63788f3991fc4bf629de6df0"
+      // "6666997a93c01d363f79419f"
     ),
     // new ObjectId("642c6434573edbfcb2ac45a5"),
   });
 
   const newdata = await ThirdPartyPnl.deleteMany({
     trader: new ObjectId(
-      // "63788f3991fc4bf629de6df0"
-      "6666997a93c01d363f79419f"
+      "63788f3991fc4bf629de6df0"
+      // "6666997a93c01d363f79419f"
     ),
   });
 

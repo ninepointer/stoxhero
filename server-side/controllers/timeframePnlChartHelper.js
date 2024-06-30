@@ -138,27 +138,6 @@ exports.convertToTradingDataToGroup = async (data, userId, res, broker) => {
       //  .utc()
       //  .format()
 
-      // console.log(elem, {
-      //   order_id: elem["Trade Id"],
-      //   status: "COMPLETE",
-      //   average_price: avgPrice,
-      //   Quantity: quantity,
-      //   // expiry: elem?.["Expiry Date"],
-      //   buyOrSell,
-      //   exchange: exchange,
-      //   symbol: instrument,
-      //   amount: amount,
-      //   brokerage: brokerage,
-      //       //todo-vijay
-
-      //   // trade_time: moment(elem?.["Trade Date/Time"], "DD MMMM YYYY HH:mm:ss"),
-      //   trade_time: trade_time,
-      //   account_number: elem?.["Account Number"],
-      //   broker: broker,
-      //   user_id: elem?.["User Id"],
-      //   modify_date: trade_time
-      // })
-
       tradeData.push({
         order_id: elem["Trade Id"],
         status: "COMPLETE",
@@ -185,8 +164,6 @@ exports.convertToTradingDataToGroup = async (data, userId, res, broker) => {
         createdBy: userId,
       });
     }
-
-    console.log("case4");
 
     const getStartDate = moment(tradeData?.[0]?.trade_time)
       .startOf("day")
@@ -628,5 +605,3 @@ const getBrokerageData = async(broker, segment, product, newBuySell, amount, bro
     return equityBrokerage(amount, particularBrokerData[0], newBuySell, product)
   }
 }
-
-//product define krna h
