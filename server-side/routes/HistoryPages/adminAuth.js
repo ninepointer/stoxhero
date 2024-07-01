@@ -162,6 +162,10 @@ const {
   fetData,
   uploadCSV,
 } = require("../../controllers/hourChart");
+const HistoryTickModel = require('../../models/InstrumentHistoricalData/InstrumentHistoricalData');
+const HistoryDataModelTemp = require("../../models/InstrumentHistoricalData/InstrumentHistoricalDataTemp");
+const HistoryDataModelData = require("../../models/InstrumentHistoricalData/historyTickData");
+
 // client8.connect()
 // .then(async (res) => {
 
@@ -170,6 +174,103 @@ const {
 // .catch((err) => {
 //     console.log("redis not connected", err)
 // })
+router.get("/revertback", async (req, res) => {
+  try {
+    let historyDataTemp = await HistoryDataModelTemp.findOne({ _id: new ObjectId('66643ad6e4b51035856d51a0') });
+
+    if (historyDataTemp && historyDataTemp.candles) {
+      // Adjust the timestamps
+      historyDataTemp.candles = historyDataTemp.candles.map(candle => {
+        return {
+          ...candle,
+          timestamp: new Date(candle.timestamp.getTime() - (5 * 60 * 60 * 1000) - (30 * 60 * 1000)) // Subtract 5 hours and 30 minutes
+        };
+      });
+    
+      // Save the updated document
+      await HistoryDataModelTemp.updateOne(
+        { _id: new ObjectId('66643ad6e4b51035856d51a0') },
+        { $set: { candles: historyDataTemp.candles } }
+      );
+    }
+    
+    console.log('Timestamps updated successfully');
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.get("/mergedbs", async (req, res) => {
+  try {
+    async function updateTimestampsInBulk() {
+      const BATCH_SIZE = 1000; // Adjust the batch size based on your requirements
+      let skip = 0;
+
+      console.log('skip', skip);
+      while (true) {
+        // Fetch a batch of documents
+        const documents = await HistoryDataModelTemp.find().skip(skip).limit(BATCH_SIZE).exec();
+
+        if (documents.length === 0) {
+          break; // Exit the loop if no more documents are found
+        }
+
+        const bulkOperations = documents.map(doc => {
+          const updatedCandles = doc.candles.map(candle => {
+            return {
+              ...candle,
+              timestamp: new Date(candle.timestamp.getTime() - (5 * 60 * 60 * 1000) - (30 * 60 * 1000)) // Subtract 5 hours and 30 minutes
+            };
+          });
+
+          return {
+            updateOne: {
+              filter: { _id: doc._id },
+              update: { $set: { candles: updatedCandles } }
+            }
+          };
+        });
+
+        // Execute the bulk write operation
+        await HistoryDataModelTemp.bulkWrite(bulkOperations);
+
+        // Move to the next batch
+        skip += BATCH_SIZE;
+      }
+
+      console.log('Timestamps updated successfully for all documents.');
+    }
+
+    updateTimestampsInBulk()
+      .then(() => console.log('Done'))
+      .catch(err => console.error('Error updating timestamps:', err));
+
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.get("/mergedatabase", async (req, res) => {
+  try {
+    const historyData = await HistoryTickModel.find({
+      'candles.timestamp': {
+        $gt: new Date('2024-06-13'),
+      }
+    });
+    console.log('1st complete')
+    const historyDataTemp = await HistoryDataModelTemp.find();
+    
+    console.log('2nd complete')
+    await HistoryDataModelData.create([...historyData, ...historyDataTemp]);
+
+    res.status(200).json({data: 'success'});
+    
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+
 router.get("/deposit-participants-fee", async (req, res) => {
   try {
     const endDate = new Date("2024-06-18T23:59:59.999Z");
