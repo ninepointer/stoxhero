@@ -1,5 +1,6 @@
 const axios = require("axios");
-const InstrumentTicksDataSchema = require("../models/InstrumentHistoricalData/InstrumentHistoricalData");
+const InstrumentTicksDataSchema = require("../models/InstrumentHistoricalData/InstrumentHistoricalDataTemp");
+
 const express = require("express");
 const getKiteCred = require("../marketData/getKiteCred");
 const sendMail = require("../utils/emailService");

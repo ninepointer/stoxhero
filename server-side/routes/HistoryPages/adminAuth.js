@@ -252,23 +252,67 @@ router.get("/mergedbs", async (req, res) => {
 
 router.get("/mergedatabase", async (req, res) => {
   try {
-    const historyData = await HistoryTickModel.find({
-      'candles.timestamp': {
-        $gt: new Date('2024-06-13'),
-      }
-    });
-    console.log('1st complete')
-    const historyDataTemp = await HistoryDataModelTemp.find();
-    
-    console.log('2nd complete')
-    await HistoryDataModelData.create([...historyData, ...historyDataTemp]);
+    const startDate = new Date('2024-05-01');
+    const endDate = new Date(); // or any end date you want to set
 
-    res.status(200).json({data: 'success'});
-    
+    // Helper function to get the next date
+    const getNextDate = (date) => {
+      const nextDate = new Date(date);
+      nextDate.setDate(date.getDate() + 1);
+      return nextDate;
+    };
+
+    // Helper function to get the next hour
+    const getNextHour = (date) => {
+      const nextHour = new Date(date);
+      nextHour.setHours(date.getHours() + 1);
+      return nextHour;
+    };
+
+    let currentDate = startDate;
+
+    while (currentDate <= endDate) {
+      const nextDate = getNextDate(currentDate);
+
+      let currentHour = new Date(currentDate);
+
+      while (currentHour < nextDate) {
+        const nextHour = getNextHour(currentHour);
+        console.log(currentHour, nextHour);
+
+        if(Number(currentHour.getHours()) >=9 && Number(currentHour.getHours()) <= 16){
+          const historyData = await HistoryDataModelTemp.find({
+            'candles.timestamp': {
+              $gte: currentHour,
+              $lt: nextHour,
+            }
+          });
+          console.log(`Data for ${currentHour.toISOString().split('T')[0]} ${currentHour.getHours()}:00 complete`, historyData.length);
+  
+          if (historyData.length > 0) {
+            await HistoryDataModelData.create(historyData);
+          }
+        }
+
+
+        currentHour = nextHour;
+      }
+
+      currentDate = nextDate;
+    }
+
+    res.status(200).json({ data: 'success' });
+
   } catch (err) {
     console.log(err);
+    res.status(500).json({ error: 'An error occurred' });
   }
-});
+})
+
+
+// const historyDataTemp = await HistoryDataModelTemp.find();
+// await HistoryDataModelData.create([...historyData, ...historyDataTemp]);
+
 
 
 router.get("/deposit-participants-fee", async (req, res) => {

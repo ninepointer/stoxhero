@@ -64,7 +64,12 @@ exports.isThirdPartyDataExist = async (req, res) => {
       }).select("reportedBy");
       userIds = [...teamLead.reportedBy];
     } else {
-      userIds.push(new ObjectId(user));
+      if(mongoose.Types.ObjectId.isValid(user)){
+        userIds.push(new ObjectId(user));
+      } else{
+        res.status(500).json({status: "error", message: "user is not valid"});
+      }
+      
     }
     const data = await ThirdPartyTrades.findOne({
       trader: { $in: userIds },
@@ -1115,12 +1120,15 @@ const saveDataToDB = async (url, userId, res, broker) => {
         .subtract(30, "minutes");
       const endOfDate = moment(datePart).clone().endOf("day");
 
+      const symbol2 = symbolTradeArr?.[0]?.symbol2;
+      const symbol3 = symbolTradeArr?.[0]?.symbol3;
+
       const historyTick = await HistoryDataNew.find({
         "candles.timestamp": {
           $gt: new Date(startOfDate),
           $lt: new Date(endOfDate),
         },
-        symbol: symbol,
+        symbol: {$in: [symbol, symbol2, symbol3]},
       });
 
       console.log(

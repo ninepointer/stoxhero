@@ -7,11 +7,11 @@ const instrumentHistoricalDataSchema = new mongoose.Schema({
     },
     instrumentToken: {
         type: String,
-        required: true
+        // required: true
     },
     exchangeToken: {
         type: String,
-        required: true
+        // required: true
     },
     expiry: {
         type: Date

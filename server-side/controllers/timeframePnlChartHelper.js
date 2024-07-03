@@ -7,6 +7,49 @@ const sendMail = require("../utils/emailService");
 const BrokerageDetail = require("../models/Trading Account/brokerageSchema");
 
 
+
+function extractPartsWithRegex(str) {
+  // Extract starting characters till the first numerical character
+  const startMatch = str.match(/^[^\d]+/);
+  const startPart = startMatch ? startMatch[0] : '';
+
+  // Reverse the string and match the first sequence of digits
+  const lastMatch = str.split('').reverse().join('').match(/\d+/);
+  const lastPart = lastMatch ? lastMatch[0].split('').reverse().join('') : '';
+
+  return { startPart, lastPart };
+}
+
+function extractPartsSimply(str) {
+  // Extract starting characters till the first numerical character
+  const startMatch = str.match(/^[^\d]+/);
+  const startPart = startMatch ? startMatch[0] : '';
+
+  // Reverse the string and match the first sequence of digits
+  const lastPart = str.slice(-7, -2);
+  return { startPart, lastPart };
+}
+
+function formatExpiryDate(dateString) {
+  const newExpiry = moment(dateString, "DD MMMM YYYY").clone().format("YYMDD");
+
+  // Extract year, month, and day parts
+  const year = newExpiry.slice(0, 2);
+  let month = newExpiry.slice(2, -2);
+  const day = newExpiry.slice(-2);
+
+  // Check and replace numeric months 10, 11, 12 with O, N, D
+  if (month === '10') {
+    month = 'O';
+  } else if (month === '11') {
+    month = 'N';
+  } else if (month === '12') {
+    month = 'D';
+  }
+
+  return `${year}${month}${day}`;
+}
+
 exports.convertToTradingDataToGroup = async (data, userId, res, broker) => {
 
   try {
@@ -83,15 +126,21 @@ exports.convertToTradingDataToGroup = async (data, userId, res, broker) => {
         segment = 'Equity';
       }
 
-      let instrument;
-      if (elem?.symbol) {
-        instrument = elem?.symbol;
-      } else {
+      let instrument, instrument2, instrument3;
+      // if (elem?.symbol) {
+      //   instrument = elem?.symbol;
+      // } else
+       {
         if (checkFuture) {
           const newExpiry = moment(elem?.["Expiry Date"], "DD MMMM YYYY")
             .clone()
             .format("DDMMMYY");
           instrument = `${elem?.["Symbol"]}${newExpiry?.toUpperCase()}FUT`;
+          instrument2 = `${elem?.["Symbol"]}${
+            moment(elem?.["Expiry Date"], "DD MMMM YYYY")
+            .clone()
+            .format("YYMMM")?.toUpperCase()}FUT`;
+          //zerodha : symbol + YYMMM + FUT ==> NIFTY24JUNFUT
         }
         if (checkOption) {
           const newExpiry = moment(elem?.["Expiry Date"], "DD MMMM YYYY")
@@ -99,11 +148,29 @@ exports.convertToTradingDataToGroup = async (data, userId, res, broker) => {
             .format("DDMMMYY");
           instrument = `${elem?.["Symbol"]}${newExpiry?.toUpperCase()}${elem?.["Strike Price"]
             }${elem?.["Option Type"]}`;
+
+          instrument2 = `${elem?.["Symbol"]}${formatExpiryDate(elem?.["Expiry Date"])}${elem?.["Strike Price"]
+            }${elem?.["Option Type"]}`;
+            // ZERODHA : SYMBOL + EXPIRY(YYMDD) + STRIKE_PRICE + OPTION_TYPE ==> FINNIFTY2470223800CE
+          
+          instrument3 = `${elem?.["Symbol"]}${
+            moment(elem?.["Expiry Date"], "DD MMMM YYYY")
+            .clone()
+            .format("YYMMM")
+            ?.toUpperCase()
+          }${elem?.["Strike Price"]
+            }${elem?.["Option Type"]}`;
+            // ZERODHA : SYMBOL + YYMMM + STRIKE_PRICE + OPTION_TYPE ==> FINNIFTY24MAY21600CE
         }
         if (checkStock) {
           instrument = elem?.["Symbol"];
         }
       }
+
+      console.log('instrument3', instrument3);
+      console.log('instrument2', instrument2);
+      console.log('instrument', instrument);
+
 
       let buyOrSell;
       let quantity = 0;
@@ -147,6 +214,8 @@ exports.convertToTradingDataToGroup = async (data, userId, res, broker) => {
         buyOrSell,
         exchange: exchange,
         symbol: instrument,
+        symbol2: instrument2,
+        symbol3: instrument3,
         amount: amount,
         brokerage: brokerage,
             //todo-vijay
@@ -260,7 +329,11 @@ const dataFormation = async(data)=>{
     }
 
     const expiry = elem?.["expiry_date"];
-    elem["Expiry Date"] = expiry;
+    elem["Expiry Date"] = moment(expiry, "YYYY-MM-DD")
+    .clone()
+    .format("DD MMMM YYYY");
+
+    console.log('Expiry', elem["Expiry Date"], elem?.["expiry_date"]);
 
     const order_id = elem["order_id"];
     elem["Trade Id"] = order_id;
@@ -273,6 +346,16 @@ const dataFormation = async(data)=>{
     elem['User Id'] = user_id;
 
     const trade_date = elem?.trade_date;
+
+    if(elem.segment === 'FO'){
+      if(elem.symbol.includes('NIFTY')){
+        elem["Symbol"] = extractPartsSimply(elem.symbol).startPart;
+        elem["Strike Price"] = extractPartsSimply(elem.symbol).lastPart;  
+      } else{
+        elem["Symbol"] = extractPartsWithRegex(elem.symbol).startPart;
+        elem["Strike Price"] = extractPartsWithRegex(elem.symbol).lastPart;  
+      }
+    }
 
     if(elem.segment === 'EQ'){
       const reverseTransaction = buyOrSell?.toUpperCase()==='BUY' ? 'SELL' : 'BUY';

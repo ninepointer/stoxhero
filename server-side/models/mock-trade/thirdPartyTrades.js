@@ -45,7 +45,15 @@ const ThirdPartyTrade = new mongoose.Schema({
     },
     symbol:{
         type: String,
-        required: true
+        // required: true
+    },
+    symbol2:{
+        type: String,
+        // required: true
+    },
+    symbol3:{
+        type: String,
+        // required: true
     },
     brokerage:{
         type: Number, 
