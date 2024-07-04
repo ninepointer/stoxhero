@@ -163,13 +163,13 @@ exports.convertToTradingDataToGroup = async (data, userId, res, broker) => {
             // ZERODHA : SYMBOL + YYMMM + STRIKE_PRICE + OPTION_TYPE ==> FINNIFTY24MAY21600CE
         }
         if (checkStock) {
-          instrument = elem?.["Symbol"];
+          instrument = (elem?.["Symbol"] || elem?.symbol);
         }
       }
 
       console.log('instrument3', instrument3);
       console.log('instrument2', instrument2);
-      console.log('instrument', instrument);
+      console.log('instrument', instrument, elem?.["Instrument Type"], checkStock);
 
 
       let buyOrSell;

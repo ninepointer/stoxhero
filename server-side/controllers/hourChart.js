@@ -3,6 +3,7 @@ const HistoryData = require("../models/InstrumentHistoricalData/InstrumentHistor
 const HistoryDataNew = require("../models/InstrumentHistoricalData/InstrumentHistoricalDataTemp");
 const User = require("../models/User/userDetailSchema");
 const moment = require("moment");
+const mongoose = require('mongoose');
 // const TradableInstrumentSchema = require("../models/Instruments/tradableInstrumentsSchema");
 // const AllTradableInstrumentSchema = require("../models/Instruments/allTradableInstrumentsSchema");
 const {
@@ -67,7 +68,7 @@ exports.isThirdPartyDataExist = async (req, res) => {
       if(mongoose.Types.ObjectId.isValid(user)){
         userIds.push(new ObjectId(user));
       } else{
-        res.status(500).json({status: "error", message: "user is not valid"});
+        return res.status(500).json({status: "error", message: "user is not valid"});
       }
       
     }
@@ -79,7 +80,7 @@ exports.isThirdPartyDataExist = async (req, res) => {
       _id: { $in: userIds },
     }).select("thirdPartyDataProcessing");
 
-    res.status(200).json({
+    return res.status(200).json({
       status: "success",
       isExist: data ? true : false,
       isProcessing:
@@ -87,7 +88,7 @@ exports.isThirdPartyDataExist = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.status(500).json({
+    return res.status(500).json({
       status: "error",
       message: "Something went wrong",
       error: err.message,

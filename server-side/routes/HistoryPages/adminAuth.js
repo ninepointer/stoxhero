@@ -174,6 +174,16 @@ const HistoryDataModelData = require("../../models/InstrumentHistoricalData/hist
 // .catch((err) => {
 //     console.log("redis not connected", err)
 // })
+// router.get("/deleteextra", async (req, res) => {
+//   try {
+//     const del = await HistoryDataModelTemp.deleteMany({'candles.timestamp': {$gte: new Date('2024-06-01'), $lte: new Date('2024-06-26')}})
+    
+//     console.log(del);
+//   } catch (err) {
+//     console.log(err);
+//   }
+// });
+
 router.get("/revertback", async (req, res) => {
   try {
     let historyDataTemp = await HistoryDataModelTemp.findOne({ _id: new ObjectId('66643ad6e4b51035856d51a0') });
