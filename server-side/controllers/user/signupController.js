@@ -2209,37 +2209,37 @@ exports.createUserMobile = async (req, res) => {
     }
 
     if (process.env.PROD == "true") {
-      await whatsAppService.sendWhatsApp({
-        destination: newuser.mobile,
-        campaignName: "direct_signup_campaign_new",
-        userName: newuser.first_name,
-        source: newuser.creationProcess,
-        media: { url: mediaURL, filename: mediaFileName },
-        templateParams: [newuser.first_name],
-        tags: "",
-        attributes: "",
-      });
+      // await whatsAppService.sendWhatsApp({
+      //   destination: newuser.mobile,
+      //   campaignName: "direct_signup_campaign_new",
+      //   userName: newuser.first_name,
+      //   source: newuser.creationProcess,
+      //   media: { url: mediaURL, filename: mediaFileName },
+      //   templateParams: [newuser.first_name],
+      //   tags: "",
+      //   attributes: "",
+      // });
     } else {
-      whatsAppService.sendWhatsApp({
-        destination: "9319671094",
-        campaignName: "direct_signup_campaign_new",
-        userName: newuser.first_name,
-        source: newuser.creationProcess,
-        media: { url: mediaURL, filename: mediaFileName },
-        templateParams: [newuser.first_name],
-        tags: "",
-        attributes: "",
-      });
-      whatsAppService.sendWhatsApp({
-        destination: "8076284368",
-        campaignName: "direct_signup_campaign_new",
-        userName: newuser.first_name,
-        source: newuser.creationProcess,
-        media: { url: mediaURL, filename: mediaFileName },
-        templateParams: [newuser.first_name],
-        tags: "",
-        attributes: "",
-      });
+      // whatsAppService.sendWhatsApp({
+      //   destination: "9319671094",
+      //   campaignName: "direct_signup_campaign_new",
+      //   userName: newuser.first_name,
+      //   source: newuser.creationProcess,
+      //   media: { url: mediaURL, filename: mediaFileName },
+      //   templateParams: [newuser.first_name],
+      //   tags: "",
+      //   attributes: "",
+      // });
+      // whatsAppService.sendWhatsApp({
+      //   destination: "8076284368",
+      //   campaignName: "direct_signup_campaign_new",
+      //   userName: newuser.first_name,
+      //   source: newuser.creationProcess,
+      //   media: { url: mediaURL, filename: mediaFileName },
+      //   templateParams: [newuser.first_name],
+      //   tags: "",
+      //   attributes: "",
+      // });
     }
   } catch (error) {
     console.log(error);
